@@ -5,41 +5,36 @@
 ```text
 LOOP 0.1 — CONCLUÍDO
 LOOP 0.2 — CONCLUÍDO
-LOOP 0.3 — ATUAL
+LOOP 0.3 — CONCLUÍDO
+LOOP 0.4 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 0.3 — Configurar TypeScript central
+### LOOP 0.4 — Criar apps/web
 
 Objetivo:
 
 ```text
-Configurar TypeScript central no workspace.
+Criar o projeto Next.js mínimo em `apps/web`.
 ```
 
 Implementar:
 
-- `tsconfig.base.json`;
-- strict mode;
-- aliases básicos.
+- projeto Next.js mínimo.
 
 Não implementar:
 
-- aplicações funcionais;
-- frameworks dos loops seguintes;
-- regras de lint complexas.
+- Design System.
 
 Critério de aceite:
 
-```bash
-pnpm typecheck
+```text
+Página padrão abre localmente.
 ```
-
-deve funcionar no workspace.
 
 ## Próximo loop
 
 ```text
-LOOP 0.4 — Configurar lint e formatter
+LOOP 0.5 — Criar apps/api
 ```

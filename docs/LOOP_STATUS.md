@@ -49,3 +49,35 @@ Commit:
 ```text
 chore: configure pnpm workspace
 ```
+
+## LOOP 0.3 — Concluído
+
+Escopo atual:
+- criar `tsconfig.base.json` na raiz;
+- habilitar modo estrito;
+- definir alias básico para os pacotes `@fumep/*`;
+- disponibilizar e validar `pnpm typecheck` sem criar aplicações ou configurar lint.
+
+Implementado:
+- `tsconfig.base.json` central com alvo ES2022, resolução de módulos para bundlers e emissão desabilitada;
+- modo estrito habilitado;
+- alias `@fumep/*` direcionado aos fontes dos pacotes do workspace;
+- declaração sentinela neutra para validar a configuração antes da criação das aplicações;
+- TypeScript `7.0.2` como dependência de desenvolvimento da raiz;
+- script raiz `typecheck` executando o compilador com a configuração central.
+
+Checks executados com sucesso:
+- `pnpm typecheck`;
+- `pnpm lint`;
+- `pnpm test`;
+- `pnpm build`;
+- `pnpm install --frozen-lockfile`;
+- `git diff --check`.
+
+Observação:
+- lint, testes e build ainda não encontram projetos com scripts próprios, comportamento esperado antes da criação das aplicações.
+
+Commit:
+```text
+chore: configure central typescript
+```

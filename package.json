@@ -7,6 +7,9 @@
     "build": "pnpm --recursive --if-present run build",
     "lint": "pnpm --recursive --if-present run lint",
     "test": "pnpm --recursive --if-present run test",
-    "typecheck": "pnpm --recursive --if-present run typecheck"
+    "typecheck": "tsc --project tsconfig.base.json --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2"
   }
 }
