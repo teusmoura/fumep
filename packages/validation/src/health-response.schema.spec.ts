@@ -10,8 +10,6 @@ describe("healthResponseSchema", () => {
   });
 
   it("rejects an invalid status", () => {
-    expect(healthResponseSchema.safeParse({ status: "error" }).success).toBe(
-      false,
-    );
+    expect(healthResponseSchema.safeParse({ status: "error" }).success).toBe(false);
   });
 });

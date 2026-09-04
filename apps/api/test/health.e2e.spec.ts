@@ -1,7 +1,7 @@
 import type { INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import request from "supertest";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, it } from "vitest";
 
 import { AppModule } from "../src/app.module.js";
 
@@ -23,9 +23,6 @@ describe("Health endpoint", () => {
   });
 
   it("responds with HTTP 200", async () => {
-    await request(app.getHttpServer())
-      .get("/api/v1/health")
-      .expect(200)
-      .expect({ status: "ok" });
+    await request(app.getHttpServer()).get("/api/v1/health").expect(200).expect({ status: "ok" });
   });
 });

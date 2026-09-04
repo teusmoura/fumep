@@ -5,11 +5,18 @@
   "packageManager": "pnpm@11.19.0",
   "scripts": {
     "build": "pnpm --recursive --if-present run build",
-    "lint": "pnpm --recursive --if-present run lint",
+    "format": "prettier --write \"apps/**/*.{ts,tsx,json,css}\" \"packages/**/*.{ts,tsx,json}\" \"*.{json,yaml,yml,mjs}\"",
+    "format:check": "prettier --check \"apps/**/*.{ts,tsx,json,css}\" \"packages/**/*.{ts,tsx,json}\" \"*.{json,yaml,yml,mjs}\"",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "test": "pnpm --recursive --if-present run test",
     "typecheck": "tsc --project tsconfig.base.json --noEmit && pnpm --recursive --if-present run typecheck"
   },
   "devDependencies": {
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.3.4",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.9.6",
     "typescript": "^6.0.3"
   }
 }

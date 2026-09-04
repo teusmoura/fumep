@@ -313,3 +313,40 @@ Commit:
 ```text
 feat(ui): add shared message component
 ```
+
+## LOOP 0.10 — Concluído
+
+Escopo atual:
+- configurar ESLint flat config na raiz para TypeScript e Next.js;
+- adotar Prettier como formatter comum;
+- adicionar scripts raiz de lint, correção e formatação;
+- formatar e validar somente código/configuração do workspace;
+- não antecipar regras específicas de funcionalidades futuras.
+
+Implementado:
+- configuração ESLint flat na raiz com regras recomendadas de Next.js, TypeScript e compatibilidade com Prettier;
+- Prettier adotado como formatter comum, com configuração e exclusões explícitas;
+- scripts raiz `lint`, `lint:fix`, `format` e `format:check`;
+- arquivos existentes normalizados pelo formatter e import não utilizado removido;
+- builds opcionais de dependências nativas não necessárias mantidos desabilitados pelo pnpm.
+
+Checks executados com sucesso:
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck` — UI, validation, db, API, web e Worker aprovados;
+- `pnpm test` — 2 testes do schema e 1 teste da API aprovados;
+- `pnpm build` — pacotes e aplicações compilados, incluindo build estático do Next.js;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm peers check` — nenhuma incompatibilidade de peer dependency;
+- `git diff --check`.
+
+Critério de aceite validado:
+- `pnpm lint` concluído sem erros ou avisos.
+
+Observação:
+- nenhuma regra específica de funcionalidades futuras foi adicionada.
+
+Commit:
+```text
+chore: configure lint and formatter
+```

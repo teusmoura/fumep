@@ -12,38 +12,43 @@ LOOP 0.6 — CONCLUÍDO
 LOOP 0.7 — CONCLUÍDO
 LOOP 0.8 — CONCLUÍDO
 LOOP 0.9 — CONCLUÍDO
-LOOP 0.10 — ATUAL
+LOOP 0.10 — CONCLUÍDO
+LOOP 0.11 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 0.10 — Configurar lint e formatter
+### LOOP 0.11 — Configurar Docker Compose de desenvolvimento
 
 Objetivo:
 
 ```text
-Configurar lint e formatter comuns no monorepo.
+Criar a primeira composição local de infraestrutura do projeto.
 ```
 
 Implementar:
 
-- ESLint;
-- formatter adotado pelo projeto;
-- scripts comuns.
+- `docker-compose.dev.yml`;
+- serviço PostgreSQL;
+- serviço Redis;
+- serviço MinIO.
 
 Não implementar:
 
-- regras específicas de funcionalidades futuras.
+- configuração detalhada de conexão e healthcheck do PostgreSQL, reservada ao loop 0.12;
+- configuração detalhada de autenticação, persistência e healthcheck do Redis, reservada ao loop 0.13;
+- bucket inicial e healthcheck do MinIO, reservados ao loop 0.14;
+- containers da API, web ou Worker.
 
 Critério de aceite:
 
 ```text
-pnpm lint
-→ verde
+postgres, redis e minio
+→ todos sobem
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 0.11 — Configurar Docker Compose de desenvolvimento
+LOOP 0.12 — PostgreSQL
 ```

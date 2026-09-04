@@ -1,0 +1,8 @@
+**/.next/**
+**/dist/**
+**/node_modules/**
+**/*.tsbuildinfo
+coverage/**
+docs/**
+pnpm-lock.yaml
+apps/web/next-env.d.ts
