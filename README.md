@@ -1,22 +1,37 @@
-# Portal FUMEP
+# Portal FUMEP — Codex Starter Workspace
 
-Estrutura inicial da V1.
+Workspace preparado para implementação incremental da V1 do Portal FUMEP com Codex.
 
-## Loop atual
+## Para começar
+
+1. Extraia o ZIP.
+2. Abra a pasta `portal-fumep` no Codex.
+3. Leia `START_CODEX.md`.
+4. Peça ao Codex para executar o loop atual.
+
+## Estado
 
 ```text
-LOOP 0.1 — Criar repositório e monorepo
+LOOP 0.1 — concluído
+LOOP 0.2 — atual
 ```
 
-## Estrutura
+## Arquivos de controle
+
+- `AGENTS.md` — regras globais do agente.
+- `.agents/skills/` — skills específicas do projeto.
+- `docs/CURRENT_LOOP.md` — única fonte do loop ativo.
+- `docs/LOOP_STATUS.md` — evidências e progresso.
+- `docs/architecture/` — arquitetura canônica.
+- `docs/CODEX_WORKFLOW.md` — modo recomendado de uso.
+- `START_CODEX.md` — prompt inicial.
+
+## Regra principal
+
+Não peça ao Codex para implementar o portal inteiro. Peça:
 
 ```text
-portal-fumep/
-├── apps/
-├── packages/
-├── infra/
-├── docs/
-└── .github/
+Execute o loop atual.
 ```
 
-Nenhuma tecnologia do Loop 0.2 em diante foi antecipada.
+O repositório fornece o restante do contexto.
