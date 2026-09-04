@@ -16,39 +16,39 @@ LOOP 0.10 — CONCLUÍDO
 LOOP 0.11 — CONCLUÍDO
 LOOP 0.12 — CONCLUÍDO
 LOOP 0.13 — CONCLUÍDO
-LOOP 0.14 — ATUAL
+LOOP 0.14 — CONCLUÍDO
+LOOP 0.15 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 0.14 — MinIO
+### LOOP 0.15 — Health básico
 
 Objetivo:
 
 ```text
-Completar a configuração inicial do MinIO de desenvolvimento.
+Disponibilizar o health check público mínimo da API.
 ```
 
 Implementar:
 
-- container;
-- volume;
-- bucket inicial;
-- healthcheck;
+- `GET /api/v1/health`;
+- resposta pública `{ "status": "ok" }`.
 
 Não implementar:
 
-- Biblioteca de Mídia, uploads, variantes ou `MediaUsage`;
-- integração do storage com funcionalidades de domínio.
+- detalhes de serviços internos;
+- credenciais, versões ou topologia;
+- health administrativo detalhado.
 
 Critério de aceite:
 
 ```text
-API consegue acessar o storage.
+Endpoint não expõe detalhes internos.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 0.15 — Health básico
+LOOP 0.16 — GitHub Actions CI inicial
 ```

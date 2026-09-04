@@ -475,3 +475,47 @@ Commit:
 ```text
 feat(auth): secure development redis
 ```
+
+## LOOP 0.14 — Concluído
+
+Escopo atual:
+- adicionar volume persistente ao MinIO;
+- adicionar healthcheck HTTP nativo;
+- criar idempotentemente os buckets canônicos `portal-public` e `portal-private`;
+- documentar a configuração de acesso local;
+- comprovar acesso a partir do workspace da API;
+- não antecipar uploads, processamento ou Biblioteca de Mídia.
+
+Implementado:
+- volume nomeado `minio_data` para persistência dos objetos;
+- healthcheck HTTP no endpoint interno de saúde do MinIO;
+- hook pós-inicialização idempotente com o cliente `mc` já presente na imagem;
+- buckets canônicos `portal-public` e `portal-private`;
+- configuração local do endpoint documentada em `.env.example`;
+- cliente MinIO mínimo e comando `storage:check` no workspace da API.
+
+Checks executados com sucesso:
+- validação do Docker Compose;
+- `docker compose ... up -d --wait minio`;
+- MinIO confirmado como `healthy`;
+- listagem dos buckets pelo cliente `mc`;
+- `pnpm --filter @fumep/api storage:check`;
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 3 testes aprovados;
+- `pnpm build` — pacotes e aplicações compilados;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm peers check`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- a API acessou o MinIO e confirmou os dois buckets iniciais.
+
+Observação:
+- uploads, metadados, processamento e Biblioteca de Mídia permanecem fora deste loop.
+
+Commit:
+```text
+feat(media): initialize development minio storage
+```

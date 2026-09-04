@@ -44,7 +44,20 @@ services:
     ports:
       - "127.0.0.1:9000:9000"
       - "127.0.0.1:9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    post_start:
+      - command: >-
+          sh -c 'until mc alias set local http://localhost:9000 "$$MINIO_ROOT_USER"
+          "$$MINIO_ROOT_PASSWORD"; do sleep 1; done && mc mb --ignore-existing
+          local/portal-public local/portal-private'
 
 volumes:
   postgres_data:
   redis_data:
+  minio_data:

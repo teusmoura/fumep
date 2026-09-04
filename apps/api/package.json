@@ -8,6 +8,7 @@
     "start": "nest start",
     "db:check": "node --env-file=../../.env --experimental-strip-types src/database-check.ts",
     "redis:check": "node --env-file=../../.env --experimental-strip-types src/redis-check.ts",
+    "storage:check": "node --env-file=../../.env --experimental-strip-types src/storage-check.ts",
     "build": "nest build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
@@ -19,6 +20,7 @@
     "@nestjs/core": "^12.0.1",
     "@nestjs/platform-express": "^12.0.1",
     "@nestjs/swagger": "^12.0.1",
+    "minio": "^8.0.6",
     "reflect-metadata": "^0.2.2",
     "postgres": "^3.4.7",
     "redis": "^5.8.2",
