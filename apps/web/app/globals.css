@@ -1,0 +1,37 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: #ffffff;
+  color: #1f2937;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+main {
+  margin: 0 auto;
+  max-width: 1280px;
+  padding: 4rem 2rem;
+}
+
+.skip-link {
+  left: 1rem;
+  position: fixed;
+  top: 1rem;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus-visible {
+  background: #ffffff;
+  color: #111827;
+  outline: 3px solid #1d4ed8;
+  outline-offset: 3px;
+  padding: 0.75rem 1rem;
+  transform: translateY(0);
+}

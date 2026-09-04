@@ -6,35 +6,40 @@
 LOOP 0.1 — CONCLUÍDO
 LOOP 0.2 — CONCLUÍDO
 LOOP 0.3 — CONCLUÍDO
-LOOP 0.4 — ATUAL
+LOOP 0.4 — CONCLUÍDO
+LOOP 0.5 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 0.4 — Criar apps/web
+### LOOP 0.5 — Criar apps/api
 
 Objetivo:
 
 ```text
-Criar o projeto Next.js mínimo em `apps/web`.
+Criar o projeto NestJS mínimo em `apps/api`.
 ```
 
 Implementar:
 
-- projeto Next.js mínimo.
+- projeto NestJS mínimo;
+- endpoint `GET /api/v1/health`.
 
 Não implementar:
 
-- Design System.
+- módulos de domínio;
+- banco de dados;
+- autenticação.
 
 Critério de aceite:
 
 ```text
-Página padrão abre localmente.
+GET /api/v1/health
+→ 200
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 0.5 — Criar apps/api
+LOOP 0.6 — Criar apps/worker
 ```

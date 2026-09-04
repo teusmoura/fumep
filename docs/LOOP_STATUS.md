@@ -81,3 +81,40 @@ Commit:
 ```text
 chore: configure central typescript
 ```
+
+## LOOP 0.4 — Concluído
+
+Escopo atual:
+- criar o pacote mínimo `apps/web` com Next.js e App Router;
+- fornecer layout, página padrão e estilos globais mínimos;
+- manter renderização no servidor e HTML semântico;
+- validar que a página abre localmente, sem antecipar Design System, temas ou integrações.
+
+Implementado:
+- pacote privado `@fumep/web` com Next.js `16.3.4`, React `19.2.8` e App Router;
+- layout raiz em português do Brasil com metadados mínimos;
+- página inicial renderizada no servidor com HTML semântico;
+- estilos globais mínimos, incluindo skip link com foco visível;
+- configuração TypeScript estendendo a base central;
+- scripts `dev`, `build`, `start` e `typecheck` do frontend;
+- script raiz `typecheck` ampliado para validar os projetos do workspace;
+- regras locais do agente geradas e mantidas pelo Next.js 16;
+- artefatos gerados do TypeScript e `next-env.d.ts` ignorados pelo Git.
+
+Checks executados com sucesso:
+- `pnpm typecheck`;
+- `pnpm lint`;
+- `pnpm test`;
+- `pnpm build`;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- servidor de desenvolvimento iniciado em `http://127.0.0.1:3100`;
+- `GET /` respondeu HTTP `200`;
+- resposta continha `<title>Portal FUMEP</title>`, `<h1>Portal FUMEP</h1>` e `main-content`.
+
+Commit:
+```text
+feat(web): create minimal nextjs app
+```
