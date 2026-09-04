@@ -391,3 +391,44 @@ Commit:
 ```text
 chore: add development infrastructure compose
 ```
+
+## LOOP 0.12 — Concluído
+
+Escopo atual:
+- adicionar volume persistente ao PostgreSQL;
+- adicionar healthcheck nativo com `pg_isready`;
+- documentar e consumir `DATABASE_URL`;
+- comprovar a conexão a partir do workspace da API com uma consulta mínima;
+- não antecipar configuração Drizzle, migrations, schema ou domínio.
+
+Implementado:
+- volume nomeado `postgres_data` montado no diretório de dados do PostgreSQL;
+- healthcheck com `pg_isready`, usando usuário e banco do ambiente;
+- `DATABASE_URL` documentada em `.env.example` e configurada apenas no `.env` local ignorado;
+- driver PostgreSQL mínimo no workspace da API;
+- comando `db:check` que abre conexão, executa `SELECT 1` e a encerra corretamente.
+
+Checks executados com sucesso:
+- validação do Docker Compose;
+- `docker compose ... up -d --wait postgres`;
+- PostgreSQL confirmado como `healthy`;
+- `pnpm --filter @fumep/api db:check`;
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 3 testes aprovados;
+- `pnpm build` — pacotes e aplicações compilados;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm peers check`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- a API conectou ao PostgreSQL pela `DATABASE_URL` e executou consulta mínima com sucesso.
+
+Observação:
+- a integração com Drizzle e migrations permanece reservada ao loop 1.1.
+
+Commit:
+```text
+feat(db): add postgres development connection check
+```

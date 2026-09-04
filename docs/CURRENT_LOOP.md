@@ -14,40 +14,40 @@ LOOP 0.8 — CONCLUÍDO
 LOOP 0.9 — CONCLUÍDO
 LOOP 0.10 — CONCLUÍDO
 LOOP 0.11 — CONCLUÍDO
-LOOP 0.12 — ATUAL
+LOOP 0.12 — CONCLUÍDO
+LOOP 0.13 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 0.12 — PostgreSQL
+### LOOP 0.13 — Redis
 
 Objetivo:
 
 ```text
-Completar a configuração inicial do PostgreSQL de desenvolvimento.
+Completar a configuração inicial do Redis de desenvolvimento.
 ```
 
 Implementar:
 
 - container;
-- volume;
+- autenticação quando aplicável;
+- persistência;
 - healthcheck;
-- variável de ambiente.
 
 Não implementar:
 
-- configuração detalhada do Redis, reservada ao loop 0.13;
 - configuração detalhada do MinIO, reservada ao loop 0.14;
-- modelos, migrations ou funcionalidades de domínio.
+- sessões, filas BullMQ ou cache da aplicação.
 
 Critério de aceite:
 
 ```text
-API consegue conectar ao PostgreSQL.
+API consegue executar `PING` no Redis.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 0.13 — Redis
+LOOP 0.14 — MinIO
 ```
