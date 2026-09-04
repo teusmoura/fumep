@@ -432,3 +432,46 @@ Commit:
 ```text
 feat(db): add postgres development connection check
 ```
+
+## LOOP 0.13 — Concluído
+
+Escopo atual:
+- exigir senha no Redis de desenvolvimento;
+- habilitar persistência AOF em volume nomeado;
+- adicionar healthcheck autenticado;
+- documentar e consumir `REDIS_URL`;
+- comprovar `PING` a partir do workspace da API;
+- não antecipar sessões, BullMQ ou cache.
+
+Implementado:
+- senha obrigatória do Redis recebida exclusivamente pelo ambiente;
+- persistência AOF habilitada em volume nomeado `redis_data`;
+- healthcheck autenticado com `redis-cli`;
+- `REDIS_URL` documentada em `.env.example` e configurada apenas no `.env` ignorado;
+- cliente Redis mínimo e comando `redis:check` no workspace da API.
+
+Checks executados com sucesso:
+- validação do Docker Compose;
+- `docker compose ... up -d --wait redis`;
+- Redis confirmado como `healthy`;
+- PING sem senha rejeitado com `NOAUTH`;
+- `pnpm --filter @fumep/api redis:check`;
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 3 testes aprovados;
+- `pnpm build` — pacotes e aplicações compilados;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm peers check`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- a API conectou ao Redis autenticado e recebeu `PONG`.
+
+Observação:
+- sessões, BullMQ e cache permanecem fora deste loop.
+
+Commit:
+```text
+feat(auth): secure development redis
+```

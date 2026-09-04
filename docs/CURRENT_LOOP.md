@@ -15,39 +15,40 @@ LOOP 0.9 — CONCLUÍDO
 LOOP 0.10 — CONCLUÍDO
 LOOP 0.11 — CONCLUÍDO
 LOOP 0.12 — CONCLUÍDO
-LOOP 0.13 — ATUAL
+LOOP 0.13 — CONCLUÍDO
+LOOP 0.14 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 0.13 — Redis
+### LOOP 0.14 — MinIO
 
 Objetivo:
 
 ```text
-Completar a configuração inicial do Redis de desenvolvimento.
+Completar a configuração inicial do MinIO de desenvolvimento.
 ```
 
 Implementar:
 
 - container;
-- autenticação quando aplicável;
-- persistência;
+- volume;
+- bucket inicial;
 - healthcheck;
 
 Não implementar:
 
-- configuração detalhada do MinIO, reservada ao loop 0.14;
-- sessões, filas BullMQ ou cache da aplicação.
+- Biblioteca de Mídia, uploads, variantes ou `MediaUsage`;
+- integração do storage com funcionalidades de domínio.
 
 Critério de aceite:
 
 ```text
-API consegue executar `PING` no Redis.
+API consegue acessar o storage.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 0.14 — MinIO
+LOOP 0.15 — Health básico
 ```

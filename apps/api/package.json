@@ -7,6 +7,7 @@
     "dev": "nest start --watch",
     "start": "nest start",
     "db:check": "node --env-file=../../.env --experimental-strip-types src/database-check.ts",
+    "redis:check": "node --env-file=../../.env --experimental-strip-types src/redis-check.ts",
     "build": "nest build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
@@ -20,6 +21,7 @@
     "@nestjs/swagger": "^12.0.1",
     "reflect-metadata": "^0.2.2",
     "postgres": "^3.4.7",
+    "redis": "^5.8.2",
     "rxjs": "^7.8.2"
   },
   "devDependencies": {
