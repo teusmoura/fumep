@@ -1,12 +1,9 @@
 import { Injectable } from "@nestjs/common";
-
-export type HealthResponse = {
-  status: "ok";
-};
+import type { HealthResponse } from "@fumep/validation";
 
 @Injectable()
 export class HealthService {
   getHealth(): HealthResponse {
-    return { status: "ok" };
+    return { status: "ok" } satisfies HealthResponse;
   }
 }

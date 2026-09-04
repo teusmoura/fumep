@@ -232,3 +232,45 @@ Commit:
 ```text
 feat(db): prepare drizzle package
 ```
+
+## LOOP 0.8 — Concluído
+
+Escopo atual:
+- criar o pacote mínimo `packages/validation` com Zod;
+- definir somente o schema da resposta de health já existente;
+- testar payloads válido e inválido;
+- consumir o tipo inferido pelo schema em `apps/api` e `apps/web`;
+- não antecipar schemas completos de domínio ou ContentBlocks.
+
+Implementado:
+- pacote privado ESM `@fumep/validation` com Zod `4.5.4`;
+- schema estrito `healthResponseSchema` para o contrato existente `{ status: "ok" }`;
+- tipo `HealthResponse` inferido diretamente do schema;
+- dependência workspace declarada em `apps/api` e `apps/web`;
+- API usando o tipo compartilhado em `HealthService`;
+- web usando o tipo compartilhado na página inicial;
+- build TypeScript e entrada pública do pacote.
+
+Testes adicionados:
+- payload `{ status: "ok" }` é aceito;
+- status inválido é rejeitado.
+
+Checks executados com sucesso:
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm typecheck` — validation, db, API, web e Worker aprovados;
+- `pnpm lint`;
+- `pnpm test` — 2 testes do schema e 1 teste da API aprovados;
+- `pnpm build` — pacote de validação e aplicações compilados;
+- `git diff --check`.
+
+Critério de aceite validado:
+- importação runtime do schema a partir de `apps/api` retornou `API_SCHEMA=ok`;
+- importação runtime do mesmo schema a partir de `apps/web` retornou `WEB_SCHEMA=ok`.
+
+Observação:
+- nenhum schema completo de domínio ou ContentBlock foi criado.
+
+Commit:
+```text
+feat(validation): add shared health schema
+```

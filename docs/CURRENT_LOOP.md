@@ -10,36 +10,38 @@ LOOP 0.4 — CONCLUÍDO
 LOOP 0.5 — CONCLUÍDO
 LOOP 0.6 — CONCLUÍDO
 LOOP 0.7 — CONCLUÍDO
-LOOP 0.8 — ATUAL
+LOOP 0.8 — CONCLUÍDO
+LOOP 0.9 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 0.8 — Criar packages/validation
+### LOOP 0.9 — Criar packages/ui
 
 Objetivo:
 
 ```text
-Criar um pacote compartilhado de validação com Zod em `packages/validation`.
+Criar o pacote inicial de UI compartilhada em `packages/ui`.
 ```
 
 Implementar:
 
-- pacote compartilhado com Zod;
-- schema simples compartilhado.
+- pacote inicial de UI;
+- componente simples compartilhado.
 
 Não implementar:
 
-- schemas completos de domínio.
+- Design System completo;
+- temas institucionais.
 
 Critério de aceite:
 
 ```text
-Schema simples compartilhado entre web e API.
+Componente simples renderizado pelo Next.js.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 0.9 — Criar packages/ui
+LOOP 0.10 — Configurar lint e formatter
 ```
