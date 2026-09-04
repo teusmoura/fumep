@@ -4,46 +4,42 @@
 
 ```text
 LOOP 0.1 — CONCLUÍDO
-LOOP 0.2 — ATUAL
+LOOP 0.2 — CONCLUÍDO
+LOOP 0.3 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 0.2 — Configurar pnpm workspace
+### LOOP 0.3 — Configurar TypeScript central
 
 Objetivo:
 
 ```text
-Configurar o workspace pnpm na raiz do monorepo.
+Configurar TypeScript central no workspace.
 ```
 
 Implementar:
 
-- `pnpm-workspace.yaml`;
-- `package.json` raiz;
-- scripts comuns mínimos compatíveis com o estágio atual.
+- `tsconfig.base.json`;
+- strict mode;
+- aliases básicos.
 
 Não implementar:
 
-- Next.js;
-- NestJS;
-- Worker funcional;
-- Drizzle;
-- Docker;
-- banco;
-- lint complexo;
-- Design System.
+- aplicações funcionais;
+- frameworks dos loops seguintes;
+- regras de lint complexas.
 
 Critério de aceite:
 
 ```bash
-pnpm install
+pnpm typecheck
 ```
 
-deve executar sem erros.
+deve funcionar no workspace.
 
 ## Próximo loop
 
 ```text
-LOOP 0.3 — Configurar TypeScript central
+LOOP 0.4 — Configurar lint e formatter
 ```

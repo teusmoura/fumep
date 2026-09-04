@@ -17,15 +17,35 @@ Commit original:
 chore: initialize portal fumep monorepo
 ```
 
-## LOOP 0.2 — Pendente
+## LOOP 0.2 — Concluído
 
-Nenhuma alteração de implementação realizada ainda.
+Escopo atual:
+- configurar `pnpm-workspace.yaml` para `apps/*` e `packages/*`;
+- criar o `package.json` privado da raiz;
+- disponibilizar scripts comuns mínimos que tolerem pacotes ainda vazios;
+- validar a instalação sem antecipar ferramentas dos loops seguintes.
 
-### Evidências a registrar ao concluir
+Implementado:
+- `pnpm-workspace.yaml` cobrindo `apps/*` e `packages/*`;
+- `package.json` raiz privado com scripts comuns mínimos;
+- `pnpm-lock.yaml` gerado pela instalação;
+- `.pnpm-store/` ignorado pelo Git.
 
-- arquivos criados/alterados;
-- versão de Node/pnpm observada;
-- comando `pnpm install`;
-- resultado;
-- commit;
-- `git status`.
+Ambiente observado:
+- Node.js `v24.20.0`;
+- pnpm `11.19.0`.
+
+Checks executados com sucesso:
+- `pnpm install`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test`;
+- `pnpm build`.
+
+Observação:
+- os scripts comuns concluíram sem erros e informaram que ainda não há projetos com scripts próprios, comportamento esperado neste estágio.
+
+Commit:
+```text
+chore: configure pnpm workspace
+```
