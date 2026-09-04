@@ -7,39 +7,36 @@ LOOP 0.1 — CONCLUÍDO
 LOOP 0.2 — CONCLUÍDO
 LOOP 0.3 — CONCLUÍDO
 LOOP 0.4 — CONCLUÍDO
-LOOP 0.5 — ATUAL
+LOOP 0.5 — CONCLUÍDO
+LOOP 0.6 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 0.5 — Criar apps/api
+### LOOP 0.6 — Criar apps/worker
 
 Objetivo:
 
 ```text
-Criar o projeto NestJS mínimo em `apps/api`.
+Criar um Worker TypeScript mínimo em `apps/worker`.
 ```
 
 Implementar:
 
-- projeto NestJS mínimo;
-- endpoint `GET /api/v1/health`.
+- Worker TypeScript mínimo.
 
 Não implementar:
 
-- módulos de domínio;
-- banco de dados;
-- autenticação.
+- BullMQ.
 
 Critério de aceite:
 
 ```text
-GET /api/v1/health
-→ 200
+Processo inicia sem erro.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 0.6 — Criar apps/worker
+LOOP 0.7 — Criar packages/db
 ```

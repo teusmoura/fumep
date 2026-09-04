@@ -118,3 +118,41 @@ Commit:
 ```text
 feat(web): create minimal nextjs app
 ```
+
+## LOOP 0.5 — Concluído
+
+Escopo atual:
+- criar o pacote mínimo `apps/api` com NestJS;
+- expor `GET /api/v1/health` por controller fino e service dedicado;
+- documentar o endpoint no contrato OpenAPI;
+- validar o endpoint com Vitest e Supertest;
+- não criar domínio, persistência, autenticação ou integrações.
+
+Implementado:
+- pacote privado `@fumep/api` com NestJS `12.0.1` em ESM;
+- bootstrap HTTP com prefixo global `/api/v1`;
+- endpoint `GET /api/v1/health` com controller fino e service dedicado;
+- resposta determinística `{ "status": "ok" }`;
+- contrato OpenAPI e Swagger disponíveis em `/api/docs` e `/api/docs-json`;
+- teste HTTP com Vitest `5.0.0` e Supertest `7.2.2`;
+- build NestJS e configuração TypeScript baseada em `NodeNext`;
+- TypeScript central ajustado para `6.0.3`, versão compatível com a API programática exigida pelo Nest CLI 12;
+- script transitivo opcional de `@scarf/scarf` explicitamente bloqueado na política pnpm.
+
+Checks executados com sucesso:
+- `pnpm typecheck`;
+- `pnpm lint`;
+- `pnpm test` — 1 arquivo e 1 teste aprovados;
+- `pnpm build` — API e frontend compilados;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- servidor NestJS iniciado localmente na porta `3001`;
+- `GET /api/v1/health` respondeu HTTP `200` com `{ "status": "ok" }`;
+- `GET /api/docs-json` respondeu HTTP `200` e incluiu `/api/v1/health`.
+
+Commit:
+```text
+feat(api): create minimal nestjs health endpoint
+```
