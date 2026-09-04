@@ -156,3 +156,42 @@ Commit:
 ```text
 feat(api): create minimal nestjs health endpoint
 ```
+
+## LOOP 0.6 — Concluído
+
+Escopo atual:
+- criar o pacote mínimo `apps/worker` em TypeScript;
+- manter o Worker como processo independente da API;
+- sinalizar inicialização e suportar encerramento controlado;
+- validar que o processo inicia sem erro;
+- não instalar ou configurar BullMQ, Redis, filas ou jobs.
+
+Implementado:
+- pacote privado `@fumep/worker` como aplicação independente;
+- processo Node.js em TypeScript e ESM;
+- configuração de typecheck e build baseada no TypeScript central;
+- scripts `build`, `start` e `typecheck`;
+- sinalização explícita de prontidão;
+- manutenção do processo ativo e handlers de encerramento para `SIGINT` e `SIGTERM`;
+- somente tipos de Node como dependência de desenvolvimento.
+
+Checks executados com sucesso:
+- `pnpm typecheck` — API, web e Worker aprovados;
+- `pnpm lint`;
+- `pnpm test` — teste existente da API aprovado;
+- `pnpm build` — API, web e Worker compilados;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- `pnpm --dir apps/worker start` iniciou o artefato compilado sem erro;
+- processo emitiu `Worker FUMEP iniciado.` e permaneceu ativo;
+- processo de validação encerrado após a comprovação.
+
+Observação:
+- nenhum teste específico de jobs foi criado porque BullMQ e jobs estão explicitamente fora deste loop.
+
+Commit:
+```text
+feat(worker): create minimal typescript worker
+```

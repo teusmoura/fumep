@@ -8,35 +8,38 @@ LOOP 0.2 — CONCLUÍDO
 LOOP 0.3 — CONCLUÍDO
 LOOP 0.4 — CONCLUÍDO
 LOOP 0.5 — CONCLUÍDO
-LOOP 0.6 — ATUAL
+LOOP 0.6 — CONCLUÍDO
+LOOP 0.7 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 0.6 — Criar apps/worker
+### LOOP 0.7 — Criar packages/db
 
 Objetivo:
 
 ```text
-Criar um Worker TypeScript mínimo em `apps/worker`.
+Criar um pacote vazio preparado para Drizzle em `packages/db`.
 ```
 
 Implementar:
 
-- Worker TypeScript mínimo.
+- pacote `packages/db` preparado para Drizzle.
 
 Não implementar:
 
-- BullMQ.
+- schema de domínio;
+- migrations;
+- conexão com banco.
 
 Critério de aceite:
 
 ```text
-Processo inicia sem erro.
+Pacote importável por `apps/api`.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 0.7 — Criar packages/db
+LOOP 0.8 — Criar packages/validation
 ```

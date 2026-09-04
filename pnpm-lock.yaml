@@ -74,6 +74,12 @@ importers:
         specifier: ^19.2.7
         version: 19.2.7(@types/react@19.2.18)
 
+  apps/worker:
+    devDependencies:
+      '@types/node':
+        specifier: ^26.4.1
+        version: 26.4.1
+
 packages:
 
   '@angular-devkit/core@22.1.5':
