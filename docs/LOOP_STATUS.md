@@ -195,3 +195,40 @@ Commit:
 ```text
 feat(worker): create minimal typescript worker
 ```
+
+## LOOP 0.7 — Concluído
+
+Escopo atual:
+- criar o pacote mínimo `packages/db` preparado para Drizzle ORM;
+- expor uma entrada TypeScript/ESM sem schema, migration ou conexão;
+- declarar o pacote como dependência workspace da API;
+- validar a importação de `@fumep/db` pela API em tempo de compilação.
+
+Implementado:
+- pacote privado ESM `@fumep/db` com entrada pública e artefatos em `dist`;
+- configuração TypeScript e build baseada no padrão central;
+- Drizzle ORM `0.45.2` como dependência de runtime do pacote;
+- marcador de tipo mínimo exportado, sem representar entidade de domínio;
+- dependência workspace `@fumep/db` declarada em `apps/api`;
+- importação de tipo pela API para validar resolução e contrato entre pacotes.
+
+Checks executados com sucesso:
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm typecheck` — db, API, web e Worker aprovados;
+- `pnpm lint`;
+- `pnpm test` — teste existente da API aprovado;
+- `pnpm build` — pacote db e aplicações compilados em ordem topológica;
+- `git diff --check`.
+
+Critério de aceite validado:
+- vínculo workspace `apps/api/node_modules/@fumep/db` aponta para `packages/db`;
+- API compilou com importação de tipo de `@fumep/db`;
+- importação ESM do artefato compilado a partir de `apps/api` retornou `DB_IMPORT=ok`.
+
+Observação:
+- nenhum schema, migration, repository ou conexão com PostgreSQL foi criado neste loop.
+
+Commit:
+```text
+feat(db): prepare drizzle package
+```

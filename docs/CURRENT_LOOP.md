@@ -9,37 +9,37 @@ LOOP 0.3 — CONCLUÍDO
 LOOP 0.4 — CONCLUÍDO
 LOOP 0.5 — CONCLUÍDO
 LOOP 0.6 — CONCLUÍDO
-LOOP 0.7 — ATUAL
+LOOP 0.7 — CONCLUÍDO
+LOOP 0.8 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 0.7 — Criar packages/db
+### LOOP 0.8 — Criar packages/validation
 
 Objetivo:
 
 ```text
-Criar um pacote vazio preparado para Drizzle em `packages/db`.
+Criar um pacote compartilhado de validação com Zod em `packages/validation`.
 ```
 
 Implementar:
 
-- pacote `packages/db` preparado para Drizzle.
+- pacote compartilhado com Zod;
+- schema simples compartilhado.
 
 Não implementar:
 
-- schema de domínio;
-- migrations;
-- conexão com banco.
+- schemas completos de domínio.
 
 Critério de aceite:
 
 ```text
-Pacote importável por `apps/api`.
+Schema simples compartilhado entre web e API.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 0.8 — Criar packages/validation
+LOOP 0.9 — Criar packages/ui
 ```
