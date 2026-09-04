@@ -17,38 +17,42 @@ LOOP 0.11 — CONCLUÍDO
 LOOP 0.12 — CONCLUÍDO
 LOOP 0.13 — CONCLUÍDO
 LOOP 0.14 — CONCLUÍDO
-LOOP 0.15 — ATUAL
+LOOP 0.15 — CONCLUÍDO
+LOOP 0.16 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 0.15 — Health básico
+### LOOP 0.16 — GitHub Actions CI inicial
 
 Objetivo:
 
 ```text
-Disponibilizar o health check público mínimo da API.
+Criar a primeira integração contínua do monorepo no GitHub Actions.
 ```
 
 Implementar:
 
-- `GET /api/v1/health`;
-- resposta pública `{ "status": "ok" }`.
+- instalação de dependências;
+- lint;
+- typecheck;
+- testes;
+- build.
 
 Não implementar:
 
-- detalhes de serviços internos;
-- credenciais, versões ou topologia;
-- health administrativo detalhado.
+- deploy ou publicação de imagens;
+- configuração de branch protection;
+- workflows de staging ou produção.
 
 Critério de aceite:
 
 ```text
-Endpoint não expõe detalhes internos.
+Pull Requests executam a CI.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 0.16 — GitHub Actions CI inicial
+LOOP 0.17 — Branch protection
 ```

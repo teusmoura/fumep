@@ -519,3 +519,43 @@ Commit:
 ```text
 feat(media): initialize development minio storage
 ```
+
+## LOOP 0.15 — Concluído
+
+Escopo atual:
+- auditar o endpoint público `GET /api/v1/health` já criado no bootstrap;
+- confirmar resposta estritamente igual a `{ "status": "ok" }`;
+- validar contrato compartilhado, documentação OpenAPI e teste Supertest existentes;
+- não expor dependências, versões, credenciais ou topologia interna;
+- não antecipar health administrativo detalhado.
+
+Implementado/auditado:
+- rota pública `GET /api/v1/health` sob o prefixo global da API;
+- controller fino delegando ao `HealthService`;
+- resposta tipada pelo contrato compartilhado `HealthResponse`;
+- documentação OpenAPI com exemplo público mínimo;
+- teste Supertest que exige resposta exatamente igual a `{ "status": "ok" }`.
+
+Checks executados com sucesso:
+- execução HTTP real em porta isolada: status `200`;
+- corpo real exatamente `{"status":"ok"}`;
+- `Content-Type: application/json; charset=utf-8`;
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — contrato e endpoint aprovados;
+- `pnpm build` — pacotes e aplicações compilados;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm peers check`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- o corpo estritamente mínimo não contém hostname, versões, credenciais, topologia ou detalhes de dependências.
+
+Observação:
+- o endpoint havia sido criado no bootstrap inicial e não precisou de alteração artificial; este loop auditou e comprovou formalmente seu contrato público.
+
+Commit:
+```text
+docs: validate minimal public health endpoint
+```
