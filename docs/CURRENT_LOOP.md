@@ -18,41 +18,39 @@ LOOP 0.12 — CONCLUÍDO
 LOOP 0.13 — CONCLUÍDO
 LOOP 0.14 — CONCLUÍDO
 LOOP 0.15 — CONCLUÍDO
-LOOP 0.16 — ATUAL
+LOOP 0.16 — CONCLUÍDO
+LOOP 0.17 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 0.16 — GitHub Actions CI inicial
+### LOOP 0.17 — Branch protection
 
 Objetivo:
 
 ```text
-Criar a primeira integração contínua do monorepo no GitHub Actions.
+Proteger a branch principal contra merges sem a CI aprovada.
 ```
 
 Implementar:
 
-- instalação de dependências;
-- lint;
-- typecheck;
-- testes;
-- build.
+- configuração da branch `main` no GitHub;
+- exigência do check obrigatório da CI antes do merge.
 
 Não implementar:
 
-- deploy ou publicação de imagens;
-- configuração de branch protection;
-- workflows de staging ou produção.
+- regras adicionais de governança não previstas;
+- deploy ou publicação;
+- funcionalidades da fase de banco e domínio.
 
 Critério de aceite:
 
 ```text
-Pull Requests executam a CI.
+Merge bloqueado se checks falharem.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 0.17 — Branch protection
+LOOP 1.1 — Configurar Drizzle
 ```

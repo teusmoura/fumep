@@ -559,3 +559,40 @@ Commit:
 ```text
 docs: validate minimal public health endpoint
 ```
+
+## LOOP 0.16 — Concluído
+
+Escopo atual:
+- criar um workflow único de CI para Pull Requests direcionados à `main`;
+- instalar pnpm e Node.js com cache de dependências;
+- executar instalação congelada, lint, typecheck, testes e build;
+- aplicar permissões mínimas e cancelamento de execuções obsoletas;
+- não implementar deploy, publicação de imagens ou branch protection.
+
+Implementado:
+- workflow `.github/workflows/ci.yml` acionado em Pull Requests para `main`;
+- job único em Ubuntu e Node.js 24, com cache do pnpm;
+- pnpm obtido a partir da versão declarada pelo projeto;
+- instalação com lockfile congelado;
+- etapas separadas de lint, typecheck, testes e build;
+- permissões `contents: read`, timeout e cancelamento de execuções obsoletas.
+
+Checks executados com sucesso:
+- `pnpm exec prettier --check .github/workflows/ci.yml` — YAML válido e formatado;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 3 testes aprovados;
+- `pnpm build` — pacotes e aplicações compilados;
+- `git diff --check`.
+
+Critério de aceite validado:
+- o gatilho `pull_request` direcionado à `main` executa o job com toda a sequência canônica da CI.
+
+Observação:
+- deploy, imagens e branch protection não foram configurados.
+
+Commit:
+```text
+ci: add initial pull request checks
+```
