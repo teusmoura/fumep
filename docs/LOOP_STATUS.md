@@ -350,3 +350,44 @@ Commit:
 ```text
 chore: configure lint and formatter
 ```
+
+## LOOP 0.11 — Concluído
+
+Escopo atual:
+- criar o primeiro `docker-compose.dev.yml`;
+- adicionar somente PostgreSQL, Redis e MinIO;
+- limitar portas publicadas ao host local de desenvolvimento;
+- manter credenciais reais fora do Git;
+- não antecipar volumes, healthchecks, persistência ou bucket inicial dos loops 0.12 a 0.14.
+
+Implementado:
+- composição de desenvolvimento nomeada `portal-fumep-dev`;
+- PostgreSQL 17, Redis 8 e MinIO com versão explícita;
+- credenciais parametrizadas por variáveis obrigatórias, documentadas em `.env.example`;
+- portas publicadas exclusivamente em `127.0.0.1` para uso local;
+- arquivo `.env` local ignorado pelo Git para a validação dos containers.
+
+Checks executados com sucesso:
+- `docker compose --env-file .env -f docker-compose.dev.yml config --quiet`;
+- `docker compose --env-file .env -f docker-compose.dev.yml up -d`;
+- inspeção Docker dos três containers;
+- logs de inicialização dos três serviços;
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 3 testes aprovados;
+- `pnpm build` — pacotes e aplicações compilados;
+- `git diff --check`.
+
+Critério de aceite validado:
+- `portal-fumep-dev-postgres-1` em estado `running` e aceitando conexões;
+- `portal-fumep-dev-redis-1` em estado `running` e aceitando conexões;
+- `portal-fumep-dev-minio-1` em estado `running`, com API e console inicializados.
+
+Observação:
+- volumes, healthchecks, persistência do Redis e bucket inicial permanecem reservados aos loops seguintes.
+
+Commit:
+```text
+chore: add development infrastructure compose
+```

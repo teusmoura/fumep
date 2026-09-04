@@ -13,42 +13,41 @@ LOOP 0.7 — CONCLUÍDO
 LOOP 0.8 — CONCLUÍDO
 LOOP 0.9 — CONCLUÍDO
 LOOP 0.10 — CONCLUÍDO
-LOOP 0.11 — ATUAL
+LOOP 0.11 — CONCLUÍDO
+LOOP 0.12 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 0.11 — Configurar Docker Compose de desenvolvimento
+### LOOP 0.12 — PostgreSQL
 
 Objetivo:
 
 ```text
-Criar a primeira composição local de infraestrutura do projeto.
+Completar a configuração inicial do PostgreSQL de desenvolvimento.
 ```
 
 Implementar:
 
-- `docker-compose.dev.yml`;
-- serviço PostgreSQL;
-- serviço Redis;
-- serviço MinIO.
+- container;
+- volume;
+- healthcheck;
+- variável de ambiente.
 
 Não implementar:
 
-- configuração detalhada de conexão e healthcheck do PostgreSQL, reservada ao loop 0.12;
-- configuração detalhada de autenticação, persistência e healthcheck do Redis, reservada ao loop 0.13;
-- bucket inicial e healthcheck do MinIO, reservados ao loop 0.14;
-- containers da API, web ou Worker.
+- configuração detalhada do Redis, reservada ao loop 0.13;
+- configuração detalhada do MinIO, reservada ao loop 0.14;
+- modelos, migrations ou funcionalidades de domínio.
 
 Critério de aceite:
 
 ```text
-postgres, redis e minio
-→ todos sobem
+API consegue conectar ao PostgreSQL.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 0.12 — PostgreSQL
+LOOP 0.13 — Redis
 ```
