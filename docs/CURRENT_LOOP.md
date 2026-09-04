@@ -11,37 +11,39 @@ LOOP 0.5 — CONCLUÍDO
 LOOP 0.6 — CONCLUÍDO
 LOOP 0.7 — CONCLUÍDO
 LOOP 0.8 — CONCLUÍDO
-LOOP 0.9 — ATUAL
+LOOP 0.9 — CONCLUÍDO
+LOOP 0.10 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 0.9 — Criar packages/ui
+### LOOP 0.10 — Configurar lint e formatter
 
 Objetivo:
 
 ```text
-Criar o pacote inicial de UI compartilhada em `packages/ui`.
+Configurar lint e formatter comuns no monorepo.
 ```
 
 Implementar:
 
-- pacote inicial de UI;
-- componente simples compartilhado.
+- ESLint;
+- formatter adotado pelo projeto;
+- scripts comuns.
 
 Não implementar:
 
-- Design System completo;
-- temas institucionais.
+- regras específicas de funcionalidades futuras.
 
 Critério de aceite:
 
 ```text
-Componente simples renderizado pelo Next.js.
+pnpm lint
+→ verde
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 0.10 — Configurar lint e formatter
+LOOP 0.11 — Configurar Docker Compose de desenvolvimento
 ```

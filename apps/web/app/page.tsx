@@ -1,3 +1,4 @@
+import { Message } from "@fumep/ui";
 import type { HealthResponse } from "@fumep/validation";
 
 export default function HomePage() {
@@ -6,7 +7,7 @@ export default function HomePage() {
   return (
     <main data-api-status={initialHealth.status} id="main-content">
       <h1>Portal FUMEP</h1>
-      <p>Projeto institucional em construção.</p>
+      <Message>Projeto institucional em construção.</Message>
     </main>
   );
 }

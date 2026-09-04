@@ -60,6 +60,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@fumep/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@fumep/validation':
         specifier: workspace:*
         version: link:../../packages/validation
@@ -94,6 +97,16 @@ importers:
       drizzle-orm:
         specifier: ^0.45.2
         version: 0.45.2
+
+  packages/ui:
+    dependencies:
+      react:
+        specifier: ^19.2.8
+        version: 19.2.8
+    devDependencies:
+      '@types/react':
+        specifier: ^19.2.18
+        version: 19.2.18
 
   packages/validation:
     dependencies:

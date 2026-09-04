@@ -274,3 +274,42 @@ Commit:
 ```text
 feat(validation): add shared health schema
 ```
+
+## LOOP 0.9 — Concluído
+
+Escopo atual:
+- criar o pacote mínimo `packages/ui` para React;
+- expor um componente apresentacional simples e server-compatible;
+- declarar o pacote como dependência workspace da web;
+- renderizar o componente na página inicial do Next.js;
+- não antecipar Design System completo, temas, tokens ou componentes interativos.
+
+Implementado:
+- pacote privado ESM `@fumep/ui` para componentes React compartilhados;
+- componente apresentacional `Message`, sem estado ou dependência de cliente;
+- configuração TypeScript voltada a bundlers e build com declarações;
+- React como peer dependency e tipos React para compilação isolada;
+- dependência workspace `@fumep/ui` declarada no app web;
+- parágrafo da home renderizado pelo componente compartilhado.
+
+Checks executados com sucesso:
+- `pnpm typecheck` — UI, validation, db, API, web e Worker aprovados;
+- `pnpm lint`;
+- `pnpm test` — 3 testes existentes aprovados;
+- `pnpm build` — pacote UI e aplicações compilados;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- servidor Next.js iniciado localmente;
+- `GET /` respondeu HTTP `200`;
+- HTML continha `<p>Projeto institucional em construção.</p>` renderizado por `Message`.
+
+Observação:
+- uma porta ocupada por servidor de validação anterior foi identificada e o processo correspondente foi encerrado antes da prova final;
+- nenhum Design System completo, tema, token ou componente interativo foi criado.
+
+Commit:
+```text
+feat(ui): add shared message component
+```
