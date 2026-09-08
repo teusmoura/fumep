@@ -19,38 +19,41 @@ LOOP 0.13 — CONCLUÍDO
 LOOP 0.14 — CONCLUÍDO
 LOOP 0.15 — CONCLUÍDO
 LOOP 0.16 — CONCLUÍDO
-LOOP 0.17 — ATUAL
+LOOP 0.17 — CONCLUÍDO
+LOOP 1.1 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 0.17 — Branch protection
+### LOOP 1.1 — Configurar Drizzle
 
 Objetivo:
 
 ```text
-Proteger a branch principal contra merges sem a CI aprovada.
+Configurar o fluxo inicial de schema e migrations com Drizzle.
 ```
 
 Implementar:
 
-- configuração da branch `main` no GitHub;
-- exigência do check obrigatório da CI antes do merge.
+- conexão;
+- configuração do Drizzle Kit;
+- diretório de migrations;
+- primeiro comando de migration.
 
 Não implementar:
 
-- regras adicionais de governança não previstas;
-- deploy ou publicação;
-- funcionalidades da fase de banco e domínio.
+- tabelas ou entidades de domínio;
+- dados iniciais;
+- repositories de funcionalidades futuras.
 
 Critério de aceite:
 
 ```text
-Merge bloqueado se checks falharem.
+Migration vazia executa em banco de desenvolvimento.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 1.1 — Configurar Drizzle
+LOOP 1.2 — Institution
 ```

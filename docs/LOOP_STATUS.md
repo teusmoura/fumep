@@ -596,3 +596,40 @@ Commit:
 ```text
 ci: add initial pull request checks
 ```
+
+## LOOP 0.17 — Concluído
+
+Escopo atual:
+- configurar a proteção da branch `main` no GitHub;
+- exigir o check `Lint, types, tests and build` antes do merge;
+- exigir que a branch esteja atualizada antes do merge;
+- não adicionar reviews obrigatórios ou outras regras de governança.
+
+Implementado:
+- repositório publicado em `https://github.com/teusmoura/fumep`;
+- proteção clássica habilitada na branch `main`;
+- status check obrigatório `Lint, types, tests and build`;
+- política estrita habilitada para exigir branch atualizada;
+- force-push e exclusão da branch desabilitados.
+
+Checks executados com sucesso:
+- leitura da proteção pela API do GitHub;
+- `required_status_checks.strict` confirmado como `true`;
+- contexto obrigatório confirmado como `Lint, types, tests and build`;
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 3 testes aprovados;
+- `pnpm build` — pacotes e aplicações compilados;
+- `git diff --check`.
+
+Critério de aceite validado:
+- merges na `main` ficam bloqueados enquanto o check obrigatório não for aprovado.
+
+Observação:
+- nenhuma exigência adicional de review, assinatura ou histórico linear foi adicionada.
+
+Commit:
+```text
+docs: record main branch protection
+```
