@@ -762,3 +762,44 @@ Commit:
 ```text
 feat(db): add user schema
 ```
+
+## LOOP 1.4 — Concluído
+
+Escopo atual:
+- criar a tabela associativa `user_institutions`;
+- definir chaves estrangeiras para usuário e instituição e chave primária composta;
+- provar em PostgreSQL que um usuário pode pertencer a múltiplas instituições;
+- não implementar autorização, login, sessão ou outras relações de domínio.
+
+Implementado:
+- tabela `user_institutions` com `user_id`, `institution_id` e timestamp com fuso;
+- chave primária composta que impede vínculos duplicados;
+- chaves estrangeiras com `ON DELETE CASCADE` para usuário e `ON DELETE RESTRICT` para instituição;
+- migration aditiva `0003_broad_hulk.sql`;
+- testes de associação múltipla e rejeição de vínculo duplicado;
+- execução serial dos arquivos de integração do pacote de dados para preservar o isolamento das fixtures.
+
+Checks executados com sucesso:
+- migrations aplicadas do zero em `portal_fumep_loop_1_4_test`;
+- `pnpm --filter @fumep/db test` — 3 arquivos e 6 testes aprovados em banco limpo;
+- migration aplicada no banco de desenvolvimento;
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 9 testes aprovados entre validation, db e API;
+- `pnpm build` — pacotes e aplicações compilados;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm peers check`;
+- `pnpm exec prettier --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- um único usuário foi associado a duas instituições distintas em PostgreSQL real.
+
+Observação:
+- nenhuma regra de autorização, login, sessão ou relação de domínio futura foi implementada.
+
+Commit:
+```text
+feat(db): add user institution relation
+```

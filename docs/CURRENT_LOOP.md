@@ -23,40 +23,42 @@ LOOP 0.17 — CONCLUÍDO
 LOOP 1.1 — CONCLUÍDO
 LOOP 1.2 — CONCLUÍDO
 LOOP 1.3 — CONCLUÍDO
-LOOP 1.4 — ATUAL
+LOOP 1.4 — CONCLUÍDO
+LOOP 1.5 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 1.4 — UserInstitution
+### LOOP 1.5 — Page
 
 Objetivo:
 
 ```text
-Implementar a relação N:N entre usuários e instituições.
+Criar a estrutura mínima da entidade Page.
 ```
 
 Implementar:
 
-- tabela associativa `user_institutions`;
-- chaves estrangeiras para usuário e instituição;
-- chave primária composta;
-- testes da associação.
+- tabela `pages`;
+- campos mínimos `id`, `title`, `slug`, `status`, `created_by`, `updated_by`, `created_at` e `updated_at`;
+- enum canônico de status de publicação necessário ao campo `status`;
+- chaves estrangeiras de autoria para usuários;
+- testes da estrutura mínima.
 
 Não implementar:
 
-- autorização por escopo institucional;
-- login ou sessão;
-- outras relações de domínio.
+- relação da página com instituição, reservada ao loop 1.6;
+- campos adicionais de SEO, agendamento ou página inicial;
+- blocos de conteúdo, versões, publicação ou preview.
 
 Critério de aceite:
 
 ```text
-Usuário pode pertencer a múltiplas instituições.
+A estrutura mínima de Page está disponível e validada no banco.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 1.5 — Page
+LOOP 1.6 — Regra Page N:1 Institution
 ```
