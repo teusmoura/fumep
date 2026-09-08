@@ -76,6 +76,9 @@ export const pages = pgTable(
   "pages",
   {
     id: uuid("id").defaultRandom().primaryKey(),
+    institutionId: uuid("institution_id")
+      .notNull()
+      .references(() => institutions.id, { onDelete: "restrict" }),
     title: varchar("title", { length: 255 }).notNull(),
     slug: varchar("slug", { length: 200 }).notNull(),
     status: publicationStatus("status").notNull().default("DRAFT"),
@@ -84,7 +87,11 @@ export const pages = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [index("pages_status_index").on(table.status)],
+  (table) => [
+    uniqueIndex("pages_institution_slug_unique").on(table.institutionId, table.slug),
+    index("pages_institution_index").on(table.institutionId),
+    index("pages_status_index").on(table.status),
+  ],
 );
 
 export type Page = typeof pages.$inferSelect;

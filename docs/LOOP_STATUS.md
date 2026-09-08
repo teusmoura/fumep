@@ -843,3 +843,44 @@ Commit:
 ```text
 feat(db): add minimum page schema
 ```
+
+## LOOP 1.6 — Concluído
+
+Escopo atual:
+- adicionar a instituição obrigatória à página com relação N:1;
+- garantir unicidade de slug por instituição;
+- validar em PostgreSQL slugs iguais entre instituições e duplicidade proibida na mesma instituição;
+- não criar associação N:N nem antecipar campos ou funcionalidades futuras.
+
+Implementado:
+- coluna obrigatória `pages.institution_id` com chave estrangeira para `institutions` e exclusão restrita;
+- índice de consulta por instituição;
+- índice único composto `pages_institution_slug_unique` sobre instituição e slug;
+- migration aditiva `0005_old_mongu.sql`;
+- teste que aceita o mesmo slug em instituições diferentes e rejeita repetição na mesma instituição;
+- fixtures existentes de Page ajustadas para respeitar a nova relação obrigatória.
+
+Checks executados com sucesso:
+- migrations aplicadas do zero em `portal_fumep_loop_1_6_test`;
+- `pnpm --filter @fumep/db test` — 4 arquivos e 11 testes aprovados em banco limpo;
+- migration aplicada no banco de desenvolvimento;
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 14 testes aprovados entre validation, db e API;
+- `pnpm build`;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm peers check`;
+- `pnpm exec prettier --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- toda página exige exatamente uma instituição, com slug único no respectivo escopo institucional.
+
+Observação:
+- nenhuma tabela associativa Page–Institution ou funcionalidade de loops futuros foi criada.
+
+Commit:
+```text
+feat(db): scope pages by institution
+```

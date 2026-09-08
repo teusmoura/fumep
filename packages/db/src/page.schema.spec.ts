@@ -4,7 +4,7 @@ import { config as loadEnvironment } from "dotenv";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
 import { createDatabase } from "./client.js";
-import { pages, users } from "./schema.js";
+import { institutions, pages, users } from "./schema.js";
 
 loadEnvironment({ path: resolve(import.meta.dirname, "../../../.env"), quiet: true });
 
@@ -16,19 +16,30 @@ if (!databaseUrl) {
 
 const { client, db } = createDatabase(databaseUrl);
 
+async function createInstitution(slug: string) {
+  const [institution] = await db
+    .insert(institutions)
+    .values({ name: slug.toUpperCase(), slug })
+    .returning();
+  return institution;
+}
+
 describe("pages schema", () => {
   beforeEach(async () => {
     await db.delete(pages);
     await db.delete(users);
+    await db.delete(institutions);
   });
 
   afterAll(async () => {
     await db.delete(pages);
     await db.delete(users);
+    await db.delete(institutions);
     await client.end();
   });
 
   it("stores the minimum page structure with draft status by default", async () => {
+    const institution = await createInstitution("fumep-page-test");
     const [author] = await db
       .insert(users)
       .values({
@@ -44,6 +55,7 @@ describe("pages schema", () => {
       .values({
         title: "Institutional Page",
         slug: "institutional-page",
+        institutionId: institution.id,
         createdBy: author.id,
         updatedBy: author.id,
       })
@@ -52,6 +64,7 @@ describe("pages schema", () => {
     expect(page).toMatchObject({
       title: "Institutional Page",
       slug: "institutional-page",
+      institutionId: institution.id,
       status: "DRAFT",
       createdBy: author.id,
       updatedBy: author.id,
@@ -64,9 +77,15 @@ describe("pages schema", () => {
   it.each(["SCHEDULED", "PUBLISHED", "EXPIRED"] as const)(
     "accepts the %s publication status",
     async (status) => {
+      const institution = await createInstitution(`${status.toLowerCase()}-institution`);
       const [page] = await db
         .insert(pages)
-        .values({ title: `${status} Page`, slug: `${status.toLowerCase()}-page`, status })
+        .values({
+          institutionId: institution.id,
+          title: `${status} Page`,
+          slug: `${status.toLowerCase()}-page`,
+          status,
+        })
         .returning();
 
       expect(page.status).toBe(status);
@@ -74,4 +93,22 @@ describe("pages schema", () => {
       expect(page.updatedBy).toBeNull();
     },
   );
+
+  it("allows the same slug in different institutions and rejects it in the same one", async () => {
+    const firstInstitution = await createInstitution("first-institution");
+    const secondInstitution = await createInstitution("second-institution");
+
+    await db.insert(pages).values([
+      { institutionId: firstInstitution.id, title: "Contact", slug: "contact" },
+      { institutionId: secondInstitution.id, title: "Contact", slug: "contact" },
+    ]);
+
+    await expect(
+      db.insert(pages).values({
+        institutionId: firstInstitution.id,
+        title: "Duplicate Contact",
+        slug: "contact",
+      }),
+    ).rejects.toThrow();
+  });
 });

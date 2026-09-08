@@ -25,39 +25,41 @@ LOOP 1.2 — CONCLUÍDO
 LOOP 1.3 — CONCLUÍDO
 LOOP 1.4 — CONCLUÍDO
 LOOP 1.5 — CONCLUÍDO
-LOOP 1.6 — ATUAL
+LOOP 1.6 — CONCLUÍDO
+LOOP 1.7 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 1.6 — Regra Page N:1 Institution
+### LOOP 1.7 — ContentBlock
 
 Objetivo:
 
 ```text
-Completar Page com a relação obrigatória N:1 com Institution.
+Criar a estrutura de blocos de conteúdo polimórficos.
 ```
 
 Implementar:
 
-- adicionar `institution_id UUID NOT NULL` à tabela `pages`;
-- criar chave estrangeira para `institutions`;
-- garantir `UNIQUE(institution_id, slug)`;
-- testar que instituições distintas podem repetir slug e uma instituição não pode.
+- criar a tabela `content_blocks`;
+- implementar `id`, `owner_type`, `owner_id`, `type`, `position`, `is_visible`, `schema_version`, `background`, `background_media_id`, `anchor`, `data`, `created_at` e `updated_at`;
+- usar JSONB para `data`;
+- testar a estrutura e seus defaults aplicáveis.
 
 Não implementar:
 
-- tabela associativa `PageInstitution` ou qualquer relação N:N para páginas;
-- campos adicionais ou funcionalidades dos próximos loops.
+- PageVersion ou snapshots;
+- catálogo completo de blocos, renderização, edição, preview ou publicação;
+- entidades e funcionalidades dos próximos loops.
 
 Critério de aceite:
 
 ```text
-Cada página pertence a exatamente uma instituição e o slug é único dentro dela.
+ContentBlock pode armazenar dados estruturados e ordenados para um proprietário.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 1.7 — ContentBlock
+LOOP 1.8 — PageVersion
 ```
