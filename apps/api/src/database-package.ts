@@ -1,3 +1,3 @@
-import type { DatabasePackage } from "@fumep/db";
+import type { Database } from "@fumep/db";
 
-export type ApiDatabasePackage = DatabasePackage;
+export type ApiDatabase = Database;

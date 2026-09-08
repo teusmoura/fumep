@@ -4,5 +4,6 @@
 **/*.tsbuildinfo
 coverage/**
 docs/**
+packages/db/drizzle/meta/**
 pnpm-lock.yaml
 apps/web/next-env.d.ts

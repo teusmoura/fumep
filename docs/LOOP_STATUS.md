@@ -633,3 +633,46 @@ Commit:
 ```text
 docs: record main branch protection
 ```
+
+## LOOP 1.1 — Concluído
+
+Escopo atual:
+- configurar o cliente Drizzle PostgreSQL em `packages/db`;
+- adicionar configuração do Drizzle Kit;
+- criar schema inicial vazio e diretório versionado de migrations;
+- gerar e executar uma migration vazia no banco de desenvolvimento;
+- não criar tabelas, dados iniciais ou repositories de domínio.
+
+Implementado:
+- cliente Drizzle sobre `postgres-js` exportado por `@fumep/db`;
+- schema TypeScript inicial explicitamente vazio;
+- `drizzle.config.ts` com dialeto PostgreSQL e carregamento seguro da `DATABASE_URL` local;
+- scripts `db:generate` e `db:migrate` no pacote de banco;
+- migration custom vazia `0000_initialize.sql` e metadados do Drizzle versionados;
+- autorização explícita apenas dos scripts do `esbuild` necessários ao Drizzle Kit.
+
+Checks executados com sucesso:
+- `pnpm --filter @fumep/db db:generate` — 0 tabelas e nenhuma alteração adicional;
+- `pnpm --filter @fumep/db db:migrate` — migration aplicada com sucesso e reaplicação idempotente;
+- PostgreSQL de desenvolvimento confirmado como `healthy`;
+- tabela interna `drizzle.__drizzle_migrations` com 1 registro;
+- schema `public` confirmado com 0 tabelas;
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 3 testes aprovados;
+- `pnpm build` — pacotes e aplicações compilados;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm peers check`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- a migration vazia foi executada e registrada no banco de desenvolvimento.
+
+Observação:
+- nenhuma tabela, entidade, seed ou repository de domínio foi criado.
+
+Commit:
+```text
+feat(db): configure drizzle migrations
+```

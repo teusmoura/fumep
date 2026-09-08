@@ -20,40 +20,41 @@ LOOP 0.14 — CONCLUÍDO
 LOOP 0.15 — CONCLUÍDO
 LOOP 0.16 — CONCLUÍDO
 LOOP 0.17 — CONCLUÍDO
-LOOP 1.1 — ATUAL
+LOOP 1.1 — CONCLUÍDO
+LOOP 1.2 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 1.1 — Configurar Drizzle
+### LOOP 1.2 — Institution
 
 Objetivo:
 
 ```text
-Configurar o fluxo inicial de schema e migrations com Drizzle.
+Implementar a entidade base de instituição.
 ```
 
 Implementar:
 
-- conexão;
-- configuração do Drizzle Kit;
-- diretório de migrations;
-- primeiro comando de migration.
+- tabela e modelagem `Institution`;
+- campos essenciais `id`, `name`, `slug`, `is_active`, `created_at` e `updated_at`;
+- repository com operações CRUD;
+- testes do repository.
 
 Não implementar:
 
-- tabelas ou entidades de domínio;
-- dados iniciais;
-- repositories de funcionalidades futuras.
+- tema completo;
+- configurações institucionais;
+- entidades dos loops seguintes.
 
 Critério de aceite:
 
 ```text
-Migration vazia executa em banco de desenvolvimento.
+CRUD de repository aprovado.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 1.2 — Institution
+LOOP 1.3 — User
 ```
