@@ -803,3 +803,43 @@ Commit:
 ```text
 feat(db): add user institution relation
 ```
+
+## LOOP 1.5 — Concluído
+
+Escopo atual:
+- criar a tabela `pages` com os oito campos mínimos definidos pelo plano;
+- criar o enum canônico `publication_status` e validar seu padrão `DRAFT`;
+- vincular autoria opcional a usuários e testar a estrutura em PostgreSQL;
+- não implementar instituição, SEO, agendamento, blocos, versões ou publicação.
+
+Implementado:
+- enum PostgreSQL `publication_status` com `DRAFT`, `SCHEDULED`, `PUBLISHED` e `EXPIRED`;
+- tabela `pages` com os oito campos mínimos, UUID e timestamps com fuso;
+- estado padrão `DRAFT`, índice de status e autoria opcional referenciada em `users`;
+- migration aditiva `0004_glorious_lockjaw.sql`;
+- testes do padrão, campos mínimos, autoria e todos os estados do enum.
+
+Checks executados com sucesso:
+- migrations aplicadas do zero em `portal_fumep_loop_1_5_test`;
+- `pnpm --filter @fumep/db test` — 4 arquivos e 10 testes aprovados em banco limpo;
+- migration aplicada no banco de desenvolvimento;
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 13 testes aprovados entre validation, db e API;
+- `pnpm build`;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm peers check`;
+- `pnpm exec prettier --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- a estrutura mínima de `Page` foi criada e exercitada em PostgreSQL real.
+
+Observação:
+- `institution_id` e sua unicidade composta permanecem reservados ao loop 1.6; nenhum campo futuro foi antecipado.
+
+Commit:
+```text
+feat(db): add minimum page schema
+```

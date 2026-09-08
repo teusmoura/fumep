@@ -24,41 +24,40 @@ LOOP 1.1 — CONCLUÍDO
 LOOP 1.2 — CONCLUÍDO
 LOOP 1.3 — CONCLUÍDO
 LOOP 1.4 — CONCLUÍDO
-LOOP 1.5 — ATUAL
+LOOP 1.5 — CONCLUÍDO
+LOOP 1.6 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 1.5 — Page
+### LOOP 1.6 — Regra Page N:1 Institution
 
 Objetivo:
 
 ```text
-Criar a estrutura mínima da entidade Page.
+Completar Page com a relação obrigatória N:1 com Institution.
 ```
 
 Implementar:
 
-- tabela `pages`;
-- campos mínimos `id`, `title`, `slug`, `status`, `created_by`, `updated_by`, `created_at` e `updated_at`;
-- enum canônico de status de publicação necessário ao campo `status`;
-- chaves estrangeiras de autoria para usuários;
-- testes da estrutura mínima.
+- adicionar `institution_id UUID NOT NULL` à tabela `pages`;
+- criar chave estrangeira para `institutions`;
+- garantir `UNIQUE(institution_id, slug)`;
+- testar que instituições distintas podem repetir slug e uma instituição não pode.
 
 Não implementar:
 
-- relação da página com instituição, reservada ao loop 1.6;
-- campos adicionais de SEO, agendamento ou página inicial;
-- blocos de conteúdo, versões, publicação ou preview.
+- tabela associativa `PageInstitution` ou qualquer relação N:N para páginas;
+- campos adicionais ou funcionalidades dos próximos loops.
 
 Critério de aceite:
 
 ```text
-A estrutura mínima de Page está disponível e validada no banco.
+Cada página pertence a exatamente uma instituição e o slug é único dentro dela.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 1.6 — Regra Page N:1 Institution
+LOOP 1.7 — ContentBlock
 ```

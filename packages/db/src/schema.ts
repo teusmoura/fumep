@@ -64,3 +64,28 @@ export const userInstitutions = pgTable(
 
 export type UserInstitution = typeof userInstitutions.$inferSelect;
 export type NewUserInstitution = typeof userInstitutions.$inferInsert;
+
+export const publicationStatus = pgEnum("publication_status", [
+  "DRAFT",
+  "SCHEDULED",
+  "PUBLISHED",
+  "EXPIRED",
+]);
+
+export const pages = pgTable(
+  "pages",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    title: varchar("title", { length: 255 }).notNull(),
+    slug: varchar("slug", { length: 200 }).notNull(),
+    status: publicationStatus("status").notNull().default("DRAFT"),
+    createdBy: uuid("created_by").references(() => users.id),
+    updatedBy: uuid("updated_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index("pages_status_index").on(table.status)],
+);
+
+export type Page = typeof pages.$inferSelect;
+export type NewPage = typeof pages.$inferInsert;
