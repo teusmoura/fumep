@@ -719,3 +719,46 @@ Commit:
 ```text
 feat(db): add institution repository
 ```
+
+## LOOP 1.3 — Concluído
+
+Escopo atual:
+- criar enum `user_role` com `ADMIN` e `EDITOR`;
+- criar a tabela `users` com os campos definidos no loop;
+- garantir unicidade case-insensitive do e-mail;
+- testar migration, defaults, papéis e constraint de e-mail em PostgreSQL;
+- não implementar login, hash, sessão ou vínculo institucional.
+
+Implementado:
+- enum PostgreSQL `user_role` restrito a `ADMIN` e `EDITOR`;
+- tabela `users` com UUID, nome, e-mail, hash de senha, papel, estado ativo e timestamps com fuso;
+- índice único funcional sobre `lower(email)`;
+- índices de consulta para `role` e `is_active`;
+- migration aditiva `0002_unusual_energizer.sql`;
+- testes de schema para ambos os papéis, valor padrão ativo e unicidade case-insensitive;
+- configuração Vitest restrita aos testes-fonte de `packages/db`, evitando coleta de artefatos compilados.
+
+Checks executados com sucesso:
+- migrations aplicadas do zero em `portal_fumep_loop_1_3_test`;
+- `pnpm --filter @fumep/db test` — 2 arquivos e 4 testes aprovados em banco limpo;
+- migration aplicada no banco de desenvolvimento;
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 7 testes aprovados entre validation, db e API;
+- `pnpm build` — pacotes e aplicações compilados;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm peers check`;
+- `pnpm exec prettier --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- tabela e modelagem de usuário foram aplicadas e testadas em PostgreSQL real.
+
+Observação:
+- nenhum login, serviço de hash, sessão ou vínculo institucional foi implementado.
+
+Commit:
+```text
+feat(db): add user schema
+```

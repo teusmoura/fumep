@@ -22,38 +22,41 @@ LOOP 0.16 — CONCLUÍDO
 LOOP 0.17 — CONCLUÍDO
 LOOP 1.1 — CONCLUÍDO
 LOOP 1.2 — CONCLUÍDO
-LOOP 1.3 — ATUAL
+LOOP 1.3 — CONCLUÍDO
+LOOP 1.4 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 1.3 — User
+### LOOP 1.4 — UserInstitution
 
 Objetivo:
 
 ```text
-Implementar a entidade base de usuário administrativo.
+Implementar a relação N:N entre usuários e instituições.
 ```
 
 Implementar:
 
-- tabela `users`;
-- campos `id`, `name`, `email`, `password_hash`, `role`, `is_active`, `created_at` e `updated_at`.
+- tabela associativa `user_institutions`;
+- chaves estrangeiras para usuário e instituição;
+- chave primária composta;
+- testes da associação.
 
 Não implementar:
 
-- login;
-- sessão ou autenticação;
-- relação entre usuários e instituições.
+- autorização por escopo institucional;
+- login ou sessão;
+- outras relações de domínio.
 
 Critério de aceite:
 
 ```text
-Tabela e modelagem de usuário validadas por migration e testes aplicáveis.
+Usuário pode pertencer a múltiplas instituições.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 1.4 — UserInstitution
+LOOP 1.5 — Page
 ```
