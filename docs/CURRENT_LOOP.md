@@ -21,40 +21,39 @@ LOOP 0.15 — CONCLUÍDO
 LOOP 0.16 — CONCLUÍDO
 LOOP 0.17 — CONCLUÍDO
 LOOP 1.1 — CONCLUÍDO
-LOOP 1.2 — ATUAL
+LOOP 1.2 — CONCLUÍDO
+LOOP 1.3 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 1.2 — Institution
+### LOOP 1.3 — User
 
 Objetivo:
 
 ```text
-Implementar a entidade base de instituição.
+Implementar a entidade base de usuário administrativo.
 ```
 
 Implementar:
 
-- tabela e modelagem `Institution`;
-- campos essenciais `id`, `name`, `slug`, `is_active`, `created_at` e `updated_at`;
-- repository com operações CRUD;
-- testes do repository.
+- tabela `users`;
+- campos `id`, `name`, `email`, `password_hash`, `role`, `is_active`, `created_at` e `updated_at`.
 
 Não implementar:
 
-- tema completo;
-- configurações institucionais;
-- entidades dos loops seguintes.
+- login;
+- sessão ou autenticação;
+- relação entre usuários e instituições.
 
 Critério de aceite:
 
 ```text
-CRUD de repository aprovado.
+Tabela e modelagem de usuário validadas por migration e testes aplicáveis.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 1.3 — User
+LOOP 1.4 — UserInstitution
 ```

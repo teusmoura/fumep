@@ -17,6 +17,23 @@ jobs:
     name: Lint, types, tests and build
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      DATABASE_URL: postgresql://portal_fumep:portal_fumep@127.0.0.1:5432/portal_fumep_test
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: portal_fumep
+          POSTGRES_PASSWORD: portal_fumep
+          POSTGRES_DB: portal_fumep_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U portal_fumep -d portal_fumep_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Checkout repository
@@ -39,6 +56,9 @@ jobs:
 
       - name: Typecheck
         run: pnpm typecheck
+
+      - name: Apply database migrations
+        run: pnpm --filter @fumep/db db:migrate
 
       - name: Test
         run: pnpm test

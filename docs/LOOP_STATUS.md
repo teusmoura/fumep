@@ -676,3 +676,46 @@ Commit:
 ```text
 feat(db): configure drizzle migrations
 ```
+
+## LOOP 1.2 — Concluído
+
+Escopo atual:
+- criar a tabela `institutions` somente com os campos essenciais do loop;
+- preservar UUID, TIMESTAMPTZ e snake_case;
+- implementar repository com create, read, update e delete;
+- testar o CRUD contra PostgreSQL isolado;
+- preparar a CI para executar migrations e testes de banco;
+- não antecipar tema, settings, mídia ou outras entidades.
+
+Implementado:
+- tabela `institutions` com UUID gerado no banco, `name`, `slug` único, `is_active` e timestamps com fuso;
+- migration aditiva `0001_sudden_juggernaut.sql` gerada pelo Drizzle Kit;
+- tipos inferidos `Institution` e `NewInstitution`;
+- `InstitutionRepository` com criação, consulta por id, listagem ordenada, atualização e exclusão;
+- teste de integração cobrindo o ciclo CRUD e exclusão inexistente;
+- serviço PostgreSQL efêmero e etapa de migration adicionados à CI antes dos testes.
+
+Checks executados com sucesso:
+- migrations aplicadas do zero em `portal_fumep_loop_1_2_test`;
+- `pnpm --filter @fumep/db test` — CRUD aprovado em banco limpo;
+- migration aplicada no banco de desenvolvimento;
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 4 testes aprovados entre validation, db e API;
+- `pnpm build` — pacotes e aplicações compilados;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm peers check`;
+- `pnpm exec prettier --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- repository criou, leu, listou, atualizou e excluiu uma instituição em PostgreSQL real.
+
+Observação:
+- nenhum campo de tema, setting, logo ou relacionamento futuro foi criado.
+
+Commit:
+```text
+feat(db): add institution repository
+```
