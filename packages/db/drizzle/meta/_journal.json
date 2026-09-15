@@ -50,6 +50,13 @@
       "when": 1789477110451,
       "tag": "0006_brainy_monster_badoon",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1789477920418,
+      "tag": "0007_open_leper_queen",
+      "breakpoints": true
     }
   ]
 }

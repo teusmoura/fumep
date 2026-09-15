@@ -130,3 +130,24 @@ export const contentBlocks = pgTable(
 
 export type ContentBlock = typeof contentBlocks.$inferSelect;
 export type NewContentBlock = typeof contentBlocks.$inferInsert;
+
+export const pageVersions = pgTable(
+  "page_versions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    pageId: uuid("page_id")
+      .notNull()
+      .references(() => pages.id, { onDelete: "cascade" }),
+    versionNumber: integer("version_number").notNull(),
+    snapshot: jsonb("snapshot").notNull(),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("page_versions_page_number_unique").on(table.pageId, table.versionNumber),
+    index("page_versions_page_index").on(table.pageId),
+  ],
+);
+
+export type PageVersion = typeof pageVersions.$inferSelect;
+export type NewPageVersion = typeof pageVersions.$inferInsert;

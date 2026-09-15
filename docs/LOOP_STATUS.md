@@ -926,3 +926,43 @@ Commit:
 ```text
 feat(builder): add content block schema
 ```
+
+## LOOP 1.8 — Concluído
+
+Escopo atual:
+- criar `page_versions` com snapshots JSONB numerados por página;
+- garantir unicidade de versão e exclusão em cascata com a página;
+- validar que alterações posteriores na página não modificam snapshots persistidos;
+- não implementar restauração, versionamento por bloco, endpoints, preview ou publicação.
+
+Implementado:
+- tabela `page_versions` com UUID, referência à página, número, snapshot JSONB, autoria opcional e timestamp com fuso;
+- exclusão em cascata das versões quando a página é removida;
+- índice de consulta por página e unicidade composta de página e número de versão;
+- migration aditiva `0007_open_leper_queen.sql`;
+- testes que preservam o snapshot após alteração da página e rejeitam número duplicado na mesma página.
+
+Checks executados com sucesso:
+- migrations aplicadas do zero em `portal_fumep_loop_1_8_test`;
+- `pnpm --filter @fumep/db test` — 6 arquivos e 16 testes aprovados em banco limpo;
+- migration aplicada no banco de desenvolvimento;
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 19 testes aprovados entre validation, db e API;
+- `pnpm build`;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm peers check`;
+- `pnpm exec prettier --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- PageVersion preservou um snapshot numerado mesmo após a alteração dos dados vivos da página.
+
+Observação:
+- não há `updated_at`, restauração automática, versionamento individual de bloco, endpoint, preview ou publicação.
+
+Commit:
+```text
+feat(builder): add immutable page versions
+```

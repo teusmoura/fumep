@@ -27,42 +27,43 @@ LOOP 1.4 — CONCLUÍDO
 LOOP 1.5 — CONCLUÍDO
 LOOP 1.6 — CONCLUÍDO
 LOOP 1.7 — CONCLUÍDO
-LOOP 1.8 — ATUAL
+LOOP 1.8 — CONCLUÍDO
+LOOP 1.9 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 1.8 — PageVersion
+### LOOP 1.9 — AuditLog
 
 Objetivo:
 
 ```text
-Criar snapshots imutáveis e versionados de páginas.
+Criar a estrutura inicial de auditoria administrativa.
 ```
 
 Implementar:
 
-- criar a tabela `page_versions`;
-- implementar `id`, `page_id`, `version_number`, `snapshot`, `created_by` e `created_at`;
-- usar JSONB para o snapshot e garantir `UNIQUE(page_id, version_number)`;
-- vincular a página com exclusão em cascata e autoria opcional;
-- testar versionamento, snapshot e imutabilidade da estrutura.
+- criar a tabela `audit_logs`;
+- implementar `id`, `user_id`, `action`, `entity_type`, `entity_id`, `metadata`, `ip_address` e `created_at`;
+- usar JSONB para metadados e INET para endereço IP;
+- preservar registros sem exclusão em cascata;
+- testar a estrutura inicial.
 
 Não implementar:
 
-- restauração automática de versões;
-- versionamento individual por bloco;
-- endpoints, publicação ou preview;
+- catálogo completo de eventos de auditoria;
+- instrumentação de todas as operações;
+- endpoints ou interface de consulta;
 - entidades e funcionalidades dos próximos loops.
 
 Critério de aceite:
 
 ```text
-PageVersion preserva snapshots numerados da página sem alterar versões anteriores.
+AuditLog registra eventos administrativos básicos sem risco de exclusão em cascata.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 1.9 — AuditLog
+LOOP 1.10 — Redirect
 ```
