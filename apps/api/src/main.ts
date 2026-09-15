@@ -12,6 +12,7 @@ async function bootstrap() {
     .setTitle("Portal FUMEP API")
     .setDescription("API REST do Portal FUMEP")
     .setVersion("1.0")
+    .addCookieAuth("fumep_session")
     .build();
   const openApiDocument = SwaggerModule.createDocument(app, openApiConfig);
 

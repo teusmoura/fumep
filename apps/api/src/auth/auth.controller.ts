@@ -8,10 +8,13 @@ import {
   HttpStatus,
   Inject,
   Post,
+  Req,
   Res,
+  UseGuards,
 } from "@nestjs/common";
 import {
   ApiBadRequestResponse,
+  ApiCookieAuth,
   ApiOkResponse,
   ApiOperation,
   ApiUnauthorizedResponse,
@@ -23,6 +26,7 @@ import { loginRequestSchema } from "@fumep/validation";
 import { AuthService } from "./auth.service.js";
 import { SESSION_CONFIG, type SessionConfig } from "./auth.contracts.js";
 import { readSessionId, SESSION_COOKIE_NAME, sessionCookieOptions } from "./session-cookie.js";
+import { type AuthenticatedRequest, SessionGuard } from "./session.guard.js";
 
 @Controller("auth")
 export class AuthController {
@@ -50,19 +54,18 @@ export class AuthController {
   }
 
   @Get("session")
+  @UseGuards(SessionGuard)
+  @ApiCookieAuth(SESSION_COOKIE_NAME)
   @ApiOperation({ summary: "Read the current server-side session" })
   @ApiOkResponse({ description: "Current authenticated user" })
   @ApiUnauthorizedResponse({ description: "Session missing or invalid" })
-  async session(@Headers("cookie") cookieHeader?: string) {
-    const sessionId = readSessionId(cookieHeader);
-    const session = await this.authService.getSession(sessionId);
-
+  session(@Req() request: AuthenticatedRequest) {
     return {
       authenticated: true,
       user: {
-        id: session.userId,
-        role: session.role,
-        institutionIds: session.institutionIds,
+        id: request.auth.userId,
+        role: request.auth.role,
+        institutionIds: request.auth.institutionIds,
       },
     };
   }

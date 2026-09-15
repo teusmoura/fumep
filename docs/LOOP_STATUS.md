@@ -1246,3 +1246,43 @@ Commit:
 ```text
 feat(auth): implement logout
 ```
+
+## LOOP 2.6 — Concluído
+
+Escopo atual:
+- implementar `SessionGuard` com leitura do cookie e validação da sessão server-side;
+- anexar a identidade autenticada à requisição;
+- proteger `GET /api/v1/auth/session` como endpoint autenticado de prova;
+- testar sessão válida, ausente e inválida via Supertest;
+- não implementar regras de papel, instituição ou recuperação de senha.
+
+Implementado:
+- `SessionGuard` NestJS que lê o cookie canônico e valida a sessão pelo `AuthService`;
+- identidade autenticada anexada como `request.auth` somente após validação;
+- `GET /api/v1/auth/session` protegido pelo guard e simplificado para consumir a identidade da requisição;
+- esquema de autenticação por cookie declarado no OpenAPI e associado ao endpoint protegido;
+- guard registrado e exportado pelo módulo de autenticação para reutilização em endpoints futuros.
+
+Checks executados com sucesso:
+- `pnpm --filter @fumep/api typecheck`;
+- `pnpm --filter @fumep/api test` — 18 testes aprovados;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 48 testes aprovados entre validation, db e API, incluindo Redis real;
+- `pnpm build`;
+- `pnpm peers check`;
+- `.\\node_modules\\.bin\\prettier.cmd --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- endpoint protegido aceitou sessão válida, expôs sua identidade e rejeitou cookie ausente ou sessão desconhecida com HTTP 401.
+
+Observação:
+- regras de papel, instituição e recuperação de senha não foram implementadas.
+
+Commit:
+```text
+feat(auth): add session guard
+```

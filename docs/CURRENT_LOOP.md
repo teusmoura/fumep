@@ -35,30 +35,30 @@ LOOP 2.2 — CONCLUÍDO
 LOOP 2.3 — CONCLUÍDO
 LOOP 2.4 — CONCLUÍDO
 LOOP 2.5 — CONCLUÍDO
-LOOP 2.6 — ATUAL
+LOOP 2.6 — CONCLUÍDO
+LOOP 2.7 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 2.6 — SessionGuard
+### LOOP 2.7 — RoleGuard
 
 Objetivo:
 
 ```text
-Proteger endpoints autenticados por meio da sessão server-side.
+Restringir endpoints autenticados conforme o papel administrativo exigido.
 ```
 
 Implementar:
 
-- implementar `SessionGuard` no NestJS;
-- ler o cookie `fumep_session`;
-- localizar e validar a sessão no Redis;
-- disponibilizar a identidade autenticada à requisição;
-- proteger um endpoint autenticado e testar acesso válido e inválido.
+- implementar `RoleGuard` no NestJS;
+- declarar metadados de papéis permitidos por endpoint;
+- suportar os papéis canônicos `ADMIN` e `EDITOR`;
+- aplicar o guard após o `SessionGuard` em um endpoint de prova;
+- testar papel permitido e papel rejeitado.
 
 Não implementar:
 
-- `RoleGuard`;
 - `InstitutionGuard`;
 - recuperação de senha;
 - entidades e funcionalidades dos próximos loops.
@@ -66,11 +66,11 @@ Não implementar:
 Critério de aceite:
 
 ```text
-Endpoint protegido aceita sessão válida e rejeita sessão ausente ou inválida.
+Endpoint protegido por papel aceita usuário autorizado e rejeita papel não permitido.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 2.7 — RoleGuard
+LOOP 2.8 — InstitutionGuard
 ```

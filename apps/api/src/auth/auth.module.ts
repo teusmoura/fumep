@@ -7,15 +7,18 @@ import { LazyAuthUserRepository } from "./lazy-auth-user.repository.js";
 import { PasswordHasherService } from "./password-hasher.service.js";
 import { RedisSessionStore } from "./redis-session.store.js";
 import { loadSessionConfig } from "./session.config.js";
+import { SessionGuard } from "./session.guard.js";
 
 @Module({
   controllers: [AuthController],
   providers: [
     AuthService,
+    SessionGuard,
     PasswordHasherService,
     { provide: SESSION_CONFIG, useFactory: loadSessionConfig },
     { provide: AUTH_USER_REPOSITORY, useClass: LazyAuthUserRepository },
     { provide: SESSION_STORE, useClass: RedisSessionStore },
   ],
+  exports: [SessionGuard],
 })
 export class AuthModule {}
