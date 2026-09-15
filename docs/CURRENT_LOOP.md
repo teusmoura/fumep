@@ -39,40 +39,42 @@ LOOP 2.6 — CONCLUÍDO
 LOOP 2.7 — CONCLUÍDO
 LOOP 2.8 — CONCLUÍDO
 LOOP 2.9 — CONCLUÍDO
-LOOP 2.10 — ATUAL
+LOOP 2.10 — CONCLUÍDO
+LOOP 2.11 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 2.10 — Conteúdo multi-institucional
+### LOOP 2.11 — CSRF
 
 Objetivo:
 
 ```text
-Autorizar conteúdo multi-institucional somente quando o Editor possui acesso a todas as instituições vinculadas.
+Proteger métodos mutáveis autenticados contra requisições forjadas entre sites.
 ```
 
 Implementar:
 
-- estender a autorização institucional para múltiplas instituições-alvo;
-- permitir acesso global ao papel `ADMIN`;
-- exigir de `EDITOR` todas as instituições vinculadas ao conteúdo;
-- testar Editor com escopo completo e Editor com escopo parcial.
+- implementar proteção CSRF para `POST`, `PUT`, `PATCH` e `DELETE` autenticados;
+- validar token CSRF associado à sessão;
+- validar `Origin` ou `Referer` permitido;
+- preservar `SameSite=Lax` no cookie de sessão;
+- testar requisições válidas e rejeitadas.
 
 Não implementar:
 
+- rate limiting;
 - recuperação de senha;
-- CSRF e rate limiting;
 - entidades e funcionalidades dos próximos loops.
 
 Critério de aceite:
 
 ```text
-Editor somente acessa conteúdo multi-institucional quando possui permissão em todas as instituições vinculadas.
+Métodos mutáveis autenticados rejeitam requisições sem token CSRF válido ou origem permitida.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 2.11 — CSRF
+LOOP 2.12 — Rate limiting de login
 ```

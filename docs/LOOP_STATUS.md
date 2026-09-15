@@ -1409,3 +1409,43 @@ Commit:
 ```text
 test(auth): cover simple institution permissions
 ```
+
+## LOOP 2.10 — Concluído
+
+Escopo atual:
+- estender o metadado institucional para múltiplos parâmetros-alvo;
+- exigir que `EDITOR` possua todas as instituições vinculadas;
+- preservar acesso global de `ADMIN` e compatibilidade com escopo simples;
+- testar Editor com escopo completo e parcial;
+- não implementar entidades de conteúdo, CSRF, rate limiting ou recuperação de senha.
+
+Implementado:
+- novo decorator `@InstitutionParams()` para declarar múltiplas instituições-alvo;
+- `@InstitutionParam()` simples preservado como atalho compatível;
+- `InstitutionGuard` ampliado para exigir correspondência de todos os parâmetros declarados;
+- regra de acesso global de `ADMIN` preservada;
+- testes para Editor com todas as instituições exigidas e Editor com escopo parcial.
+
+Checks executados com sucesso:
+- `pnpm --filter @fumep/api typecheck`;
+- `pnpm --filter @fumep/api test` — 25 testes aprovados;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 55 testes aprovados entre validation, db e API, incluindo Redis real;
+- `pnpm build`;
+- `pnpm peers check`;
+- `.\\node_modules\\.bin\\prettier.cmd --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- Editor com escopo completo foi autorizado e Editor sem uma das instituições vinculadas foi rejeitado.
+
+Observação:
+- nenhuma entidade de conteúdo, proteção CSRF, rate limiting ou recuperação de senha foi implementada.
+
+Commit:
+```text
+feat(auth): enforce multi-institution scope
+```
