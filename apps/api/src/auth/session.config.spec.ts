@@ -8,6 +8,7 @@ describe("loadSessionConfig", () => {
       inactivitySeconds: 1800,
       absoluteSeconds: 28_800,
       secureCookie: false,
+      appOrigin: "http://localhost:3000",
     });
   });
 
@@ -17,8 +18,18 @@ describe("loadSessionConfig", () => {
         NODE_ENV: "production",
         SESSION_INACTIVITY_SECONDS: "900",
         SESSION_ABSOLUTE_SECONDS: "14400",
+        APP_ORIGIN: "https://portal.fumep.br",
       }),
-    ).toEqual({ inactivitySeconds: 900, absoluteSeconds: 14_400, secureCookie: true });
+    ).toEqual({
+      inactivitySeconds: 900,
+      absoluteSeconds: 14_400,
+      secureCookie: true,
+      appOrigin: "https://portal.fumep.br",
+    });
+  });
+
+  it("requires an explicit application origin in production", () => {
+    expect(() => loadSessionConfig({ NODE_ENV: "production" })).toThrow();
   });
 
   it("rejects invalid durations", () => {

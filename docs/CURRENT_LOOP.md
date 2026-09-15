@@ -40,41 +40,39 @@ LOOP 2.7 — CONCLUÍDO
 LOOP 2.8 — CONCLUÍDO
 LOOP 2.9 — CONCLUÍDO
 LOOP 2.10 — CONCLUÍDO
-LOOP 2.11 — ATUAL
+LOOP 2.11 — CONCLUÍDO
+LOOP 2.12 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 2.11 — CSRF
+### LOOP 2.12 — Rate limiting de login
 
 Objetivo:
 
 ```text
-Proteger métodos mutáveis autenticados contra requisições forjadas entre sites.
+Aplicar a política inicial de limitação de tentativas de login.
 ```
 
 Implementar:
 
-- implementar proteção CSRF para `POST`, `PUT`, `PATCH` e `DELETE` autenticados;
-- validar token CSRF associado à sessão;
-- validar `Origin` ou `Referer` permitido;
-- preservar `SameSite=Lax` no cookie de sessão;
-- testar requisições válidas e rejeitadas.
+- limitar tentativas de login por IP;
+- aplicar a política inicial canônica;
+- testar requisições dentro e acima do limite.
 
 Não implementar:
 
-- rate limiting;
 - recuperação de senha;
 - entidades e funcionalidades dos próximos loops.
 
 Critério de aceite:
 
 ```text
-Métodos mutáveis autenticados rejeitam requisições sem token CSRF válido ou origem permitida.
+Tentativas de login acima do limite são rejeitadas.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 2.12 — Rate limiting de login
+LOOP 2.13 — Forgot password
 ```

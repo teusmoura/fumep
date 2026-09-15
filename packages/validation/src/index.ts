@@ -22,6 +22,7 @@ export const sessionDataSchema = z
     userId: z.uuid(),
     role: z.enum(["ADMIN", "EDITOR"]),
     institutionIds: z.array(z.uuid()),
+    csrfToken: z.string().regex(/^[A-Za-z0-9_-]{43}$/),
     createdAt: z.iso.datetime(),
     lastActivityAt: z.iso.datetime(),
     absoluteExpiresAt: z.iso.datetime(),

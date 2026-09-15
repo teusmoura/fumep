@@ -21,6 +21,7 @@ function session(role: SessionData["role"], institutionIds: string[]): SessionDa
     userId: crypto.randomUUID(),
     role,
     institutionIds,
+    csrfToken: "a".repeat(43),
     createdAt: now,
     lastActivityAt: now,
     absoluteExpiresAt: new Date(Date.now() + 60_000).toISOString(),

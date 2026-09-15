@@ -1465,3 +1465,36 @@ Bloqueio:
 Resultado:
 - nenhuma alteração de código foi feita no loop 2.11;
 - `docs/CURRENT_LOOP.md` permanece no loop 2.11 até decisão explícita.
+
+## LOOP 2.11 — Concluído
+
+Decisão AUTH-002 autorizada:
+- token sincronizado e armazenado na sessão Redis;
+- entrega por login e consulta de sessão, com envio em `X-CSRF-Token`;
+- origem confiável configurada por `APP_ORIGIN`;
+- logout sem cookie permanece idempotente e sessão válida exige token e origem.
+
+Implementado:
+- token criptográfico por sessão persistido e validado pelo schema Redis;
+- token entregue no login e em `GET /auth/session` para uso no header `X-CSRF-Token`;
+- validação com comparação em tempo constante;
+- origem exata configurada por `APP_ORIGIN`, obrigatória em produção, aceitando `Origin` ou `Referer`;
+- `CsrfGuard` reutilizável para `POST`, `PUT`, `PATCH` e `DELETE` autenticados;
+- logout autenticado protegido, mantendo limpeza idempotente quando não existe sessão.
+
+Checks executados com sucesso:
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 57 testes aprovados;
+- `pnpm build`;
+- `pnpm peers check`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- mutação autenticada rejeitou token ausente e origem hostil, preservando a sessão, e aceitou token/origem válidos.
+
+Commit:
+```text
+feat(auth): add csrf protection
+```

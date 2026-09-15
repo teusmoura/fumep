@@ -1,3 +1,5 @@
+import { randomBytes } from "node:crypto";
+
 import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 
 import type { LoginRequest } from "@fumep/validation";
@@ -22,7 +24,7 @@ export class AuthService {
     private readonly passwordHasher: PasswordHasherService,
   ) {}
 
-  async login(credentials: LoginRequest): Promise<string> {
+  async login(credentials: LoginRequest): Promise<{ sessionId: string; csrfToken: string }> {
     const user = await this.users.findActiveByEmail(credentials.email);
     if (!user || !(await this.passwordHasher.verify(user.passwordHash, credentials.password))) {
       throw new UnauthorizedException("Invalid credentials");
@@ -33,13 +35,14 @@ export class AuthService {
       userId: user.id,
       role: user.role,
       institutionIds: user.institutionIds,
+      csrfToken: randomBytes(32).toString("base64url"),
       createdAt: now.toISOString(),
       lastActivityAt: now.toISOString(),
       absoluteExpiresAt: new Date(
         now.getTime() + this.sessionConfig.absoluteSeconds * 1000,
       ).toISOString(),
     };
-    return this.sessions.create(session);
+    return { sessionId: await this.sessions.create(session), csrfToken: session.csrfToken };
   }
 
   async getSession(sessionId: string | undefined): Promise<SessionData> {
@@ -47,6 +50,10 @@ export class AuthService {
     const session = await this.sessions.find(sessionId);
     if (!session) throw new UnauthorizedException("Authentication required");
     return session;
+  }
+
+  async findSession(sessionId: string | undefined): Promise<SessionData | undefined> {
+    return sessionId ? this.sessions.find(sessionId) : undefined;
   }
 
   async logout(sessionId: string | undefined): Promise<void> {

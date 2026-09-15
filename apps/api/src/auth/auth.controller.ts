@@ -19,11 +19,12 @@ import {
   ApiOperation,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
-import type { Response } from "express";
+import type { Request, Response } from "express";
 
 import { loginRequestSchema } from "@fumep/validation";
 
 import { AuthService } from "./auth.service.js";
+import { CsrfService } from "./csrf.service.js";
 import { SESSION_CONFIG, type SessionConfig } from "./auth.contracts.js";
 import { readSessionId, SESSION_COOKIE_NAME, sessionCookieOptions } from "./session-cookie.js";
 import { type AuthenticatedRequest, SessionGuard } from "./session.guard.js";
@@ -33,6 +34,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     @Inject(SESSION_CONFIG) private readonly sessionConfig: SessionConfig,
+    private readonly csrf: CsrfService,
   ) {}
 
   @Post("login")
@@ -45,12 +47,12 @@ export class AuthController {
     const parsed = loginRequestSchema.safeParse(body);
     if (!parsed.success) throw new BadRequestException("Invalid login request");
 
-    const sessionId = await this.authService.login(parsed.data);
+    const { sessionId, csrfToken } = await this.authService.login(parsed.data);
     response.cookie(SESSION_COOKIE_NAME, sessionId, {
       ...sessionCookieOptions(this.sessionConfig),
       maxAge: this.sessionConfig.inactivitySeconds * 1000,
     });
-    return { authenticated: true };
+    return { authenticated: true, csrfToken };
   }
 
   @Get("session")
@@ -67,6 +69,7 @@ export class AuthController {
         role: request.auth.role,
         institutionIds: request.auth.institutionIds,
       },
+      csrfToken: request.auth.csrfToken,
     };
   }
 
@@ -76,9 +79,13 @@ export class AuthController {
   @ApiOkResponse({ description: "Session ended and cookie invalidated" })
   async logout(
     @Headers("cookie") cookieHeader: string | undefined,
+    @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ) {
-    await this.authService.logout(readSessionId(cookieHeader));
+    const sessionId = readSessionId(cookieHeader);
+    const session = await this.authService.findSession(sessionId);
+    if (session) this.csrf.validate(request, session, this.sessionConfig.appOrigin);
+    await this.authService.logout(sessionId);
     response.clearCookie(SESSION_COOKIE_NAME, sessionCookieOptions(this.sessionConfig));
     return { authenticated: false };
   }

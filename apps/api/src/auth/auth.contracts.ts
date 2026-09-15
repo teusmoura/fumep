@@ -21,4 +21,5 @@ export interface SessionConfig {
   inactivitySeconds: number;
   absoluteSeconds: number;
   secureCookie: boolean;
+  appOrigin: string;
 }

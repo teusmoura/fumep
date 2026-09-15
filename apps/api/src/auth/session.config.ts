@@ -9,6 +9,10 @@ function positiveInteger(value: string | undefined, fallback: number, name: stri
 }
 
 export function loadSessionConfig(environment: NodeJS.ProcessEnv = process.env): SessionConfig {
+  const appOrigin = environment.APP_ORIGIN ?? "http://localhost:3000";
+  if (environment.NODE_ENV === "production" && !environment.APP_ORIGIN)
+    throw new Error("APP_ORIGIN is required in production");
+  new URL(appOrigin);
   return {
     inactivitySeconds: positiveInteger(
       environment.SESSION_INACTIVITY_SECONDS,
@@ -21,5 +25,6 @@ export function loadSessionConfig(environment: NodeJS.ProcessEnv = process.env):
       "SESSION_ABSOLUTE_SECONDS",
     ),
     secureCookie: environment.NODE_ENV === "production",
+    appOrigin,
   };
 }

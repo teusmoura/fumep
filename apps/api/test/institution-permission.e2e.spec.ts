@@ -39,6 +39,7 @@ describe("simple institutional permissions", () => {
     userId: "33333333-3333-4333-8333-333333333333",
     role: "EDITOR",
     institutionIds: [ETMSL_ID],
+    csrfToken: "a".repeat(43),
     createdAt: now,
     lastActivityAt: now,
     absoluteExpiresAt: new Date(Date.now() + 60_000).toISOString(),

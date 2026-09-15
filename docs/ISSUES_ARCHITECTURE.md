@@ -4,9 +4,15 @@ Use este arquivo apenas quando a implementação encontrar uma contradição rea
 
 ## Abertos
 
+Nenhum.
+
+## Resolvidos
+
 ### AUTH-002 — Contrato de token e origem para proteção CSRF
 
-Classificação: **bloqueador**.
+Classificação: **resolvido**.
+
+Decisão: recomendação AUTH-002 autorizada pelo responsável do projeto.
 
 Contexto:
 - o `LOOP 2.11` exige proteção de métodos mutáveis;
@@ -29,8 +35,6 @@ Decisão recomendada:
 Decisão necessária:
 - autorizar a recomendação acima; ou
 - definir outro padrão de token, entrega, origens confiáveis e tratamento de logout.
-
-## Resolvidos
 
 ### AUTH-001 — Limite entre Login (2.2) e Sessão Redis (2.3)
 

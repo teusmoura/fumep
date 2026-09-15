@@ -29,6 +29,7 @@ describe("RoleGuard", () => {
   let app: INestApplication;
   const baseSession = {
     institutionIds: [],
+    csrfToken: "a".repeat(43),
     createdAt: new Date().toISOString(),
     lastActivityAt: new Date().toISOString(),
     absoluteExpiresAt: new Date(Date.now() + 60_000).toISOString(),

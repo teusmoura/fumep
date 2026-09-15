@@ -59,7 +59,10 @@ describe("POST /api/v1/auth/login", () => {
       .post("/api/v1/auth/login")
       .send({ email: "  ADMIN@FUMEP.TEST  ", password: "correct-password" })
       .expect(200)
-      .expect({ authenticated: true });
+      .expect(200);
+
+    expect(response.body).toMatchObject({ authenticated: true });
+    expect(response.body.csrfToken).toMatch(/^[A-Za-z0-9_-]{43}$/);
 
     expect(createdSessions).toHaveLength(1);
     expect(createdSessions[0]).toMatchObject({
@@ -101,6 +104,7 @@ describe("POST /api/v1/auth/login", () => {
         role: "ADMIN",
         institutionIds: [],
       },
+      csrfToken: createdSessions[0]?.csrfToken,
     });
     expect(JSON.stringify(response.body)).not.toContain("test-session-id");
     expect(JSON.stringify(response.body)).not.toContain("absoluteExpiresAt");
@@ -114,10 +118,27 @@ describe("POST /api/v1/auth/login", () => {
       .expect(401);
   });
 
+  it("rejects authenticated logout without a valid CSRF token and origin", async () => {
+    await request(app.getHttpServer())
+      .post("/api/v1/auth/logout")
+      .set("Cookie", "fumep_session=test-session-id")
+      .set("Origin", "http://localhost:3000")
+      .expect(403);
+    await request(app.getHttpServer())
+      .post("/api/v1/auth/logout")
+      .set("Cookie", "fumep_session=test-session-id")
+      .set("Origin", "https://evil.test")
+      .set("X-CSRF-Token", createdSessions[0]?.csrfToken ?? "")
+      .expect(403);
+    expect(sessions.has("test-session-id")).toBe(true);
+  });
+
   it("removes the current session and expires its cookie", async () => {
     const response = await request(app.getHttpServer())
       .post("/api/v1/auth/logout")
       .set("Cookie", "fumep_session=test-session-id")
+      .set("Origin", "http://localhost:3000")
+      .set("X-CSRF-Token", createdSessions[0]?.csrfToken ?? "")
       .expect(200)
       .expect({ authenticated: false });
 
