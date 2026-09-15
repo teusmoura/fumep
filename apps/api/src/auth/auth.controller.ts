@@ -4,6 +4,7 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
+  Inject,
   Post,
   Res,
 } from "@nestjs/common";
@@ -18,10 +19,14 @@ import type { Response } from "express";
 import { loginRequestSchema } from "@fumep/validation";
 
 import { AuthService } from "./auth.service.js";
+import { SESSION_CONFIG, type SessionConfig } from "./auth.contracts.js";
 
 @Controller("auth")
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    @Inject(SESSION_CONFIG) private readonly sessionConfig: SessionConfig,
+  ) {}
 
   @Post("login")
   @HttpCode(HttpStatus.OK)
@@ -36,10 +41,10 @@ export class AuthController {
     const sessionId = await this.authService.login(parsed.data);
     response.cookie("fumep_session", sessionId, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: this.sessionConfig.secureCookie,
       sameSite: "lax",
       path: "/",
-      maxAge: 30 * 60 * 1000,
+      maxAge: this.sessionConfig.inactivitySeconds * 1000,
     });
     return { authenticated: true };
   }

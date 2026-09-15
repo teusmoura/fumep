@@ -32,29 +32,30 @@ LOOP 1.9 — CONCLUÍDO
 LOOP 1.10 — CONCLUÍDO
 LOOP 2.1 — CONCLUÍDO
 LOOP 2.2 — CONCLUÍDO
-LOOP 2.3 — ATUAL
+LOOP 2.3 — CONCLUÍDO
+LOOP 2.4 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 2.3 — Sessão Redis
+### LOOP 2.4 — GET session
 
 Objetivo:
 
 ```text
-Robustecer e validar o ciclo de vida da sessão server-side Redis iniciado no login.
+Implementar a consulta da sessão autenticada atual.
 ```
 
 Implementar:
 
-- tornar configuráveis os limites de inatividade de 30 minutos e duração absoluta de 8 horas;
-- consolidar criação e persistência do payload de sessão no Redis;
-- validar flags do cookie em desenvolvimento e produção;
-- testar expiração, payload e encerramento seguro do cliente Redis.
+- implementar `GET /api/v1/auth/session`;
+- ler o identificador do cookie `fumep_session`;
+- consultar e validar a sessão server-side no Redis;
+- rejeitar sessão ausente, inválida ou expirada;
+- testar sessão válida e não autenticada.
 
 Não implementar:
 
-- `GET /api/v1/auth/session`, reservado ao loop 2.4;
 - logout, reservado ao loop 2.5;
 - recuperação de senha;
 - guards e autorização institucional;
@@ -63,11 +64,11 @@ Não implementar:
 Critério de aceite:
 
 ```text
-Sessão permanece exclusivamente server-side no Redis, com limites temporais e cookie canônicos validados.
+Sessão válida pode ser consultada sem expor seu identificador ou dados internos desnecessários.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 2.4 — GET session
+LOOP 2.5 — Logout
 ```

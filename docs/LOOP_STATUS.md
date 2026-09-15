@@ -1127,3 +1127,42 @@ Commit:
 ```text
 feat(auth): implement login with Redis session
 ```
+
+## LOOP 2.3 — Concluído
+
+Escopo atual:
+- tornar configuráveis os limites de inatividade e duração absoluta da sessão;
+- consolidar uso dessas configurações no Redis, payload e cookie;
+- validar defaults, overrides, modo produção, TTL e encerramento do cliente;
+- não implementar leitura de sessão, logout, recuperação, guards ou autorização.
+
+Implementado:
+- `SessionConfig` central com inatividade e duração absoluta configuráveis por ambiente;
+- defaults canônicos de 30 minutos e 8 horas, com rejeição de valores inválidos;
+- cookie Secure derivado do ambiente e Max-Age derivado do limite de inatividade;
+- payload com expiração absoluta derivada da configuração;
+- TTL Redis derivado da mesma configuração;
+- encerramento gracioso da conexão Redis no ciclo de vida do módulo;
+- testes de defaults, overrides, produção, configurações inválidas, TTL e payload persistido.
+
+Checks executados com sucesso:
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 41 testes aprovados entre validation, db e API, incluindo Redis real;
+- `pnpm build`;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm peers check`;
+- `pnpm exec prettier --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- a sessão permanece somente no Redis, usa limites temporais configuráveis e expõe ao navegador apenas cookie com flags canônicas.
+
+Observação:
+- leitura de sessão, logout, recuperação de senha, guards e autorização não foram implementados.
+
+Commit:
+```text
+feat(auth): harden Redis session configuration
+```

@@ -4,9 +4,11 @@ import type { LoginRequest } from "@fumep/validation";
 
 import {
   AUTH_USER_REPOSITORY,
+  SESSION_CONFIG,
   SESSION_STORE,
   type AuthUserLookup,
   type SessionData,
+  type SessionConfig,
   type SessionStore,
 } from "./auth.contracts.js";
 import { PasswordHasherService } from "./password-hasher.service.js";
@@ -16,6 +18,7 @@ export class AuthService {
   constructor(
     @Inject(AUTH_USER_REPOSITORY) private readonly users: AuthUserLookup,
     @Inject(SESSION_STORE) private readonly sessions: SessionStore,
+    @Inject(SESSION_CONFIG) private readonly sessionConfig: SessionConfig,
     private readonly passwordHasher: PasswordHasherService,
   ) {}
 
@@ -32,7 +35,9 @@ export class AuthService {
       institutionIds: user.institutionIds,
       createdAt: now.toISOString(),
       lastActivityAt: now.toISOString(),
-      absoluteExpiresAt: new Date(now.getTime() + 8 * 60 * 60 * 1000).toISOString(),
+      absoluteExpiresAt: new Date(
+        now.getTime() + this.sessionConfig.absoluteSeconds * 1000,
+      ).toISOString(),
     };
     return this.sessions.create(session);
   }

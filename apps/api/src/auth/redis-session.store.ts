@@ -1,19 +1,26 @@
 import { randomBytes } from "node:crypto";
 
-import type { OnModuleDestroy } from "@nestjs/common";
+import { Inject, type OnModuleDestroy } from "@nestjs/common";
 import { createClient, type RedisClientType } from "redis";
 
-import type { SessionData, SessionStore } from "./auth.contracts.js";
-
-const INACTIVITY_TTL_SECONDS = 30 * 60;
+import {
+  SESSION_CONFIG,
+  type SessionConfig,
+  type SessionData,
+  type SessionStore,
+} from "./auth.contracts.js";
 
 export class RedisSessionStore implements SessionStore, OnModuleDestroy {
   private client?: RedisClientType;
 
+  constructor(@Inject(SESSION_CONFIG) private readonly config: SessionConfig) {}
+
   async create(data: SessionData): Promise<string> {
     const client = await this.getClient();
     const sessionId = randomBytes(32).toString("base64url");
-    await client.set(`session:${sessionId}`, JSON.stringify(data), { EX: INACTIVITY_TTL_SECONDS });
+    await client.set(`session:${sessionId}`, JSON.stringify(data), {
+      EX: this.config.inactivitySeconds,
+    });
     return sessionId;
   }
 
