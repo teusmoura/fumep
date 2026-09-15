@@ -1369,3 +1369,43 @@ Commit:
 ```text
 feat(auth): add institution guard
 ```
+
+## LOOP 2.9 — Concluído
+
+Escopo atual:
+- criar prova E2E da cadeia `SessionGuard`, `RoleGuard` e `InstitutionGuard`;
+- representar um Editor vinculado somente à ETMSL;
+- validar acesso à ETMSL com HTTP 200;
+- validar tentativa de acesso ao CRAMAM com HTTP 403;
+- não alterar a lógica dos guards nem implementar conteúdo multi-institucional.
+
+Implementado:
+- controller disponível somente na suíte E2E para representar um recurso institucional;
+- sessão determinística de Editor vinculada exclusivamente à ETMSL;
+- cadeia real `SessionGuard`, `RoleGuard` e `InstitutionGuard` aplicada à rota de teste;
+- cenário ETMSL autorizado com HTTP 200;
+- cenário CRAMAM rejeitado com HTTP 403.
+
+Checks executados com sucesso:
+- `pnpm --filter @fumep/api typecheck`;
+- `pnpm --filter @fumep/api test` — 24 testes aprovados;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 54 testes aprovados entre validation, db e API, incluindo Redis real;
+- `pnpm build`;
+- `pnpm peers check`;
+- `.\\node_modules\\.bin\\prettier.cmd --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- Editor ETMSL recebeu HTTP 200 ao acessar ETMSL e HTTP 403 ao tentar acessar CRAMAM.
+
+Observação:
+- nenhuma lógica de produção foi alterada; conteúdo multi-institucional e recuperação de senha não foram implementados.
+
+Commit:
+```text
+test(auth): cover simple institution permissions
+```

@@ -38,40 +38,41 @@ LOOP 2.5 — CONCLUÍDO
 LOOP 2.6 — CONCLUÍDO
 LOOP 2.7 — CONCLUÍDO
 LOOP 2.8 — CONCLUÍDO
-LOOP 2.9 — ATUAL
+LOOP 2.9 — CONCLUÍDO
+LOOP 2.10 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 2.9 — Testes de permissão simples
+### LOOP 2.10 — Conteúdo multi-institucional
 
 Objetivo:
 
 ```text
-Comprovar por HTTP a autorização institucional simples de um Editor.
+Autorizar conteúdo multi-institucional somente quando o Editor possui acesso a todas as instituições vinculadas.
 ```
 
 Implementar:
 
-- criar cenário E2E de Editor vinculado à ETMSL;
-- comprovar acesso à ETMSL com HTTP 200;
-- comprovar rejeição de acesso ao CRAMAM com HTTP 403;
-- executar a cadeia `SessionGuard`, `RoleGuard` e `InstitutionGuard`.
+- estender a autorização institucional para múltiplas instituições-alvo;
+- permitir acesso global ao papel `ADMIN`;
+- exigir de `EDITOR` todas as instituições vinculadas ao conteúdo;
+- testar Editor com escopo completo e Editor com escopo parcial.
 
 Não implementar:
 
-- conteúdo vinculado a múltiplas instituições;
 - recuperação de senha;
+- CSRF e rate limiting;
 - entidades e funcionalidades dos próximos loops.
 
 Critério de aceite:
 
 ```text
-Editor ETMSL recebe HTTP 200 para ETMSL e HTTP 403 para CRAMAM.
+Editor somente acessa conteúdo multi-institucional quando possui permissão em todas as instituições vinculadas.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 2.10 — Conteúdo multi-institucional
+LOOP 2.11 — CSRF
 ```
