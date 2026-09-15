@@ -2,6 +2,8 @@ import { sql } from "drizzle-orm";
 import {
   boolean,
   index,
+  integer,
+  jsonb,
   pgEnum,
   pgTable,
   primaryKey,
@@ -96,3 +98,35 @@ export const pages = pgTable(
 
 export type Page = typeof pages.$inferSelect;
 export type NewPage = typeof pages.$inferInsert;
+
+export const blockOwnerType = pgEnum("block_owner_type", ["PAGE", "ARTICLE"]);
+
+export const contentBlocks = pgTable(
+  "content_blocks",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerType: blockOwnerType("owner_type").notNull(),
+    ownerId: uuid("owner_id").notNull(),
+    type: varchar("type", { length: 50 }).notNull(),
+    position: integer("position").notNull(),
+    isVisible: boolean("is_visible").notNull().default(true),
+    schemaVersion: integer("schema_version").notNull().default(1),
+    background: varchar("background", { length: 50 }).notNull().default("DEFAULT"),
+    backgroundMediaId: uuid("background_media_id"),
+    anchor: varchar("anchor", { length: 100 }),
+    data: jsonb("data").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("content_blocks_owner_position_index").on(table.ownerType, table.ownerId, table.position),
+    uniqueIndex("content_blocks_owner_anchor_unique").on(
+      table.ownerType,
+      table.ownerId,
+      table.anchor,
+    ),
+  ],
+);
+
+export type ContentBlock = typeof contentBlocks.$inferSelect;
+export type NewContentBlock = typeof contentBlocks.$inferInsert;

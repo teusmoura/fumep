@@ -26,40 +26,43 @@ LOOP 1.3 — CONCLUÍDO
 LOOP 1.4 — CONCLUÍDO
 LOOP 1.5 — CONCLUÍDO
 LOOP 1.6 — CONCLUÍDO
-LOOP 1.7 — ATUAL
+LOOP 1.7 — CONCLUÍDO
+LOOP 1.8 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 1.7 — ContentBlock
+### LOOP 1.8 — PageVersion
 
 Objetivo:
 
 ```text
-Criar a estrutura de blocos de conteúdo polimórficos.
+Criar snapshots imutáveis e versionados de páginas.
 ```
 
 Implementar:
 
-- criar a tabela `content_blocks`;
-- implementar `id`, `owner_type`, `owner_id`, `type`, `position`, `is_visible`, `schema_version`, `background`, `background_media_id`, `anchor`, `data`, `created_at` e `updated_at`;
-- usar JSONB para `data`;
-- testar a estrutura e seus defaults aplicáveis.
+- criar a tabela `page_versions`;
+- implementar `id`, `page_id`, `version_number`, `snapshot`, `created_by` e `created_at`;
+- usar JSONB para o snapshot e garantir `UNIQUE(page_id, version_number)`;
+- vincular a página com exclusão em cascata e autoria opcional;
+- testar versionamento, snapshot e imutabilidade da estrutura.
 
 Não implementar:
 
-- PageVersion ou snapshots;
-- catálogo completo de blocos, renderização, edição, preview ou publicação;
+- restauração automática de versões;
+- versionamento individual por bloco;
+- endpoints, publicação ou preview;
 - entidades e funcionalidades dos próximos loops.
 
 Critério de aceite:
 
 ```text
-ContentBlock pode armazenar dados estruturados e ordenados para um proprietário.
+PageVersion preserva snapshots numerados da página sem alterar versões anteriores.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 1.8 — PageVersion
+LOOP 1.9 — AuditLog
 ```

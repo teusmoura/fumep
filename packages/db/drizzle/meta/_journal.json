@@ -43,6 +43,13 @@
       "when": 1788873912326,
       "tag": "0005_old_mongu",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1789477110451,
+      "tag": "0006_brainy_monster_badoon",
+      "breakpoints": true
     }
   ]
 }

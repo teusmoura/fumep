@@ -884,3 +884,45 @@ Commit:
 ```text
 feat(db): scope pages by institution
 ```
+
+## LOOP 1.7 — Concluído
+
+Escopo atual:
+- criar `content_blocks` com os campos definidos no plano atual;
+- restringir proprietários a `PAGE` e `ARTICLE`, persistir `data` em JSONB e ordenar por posição;
+- aplicar defaults estruturais e unicidade de anchor por proprietário;
+- não implementar Registry, schemas de blocos, renderização, preview, publicação ou versões.
+
+Implementado:
+- enum PostgreSQL `block_owner_type` limitado a `PAGE` e `ARTICLE`;
+- tabela `content_blocks` com UUID, proprietário polimórfico, tipo, posição, visibilidade, versão de schema, fundo, mídia de fundo, anchor, JSONB e timestamps com fuso;
+- defaults `is_visible = true`, `schema_version = 1` e `background = DEFAULT`;
+- índice composto para leitura ordenada por proprietário;
+- unicidade de anchor por proprietário;
+- migration aditiva `0006_brainy_monster_badoon.sql`;
+- testes para dados estruturados, ordenação, visibilidade, defaults, versões e anchor duplicado.
+
+Checks executados com sucesso:
+- migrations aplicadas do zero em `portal_fumep_loop_1_7_test`;
+- `pnpm --filter @fumep/db test` — 5 arquivos e 14 testes aprovados em banco limpo;
+- migration aplicada no banco de desenvolvimento;
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 17 testes aprovados entre validation, db e API;
+- `pnpm build`;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm peers check`;
+- `pnpm exec prettier --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- ContentBlock armazenou dados JSONB estruturados, visibilidade e posições ordenadas para um proprietário.
+
+Observação:
+- `background_media_id` permanece UUID sem chave estrangeira até a criação canônica da entidade de mídia; Registry, schemas Zod por bloco, renderização, preview, publicação e versões não foram antecipados.
+
+Commit:
+```text
+feat(builder): add content block schema
+```
