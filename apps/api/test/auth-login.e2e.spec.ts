@@ -41,6 +41,9 @@ describe("POST /api/v1/auth/login", () => {
           return "test-session-id";
         },
         find: async (sessionId: string) => sessions.get(sessionId),
+        delete: async (sessionId: string) => {
+          sessions.delete(sessionId);
+        },
       })
       .compile();
 
@@ -109,5 +112,30 @@ describe("POST /api/v1/auth/login", () => {
       .get("/api/v1/auth/session")
       .set("Cookie", "fumep_session=unknown")
       .expect(401);
+  });
+
+  it("removes the current session and expires its cookie", async () => {
+    const response = await request(app.getHttpServer())
+      .post("/api/v1/auth/logout")
+      .set("Cookie", "fumep_session=test-session-id")
+      .expect(200)
+      .expect({ authenticated: false });
+
+    expect(sessions.has("test-session-id")).toBe(false);
+    const cookie = response.headers["set-cookie"]?.[0];
+    expect(cookie).toContain("fumep_session=");
+    expect(cookie).toContain("Expires=Thu, 01 Jan 1970 00:00:00 GMT");
+    expect(cookie).toContain("Path=/");
+    expect(cookie).toContain("HttpOnly");
+    expect(cookie).toContain("SameSite=Lax");
+  });
+
+  it("is idempotent without a current session", async () => {
+    const response = await request(app.getHttpServer())
+      .post("/api/v1/auth/logout")
+      .expect(200)
+      .expect({ authenticated: false });
+
+    expect(response.headers["set-cookie"]?.[0]).toContain("fumep_session=");
   });
 });

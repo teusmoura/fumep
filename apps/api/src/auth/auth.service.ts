@@ -48,4 +48,8 @@ export class AuthService {
     if (!session) throw new UnauthorizedException("Authentication required");
     return session;
   }
+
+  async logout(sessionId: string | undefined): Promise<void> {
+    if (sessionId) await this.sessions.delete(sessionId);
+  }
 }

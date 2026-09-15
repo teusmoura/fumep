@@ -1205,3 +1205,44 @@ Commit:
 ```text
 feat(auth): expose current session endpoint
 ```
+
+## LOOP 2.5 — Concluído
+
+Escopo atual:
+- implementar `POST /api/v1/auth/logout` de forma idempotente;
+- remover do Redis a sessão indicada pelo cookie atual;
+- invalidar `fumep_session` com as flags canônicas;
+- testar remoção real, expiração do cookie e ausência de sessão;
+- não implementar recuperação, guards, CSRF ou autorização institucional.
+
+Implementado:
+- contrato do armazenamento de sessão ampliado com remoção idempotente;
+- exclusão da chave `session:{sessionId}` no adapter Redis;
+- contrato do cookie centralizado para login, leitura e logout;
+- `POST /api/v1/auth/logout` documentado no OpenAPI;
+- cookie invalidado com Path `/`, HttpOnly, SameSite=Lax e Secure em produção;
+- resposta idempotente mesmo quando o cookie ou a sessão já não existem;
+- testes E2E e Redis para exclusão, cookie expirado e repetição segura.
+
+Checks executados com sucesso:
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm --filter @fumep/api test` — 18 testes aprovados;
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 48 testes aprovados entre validation, db e API, incluindo Redis real;
+- `pnpm build`;
+- `pnpm peers check`;
+- `.\\node_modules\\.bin\\prettier.cmd --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- logout removeu a sessão do Redis e enviou ao navegador a expiração do cookie com as flags canônicas.
+
+Observação:
+- recuperação de senha, guards, CSRF e autorização institucional não foram implementados.
+
+Commit:
+```text
+feat(auth): implement logout
+```

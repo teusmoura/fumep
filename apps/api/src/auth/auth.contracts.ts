@@ -14,6 +14,7 @@ export type SessionData = ValidatedSessionData;
 export interface SessionStore {
   create(data: SessionData): Promise<string>;
   find(sessionId: string): Promise<SessionData | undefined>;
+  delete(sessionId: string): Promise<void>;
 }
 
 export interface SessionConfig {

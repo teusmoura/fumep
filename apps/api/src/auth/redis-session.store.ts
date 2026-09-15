@@ -57,6 +57,11 @@ export class RedisSessionStore implements SessionStore, OnModuleDestroy {
     return refreshed;
   }
 
+  async delete(sessionId: string): Promise<void> {
+    const client = await this.getClient();
+    await client.del(`session:${sessionId}`);
+  }
+
   private async getClient(): Promise<RedisClientType> {
     if (!this.client) {
       const redisUrl = process.env.REDIS_URL;

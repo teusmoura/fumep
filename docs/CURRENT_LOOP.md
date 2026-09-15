@@ -34,41 +34,43 @@ LOOP 2.1 — CONCLUÍDO
 LOOP 2.2 — CONCLUÍDO
 LOOP 2.3 — CONCLUÍDO
 LOOP 2.4 — CONCLUÍDO
-LOOP 2.5 — ATUAL
+LOOP 2.5 — CONCLUÍDO
+LOOP 2.6 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 2.5 — Logout
+### LOOP 2.6 — SessionGuard
 
 Objetivo:
 
 ```text
-Implementar o encerramento da sessão autenticada atual.
+Proteger endpoints autenticados por meio da sessão server-side.
 ```
 
 Implementar:
 
-- implementar `POST /api/v1/auth/logout`;
-- remover a sessão atual do Redis;
-- invalidar o cookie `fumep_session` com as flags canônicas;
-- tornar a operação idempotente;
-- testar remoção e cookie expirado.
+- implementar `SessionGuard` no NestJS;
+- ler o cookie `fumep_session`;
+- localizar e validar a sessão no Redis;
+- disponibilizar a identidade autenticada à requisição;
+- proteger um endpoint autenticado e testar acesso válido e inválido.
 
 Não implementar:
 
+- `RoleGuard`;
+- `InstitutionGuard`;
 - recuperação de senha;
-- guards e autorização institucional;
 - entidades e funcionalidades dos próximos loops.
 
 Critério de aceite:
 
 ```text
-Logout remove a sessão do Redis e invalida o cookie do navegador.
+Endpoint protegido aceita sessão válida e rejeita sessão ausente ou inválida.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 2.6 — SessionGuard
+LOOP 2.7 — RoleGuard
 ```

@@ -22,6 +22,7 @@ import { loginRequestSchema } from "@fumep/validation";
 
 import { AuthService } from "./auth.service.js";
 import { SESSION_CONFIG, type SessionConfig } from "./auth.contracts.js";
+import { readSessionId, SESSION_COOKIE_NAME, sessionCookieOptions } from "./session-cookie.js";
 
 @Controller("auth")
 export class AuthController {
@@ -41,11 +42,8 @@ export class AuthController {
     if (!parsed.success) throw new BadRequestException("Invalid login request");
 
     const sessionId = await this.authService.login(parsed.data);
-    response.cookie("fumep_session", sessionId, {
-      httpOnly: true,
-      secure: this.sessionConfig.secureCookie,
-      sameSite: "lax",
-      path: "/",
+    response.cookie(SESSION_COOKIE_NAME, sessionId, {
+      ...sessionCookieOptions(this.sessionConfig),
       maxAge: this.sessionConfig.inactivitySeconds * 1000,
     });
     return { authenticated: true };
@@ -56,10 +54,7 @@ export class AuthController {
   @ApiOkResponse({ description: "Current authenticated user" })
   @ApiUnauthorizedResponse({ description: "Session missing or invalid" })
   async session(@Headers("cookie") cookieHeader?: string) {
-    const sessionId = cookieHeader
-      ?.split(";")
-      .map((cookie) => cookie.trim().split("="))
-      .find(([name]) => name === "fumep_session")?.[1];
+    const sessionId = readSessionId(cookieHeader);
     const session = await this.authService.getSession(sessionId);
 
     return {
@@ -70,5 +65,18 @@ export class AuthController {
         institutionIds: session.institutionIds,
       },
     };
+  }
+
+  @Post("logout")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "End the current server-side session" })
+  @ApiOkResponse({ description: "Session ended and cookie invalidated" })
+  async logout(
+    @Headers("cookie") cookieHeader: string | undefined,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    await this.authService.logout(readSessionId(cookieHeader));
+    response.clearCookie(SESSION_COOKIE_NAME, sessionCookieOptions(this.sessionConfig));
+    return { authenticated: false };
   }
 }

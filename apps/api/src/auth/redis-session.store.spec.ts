@@ -81,4 +81,21 @@ describe("RedisSessionStore", () => {
     await expect(store.find(sessionId)).resolves.toBeUndefined();
     await expect(inspector.exists(key)).resolves.toBe(0);
   });
+
+  it("removes a session idempotently", async () => {
+    const now = new Date();
+    const sessionId = await store.create({
+      userId: crypto.randomUUID(),
+      role: "ADMIN",
+      institutionIds: [],
+      createdAt: now.toISOString(),
+      lastActivityAt: now.toISOString(),
+      absoluteExpiresAt: new Date(now.getTime() + 8 * 60 * 60 * 1000).toISOString(),
+    });
+    const key = `session:${sessionId}`;
+
+    await expect(store.delete(sessionId)).resolves.toBeUndefined();
+    await expect(store.delete(sessionId)).resolves.toBeUndefined();
+    await expect(inspector.exists(key)).resolves.toBe(0);
+  });
 });
