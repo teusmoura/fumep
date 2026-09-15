@@ -6,6 +6,7 @@ import { AuthService } from "./auth.service.js";
 import { LazyAuthUserRepository } from "./lazy-auth-user.repository.js";
 import { PasswordHasherService } from "./password-hasher.service.js";
 import { RedisSessionStore } from "./redis-session.store.js";
+import { RoleGuard } from "./role.guard.js";
 import { loadSessionConfig } from "./session.config.js";
 import { SessionGuard } from "./session.guard.js";
 
@@ -14,11 +15,12 @@ import { SessionGuard } from "./session.guard.js";
   providers: [
     AuthService,
     SessionGuard,
+    RoleGuard,
     PasswordHasherService,
     { provide: SESSION_CONFIG, useFactory: loadSessionConfig },
     { provide: AUTH_USER_REPOSITORY, useClass: LazyAuthUserRepository },
     { provide: SESSION_STORE, useClass: RedisSessionStore },
   ],
-  exports: [SessionGuard],
+  exports: [SessionGuard, RoleGuard],
 })
 export class AuthModule {}

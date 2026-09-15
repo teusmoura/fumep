@@ -1286,3 +1286,44 @@ Commit:
 ```text
 feat(auth): add session guard
 ```
+
+## LOOP 2.7 — Concluído
+
+Escopo atual:
+- implementar `RoleGuard` com metadados declarativos de papéis permitidos;
+- suportar somente os papéis canônicos `ADMIN` e `EDITOR`;
+- executar o guard depois do `SessionGuard` em um controller de teste;
+- testar papel permitido e papel autenticado não permitido;
+- não implementar escopo institucional ou recuperação de senha.
+
+Implementado:
+- decorator `@Roles()` tipado pelos papéis presentes na sessão;
+- `RoleGuard` com leitura de metadados no método ou controller;
+- suporte estrito aos papéis canônicos `ADMIN` e `EDITOR`;
+- rejeição HTTP 401 defensiva quando o guard recebe requisição sem identidade autenticada;
+- registro e exportação do guard pelo módulo de autenticação;
+- controller exclusivo de teste com cadeia `SessionGuard` seguida de `RoleGuard`.
+
+Checks executados com sucesso:
+- `pnpm --filter @fumep/api typecheck`;
+- `pnpm --filter @fumep/api test` — 20 testes aprovados;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 50 testes aprovados entre validation, db e API, incluindo Redis real;
+- `pnpm build`;
+- `pnpm peers check`;
+- `.\\node_modules\\.bin\\prettier.cmd --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- endpoint protegido por `ADMIN` aceitou a sessão administrativa com HTTP 200 e rejeitou a sessão `EDITOR` com HTTP 403.
+
+Observação:
+- escopo institucional, conteúdo multi-institucional e recuperação de senha não foram implementados.
+
+Commit:
+```text
+feat(auth): add role guard
+```

@@ -36,41 +36,43 @@ LOOP 2.3 — CONCLUÍDO
 LOOP 2.4 — CONCLUÍDO
 LOOP 2.5 — CONCLUÍDO
 LOOP 2.6 — CONCLUÍDO
-LOOP 2.7 — ATUAL
+LOOP 2.7 — CONCLUÍDO
+LOOP 2.8 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 2.7 — RoleGuard
+### LOOP 2.8 — InstitutionGuard
 
 Objetivo:
 
 ```text
-Restringir endpoints autenticados conforme o papel administrativo exigido.
+Validar o escopo institucional de requisições administrativas autenticadas.
 ```
 
 Implementar:
 
-- implementar `RoleGuard` no NestJS;
-- declarar metadados de papéis permitidos por endpoint;
-- suportar os papéis canônicos `ADMIN` e `EDITOR`;
-- aplicar o guard após o `SessionGuard` em um endpoint de prova;
-- testar papel permitido e papel rejeitado.
+- implementar `InstitutionGuard` no NestJS;
+- obter da requisição a instituição-alvo do recurso;
+- permitir acesso global ao papel `ADMIN`;
+- limitar `EDITOR` às instituições presentes na sessão;
+- manter a autorização exclusivamente no backend.
 
 Não implementar:
 
-- `InstitutionGuard`;
+- conteúdo vinculado a múltiplas instituições;
+- matriz ampliada de testes de permissão do próximo loop;
 - recuperação de senha;
 - entidades e funcionalidades dos próximos loops.
 
 Critério de aceite:
 
 ```text
-Endpoint protegido por papel aceita usuário autorizado e rejeita papel não permitido.
+Guard institucional permite somente acesso compatível com o escopo da identidade autenticada.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 2.8 — InstitutionGuard
+LOOP 2.9 — Testes de permissão simples
 ```
