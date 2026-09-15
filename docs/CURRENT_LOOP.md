@@ -31,30 +31,31 @@ LOOP 1.8 — CONCLUÍDO
 LOOP 1.9 — CONCLUÍDO
 LOOP 1.10 — CONCLUÍDO
 LOOP 2.1 — CONCLUÍDO
-LOOP 2.2 — ATUAL
+LOOP 2.2 — CONCLUÍDO
+LOOP 2.3 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 2.2 — Login
+### LOOP 2.3 — Sessão Redis
 
 Objetivo:
 
 ```text
-Implementar o endpoint de login da API.
+Robustecer e validar o ciclo de vida da sessão server-side Redis iniciado no login.
 ```
 
 Implementar:
 
-- implementar `POST /api/v1/auth/login`;
-- validar as credenciais de usuário ativo;
-- usar o serviço Argon2id existente;
-- criar a abstração mínima de sessão necessária ao contrato do login;
-- testar credenciais válidas e inválidas.
+- tornar configuráveis os limites de inatividade de 30 minutos e duração absoluta de 8 horas;
+- consolidar criação e persistência do payload de sessão no Redis;
+- validar flags do cookie em desenvolvimento e produção;
+- testar expiração, payload e encerramento seguro do cliente Redis.
 
 Não implementar:
 
-- implementação Redis da sessão, reservada ao loop 2.3;
+- `GET /api/v1/auth/session`, reservado ao loop 2.4;
+- logout, reservado ao loop 2.5;
 - recuperação de senha;
 - guards e autorização institucional;
 - entidades e funcionalidades dos próximos loops.
@@ -62,11 +63,11 @@ Não implementar:
 Critério de aceite:
 
 ```text
-Credenciais válidas criam sessão pelo endpoint de login e credenciais inválidas são rejeitadas.
+Sessão permanece exclusivamente server-side no Redis, com limites temporais e cookie canônicos validados.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 2.3 — Sessão Redis
+LOOP 2.4 — GET session
 ```

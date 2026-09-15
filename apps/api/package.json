@@ -9,6 +9,7 @@
     "db:check": "node --env-file=../../.env --experimental-strip-types src/database-check.ts",
     "redis:check": "node --env-file=../../.env --experimental-strip-types src/redis-check.ts",
     "storage:check": "node --env-file=../../.env --experimental-strip-types src/storage-check.ts",
+    "pretest": "pnpm --filter @fumep/validation build",
     "build": "nest build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
@@ -21,6 +22,8 @@
     "@nestjs/platform-express": "^12.0.1",
     "@nestjs/swagger": "^12.0.1",
     "argon2": "^0.45.1",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
     "minio": "^8.0.6",
     "postgres": "^3.4.7",
     "redis": "^5.8.2",
@@ -30,6 +33,7 @@
   "devDependencies": {
     "@nestjs/cli": "^12.0.0",
     "@nestjs/testing": "^12.0.1",
+    "@types/express": "^5.0.6",
     "@types/node": "^26.4.1",
     "@types/supertest": "^7.2.1",
     "supertest": "^7.2.2",

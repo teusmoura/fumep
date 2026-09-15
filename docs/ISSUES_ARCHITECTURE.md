@@ -4,9 +4,15 @@ Use este arquivo apenas quando a implementação encontrar uma contradição rea
 
 ## Abertos
 
+Nenhum.
+
+## Resolvidos
+
 ### AUTH-001 — Limite entre Login (2.2) e Sessão Redis (2.3)
 
-Classificação: **bloqueador**.
+Classificação: **resolvido**.
+
+Decisão: implementar criação da sessão Redis e cookie no loop 2.2; o loop 2.3 será usado para robustecimento e testes do ciclo de vida da sessão server-side.
 
 Contexto:
 - o `LOOP 2.2` do plano canônico exige `POST /api/v1/auth/login` e aceita quando credenciais válidas criam sessão;

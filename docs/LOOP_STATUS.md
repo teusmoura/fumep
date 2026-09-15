@@ -1084,3 +1084,46 @@ Commit:
 ```text
 feat(auth): add Argon2id password hashing
 ```
+
+## LOOP 2.2 — Concluído
+
+Escopo atual:
+- implementar `POST /api/v1/auth/login` com validação Zod e OpenAPI;
+- autenticar somente usuário ativo por e-mail normalizado e Argon2id;
+- criar sessão Redis e cookie HttpOnly, SameSite=Lax e Secure em produção;
+- testar sucesso, falhas e persistência Redis sem implementar guards, logout ou recuperação.
+
+Implementado:
+- contrato Zod compartilhado para login com normalização de e-mail e rejeição de campos extras;
+- `AuthUserRepository` para localizar somente usuário ativo e carregar seu escopo institucional;
+- `AuthService` com verificação Argon2id e payload server-side contendo usuário, papel, instituições e limites temporais;
+- `RedisSessionStore` com identificador opaco aleatório, chave `session:{id}` e TTL de inatividade de 30 minutos;
+- `POST /api/v1/auth/login` documentado no OpenAPI, com resposta neutra de credenciais inválidas;
+- cookie `fumep_session` HttpOnly, SameSite=Lax, Path `/`, Secure em produção e Max-Age de 30 minutos;
+- decisão AUTH-001 registrada como resolvida em favor da implementação Redis/cookie no loop 2.2;
+- build pré-teste do contrato compartilhado para funcionamento em checkout limpo.
+
+Checks executados com sucesso:
+- migrations aplicadas do zero em `portal_fumep_loop_2_2_test`;
+- `pnpm test` com PostgreSQL isolado e Redis real — 38 testes aprovados;
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 38 testes aprovados entre validation, db e API;
+- `pnpm build`;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm ignored-builds`;
+- `pnpm peers check`;
+- `pnpm exec prettier --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- credenciais válidas criaram sessão server-side e cookie seguro; senha incorreta, usuário ausente/inativo e payload inválido foram rejeitados.
+
+Observação:
+- guards, leitura e logout de sessão, recuperação de senha e autorização institucional não foram implementados.
+
+Commit:
+```text
+feat(auth): implement login with Redis session
+```
