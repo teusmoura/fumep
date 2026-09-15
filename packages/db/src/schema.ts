@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import {
   boolean,
   index,
+  inet,
   integer,
   jsonb,
   pgEnum,
@@ -151,3 +152,25 @@ export const pageVersions = pgTable(
 
 export type PageVersion = typeof pageVersions.$inferSelect;
 export type NewPageVersion = typeof pageVersions.$inferInsert;
+
+export const auditLogs = pgTable(
+  "audit_logs",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+    action: varchar("action", { length: 100 }).notNull(),
+    entityType: varchar("entity_type", { length: 50 }).notNull(),
+    entityId: uuid("entity_id"),
+    metadata: jsonb("metadata"),
+    ipAddress: inet("ip_address"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("audit_logs_user_index").on(table.userId),
+    index("audit_logs_entity_index").on(table.entityType, table.entityId),
+    index("audit_logs_created_at_index").on(table.createdAt),
+  ],
+);
+
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type NewAuditLog = typeof auditLogs.$inferInsert;

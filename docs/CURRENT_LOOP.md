@@ -28,42 +28,43 @@ LOOP 1.5 — CONCLUÍDO
 LOOP 1.6 — CONCLUÍDO
 LOOP 1.7 — CONCLUÍDO
 LOOP 1.8 — CONCLUÍDO
-LOOP 1.9 — ATUAL
+LOOP 1.9 — CONCLUÍDO
+LOOP 1.10 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 1.9 — AuditLog
+### LOOP 1.10 — Redirect
 
 Objetivo:
 
 ```text
-Criar a estrutura inicial de auditoria administrativa.
+Criar a tabela simples de redirecionamentos futuros.
 ```
 
 Implementar:
 
-- criar a tabela `audit_logs`;
-- implementar `id`, `user_id`, `action`, `entity_type`, `entity_id`, `metadata`, `ip_address` e `created_at`;
-- usar JSONB para metadados e INET para endereço IP;
-- preservar registros sem exclusão em cascata;
-- testar a estrutura inicial.
+- criar a tabela `redirects`;
+- implementar `id`, `source_path`, `target_path`, `status_code` e `created_at`;
+- garantir origem única e status padrão 301;
+- restringir status a 301, 302, 307 ou 308;
+- testar a estrutura simples e suas constraints.
 
 Não implementar:
 
-- catálogo completo de eventos de auditoria;
-- instrumentação de todas as operações;
-- endpoints ou interface de consulta;
+- resolução HTTP de redirects;
+- geração automática a partir de alterações de slug;
+- endpoints ou interface administrativa;
 - entidades e funcionalidades dos próximos loops.
 
 Critério de aceite:
 
 ```text
-AuditLog registra eventos administrativos básicos sem risco de exclusão em cascata.
+Redirect armazena uma origem única, destino e código HTTP válido.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 1.10 — Redirect
+LOOP 2.1 — Argon2id
 ```

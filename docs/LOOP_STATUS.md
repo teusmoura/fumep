@@ -966,3 +966,43 @@ Commit:
 ```text
 feat(builder): add immutable page versions
 ```
+
+## LOOP 1.9 — Concluído
+
+Escopo atual:
+- criar `audit_logs` com ator opcional, ação, entidade, metadados, IP e timestamp;
+- preservar eventos ao excluir fisicamente o usuário, anulando apenas a referência;
+- testar a estrutura inicial em PostgreSQL;
+- não implementar catálogo completo, instrumentação, endpoints ou interface de consulta.
+
+Implementado:
+- tabela `audit_logs` com UUID, usuário opcional, ação, tipo/id da entidade, metadata JSONB, endereço INET e timestamp com fuso;
+- referência ao usuário com `ON DELETE SET NULL`, preservando integralmente o evento;
+- índices para ator, entidade e ordenação temporal;
+- migration aditiva `0008_fixed_sheva_callister.sql`;
+- testes de persistência do evento e preservação após exclusão física do usuário.
+
+Checks executados com sucesso:
+- migrations aplicadas do zero em `portal_fumep_loop_1_9_test`;
+- `pnpm --filter @fumep/db test` — 7 arquivos e 18 testes aprovados em banco limpo;
+- migration aplicada no banco de desenvolvimento;
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 21 testes aprovados entre validation, db e API;
+- `pnpm build`;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm peers check`;
+- `pnpm exec prettier --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- AuditLog registrou evento administrativo e permaneceu armazenado após a exclusão física do ator.
+
+Observação:
+- nenhum catálogo completo, instrumentação, endpoint ou interface de auditoria foi antecipado.
+
+Commit:
+```text
+feat(db): add initial audit log schema
+```

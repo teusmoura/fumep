@@ -57,6 +57,13 @@
       "when": 1789477920418,
       "tag": "0007_open_leper_queen",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1789478129106,
+      "tag": "0008_fixed_sheva_callister",
+      "breakpoints": true
     }
   ]
 }
