@@ -37,42 +37,41 @@ LOOP 2.4 — CONCLUÍDO
 LOOP 2.5 — CONCLUÍDO
 LOOP 2.6 — CONCLUÍDO
 LOOP 2.7 — CONCLUÍDO
-LOOP 2.8 — ATUAL
+LOOP 2.8 — CONCLUÍDO
+LOOP 2.9 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 2.8 — InstitutionGuard
+### LOOP 2.9 — Testes de permissão simples
 
 Objetivo:
 
 ```text
-Validar o escopo institucional de requisições administrativas autenticadas.
+Comprovar por HTTP a autorização institucional simples de um Editor.
 ```
 
 Implementar:
 
-- implementar `InstitutionGuard` no NestJS;
-- obter da requisição a instituição-alvo do recurso;
-- permitir acesso global ao papel `ADMIN`;
-- limitar `EDITOR` às instituições presentes na sessão;
-- manter a autorização exclusivamente no backend.
+- criar cenário E2E de Editor vinculado à ETMSL;
+- comprovar acesso à ETMSL com HTTP 200;
+- comprovar rejeição de acesso ao CRAMAM com HTTP 403;
+- executar a cadeia `SessionGuard`, `RoleGuard` e `InstitutionGuard`.
 
 Não implementar:
 
 - conteúdo vinculado a múltiplas instituições;
-- matriz ampliada de testes de permissão do próximo loop;
 - recuperação de senha;
 - entidades e funcionalidades dos próximos loops.
 
 Critério de aceite:
 
 ```text
-Guard institucional permite somente acesso compatível com o escopo da identidade autenticada.
+Editor ETMSL recebe HTTP 200 para ETMSL e HTTP 403 para CRAMAM.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 2.9 — Testes de permissão simples
+LOOP 2.10 — Conteúdo multi-institucional
 ```

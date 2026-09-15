@@ -1327,3 +1327,45 @@ Commit:
 ```text
 feat(auth): add role guard
 ```
+
+## LOOP 2.8 — Concluído
+
+Escopo atual:
+- implementar `InstitutionGuard` com instituição-alvo declarada por parâmetro de rota;
+- permitir acesso global a `ADMIN`;
+- limitar `EDITOR` às instituições presentes na identidade autenticada;
+- testar a regra isolada do guard;
+- não implementar conteúdo multi-institucional nem a matriz E2E do próximo loop.
+
+Implementado:
+- decorator `@InstitutionParam()` para declarar explicitamente o parâmetro de rota que identifica a instituição-alvo;
+- `InstitutionGuard` com leitura da identidade produzida pelo `SessionGuard`;
+- acesso global para `ADMIN` independentemente de vínculo institucional;
+- acesso de `EDITOR` limitado à presença da instituição-alvo em `institutionIds`;
+- rejeição defensiva de requisição sem identidade autenticada;
+- registro e exportação do guard pelo módulo de autenticação;
+- testes unitários da regra institucional simples.
+
+Checks executados com sucesso:
+- `pnpm --filter @fumep/api typecheck`;
+- `pnpm --filter @fumep/api test` — 22 testes aprovados;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 52 testes aprovados entre validation, db e API, incluindo Redis real;
+- `pnpm build`;
+- `pnpm peers check`;
+- `.\\node_modules\\.bin\\prettier.cmd --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- o guard permitiu acesso de Editor à instituição atribuída, negou instituição fora do escopo e preservou acesso global do Administrador.
+
+Observação:
+- conteúdo multi-institucional, matriz E2E de permissão e recuperação de senha não foram implementados.
+
+Commit:
+```text
+feat(auth): add institution guard
+```
