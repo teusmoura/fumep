@@ -30,41 +30,43 @@ LOOP 1.7 — CONCLUÍDO
 LOOP 1.8 — CONCLUÍDO
 LOOP 1.9 — CONCLUÍDO
 LOOP 1.10 — CONCLUÍDO
-LOOP 2.1 — ATUAL
+LOOP 2.1 — CONCLUÍDO
+LOOP 2.2 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 2.1 — Argon2id
+### LOOP 2.2 — Login
 
 Objetivo:
 
 ```text
-Implementar hash e verificação segura de senhas com Argon2id.
+Implementar o endpoint de login da API.
 ```
 
 Implementar:
 
-- criar um serviço de hash de senha com Argon2id;
-- implementar geração e verificação de hash;
-- garantir que o hash nunca seja igual à senha em texto;
-- testar senha válida e inválida.
+- implementar `POST /api/v1/auth/login`;
+- validar as credenciais de usuário ativo;
+- usar o serviço Argon2id existente;
+- criar a abstração mínima de sessão necessária ao contrato do login;
+- testar credenciais válidas e inválidas.
 
 Não implementar:
 
-- login, sessão Redis ou cookies;
+- implementação Redis da sessão, reservada ao loop 2.3;
 - recuperação de senha;
-- guards, autorização ou endpoints;
+- guards e autorização institucional;
 - entidades e funcionalidades dos próximos loops.
 
 Critério de aceite:
 
 ```text
-Senha é armazenável como hash Argon2id e pode ser verificada sem expor o texto original.
+Credenciais válidas criam sessão pelo endpoint de login e credenciais inválidas são rejeitadas.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 2.2 — Login
+LOOP 2.3 — Sessão Redis
 ```

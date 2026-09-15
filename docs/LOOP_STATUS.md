@@ -1045,3 +1045,42 @@ Commit:
 ```text
 feat(db): add redirect schema
 ```
+
+## LOOP 2.1 — Concluído
+
+Escopo atual:
+- adicionar Argon2 ao backend com build nativo explicitamente permitido;
+- criar serviço de geração e verificação de hashes Argon2id;
+- testar hash diferente do texto, senha válida, senha inválida e salt distinto;
+- não implementar login, sessão, cookies, recuperação, guards ou endpoints.
+
+Implementado:
+- dependência `argon2` adicionada à API e build nativo autorizado explicitamente no workspace;
+- `PasswordHasherService` injetável com geração Argon2id e verificação pelo formato PHC do hash;
+- testes confirmando prefixo Argon2id, ausência do texto original, senha válida, senha inválida e salts distintos.
+
+Checks executados com sucesso:
+- `pnpm rebuild argon2`;
+- `pnpm --filter @fumep/api typecheck`;
+- `pnpm --filter @fumep/api test` — 2 arquivos e 4 testes aprovados;
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 30 testes aprovados entre validation, db e API;
+- `pnpm build`;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm ignored-builds` — `argon2` não aparece entre os builds explicitamente ignorados;
+- `pnpm peers check`;
+- `pnpm exec prettier --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- a senha gerou hash Argon2id diferente do texto original e foi verificada corretamente sem exposição do segredo.
+
+Observação:
+- login, sessão, cookie, recuperação de senha, guards, autorização e endpoints não foram implementados.
+
+Commit:
+```text
+feat(auth): add Argon2id password hashing
+```
