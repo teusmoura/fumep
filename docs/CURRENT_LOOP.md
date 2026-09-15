@@ -29,42 +29,42 @@ LOOP 1.6 — CONCLUÍDO
 LOOP 1.7 — CONCLUÍDO
 LOOP 1.8 — CONCLUÍDO
 LOOP 1.9 — CONCLUÍDO
-LOOP 1.10 — ATUAL
+LOOP 1.10 — CONCLUÍDO
+LOOP 2.1 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 1.10 — Redirect
+### LOOP 2.1 — Argon2id
 
 Objetivo:
 
 ```text
-Criar a tabela simples de redirecionamentos futuros.
+Implementar hash e verificação segura de senhas com Argon2id.
 ```
 
 Implementar:
 
-- criar a tabela `redirects`;
-- implementar `id`, `source_path`, `target_path`, `status_code` e `created_at`;
-- garantir origem única e status padrão 301;
-- restringir status a 301, 302, 307 ou 308;
-- testar a estrutura simples e suas constraints.
+- criar um serviço de hash de senha com Argon2id;
+- implementar geração e verificação de hash;
+- garantir que o hash nunca seja igual à senha em texto;
+- testar senha válida e inválida.
 
 Não implementar:
 
-- resolução HTTP de redirects;
-- geração automática a partir de alterações de slug;
-- endpoints ou interface administrativa;
+- login, sessão Redis ou cookies;
+- recuperação de senha;
+- guards, autorização ou endpoints;
 - entidades e funcionalidades dos próximos loops.
 
 Critério de aceite:
 
 ```text
-Redirect armazena uma origem única, destino e código HTTP válido.
+Senha é armazenável como hash Argon2id e pode ser verificada sem expor o texto original.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 2.1 — Argon2id
+LOOP 2.2 — Login
 ```

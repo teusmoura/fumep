@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import {
   boolean,
+  check,
   index,
   inet,
   integer,
@@ -8,6 +9,7 @@ import {
   pgEnum,
   pgTable,
   primaryKey,
+  smallint,
   text,
   timestamp,
   uniqueIndex,
@@ -174,3 +176,20 @@ export const auditLogs = pgTable(
 
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type NewAuditLog = typeof auditLogs.$inferInsert;
+
+export const redirects = pgTable(
+  "redirects",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    sourcePath: text("source_path").notNull().unique(),
+    targetPath: text("target_path").notNull(),
+    statusCode: smallint("status_code").notNull().default(301),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    check("redirects_status_code_check", sql`${table.statusCode} in (301, 302, 307, 308)`),
+  ],
+);
+
+export type Redirect = typeof redirects.$inferSelect;
+export type NewRedirect = typeof redirects.$inferInsert;

@@ -1006,3 +1006,42 @@ Commit:
 ```text
 feat(db): add initial audit log schema
 ```
+
+## LOOP 1.10 — Concluído
+
+Escopo atual:
+- criar `redirects` com origem única, destino, código HTTP e timestamp;
+- usar 301 como padrão e restringir códigos a 301, 302, 307 e 308;
+- testar defaults, unicidade e constraint em PostgreSQL;
+- não implementar resolução HTTP, geração automática, endpoints ou interface administrativa.
+
+Implementado:
+- tabela `redirects` com UUID, origem única, destino, código HTTP e timestamp com fuso;
+- código padrão 301 e constraint PostgreSQL limitada a 301, 302, 307 e 308;
+- migration aditiva `0009_eager_pestilence.sql`;
+- testes de valor padrão, unicidade de origem, todos os códigos permitidos e rejeição de código inválido.
+
+Checks executados com sucesso:
+- migrations aplicadas do zero em `portal_fumep_loop_1_10_test`;
+- `pnpm --filter @fumep/db test` — 8 arquivos e 24 testes aprovados em banco limpo;
+- migration aplicada no banco de desenvolvimento;
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 27 testes aprovados entre validation, db e API;
+- `pnpm build`;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm peers check`;
+- `pnpm exec prettier --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- Redirect armazenou origem única, destino e apenas códigos HTTP canônicos, usando 301 por padrão.
+
+Observação:
+- resolução HTTP, geração automática, endpoints e interface administrativa não foram antecipados.
+
+Commit:
+```text
+feat(db): add redirect schema
+```
