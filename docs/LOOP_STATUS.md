@@ -1449,3 +1449,19 @@ Commit:
 ```text
 feat(auth): enforce multi-institution scope
 ```
+
+## LOOP 2.11 — Bloqueado
+
+Escopo analisado:
+- proteção CSRF em métodos mutáveis autenticados;
+- token CSRF, `SameSite=Lax` e validação de `Origin`/`Referer`;
+- integração com sessão Redis e logout idempotente.
+
+Bloqueio:
+- os documentos canônicos não definem o padrão e armazenamento do token, seu canal de entrega, a configuração de origens confiáveis nem o tratamento do logout;
+- a decisão afeta o contrato público da API, o payload de sessão Redis e a compatibilidade com o aceite do loop 2.5;
+- o caso foi registrado como `AUTH-002` em `docs/ISSUES_ARCHITECTURE.md`, com uma proposta concreta de resolução.
+
+Resultado:
+- nenhuma alteração de código foi feita no loop 2.11;
+- `docs/CURRENT_LOOP.md` permanece no loop 2.11 até decisão explícita.

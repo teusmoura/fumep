@@ -4,7 +4,31 @@ Use este arquivo apenas quando a implementação encontrar uma contradição rea
 
 ## Abertos
 
-Nenhum.
+### AUTH-002 — Contrato de token e origem para proteção CSRF
+
+Classificação: **bloqueador**.
+
+Contexto:
+- o `LOOP 2.11` exige proteção de métodos mutáveis;
+- o documento especializado exige token CSRF, `SameSite=Lax` e validação de `Origin`/`Referer`;
+- a sessão atual é server-side no Redis e o cookie `fumep_session` é HttpOnly;
+- o logout atual é idempotente mesmo sem uma sessão válida.
+
+Lacunas canônicas:
+- não está definido se o token será sincronizado e armazenado na sessão Redis ou implementado por double-submit cookie;
+- não está definido como o frontend receberá ou renovará o token;
+- não está definida a fonte de configuração das origens confiáveis;
+- não está definido se logout exige token quando existe sessão, preservando o comportamento idempotente sem cookie.
+
+Decisão recomendada:
+- gerar token criptograficamente seguro por sessão e armazená-lo no payload Redis;
+- retornar o token nas respostas autenticadas de login e consulta de sessão, para envio posterior no header `X-CSRF-Token`;
+- configurar origens confiáveis por `APP_ORIGIN`, obrigatória em produção, comparando exatamente `Origin` ou a origem extraída de `Referer`;
+- exigir token e origem nas mutações administrativas protegidas; tratar explicitamente o logout para preservar a limpeza idempotente sem cookie e exigir CSRF quando houver sessão válida.
+
+Decisão necessária:
+- autorizar a recomendação acima; ou
+- definir outro padrão de token, entrega, origens confiáveis e tratamento de logout.
 
 ## Resolvidos
 
