@@ -16,3 +16,16 @@ export const loginRequestSchema = z
   .strict();
 
 export type LoginRequest = z.infer<typeof loginRequestSchema>;
+
+export const sessionDataSchema = z
+  .object({
+    userId: z.uuid(),
+    role: z.enum(["ADMIN", "EDITOR"]),
+    institutionIds: z.array(z.uuid()),
+    createdAt: z.iso.datetime(),
+    lastActivityAt: z.iso.datetime(),
+    absoluteExpiresAt: z.iso.datetime(),
+  })
+  .strict();
+
+export type SessionData = z.infer<typeof sessionDataSchema>;

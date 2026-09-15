@@ -15,6 +15,7 @@ describe("POST /api/v1/auth/login", () => {
   let app: INestApplication;
   let passwordHash: string;
   const createdSessions: SessionData[] = [];
+  const sessions = new Map<string, SessionData>();
 
   beforeAll(async () => {
     passwordHash = await new PasswordHasherService().hash("correct-password");
@@ -36,8 +37,10 @@ describe("POST /api/v1/auth/login", () => {
       .useValue({
         create: async (data: SessionData) => {
           createdSessions.push(data);
+          sessions.set("test-session-id", data);
           return "test-session-id";
         },
+        find: async (sessionId: string) => sessions.get(sessionId),
       })
       .compile();
 
@@ -80,5 +83,31 @@ describe("POST /api/v1/auth/login", () => {
       .post("/api/v1/auth/login")
       .send({ email: "not-an-email", password: "password" })
       .expect(400);
+  });
+
+  it("returns the current user without exposing session internals", async () => {
+    const response = await request(app.getHttpServer())
+      .get("/api/v1/auth/session")
+      .set("Cookie", "fumep_session=test-session-id")
+      .expect(200);
+
+    expect(response.body).toEqual({
+      authenticated: true,
+      user: {
+        id: "11111111-1111-4111-8111-111111111111",
+        role: "ADMIN",
+        institutionIds: [],
+      },
+    });
+    expect(JSON.stringify(response.body)).not.toContain("test-session-id");
+    expect(JSON.stringify(response.body)).not.toContain("absoluteExpiresAt");
+  });
+
+  it("rejects a missing or unknown session", async () => {
+    await request(app.getHttpServer()).get("/api/v1/auth/session").expect(401);
+    await request(app.getHttpServer())
+      .get("/api/v1/auth/session")
+      .set("Cookie", "fumep_session=unknown")
+      .expect(401);
   });
 });

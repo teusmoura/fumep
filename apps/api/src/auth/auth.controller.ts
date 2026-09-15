@@ -2,6 +2,8 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
+  Headers,
   HttpCode,
   HttpStatus,
   Inject,
@@ -47,5 +49,26 @@ export class AuthController {
       maxAge: this.sessionConfig.inactivitySeconds * 1000,
     });
     return { authenticated: true };
+  }
+
+  @Get("session")
+  @ApiOperation({ summary: "Read the current server-side session" })
+  @ApiOkResponse({ description: "Current authenticated user" })
+  @ApiUnauthorizedResponse({ description: "Session missing or invalid" })
+  async session(@Headers("cookie") cookieHeader?: string) {
+    const sessionId = cookieHeader
+      ?.split(";")
+      .map((cookie) => cookie.trim().split("="))
+      .find(([name]) => name === "fumep_session")?.[1];
+    const session = await this.authService.getSession(sessionId);
+
+    return {
+      authenticated: true,
+      user: {
+        id: session.userId,
+        role: session.role,
+        institutionIds: session.institutionIds,
+      },
+    };
   }
 }

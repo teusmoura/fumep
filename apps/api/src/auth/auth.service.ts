@@ -41,4 +41,11 @@ export class AuthService {
     };
     return this.sessions.create(session);
   }
+
+  async getSession(sessionId: string | undefined): Promise<SessionData> {
+    if (!sessionId) throw new UnauthorizedException("Authentication required");
+    const session = await this.sessions.find(sessionId);
+    if (!session) throw new UnauthorizedException("Authentication required");
+    return session;
+  }
 }

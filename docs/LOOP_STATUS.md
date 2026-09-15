@@ -1166,3 +1166,42 @@ Commit:
 ```text
 feat(auth): harden Redis session configuration
 ```
+
+## LOOP 2.4 — Concluído
+
+Escopo atual:
+- implementar `GET /api/v1/auth/session` a partir do cookie opaco;
+- consultar, validar e renovar a inatividade da sessão no Redis;
+- rejeitar sessão ausente, desconhecida, corrompida ou absolutamente expirada;
+- não implementar logout, recuperação, guards ou autorização institucional.
+
+Implementado:
+- contrato Zod estrito para o payload interno de sessão;
+- leitura e validação do payload Redis por identificador opaco recebido no cookie;
+- renovação do timestamp de atividade e do TTL de inatividade em sessão válida;
+- remoção automática de payload corrompido ou absolutamente expirado;
+- `GET /api/v1/auth/session` documentado no OpenAPI;
+- resposta pública limitada a id, papel e instituições do usuário, sem session ID ou timestamps internos;
+- testes Redis e E2E para sessão válida, ausente, desconhecida, corrompida e expirada.
+
+Checks executados com sucesso:
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 45 testes aprovados entre validation, db e API, incluindo Redis real;
+- `pnpm build`;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm peers check`;
+- `pnpm exec prettier --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- uma sessão Redis válida foi consultada pelo cookie sem expor identificador ou dados internos; sessões inválidas foram rejeitadas.
+
+Observação:
+- logout, recuperação de senha, guards e autorização institucional não foram implementados.
+
+Commit:
+```text
+feat(auth): expose current session endpoint
+```

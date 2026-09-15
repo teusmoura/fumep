@@ -33,30 +33,30 @@ LOOP 1.10 — CONCLUÍDO
 LOOP 2.1 — CONCLUÍDO
 LOOP 2.2 — CONCLUÍDO
 LOOP 2.3 — CONCLUÍDO
-LOOP 2.4 — ATUAL
+LOOP 2.4 — CONCLUÍDO
+LOOP 2.5 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 2.4 — GET session
+### LOOP 2.5 — Logout
 
 Objetivo:
 
 ```text
-Implementar a consulta da sessão autenticada atual.
+Implementar o encerramento da sessão autenticada atual.
 ```
 
 Implementar:
 
-- implementar `GET /api/v1/auth/session`;
-- ler o identificador do cookie `fumep_session`;
-- consultar e validar a sessão server-side no Redis;
-- rejeitar sessão ausente, inválida ou expirada;
-- testar sessão válida e não autenticada.
+- implementar `POST /api/v1/auth/logout`;
+- remover a sessão atual do Redis;
+- invalidar o cookie `fumep_session` com as flags canônicas;
+- tornar a operação idempotente;
+- testar remoção e cookie expirado.
 
 Não implementar:
 
-- logout, reservado ao loop 2.5;
 - recuperação de senha;
 - guards e autorização institucional;
 - entidades e funcionalidades dos próximos loops.
@@ -64,11 +64,11 @@ Não implementar:
 Critério de aceite:
 
 ```text
-Sessão válida pode ser consultada sem expor seu identificador ou dados internos desnecessários.
+Logout remove a sessão do Redis e invalida o cookie do navegador.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 2.5 — Logout
+LOOP 2.6 — SessionGuard
 ```

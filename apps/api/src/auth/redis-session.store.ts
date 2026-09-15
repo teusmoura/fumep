@@ -3,6 +3,8 @@ import { randomBytes } from "node:crypto";
 import { Inject, type OnModuleDestroy } from "@nestjs/common";
 import { createClient, type RedisClientType } from "redis";
 
+import { sessionDataSchema } from "@fumep/validation";
+
 import {
   SESSION_CONFIG,
   type SessionConfig,
@@ -22,6 +24,37 @@ export class RedisSessionStore implements SessionStore, OnModuleDestroy {
       EX: this.config.inactivitySeconds,
     });
     return sessionId;
+  }
+
+  async find(sessionId: string): Promise<SessionData | undefined> {
+    const client = await this.getClient();
+    const key = `session:${sessionId}`;
+    const serialized = await client.get(key);
+    if (!serialized) return undefined;
+
+    let rawData: unknown;
+    try {
+      rawData = JSON.parse(serialized);
+    } catch {
+      await client.del(key);
+      return undefined;
+    }
+
+    const parsed = sessionDataSchema.safeParse(rawData);
+    if (!parsed.success) {
+      await client.del(key);
+      return undefined;
+    }
+    const data = parsed.data;
+
+    if (new Date(data.absoluteExpiresAt).getTime() <= Date.now()) {
+      await client.del(key);
+      return undefined;
+    }
+
+    const refreshed = { ...data, lastActivityAt: new Date().toISOString() };
+    await client.set(key, JSON.stringify(refreshed), { EX: this.config.inactivitySeconds });
+    return refreshed;
   }
 
   private async getClient(): Promise<RedisClientType> {
