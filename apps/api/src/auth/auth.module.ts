@@ -13,6 +13,11 @@ import { CsrfGuard } from "./csrf.guard.js";
 import { CsrfService } from "./csrf.service.js";
 import { InstitutionGuard } from "./institution.guard.js";
 import { LazyAuthUserRepository } from "./lazy-auth-user.repository.js";
+import { LazyPasswordResetTokenRepository } from "./lazy-password-reset-token.repository.js";
+import {
+  PASSWORD_RESET_TOKEN_REPOSITORY,
+  PasswordResetTokenService,
+} from "./password-reset-token.service.js";
 import { PasswordHasherService } from "./password-hasher.service.js";
 import { RedisSessionStore } from "./redis-session.store.js";
 import { RedisLoginAttemptStore } from "./redis-login-attempt.store.js";
@@ -25,6 +30,8 @@ import { SessionGuard } from "./session.guard.js";
   controllers: [AuthController],
   providers: [
     AuthService,
+    PasswordResetTokenService,
+    { provide: PASSWORD_RESET_TOKEN_REPOSITORY, useClass: LazyPasswordResetTokenRepository },
     CsrfService,
     CsrfGuard,
     SessionGuard,

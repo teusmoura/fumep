@@ -1580,3 +1580,48 @@ Commit:
 ```text
 feat(auth): add neutral password recovery request
 ```
+
+## LOOP 2.14 — Concluído
+
+Escopo atual:
+- criar `password_reset_tokens` com UUID, hash único, datas com fuso e FK em cascata;
+- emitir token aleatório de alta entropia, armazenando somente SHA-256;
+- aplicar validade de 30 minutos e disponibilizar emissão apenas como serviço interno;
+- testar migration limpa, repository, hash, expiração e cascata;
+- não implementar reset, envio de e-mail ou invalidação de sessões.
+
+Implementado:
+- tabela canônica com UUID, `token_hash` único, datas TIMESTAMPTZ e referência a usuário com `ON DELETE CASCADE`;
+- índices por usuário e expiração;
+- migration aditiva `0010_groovy_meggan.sql`;
+- repository Drizzle de persistência, sem campo para token original;
+- serviço interno de emissão com 32 bytes aleatórios, representação base64url e hash SHA-256;
+- expiração de 30 minutos e retorno do token apenas ao chamador interno;
+- adapter lazy de banco com encerramento da conexão no ciclo de vida do módulo;
+- build pré-teste dos pacotes db e validation para checkout limpo.
+
+Checks executados com sucesso:
+- todas as migrations aplicadas do zero em `portal_fumep_loop_2_14_test`;
+- `pnpm --filter @fumep/db test` — 29 testes aprovados no banco isolado;
+- migration aplicada no banco local;
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 73 testes aprovados;
+- `pnpm build`;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm peers check`;
+- `.\\node_modules\\.bin\\prettier.cmd --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- tokens distintos de alta entropia foram emitidos com somente hash persistido e validade de 30 minutos; unicidade, FK e cascata foram comprovadas no PostgreSQL.
+
+Observação:
+- o gerador Drizzle foi repetido fora do sandbox após erro de runtime e concluiu sem alterar migrations anteriores;
+- emissão é interna e ainda não está conectada ao envio de e-mail; reset e invalidação de sessões não foram antecipados.
+
+Commit:
+```text
+feat(auth): add secure password reset tokens
+```

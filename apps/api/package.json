@@ -9,7 +9,7 @@
     "db:check": "node --env-file=../../.env --experimental-strip-types src/database-check.ts",
     "redis:check": "node --env-file=../../.env --experimental-strip-types src/redis-check.ts",
     "storage:check": "node --env-file=../../.env --experimental-strip-types src/storage-check.ts",
-    "pretest": "pnpm --filter @fumep/validation build",
+    "pretest": "pnpm --filter @fumep/validation --filter @fumep/db build",
     "build": "nest build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"

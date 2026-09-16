@@ -43,41 +43,41 @@ LOOP 2.10 — CONCLUÍDO
 LOOP 2.11 — CONCLUÍDO
 LOOP 2.12 — CONCLUÍDO
 LOOP 2.13 — CONCLUÍDO
-LOOP 2.14 — ATUAL
+LOOP 2.14 — CONCLUÍDO
+LOOP 2.15 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 2.14 — Password reset tokens
+### LOOP 2.15 — Reset password
 
 Objetivo:
 
 ```text
-Criar a persistência e emissão segura de tokens temporários de recuperação de senha.
+Implementar a redefinição de senha com token temporário de uso único.
 ```
 
 Implementar:
 
-- criar `password_reset_tokens` conforme o documento de segurança;
-- gerar tokens criptograficamente aleatórios e persistir somente seu hash;
-- aplicar validade de 30 minutos;
-- incluir expiração, consumo e vínculo com usuário no modelo;
-- testar estrutura, hash, expiração e exclusão em cascata.
+- implementar `POST /api/v1/auth/reset-password` com Zod e OpenAPI;
+- validar token pelo hash, expiração e estado de consumo;
+- gerar hash Argon2id da nova senha com mínimo de 10 caracteres;
+- atualizar senha e consumir token atomicamente;
+- testar token válido, inválido, expirado e já utilizado.
 
 Não implementar:
 
-- redefinição de senha (loop 2.15);
 - invalidação de sessões após reset (loop 2.16);
 - entidades e funcionalidades dos próximos loops.
 
 Critério de aceite:
 
 ```text
-Token de recuperação possui alta entropia, somente hash persistido e expiração de 30 minutos.
+Token válido redefine a senha uma única vez; tokens inválidos, expirados ou consumidos são rejeitados.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 2.15 — Reset password
+LOOP 2.16 — Invalidar sessões após reset
 ```

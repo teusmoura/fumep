@@ -6,3 +6,7 @@ export {
   type UpdateInstitutionInput,
 } from "./institution.repository.js";
 export * from "./schema.js";
+export {
+  PasswordResetTokenRepository,
+  type CreatePasswordResetTokenInput,
+} from "./password-reset-token.repository.js";
