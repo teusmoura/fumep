@@ -3,7 +3,21 @@ import type { Database } from "./client.js";
 import { media, mediaCategories, type Media, type NewMedia } from "./schema.js";
 
 export class MediaRepository {
-  constructor(private readonly database: Pick<Database, "insert" | "query" | "select">) {}
+  constructor(
+    private readonly database: Pick<Database, "insert" | "query" | "select" | "update">,
+  ) {}
+  async updateDimensions(id: string, width: number, height: number): Promise<Media | undefined> {
+    if (
+      ![width, height].every((value) => Number.isInteger(value) && value > 0 && value <= 2147483647)
+    )
+      throw new Error("Invalid media dimensions");
+    const [updated] = await this.database
+      .update(media)
+      .set({ width, height })
+      .where(and(eq(media.id, id), eq(media.type, "IMAGE")))
+      .returning();
+    return updated;
+  }
   async create(input: NewMedia): Promise<Media> {
     const [created] = await this.database.insert(media).values(input).returning();
     if (!created) throw new Error("Media was not created");

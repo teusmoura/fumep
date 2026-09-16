@@ -2149,3 +2149,16 @@ Checks aprovados: `pnpm format:check`, `pnpm lint` sem warnings finais, `pnpm ty
 Cenários: lookup real PostgreSQL, recepção Redis, dedupe, reexecução sem alteração de estado, retry temporário, três tentativas exauridas, payload inválido sem secrets, fechamento de consumidor/conexões, preservação do original/registro na falha Redis e ausência de enqueue no aviso/seleção. Log ERROR de enqueue no teste é falha simulada esperada. Warning de argumento não usado corrigido. Nenhuma falha pendente. E2E browser/axe/CI remota não executados.
 
 Aceite cumprido. jobs-worker orientou consumer separado e retry; nestjs-api/media-storage preservaram transação principal e original; testing-qa orientou fixtures isoladas. Commit: `feat(media): deliver PROCESS_MEDIA to dedicated worker`.
+
+## LOOP 4.8 — Concluído
+
+Estado inicial: 4.7 concluído em `724ee0a`, Git limpo.
+Escopo: adapter MinIO compartilhado, leitura limitada do original, integridade SHA-256/tamanho, decodificação Sharp e orientação/dimensões, persistência apenas de width/height existentes, testes de formatos/corrupção/recursos/repetição e integração real. Sem variantes, READY ou mudanças de schema.
+
+Entregue: @fumep/storage extraído do adapter API, leitura por stream limitada/encerrada, Sharp no Worker com failOn=warning, limite de pixels/timeout, orientação EXIF, checksum/tamanho antes de decode, updateDimensions idempotente. Sem alteração de schema/migration, original ou estado final. Pipeline continua checkpoint PENDING documentado.
+
+Checks aprovados: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` (222: 18 validation, 43 DB, 12 jobs, 3 storage, 93 API, 38 web, 15 worker), `pnpm build`, `pnpm peers check`, `pnpm --filter @fumep/worker --filter @fumep/storage test`, `pnpm --filter @fumep/api storage:check`, install frozen, Prettier workflow e `git diff --check`. Todas as migrations do zero em `portal_fumep_loop_4_8_test` + 43 testes DB. Banco de fixture preservado.
+
+Falhas resolvidas: update tentou timestamp ausente em Media, removido sem alterar schema; Drizzle no sandbox retornou uv_os_get_passwd ENOMEM, reexecução autorizada aplicou migrations e passou. Nenhuma falha pendente. Browser E2E/axe/QA visual/CI remota não executados.
+
+Aceite cumprido. media-storage orientou preservação/integridade; drizzle-data-model restringiu persistência aos campos existentes; jobs-worker manteve Sharp fora do request; testing-qa cobriu quatro formatos, EXIF, corrupção, pixel limit, integridade, storage indisponível, stream limitado e integração real/repetição. Commit: `feat(media): decode originals with Sharp in worker`.

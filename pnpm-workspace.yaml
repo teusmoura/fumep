@@ -7,4 +7,5 @@ allowBuilds:
   argon2: true
   esbuild: true
   msgpackr-extract: false
+  sharp: true
   "unrs-resolver": false

@@ -2,10 +2,11 @@ import { UnrecoverableError, type Job } from "@fumep/jobs";
 import { processMediaPayloadSchema } from "@fumep/validation";
 
 type MediaReference = { id: string; type: string; processingStatus: string };
-export async function receiveMediaJob(
+export async function receiveMediaJob<T extends MediaReference>(
   job: Pick<Job, "id" | "name" | "data" | "attemptsMade">,
-  lookup: (id: string) => Promise<MediaReference | undefined>,
+  lookup: (id: string) => Promise<T | undefined>,
   log: (entry: Record<string, unknown>) => void = (entry) => console.info(JSON.stringify(entry)),
+  process?: (media: T) => Promise<{ width: number; height: number }>,
 ) {
   const started = Date.now();
   const parsed = processMediaPayloadSchema.safeParse(job.data);
@@ -23,18 +24,22 @@ export async function receiveMediaJob(
     const media = await lookup(parsed.data.mediaId);
     if (!media || media.type !== "IMAGE")
       throw new UnrecoverableError("MEDIA_NOT_FOUND_OR_NOT_IMAGE");
-    // Delivery checkpoint only in loop 4.7. Sharp/status transitions follow later.
+    const dimensions = process ? await process(media) : undefined;
     log({
       ...fields,
-      status: "received",
+      status: process ? "decoded" : "received",
       media_id: media.id,
       finished_at: new Date().toISOString(),
       duration: Date.now() - started,
     });
-    return { received: true, mediaId: media.id };
+    return { received: true, mediaId: media.id, ...(dimensions ? { dimensions } : {}) };
   } catch (error) {
     const permanent = error instanceof UnrecoverableError;
-    const summary = permanent ? error.message : "MEDIA_LOOKUP_UNAVAILABLE";
+    const summary = permanent
+      ? error.message
+      : process
+        ? "MEDIA_PROCESSING_UNAVAILABLE"
+        : "MEDIA_LOOKUP_UNAVAILABLE";
     log({
       ...fields,
       status: "failed",

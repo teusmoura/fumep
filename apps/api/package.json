@@ -9,8 +9,8 @@
     "db:check": "node --env-file=../../.env --experimental-strip-types src/database-check.ts",
     "redis:check": "node --env-file=../../.env --experimental-strip-types src/redis-check.ts",
     "queue:check": "pnpm --filter @fumep/jobs build && pnpm build && node --env-file=../../.env dist/queue-check.js",
-    "storage:check": "pnpm build && node --env-file=../../.env dist/storage-check.js",
-    "pretest": "pnpm --filter @fumep/validation --filter @fumep/db --filter @fumep/jobs build",
+    "storage:check": "pnpm --filter @fumep/storage build && pnpm build && node --env-file=../../.env dist/storage-check.js",
+    "pretest": "pnpm --filter @fumep/validation --filter @fumep/db --filter @fumep/jobs --filter @fumep/storage build",
     "build": "nest build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --fileParallelism=false"
@@ -18,6 +18,7 @@
   "dependencies": {
     "@fumep/db": "workspace:*",
     "@fumep/jobs": "workspace:*",
+    "@fumep/storage": "workspace:*",
     "@fumep/validation": "workspace:*",
     "@nestjs/common": "^12.0.1",
     "@nestjs/core": "^12.0.1",
@@ -26,7 +27,6 @@
     "argon2": "^0.45.1",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "minio": "^8.0.6",
     "postgres": "^3.4.7",
     "redis": "^5.8.2",
     "reflect-metadata": "^0.2.2",

@@ -32,6 +32,9 @@ importers:
       '@fumep/jobs':
         specifier: workspace:*
         version: link:../../packages/jobs
+      '@fumep/storage':
+        specifier: workspace:*
+        version: link:../../packages/storage
       '@fumep/validation':
         specifier: workspace:*
         version: link:../../packages/validation
@@ -56,9 +59,6 @@ importers:
       express:
         specifier: ^5.2.1
         version: 5.2.1(supports-color@7.2.0)
-      minio:
-        specifier: ^8.0.6
-        version: 8.0.7
       postgres:
         specifier: ^3.4.7
         version: 3.4.9
@@ -142,9 +142,15 @@ importers:
       '@fumep/jobs':
         specifier: workspace:*
         version: link:../../packages/jobs
+      '@fumep/storage':
+        specifier: workspace:*
+        version: link:../../packages/storage
       '@fumep/validation':
         specifier: workspace:*
         version: link:../../packages/validation
+      sharp:
+        specifier: ^0.35.4
+        version: 0.35.4(@types/node@26.4.1)
     devDependencies:
       '@types/node':
         specifier: ^26.4.1
@@ -183,6 +189,22 @@ importers:
       bullmq:
         specifier: ^5.81.5
         version: 5.81.5(redis@5.12.1)(supports-color@7.2.0)
+    devDependencies:
+      '@types/node':
+        specifier: ^26.4.1
+        version: 26.4.1
+      dotenv:
+        specifier: ^17.4.2
+        version: 17.4.2
+      vitest:
+        specifier: ^5.0.0
+        version: 5.0.0(@types/node@26.4.1)(jsdom@30.0.1(@noble/hashes@1.8.0))(vite@8.2.2(@types/node@26.4.1)(esbuild@0.28.2)(tsx@4.23.13))
+
+  packages/storage:
+    dependencies:
+      minio:
+        specifier: ^8.0.6
+        version: 8.0.7
     devDependencies:
       '@types/node':
         specifier: ^26.4.1
@@ -4734,8 +4756,7 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@img/colour@1.1.0':
-    optional: true
+  '@img/colour@1.1.0': {}
 
   '@img/sharp-darwin-arm64@0.35.4':
     optionalDependencies:
@@ -7569,7 +7590,6 @@ snapshots:
       '@img/sharp-win32-ia32': 0.35.4
       '@img/sharp-win32-x64': 0.35.4
       '@types/node': 26.4.1
-    optional: true
 
   shebang-command@2.0.0:
     dependencies:

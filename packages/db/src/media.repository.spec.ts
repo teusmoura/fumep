@@ -33,6 +33,19 @@ afterAll(async () => {
   await client.end();
 });
 describe("MediaRepository", () => {
+  it("updates image dimensions idempotently without changing processing state or checksum", async () => {
+    const created = await create();
+    const dimensions = await repository.updateDimensions(created.id, 12, 8);
+    expect(dimensions).toMatchObject({
+      width: 12,
+      height: 8,
+      checksumSha256: created.checksumSha256,
+      processingStatus: "PENDING",
+    });
+    expect(await repository.updateDimensions(created.id, 12, 8)).toEqual(dimensions);
+    await expect(repository.updateDimensions(created.id, 0, 8)).rejects.toThrow();
+    expect(await repository.updateDimensions(crypto.randomUUID(), 12, 8)).toBeUndefined();
+  });
   it("finds checksum duplicates deterministically only inside permitted institutions", async () => {
     const own = crypto.randomUUID();
     const foreign = crypto.randomUUID();

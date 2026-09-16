@@ -20,6 +20,14 @@ O consumidor relê Media do PostgreSQL e rejeita payload inválido/referência a
 
 IMPORTANTE: 4.7 é um checkpoint incremental de recepção. Job concluído aqui significa apenas entrega validada, NÃO imagem processada. Media permanece PENDING; nenhum READY, dimensão ou variante é gravado. Não usar este checkpoint como pipeline final de produção. Sharp será adicionado no 4.8, variantes no 4.9 e estados no 4.10; mídias recebidas neste checkpoint precisarão de reprocessamento ao disponibilizar o pipeline completo.
 
+## Sharp (4.8)
+
+Worker agora usa @fumep/storage (mesmo adapter da API), lê no máximo 15 MiB do original, confirma tamanho e SHA-256 persistidos, decodifica pixels com Sharp e grava somente width/height existentes. Nenhum buffer vai para o resultado BullMQ e original não é sobrescrito/removido.
+
+Dimensões consideram orientação EXIF. Decodificação não gera upscale ou objetos derivados. Limite operacional default de 40 milhões de pixels, configurável por `MEDIA_IMAGE_MAX_PIXELS` positivo até 100 milhões; timeout de processamento libvips de 30 segundos (não inclui espera por thread). Sharp failOn=warning rejeita corrupção. Oversize/integridade/corrupção falham permanentemente com resumo seguro; indisponibilidade de storage/banco sofre retries limitados.
+
+Job `completed` no checkpoint 4.8 significa decodificação/dimensões, NÃO pipeline pronto: Media continua PENDING, sem variantes. Reprocessamento de job completed retido exige liberar o ID interno antes de reenfileirar, ou aguardar sua remoção por retention; dedupe não cria segunda execução enquanto o ID existir. A implementação completa de estados/reprocessamento pertence ao 4.10.
+
 Testes reais usam namespace UUID exclusivo `fumep-test-queue-*`, verificam persistência, deduplicação e fechamento e removem apenas suas fixtures. Não usam FLUSHDB nem limpam `bull:media`. O addon nativo opcional msgpackr-extract permanece bloqueado; o fallback JavaScript passou nos testes.
 
 CI provisiona Redis/MinIO pelo Compose no projeto efêmero `portal-fumep-ci`, além de PostgreSQL do runner. Credenciais desse workflow são fixtures descartáveis, não credenciais de implantação. A limpeza afeta somente esse projeto de testes. Execução remota da CI e validação Docker local não foram realizadas: CLI Docker indisponível no ambiente atual.

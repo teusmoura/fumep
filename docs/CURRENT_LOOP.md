@@ -62,45 +62,47 @@ LOOP 4.4 — CONCLUÍDO
 LOOP 4.5 — CONCLUÍDO
 LOOP 4.6 — CONCLUÍDO
 LOOP 4.7 — CONCLUÍDO
-LOOP 4.8 — ATUAL
+LOOP 4.8 — CONCLUÍDO
+LOOP 4.9 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 4.8 — Sharp
+### LOOP 4.9 — MediaVariant
 
-Estado: pronto para execução após commit do 4.7. Worker recebe referência validada e consulta PostgreSQL. Recepção ainda não processa imagem nem marca READY.
+Estado: pronto para execução após commit do 4.8. Sharp decodifica/verifica original e grava dimensões. Media ainda PENDING, sem variantes.
 
 Objetivo:
 
 ```text
-Implementar processamento de imagem com Sharp exclusivamente no Worker.
+Criar MediaVariant e gerar WebP, AVIF e thumbnail no Worker.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop e arquitetura de Jobs/Storage; confirmar 4.7 commitado e Git limpo;
+- reler AGENTS.md, execute-loop e arquitetura de Jobs/Storage/modelo lógico; confirmar 4.8 commitado e Git limpo;
 - usar jobs-worker/media-storage/testing-qa conforme o escopo;
-- obter original via adapter MinIO interno, preservando bytes/objeto original;
-- integrar Sharp ao handler PROCESS_MEDIA com leitura/decodificação e dimensões;
+- schema/migration/repository MediaVariant, storage_key relativo conforme documento especializado;
+- gerar WebP/AVIF/thumbnail segundo política canônica aplicável, sem upscale e preservando original;
+- persistir objetos MinIO e metadados PostgreSQL com idempotência/repetição segura;
 - manter processamento fora do HTTP e payload sem bytes/credenciais;
-- testar formatos aceitos, corrupção, limites de recursos e repetição/falhas aplicáveis;
+- testar variantes/dimensões, imagem pequena, idempotência, falhas e migrations do zero;
 - não executar processamento no request NestJS;
 - checks, documentação, commit e Git limpo.
 
 Não implementar:
 
-- MediaVariant WebP/AVIF/thumbnail do 4.9, transições finais do 4.10, PDF, gestão completa de categorias, MediaUsage e logos;
+- transições finais do 4.10, PDF, gestão completa de categorias, MediaUsage e logos;
 - upload direto Browser → MinIO ou armazenamento físico no PostgreSQL.
 
 Critério de aceite:
 
 ```text
-Worker processa imagem com Sharp, preserva original e verifica dimensões, sem antecipar variantes/status finais; testes/checks verdes.
+WebP/AVIF/thumbnail registrados em MediaVariant e MinIO, sem upscale/perda do original; migrations/testes/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 4.9 — MediaVariant
+LOOP 4.10 — Status de processamento
 ```

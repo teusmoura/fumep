@@ -7,13 +7,15 @@
     "build": "tsc --project tsconfig.build.json",
     "start": "node dist/main.js",
     "typecheck": "tsc --noEmit",
-    "pretest": "pnpm --filter @fumep/jobs --filter @fumep/db --filter @fumep/validation build",
+    "pretest": "pnpm --filter @fumep/jobs --filter @fumep/db --filter @fumep/validation --filter @fumep/storage build",
     "test": "vitest run"
   },
   "dependencies": {
     "@fumep/jobs": "workspace:*",
     "@fumep/db": "workspace:*",
-    "@fumep/validation": "workspace:*"
+    "@fumep/validation": "workspace:*",
+    "@fumep/storage": "workspace:*",
+    "sharp": "^0.35.4"
   },
   "devDependencies": {
     "@types/node": "^26.4.1",
