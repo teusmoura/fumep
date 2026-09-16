@@ -50,25 +50,27 @@ LOOP 3.1 — CONCLUÍDO
 LOOP 3.2 — CONCLUÍDO
 LOOP 3.3 — CONCLUÍDO
 LOOP 3.4 — CONCLUÍDO
-LOOP 3.5 — ATUAL
+LOOP 3.5 — CONCLUÍDO
+LOOP 3.6 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 3.5 — appearance_default
+### LOOP 3.6 — ThemeContext no frontend
 
 Objetivo:
 
 ```text
-Consolidar o enum e o ciclo de vida da aparência padrão institucional.
+Resolver o tema mínimo por instituição no frontend público.
 ```
 
 Implementar:
 
-- reutilizar appearance_default implementado no 3.2, conforme campos explícitos daquele loop;
-- enum compartilhado SYSTEM/LIGHT/DARK e testes do padrão SYSTEM;
-- comprovar transições e preservação das configurações de contato;
-- não implementar resolução de tema no frontend (3.6).
+- ThemeContext compartilhado com tokens mínimos por instituição;
+- consumir a fonte institucional por API/contratos, sem acesso direto ao banco;
+- respeitar aparência padrão e SSR, sem expor credenciais administrativas;
+- testes aplicáveis e checks do frontend;
+- não antecipar InstitutionContext por rotas (3.7) ou funcionalidades futuras.
 
 Não implementar:
 
@@ -77,11 +79,11 @@ Não implementar:
 Critério de aceite:
 
 ```text
-Somente SYSTEM, LIGHT e DARK são aceitos e persistidos, com SYSTEM como padrão.
+Tema mínimo resolvido por instituição e compartilhado no frontend, com fonte de dados segura.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 3.6 — ThemeContext no frontend
+LOOP 3.7 — InstitutionContext
 ```

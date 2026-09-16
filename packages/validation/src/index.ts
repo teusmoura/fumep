@@ -117,6 +117,8 @@ export const institutionalLinkSchema = z
       }),
   })
   .strict();
+export const appearanceDefaultSchema = z.enum(["SYSTEM", "LIGHT", "DARK"]);
+export type AppearanceDefault = z.infer<typeof appearanceDefaultSchema>;
 export const updateInstitutionSettingRequestSchema = z
   .object({
     email: z.email().max(255).nullable().optional(),
@@ -124,7 +126,7 @@ export const updateInstitutionSettingRequestSchema = z
     address: z.string().trim().max(5000).nullable().optional(),
     socialLinks: z.array(institutionalLinkSchema).max(20).nullable().optional(),
     footerLinks: z.array(institutionalLinkSchema).max(20).nullable().optional(),
-    appearanceDefault: z.enum(["SYSTEM", "LIGHT", "DARK"]).optional(),
+    appearanceDefault: appearanceDefaultSchema.optional(),
   })
   .strict()
   .refine((input) => Object.keys(input).length > 0);

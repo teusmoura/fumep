@@ -1803,3 +1803,28 @@ Checks aprovados:
 Aceite cumprido sem falhas: instituições válidas sem logo e contrato preparado sem dependência funcional Media. Sem schema/migration/UI.
 
 Commit: `feat(validation): prepare optional institution logo configuration`.
+
+## LOOP 3.5 — Concluído
+
+Escopo atual:
+- enum compartilhado SYSTEM/LIGHT/DARK;
+- padrão e transições, sem duplicar persistência do 3.2;
+- testes de preservação dos demais settings.
+
+Implementado:
+- enum Zod e tipo AppearanceDefault compartilhados;
+- schema de settings reutiliza o enum;
+- testes PostgreSQL do padrão SYSTEM e transições LIGHT/DARK/SYSTEM sem perda de contato;
+- teste de contrato rejeita aliases, valores nulos e tipos inválidos.
+
+Checks aprovados:
+- `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`;
+- 101 testes: 13 validation, 36 db e 52 API;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm peers check`;
+- `.\\node_modules\\.bin\\prettier.cmd --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Aceite completo sem falhas; persistência já exigida no 3.2 foi reutilizada, sem migration duplicada. Sem frontend ou UI.
+
+Commit: `test(institutions): consolidate appearance defaults and transitions`.

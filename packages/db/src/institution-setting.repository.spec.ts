@@ -55,6 +55,20 @@ describe("InstitutionSettingRepository", () => {
     await db.delete(institutions).where(eq(institutions.id, id));
     expect(await repository.findByInstitutionId(id)).toBeUndefined();
   });
+
+  it("defaults to SYSTEM and persists every appearance transition without losing contact data", async () => {
+    const id = await create();
+    expect(await repository.upsert(id, { contactEmail: "contact@fumep.test" })).toMatchObject({
+      appearanceDefault: "SYSTEM",
+    });
+    for (const appearanceDefault of ["LIGHT", "DARK", "SYSTEM"] as const) {
+      await repository.upsert(id, { appearanceDefault });
+      expect(await repository.findByInstitutionId(id)).toMatchObject({
+        appearanceDefault,
+        contactEmail: "contact@fumep.test",
+      });
+    }
+  });
   it("rejects nonexistent institutions and invalid appearance", async () => {
     await expect(repository.upsert(crypto.randomUUID(), { phone: "123" })).rejects.toThrow();
     const id = await create();

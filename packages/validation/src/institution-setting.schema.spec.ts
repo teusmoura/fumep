@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { institutionalLinkSchema, updateInstitutionSettingRequestSchema } from "./index.js";
+import {
+  appearanceDefaultSchema,
+  institutionalLinkSchema,
+  updateInstitutionSettingRequestSchema,
+} from "./index.js";
 describe("institution settings contracts", () => {
+  it("exports exactly the three canonical appearance values", () => {
+    expect(appearanceDefaultSchema.options).toEqual(["SYSTEM", "LIGHT", "DARK"]);
+    for (const value of ["system", null, "AUTO", 1])
+      expect(appearanceDefaultSchema.safeParse(value).success).toBe(false);
+  });
   it("rejects unsafe, credential-bearing and malformed URLs without throwing", () => {
     for (const url of [
       "javascript:alert(1)",
