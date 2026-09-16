@@ -4,7 +4,27 @@ Use este arquivo apenas quando a implementação encontrar uma contradição rea
 
 ## Abertos
 
-Nenhum.
+### AUTH-003 — Limite entre Reset password (2.15) e invalidação de sessões (2.16)
+
+Classificação: **bloqueador**.
+
+Contexto:
+- o plano canônico exige `POST /auth/reset-password` no loop 2.15;
+- o loop 2.16 reserva explicitamente a remoção de todas as sessões do usuário após reset;
+- a seção 19 do documento especializado de segurança define o sucesso do reset como atualização da senha, consumo do token, remoção das sessões Redis e auditoria;
+- a skill `security-access` mantém como invariante que reset invalida sessões.
+
+Conflito:
+- concluir o endpoint no 2.15 sem revogação mantém sessões anteriores utilizáveis após troca de senha, contrariando a regra de segurança;
+- revogar todas as sessões já no 2.15 antecipa o escopo explícito do 2.16.
+
+Decisão recomendada:
+- implementar a revogação de todas as sessões como parte do sucesso do reset no loop 2.15;
+- usar o loop 2.16 para reforçar testes de ciclo de vida, múltiplas sessões e isolamento entre usuários.
+
+Decisão necessária:
+- autorizar o ajuste de escopo recomendado; ou
+- definir uma separação alternativa que não permita disponibilizar reset com sessões antigas ainda válidas.
 
 ## Resolvidos
 

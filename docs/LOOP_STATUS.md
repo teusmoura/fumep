@@ -1625,3 +1625,15 @@ Commit:
 ```text
 feat(auth): add secure password reset tokens
 ```
+
+## LOOP 2.15 — Bloqueado
+
+Escopo analisado:
+- reset por token único e expirável;
+- atualização Argon2id e consumo atômico;
+- exigência canônica de revogar sessões após o sucesso.
+
+Bloqueio:
+- o plano reserva a invalidação de sessões ao loop 2.16, enquanto o documento especializado e a skill de segurança exigem essa ação no sucesso do reset;
+- `AUTH-003` registrada em `docs/ISSUES_ARCHITECTURE.md`, com recomendação de revogação já no 2.15 e testes reforçados no 2.16;
+- nenhuma alteração de código realizada neste loop; `docs/CURRENT_LOOP.md` permanece em 2.15.
