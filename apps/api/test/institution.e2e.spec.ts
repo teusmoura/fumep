@@ -161,4 +161,56 @@ describe("Institution administrative CRUD", () => {
     for (const method of ["get", "patch", "delete"] as const)
       expect(doc.paths["/api/v1/institutions/{id}"]?.[method]).toBeDefined();
   });
+
+  it("persists settings and validates safe links, appearance and access", async () => {
+    const created = await mutate("post", "/api/v1/institutions")
+      .send({ name: "Settings fixture", slug: `fixture-${crypto.randomUUID()}` })
+      .expect(201);
+    const id = created.body.id;
+    ids.push(id);
+    const path = `/api/v1/institutions/${id}/settings`;
+    await request(app.getHttpServer()).get(path).set("Cookie", "fumep_session=admin").expect(404);
+    const updated = await mutate("patch", path)
+      .send({
+        email: "contact@fumep.test",
+        phone: "123",
+        address: "Address",
+        socialLinks: [{ label: "Social", url: "https://example.test" }],
+        footerLinks: [],
+        appearanceDefault: "DARK",
+      })
+      .expect(200);
+    expect(updated.body).toMatchObject({ email: "contact@fumep.test", appearanceDefault: "DARK" });
+    expect(updated.body.contactEmail).toBeUndefined();
+    const read = await request(app.getHttpServer())
+      .get(path)
+      .set("Cookie", "fumep_session=admin")
+      .expect(200);
+    expect(read.body).toEqual(updated.body);
+    for (const body of [
+      { appearanceDefault: "INVALID" },
+      { email: "invalid" },
+      { socialLinks: [{ label: "Unsafe", url: "javascript:alert(1)" }] },
+      { footerLinks: [{ label: "Unsafe", url: "https://user:password@example.test" }] },
+      { extra: true },
+      {},
+    ])
+      await mutate("patch", path).send(body).expect(400);
+    await request(app.getHttpServer()).get(path).expect(401);
+    await request(app.getHttpServer()).get(path).set("Cookie", "fumep_session=editor").expect(403);
+    await request(app.getHttpServer())
+      .patch(path)
+      .set("Cookie", "fumep_session=editor")
+      .send({ phone: "123" })
+      .expect(403);
+    await request(app.getHttpServer())
+      .patch(path)
+      .set("Cookie", "fumep_session=admin")
+      .send({ phone: "123" })
+      .expect(403);
+    await mutate("patch", `/api/v1/institutions/${crypto.randomUUID()}/settings`)
+      .send({ phone: "123" })
+      .expect(404);
+    await mutate("patch", path).send({ email: null, appearanceDefault: "LIGHT" }).expect(200);
+  });
 });

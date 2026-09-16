@@ -29,6 +29,22 @@ export const institutions = pgTable("institutions", {
 export type Institution = typeof institutions.$inferSelect;
 export type NewInstitution = typeof institutions.$inferInsert;
 
+export const appearanceDefault = pgEnum("appearance_default", ["SYSTEM", "LIGHT", "DARK"]);
+export const institutionSettings = pgTable("institution_settings", {
+  institutionId: uuid("institution_id")
+    .primaryKey()
+    .references(() => institutions.id, { onDelete: "cascade" }),
+  contactEmail: varchar("contact_email", { length: 255 }),
+  phone: varchar("phone", { length: 50 }),
+  address: text("address"),
+  socialLinks: jsonb("social_links").$type<{ label: string; url: string }[]>(),
+  footerLinks: jsonb("footer_links").$type<{ label: string; url: string }[]>(),
+  appearanceDefault: appearanceDefault("appearance_default").notNull().default("SYSTEM"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+export type InstitutionSetting = typeof institutionSettings.$inferSelect;
+
 export const userRole = pgEnum("user_role", ["ADMIN", "EDITOR"]);
 
 export const users = pgTable(

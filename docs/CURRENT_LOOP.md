@@ -47,26 +47,27 @@ LOOP 2.14 — CONCLUÍDO
 LOOP 2.15 — CONCLUÍDO
 LOOP 2.16 — CONCLUÍDO
 LOOP 3.1 — CONCLUÍDO
-LOOP 3.2 — ATUAL
+LOOP 3.2 — CONCLUÍDO
+LOOP 3.3 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 3.2 — InstitutionSetting
+### LOOP 3.3 — Theme
 
 Objetivo:
 
 ```text
-Persistir configurações institucionais de contato, links e aparência padrão.
+Implementar os campos iniciais controlados do tema institucional.
 ```
 
 Implementar:
 
-- tabela InstitutionSetting 1:1 com Institution e exclusão em cascata;
-- address, phone, email, social_links, footer_links e appearance_default;
-- contratos Zod de links seguros e enum SYSTEM/LIGHT/DARK;
-- repository e API administrativa protegida para consulta/atualização;
-- migration limpa e testes de persistência, validação e autorização.
+- primary, primary_foreground, accent e accent_foreground;
+- incorporar Theme a Institution conforme opção explícita do modelo de domínio;
+- contratos de cor e validação de contraste das combinações configuradas;
+- persistência e configuração administrativa controlada;
+- migration limpa e testes aplicáveis.
 
 Não implementar:
 
@@ -75,11 +76,11 @@ Não implementar:
 Critério de aceite:
 
 ```text
-Configurações persistem por instituição; somente ADMIN as altera; links e aparência são validados.
+Os quatro campos de tema são configuráveis por ADMIN, persistidos por instituição e validados sem CSS livre.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 3.3 — Theme
+LOOP 3.4 — Preparar configuração de logos (sem vínculo funcional com Media)
 ```

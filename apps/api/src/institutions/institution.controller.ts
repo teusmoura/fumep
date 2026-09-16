@@ -29,6 +29,7 @@ import {
   createInstitutionRequestSchema,
   updateInstitutionRequestSchema,
   institutionIdSchema,
+  updateInstitutionSettingRequestSchema,
 } from "@fumep/validation";
 import { SessionGuard } from "../auth/session.guard.js";
 import { RoleGuard } from "../auth/role.guard.js";
@@ -36,6 +37,7 @@ import { Roles } from "../auth/roles.decorator.js";
 import { CsrfGuard } from "../auth/csrf.guard.js";
 import { SESSION_COOKIE_NAME } from "../auth/session-cookie.js";
 import { InstitutionService } from "./institution.service.js";
+import { InstitutionSettingService } from "./institution-setting.service.js";
 
 const properties = {
   name: { type: "string" as const, minLength: 1, maxLength: 150 },
@@ -51,7 +53,81 @@ const properties = {
 @UseGuards(SessionGuard, RoleGuard, CsrfGuard)
 @Roles("ADMIN")
 export class InstitutionController {
-  constructor(private readonly institutions: InstitutionService) {}
+  constructor(
+    private readonly institutions: InstitutionService,
+    private readonly settings: InstitutionSettingService,
+  ) {}
+
+  @Get(":id/settings")
+  @ApiParam({ name: "id", format: "uuid" })
+  @ApiOperation({ summary: "Read institutional contact, links and appearance" })
+  @ApiOkResponse({ description: "Institution settings" })
+  @ApiNotFoundResponse({ description: "Institution or settings not found" })
+  getSettings(@Param("id") id: string) {
+    return this.settings.get(this.id(id));
+  }
+
+  @Patch(":id/settings")
+  @ApiParam({ name: "id", format: "uuid" })
+  @ApiOperation({ summary: "Update institutional settings (ADMIN and CSRF required)" })
+  @ApiBody({
+    schema: {
+      type: "object",
+      minProperties: 1,
+      additionalProperties: false,
+      properties: {
+        email: { type: "string", format: "email", nullable: true, maxLength: 255 },
+        phone: { type: "string", nullable: true, maxLength: 50 },
+        address: { type: "string", nullable: true, maxLength: 5000 },
+        appearanceDefault: { type: "string", enum: ["SYSTEM", "LIGHT", "DARK"] },
+        socialLinks: {
+          type: "array",
+          nullable: true,
+          maxItems: 20,
+          items: {
+            type: "object",
+            required: ["label", "url"],
+            additionalProperties: false,
+            properties: {
+              label: { type: "string", minLength: 1, maxLength: 100 },
+              url: {
+                type: "string",
+                format: "uri",
+                maxLength: 2048,
+                description: "HTTP(S), without credentials",
+              },
+            },
+          },
+        },
+        footerLinks: {
+          type: "array",
+          nullable: true,
+          maxItems: 20,
+          items: {
+            type: "object",
+            required: ["label", "url"],
+            additionalProperties: false,
+            properties: {
+              label: { type: "string", minLength: 1, maxLength: 100 },
+              url: {
+                type: "string",
+                format: "uri",
+                maxLength: 2048,
+                description: "HTTP(S), without credentials",
+              },
+            },
+          },
+        },
+      },
+    },
+  })
+  @ApiOkResponse({ description: "Settings updated" })
+  @ApiNotFoundResponse({ description: "Institution not found" })
+  updateSettings(@Param("id") id: string, @Body() body: unknown) {
+    const parsed = updateInstitutionSettingRequestSchema.safeParse(body);
+    if (!parsed.success) throw new BadRequestException("Invalid institution settings request");
+    return this.settings.update(this.id(id), parsed.data);
+  }
   @Get()
   @ApiOperation({ summary: "List institutions (ADMIN only)" })
   @ApiOkResponse({ description: "Institutions" })

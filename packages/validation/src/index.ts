@@ -62,3 +62,32 @@ export const updateInstitutionRequestSchema = createInstitutionRequestSchema
   .refine((input) => Object.keys(input).length > 0);
 export type CreateInstitutionRequest = z.infer<typeof createInstitutionRequestSchema>;
 export type UpdateInstitutionRequest = z.infer<typeof updateInstitutionRequestSchema>;
+
+export const institutionalLinkSchema = z
+  .object({
+    label: z.string().trim().min(1).max(100),
+    url: z
+      .url({ protocol: /^https?$/ })
+      .max(2048)
+      .refine((value) => {
+        try {
+          const url = new URL(value);
+          return !url.username && !url.password;
+        } catch {
+          return false;
+        }
+      }),
+  })
+  .strict();
+export const updateInstitutionSettingRequestSchema = z
+  .object({
+    email: z.email().max(255).nullable().optional(),
+    phone: z.string().trim().max(50).nullable().optional(),
+    address: z.string().trim().max(5000).nullable().optional(),
+    socialLinks: z.array(institutionalLinkSchema).max(20).nullable().optional(),
+    footerLinks: z.array(institutionalLinkSchema).max(20).nullable().optional(),
+    appearanceDefault: z.enum(["SYSTEM", "LIGHT", "DARK"]).optional(),
+  })
+  .strict()
+  .refine((input) => Object.keys(input).length > 0);
+export type UpdateInstitutionSettingRequest = z.infer<typeof updateInstitutionSettingRequestSchema>;

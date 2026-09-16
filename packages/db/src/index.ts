@@ -7,6 +7,10 @@ export {
 } from "./institution.repository.js";
 export * from "./schema.js";
 export {
+  InstitutionSettingRepository,
+  type UpdateInstitutionSettingInput,
+} from "./institution-setting.repository.js";
+export {
   PasswordResetTokenRepository,
   type CreatePasswordResetTokenInput,
 } from "./password-reset-token.repository.js";

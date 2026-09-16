@@ -1720,3 +1720,33 @@ Checks aprovados:
 Aceite cumprido: ADMIN opera CRUD, EDITOR/visitante bloqueados em todas as rotas, CSRF e conflitos comprovados em PostgreSQL. Falha inicial de injeção corrigida e checks repetidos. Sem schema/migration nova ou UI; campos de settings/tema/logo não antecipados.
 
 Commit: `feat(api): add admin institution CRUD`.
+
+## LOOP 3.2 — Concluído
+
+Escopo atual:
+- settings 1:1 em PostgreSQL com cascata;
+- contato, links e aparência SYSTEM/LIGHT/DARK;
+- contratos, repository, API ADMIN/CSRF e testes.
+
+Implementado:
+- tabela 1:1, FK cascata, contato e JSONB de links, enum de aparência com padrão SYSTEM;
+- repository upsert parcial com preservação de campos e isolamento;
+- GET/PATCH `/api/v1/institutions/:id/settings` com ADMIN/CSRF e OpenAPI;
+- `email` da API mapeado a `contact_email` canônico no banco;
+- URLs HTTP(S) sem credenciais, limites e entradas estritas;
+- limpeza de campos com null e validação de aparência;
+- migration `0011_small_caretaker.sql`, três testes DB, dois de contrato e cenário Supertest.
+
+Checks aprovados:
+- todas as migrations do zero em `portal_fumep_loop_3_2_test`, 35 testes DB aprovados;
+- migration aplicada no banco local;
+- `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`;
+- 94 testes: 8 validation, 35 db e 51 API;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm peers check`;
+- `.\\node_modules\\.bin\\prettier.cmd --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Aceite completo. ENOMEM do gerador no sandbox resolvido fora dele; tipagem de URL corrigida no pacote compartilhado. Sem UI, temas ou logos antecipados. O banco isolado foi preservado para diagnóstico.
+
+Commit: `feat(institutions): add contact and appearance settings`.
