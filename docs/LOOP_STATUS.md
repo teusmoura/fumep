@@ -1886,3 +1886,35 @@ Checks aprovados:
 Aceite cumprido sem falhas de execução/testes. Sem alteração de API, schema, dependências ou funcionalidades futuras. execute-loop manteve o escopo; nextjs-frontend orientou reutilização e SSR; testing-qa orientou fixtures determinísticas e testes de isolamento.
 
 Commit: `feat(institutions): resolve public route context`.
+
+## LOOP 3.8 — Concluído
+
+Escopo atual:
+- prioridade preferência manual → ADMIN → sistema nos três temas;
+- controle LIGHT/DARK acessível compartilhado;
+- cookie somente visual, lido no SSR para evitar flash da preferência persistida;
+- testes de prioridade, SSR e interação, sem funcionalidades futuras.
+
+Estado inicial: loop 3.7 concluído no commit `360cf6c`, Git limpo.
+
+Implementado:
+- prioridade centralizada manual → ADMIN → sistema, sem duplicação por instituição;
+- ThemeSwitcher compartilhado com botão nativo, nome acessível estável no SSR, foco visível e tokens institucionais;
+- cookie `fumep_appearance` apenas LIGHT/DARK, Path=/, SameSite=Lax, um ano e Secure em HTTPS; não acessa sessão/credenciais;
+- leitura server-only via cookies async do Next.js; preferência manual já determina data-appearance no HTML inicial;
+- SYSTEM mantém media query CSS antes da hidratação e acompanha mudanças do dispositivo; ADMIN explícito e manual não são sobrescritos;
+- armazenamento bloqueado não impede alternância em memória;
+- jsdom somente de desenvolvimento para testes de interação/foco e hidratação.
+
+Checks aprovados:
+- `pnpm --filter @fumep/web test` (25 testes antes do teste adicional de armazenamento) e `pnpm --filter @fumep/web typecheck`;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`;
+- 128 testes finais: 13 validation, 36 db, 53 API e 26 frontend;
+- `pnpm peers check`, `.\\node_modules\\.bin\\prettier.cmd --check .github/workflows/ci.yml` e `git diff --check`;
+- testes cobrem prioridades completas, três instituições, cookie inválido, Secure, storage bloqueado, foco, sistema e hidratação sem divergência;
+- Playwright/axe e QA visual em navegador não executados; ainda sem script E2E disponível.
+
+Aceite cumprido, checks verdes e sem falhas nesta rodada. Resolução inicial da preferência persistida no SSR e SYSTEM por CSS evitam troca visual tardia. Fallback neutro existente sem fonte de tema foi preservado. Sem API/migration ou funcionalidades futuras. execute-loop manteve escopo/status; nextjs-frontend orientou SSR sem flash e controle compartilhado; testing-qa orientou testes determinísticos de prioridade/interação.
+
+Commit: `feat(theme): add persistent visitor dark mode preference`.

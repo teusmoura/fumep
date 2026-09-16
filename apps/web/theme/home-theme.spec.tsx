@@ -1,7 +1,9 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 vi.mock("./load-public-theme", () => ({ loadPublicTheme: vi.fn() }));
+vi.mock("./read-appearance", () => ({ readManualAppearance: vi.fn() }));
 import { loadPublicTheme } from "./load-public-theme";
+import { readManualAppearance } from "./read-appearance";
 import HomePage from "../app/page";
 afterEach(() => vi.resetAllMocks());
 describe("public home theme integration", () => {
@@ -15,9 +17,11 @@ describe("public home theme integration", () => {
       accentForeground: "#ffffff",
       appearanceDefault: "DARK",
     });
+    vi.mocked(readManualAppearance).mockResolvedValue("LIGHT");
     const html = renderToStaticMarkup(await HomePage());
     expect(html).toContain('data-institution="fumep"');
-    expect(html).toContain('data-appearance="DARK"');
+    expect(html).toContain('data-appearance="LIGHT"');
+    expect(html).toContain("Alternar tema claro/escuro");
     expect(html).toContain("--color-primary:#123456");
     expect(html).toContain("<main");
     expect(html).toContain('id="main-content"');

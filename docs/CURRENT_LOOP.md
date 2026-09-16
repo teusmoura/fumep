@@ -53,42 +53,43 @@ LOOP 3.4 — CONCLUÍDO
 LOOP 3.5 — CONCLUÍDO
 LOOP 3.6 — CONCLUÍDO
 LOOP 3.7 — CONCLUÍDO
-LOOP 3.8 — ATUAL
+LOOP 3.8 — CONCLUÍDO
+LOOP 3.9 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 3.8 — Dark mode
+### LOOP 3.9 — Testes de contraste
 
-Estado: preparado; loop 3.7 concluído com três rotas institucionais e checks verdes.
+Estado: preparado; loop 3.8 concluído com preferência visual persistida, SSR e checks verdes.
 
 Objetivo:
 
 ```text
-Completar a prioridade de aparência: preferência manual → ADMIN → sistema.
+Validar contraste para cores configuráveis dos temas institucionais.
 ```
 
 Implementar:
 
-- permitir visitante alternar LIGHT/DARK com controle acessível;
-- preferência manual prevalece sobre appearanceDefault do ADMIN;
-- quando ADMIN = SYSTEM e não há preferência manual, respeitar prefers-color-scheme;
-- reutilizar ThemeContext/InstitutionContext nas três instituições;
-- resolver aparência cedo, sem flash de tema, e testar prioridades/checks aplicáveis.
+- revisar/reutilizar a validação de contraste introduzida no 3.3;
+- testes de pares primary/foreground e accent/foreground, limites e cores normalizadas;
+- garantir que configuração inválida seja rejeitada sem persistir alteração;
+- verificar aplicação dos tokens controlados em LIGHT/DARK nas instituições;
+- checks aplicáveis sem duplicar schema/migrations ou alterar branding.
 
 Não implementar:
 
 - funcionalidades de mídia, menus ou outros loops futuros;
-- credenciais/sessão em armazenamento local.
+- CSS livre ou mudança arbitrária de identidade institucional.
 
 Critério de aceite:
 
 ```text
-Dark mode funciona nas três instituições respeitando preferência manual, ADMIN e sistema, sem flash de tema e com controle acessível.
+Cores configuráveis com contraste insuficiente são rejeitadas e os testes de contraste dos temas passam.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 3.9 — Testes de contraste
+LOOP 4.1 — Media
 ```

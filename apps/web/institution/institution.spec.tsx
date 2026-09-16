@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { PublicInstitutionTheme } from "@fumep/validation";
 vi.mock("../theme/load-public-theme", () => ({ loadPublicTheme: vi.fn() }));
+vi.mock("../theme/read-appearance", () => ({ readManualAppearance: vi.fn() }));
 import { loadPublicTheme } from "../theme/load-public-theme";
 import HomePage from "../app/page";
 import EtmslHomePage from "../app/etmsl/page";

@@ -20,6 +20,24 @@ function Probe() {
   );
 }
 describe("ThemeContext SSR", () => {
+  it("renders the saved visual preference ahead of every ADMIN default in all institutions", () => {
+    for (const slug of ["fumep", "etmsl", "cramam"]) {
+      for (const appearanceDefault of ["SYSTEM", "LIGHT", "DARK"] as const) {
+        for (const manual of ["LIGHT", "DARK"] as const) {
+          const html = renderToStaticMarkup(
+            <ThemeProvider
+              theme={{ ...theme, slug, appearanceDefault }}
+              initialManualAppearance={manual}
+            >
+              <Probe />
+            </ThemeProvider>,
+          );
+          expect(html).toContain(`data-appearance="${manual}"`);
+          expect(html).toContain(`${slug}:${manual}`);
+        }
+      }
+    }
+  });
   it("shares institution tokens and appearance without browser APIs during SSR", () => {
     for (const appearanceDefault of ["LIGHT", "DARK", "SYSTEM"] as const) {
       const html = renderToStaticMarkup(

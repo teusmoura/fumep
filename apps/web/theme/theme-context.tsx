@@ -2,14 +2,16 @@
 import {
   createContext,
   useContext,
+  useState,
   useSyncExternalStore,
   type CSSProperties,
   type ReactNode,
 } from "react";
 import type { PublicInstitutionTheme } from "@fumep/validation";
+import { resolveAppearance, persistManualAppearance, type AppearanceMode } from "./appearance";
 
 const ThemeContext = createContext<
-  { theme: PublicInstitutionTheme; mode: "LIGHT" | "DARK" } | undefined
+  { theme: PublicInstitutionTheme; mode: AppearanceMode; toggleAppearance: () => void } | undefined
 >(undefined);
 function subscribe(callback: () => void) {
   const query = window.matchMedia("(prefers-color-scheme: dark)");
@@ -20,17 +22,20 @@ const snapshot = () => window.matchMedia("(prefers-color-scheme: dark)").matches
 export function ThemeProvider({
   theme,
   children,
+  initialManualAppearance,
 }: {
   theme: PublicInstitutionTheme;
   children: ReactNode;
+  initialManualAppearance?: AppearanceMode;
 }) {
+  const [manualAppearance, setManualAppearance] = useState(initialManualAppearance);
   const systemDark = useSyncExternalStore(subscribe, snapshot, () => false);
-  const mode =
-    theme.appearanceDefault === "SYSTEM"
-      ? systemDark
-        ? "DARK"
-        : "LIGHT"
-      : theme.appearanceDefault;
+  const mode = resolveAppearance(manualAppearance, theme.appearanceDefault, systemDark);
+  function toggleAppearance() {
+    const nextMode = mode === "DARK" ? "LIGHT" : "DARK";
+    setManualAppearance(nextMode);
+    persistManualAppearance(nextMode);
+  }
   const style = {
     "--color-primary": theme.primary,
     "--color-primary-foreground": theme.primaryForeground,
@@ -38,11 +43,11 @@ export function ThemeProvider({
     "--color-accent-foreground": theme.accentForeground,
   } as CSSProperties;
   return (
-    <ThemeContext.Provider value={{ theme, mode }}>
+    <ThemeContext.Provider value={{ theme, mode, toggleAppearance }}>
       <div
         className="institution-theme"
         data-institution={theme.slug}
-        data-appearance={theme.appearanceDefault}
+        data-appearance={manualAppearance ?? theme.appearanceDefault}
         style={style}
       >
         {children}
