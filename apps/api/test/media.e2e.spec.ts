@@ -4,6 +4,7 @@ import { UnauthorizedException, type INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { createDatabase } from "@fumep/db";
+import { IMAGE_MAX_BYTES } from "@fumep/validation";
 import { config } from "dotenv";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
@@ -174,6 +175,54 @@ describe("Image upload through NestJS to real MinIO/PostgreSQL", () => {
       .expect(400);
     expect(put).not.toHaveBeenCalled();
     put.mockRestore();
+  });
+  it("rejects extension/MIME/signature inconsistencies and multipart abuse without persistence", async () => {
+    const put = vi.spyOn(storage, "put");
+    const create = vi.spyOn(store, "create");
+    const before = await client`SELECT count(*) FROM media WHERE uploaded_by = ${userId}`;
+    for (const options of [
+      { filename: "photo.jpg", contentType: "image/jpeg" },
+      { filename: "photo.png", contentType: "image/jpeg" },
+      { filename: "photo.pdf", contentType: "application/pdf" },
+      { filename: "photo.png.exe", contentType: "image/png" },
+    ])
+      await mutate("images").attach("file", png, options).expect(400);
+    await mutate("images")
+      .attach("file", png.subarray(0, 7), { filename: "truncated.png", contentType: "image/png" })
+      .expect(400);
+    await mutate("images")
+      .attach("file", png, "first.png")
+      .attach("file", png, "second.png")
+      .expect(400);
+    await mutate("images")
+      .field("categoryId", categoryIds[0])
+      .field("categoryId", categoryIds[1])
+      .attach("file", png, "fixture.png")
+      .expect(400);
+    expect(put).not.toHaveBeenCalled();
+    expect(create).not.toHaveBeenCalled();
+    expect(await client`SELECT count(*) FROM media WHERE uploaded_by = ${userId}`).toEqual(before);
+    put.mockRestore();
+    create.mockRestore();
+  });
+  it("accepts the inclusive multipart size boundary and rejects larger files before persistence", async () => {
+    const maximum = Buffer.alloc(IMAGE_MAX_BYTES);
+    png.copy(maximum);
+    const result = await mutate("images").attach("file", maximum, "maximum.png").expect(201);
+    keys.push(`images/originals/${result.body.id}.png`);
+    expect(result.body.sizeBytes).toBe(IMAGE_MAX_BYTES);
+    const put = vi.spyOn(storage, "put");
+    const create = vi.spyOn(store, "create");
+    const oversized = Buffer.alloc(IMAGE_MAX_BYTES + 1);
+    png.copy(oversized);
+    await mutate("images").attach("file", oversized, "oversized.png").expect(413);
+    const parserOversized = Buffer.alloc(IMAGE_MAX_BYTES + 2);
+    png.copy(parserOversized);
+    await mutate("images").attach("file", parserOversized, "parser-oversized.png").expect(413);
+    expect(put).not.toHaveBeenCalled();
+    expect(create).not.toHaveBeenCalled();
+    put.mockRestore();
+    create.mockRestore();
   });
   it("compensates storage when database fails, without metadata or error disclosure", async () => {
     const count = await client`SELECT count(*) FROM media WHERE uploaded_by = ${userId}`;

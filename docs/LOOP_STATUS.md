@@ -2021,3 +2021,32 @@ Falhas corrigidas: tipos ambientais Multer, aceitação de transaction no reposi
 Aceite cumprido. architecture-guard: conforme com antecipação mínima autorizada; drizzle-data-model orientou FK/migration limpa; media-storage/security-access orientaram validação, checksum e escopo persistido; nextjs-frontend/testing-qa orientaram SSR, interação e provas de consistência. Gestão completa de categorias permanece no 4.13; fila/Sharp/variantes/PDF/MediaUsage não antecipados.
 
 Commit: `feat(media): add institution-scoped image upload`.
+
+## LOOP 4.3 — Concluído
+
+Estado inicial: loop 4.2 concluído em `058c5c8`, Git limpo.
+
+Escopo atual:
+- testar extensão/MIME/magic bytes em JPEG/PNG/WebP/AVIF;
+- testar assinatura truncada, inconsistências, tipos proibidos e nomes inválidos;
+- comprovar limite inclusivo de 15 MiB e ausência de gravação para rejeições;
+- reutilizar validação do 4.2, sem duplicidade/filas/processamento ou funcionalidades futuras.
+
+Implementado:
+- 19 testes unitários de formatos, extensão/MIME/assinatura independentes, nomes, arquivo vazio e limites;
+- AVIF testa major/compatible brand, caixas BMFF inválidas/truncadas e rejeição de HEIC;
+- Supertest testa inconsistências, dupla extensão, assinatura incompleta, múltiplos arquivos e campos duplicados;
+- envio real de exatamente 15 MiB passa; +1 e +2 bytes retornam 413 antes de put/create;
+- spies e PostgreSQL comprovam que rejeições não persistem mídia;
+- nenhum código de validação de produção, contrato, schema ou dependência precisou mudar.
+
+Checks aprovados:
+- Vitest focado `src/media/image-validation.spec.ts test/media.e2e.spec.ts --fileParallelism=false`: 28 testes;
+- `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`;
+- 173 testes finais: 16 validation, 41 DB, 82 API, 34 frontend;
+- `pnpm peers check`, Prettier do workflow e `git diff --check`;
+- sem migration nova; sem script E2E disponível, Playwright/axe não executados.
+
+Aceite cumprido, nenhuma falha nesta rodada. Fixtures de assinaturas não afirmam decodificação completa; essa etapa pertence ao Sharp/Worker. media-storage/testing-qa orientaram matriz e prova de não persistência; execute-loop manteve escopo.
+
+Commit: `test(media): cover upload signatures and size boundaries`.

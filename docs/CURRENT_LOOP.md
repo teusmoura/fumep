@@ -57,28 +57,29 @@ LOOP 3.8 — CONCLUÍDO
 LOOP 3.9 — CONCLUÍDO
 LOOP 4.1 — CONCLUÍDO
 LOOP 4.2 — CONCLUÍDO
-LOOP 4.3 — ATUAL
+LOOP 4.3 — CONCLUÍDO
+LOOP 4.4 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 4.3 — Validação de imagem
+### LOOP 4.4 — SHA-256
 
-Estado: pronto para execução após commit do 4.2. Upload e vínculo institucional mínimo implementados conforme MEDIA-001 autorizado; gestão completa de categorias continua no 4.13.
+Estado: pronto para execução após commit do 4.3. Validação de imagem comprovada; checksum já obrigatório no modelo/upload por precedência do documento Storage, sem duplicar regra.
 
 Objetivo:
 
 ```text
-Testar extensão, MIME, magic bytes e tamanho máximo do upload de imagem existente.
+Consolidar e comprovar SHA-256 obrigatório, calculado no backend sobre os bytes originais enviados.
 ```
 
 Implementar:
 
 - reler AGENTS.md, execute-loop, arquitetura de Storage/Segurança e verificar Git limpo;
-- reutilizar validateImage e limite existentes, sem duplicar validação;
-- testar formatos permitidos e inconsistências de extensão/MIME/assinatura;
-- testar truncamentos, nomes/tipos proibidos e fronteira inclusiva de 15 MiB;
-- Supertest deve comprovar rejeição antes de gravar storage/metadados;
+- reutilizar o cálculo existente, centralizando apenas se necessário aos testes;
+- testar vetores conhecidos e bytes binários, sem depender do nome original ou categoria;
+- comprovar checksum persistido em uploads e rejeição de checksum fornecido pelo cliente;
+- manter índice não único e constraints do modelo, sem fluxo de duplicidade futuro;
 - checks, documentação, commit e Git limpo.
 
 Não implementar:
@@ -89,11 +90,11 @@ Não implementar:
 Critério de aceite:
 
 ```text
-Extensão, MIME, assinatura e limite máximo comprovados por testes; rejeições não persistem mídia; checks verdes.
+Uploads têm SHA-256 obrigatório dos bytes originais, gerado no servidor e persistido; testes/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 4.4 — SHA-256
+LOOP 4.5 — Duplicata
 ```
