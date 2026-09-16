@@ -41,38 +41,42 @@ LOOP 2.8 — CONCLUÍDO
 LOOP 2.9 — CONCLUÍDO
 LOOP 2.10 — CONCLUÍDO
 LOOP 2.11 — CONCLUÍDO
-LOOP 2.12 — ATUAL
+LOOP 2.12 — CONCLUÍDO
+LOOP 2.13 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 2.12 — Rate limiting de login
+### LOOP 2.13 — Forgot password
 
 Objetivo:
 
 ```text
-Aplicar a política inicial de limitação de tentativas de login.
+Implementar a solicitação inicial de recuperação de senha com resposta neutra.
 ```
 
 Implementar:
 
-- limitar tentativas de login por IP;
-- aplicar a política inicial canônica;
-- testar requisições dentro e acima do limite.
+- implementar `POST /api/v1/auth/forgot-password`;
+- validar e normalizar o e-mail com Zod;
+- responder de forma neutra independentemente da existência da conta;
+- limitar abuso por IP e conta conforme o documento de segurança;
+- testar validação, neutralidade e limitação.
 
 Não implementar:
 
-- recuperação de senha;
+- tabela e geração de tokens de recuperação (loop 2.14);
+- redefinição de senha (loop 2.15);
 - entidades e funcionalidades dos próximos loops.
 
 Critério de aceite:
 
 ```text
-Tentativas de login acima do limite são rejeitadas.
+Solicitações válidas recebem a mesma resposta independentemente da existência da conta, sem enumeração de usuários.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 2.13 — Forgot password
+LOOP 2.14 — Password reset tokens
 ```

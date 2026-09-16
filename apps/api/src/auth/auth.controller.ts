@@ -5,6 +5,7 @@ import {
   Get,
   Headers,
   HttpCode,
+  HttpException,
   HttpStatus,
   Inject,
   Post,
@@ -18,6 +19,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiUnauthorizedResponse,
+  ApiTooManyRequestsResponse,
 } from "@nestjs/swagger";
 import type { Request, Response } from "express";
 
@@ -25,7 +27,12 @@ import { loginRequestSchema } from "@fumep/validation";
 
 import { AuthService } from "./auth.service.js";
 import { CsrfService } from "./csrf.service.js";
-import { SESSION_CONFIG, type SessionConfig } from "./auth.contracts.js";
+import {
+  LOGIN_ATTEMPT_STORE,
+  SESSION_CONFIG,
+  type LoginAttemptStore,
+  type SessionConfig,
+} from "./auth.contracts.js";
 import { readSessionId, SESSION_COOKIE_NAME, sessionCookieOptions } from "./session-cookie.js";
 import { type AuthenticatedRequest, SessionGuard } from "./session.guard.js";
 
@@ -35,6 +42,7 @@ export class AuthController {
     private readonly authService: AuthService,
     @Inject(SESSION_CONFIG) private readonly sessionConfig: SessionConfig,
     private readonly csrf: CsrfService,
+    @Inject(LOGIN_ATTEMPT_STORE) private readonly attempts: LoginAttemptStore,
   ) {}
 
   @Post("login")
@@ -43,8 +51,22 @@ export class AuthController {
   @ApiOkResponse({ description: "Session created" })
   @ApiBadRequestResponse({ description: "Invalid request" })
   @ApiUnauthorizedResponse({ description: "Invalid credentials" })
-  async login(@Body() body: unknown, @Res({ passthrough: true }) response: Response) {
+  @ApiTooManyRequestsResponse({ description: "Too many login attempts; retry after 60 seconds" })
+  async login(
+    @Body() body: unknown,
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ) {
     const parsed = loginRequestSchema.safeParse(body);
+    if (
+      !(await this.attempts.consume(
+        request.ip ?? request.socket.remoteAddress ?? "unknown",
+        parsed.success ? parsed.data.email : undefined,
+      ))
+    ) {
+      response.setHeader("Retry-After", "60");
+      throw new HttpException("Too many login attempts", HttpStatus.TOO_MANY_REQUESTS);
+    }
     if (!parsed.success) throw new BadRequestException("Invalid login request");
 
     const { sessionId, csrfToken } = await this.authService.login(parsed.data);

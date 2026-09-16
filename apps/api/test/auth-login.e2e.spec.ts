@@ -5,6 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import {
   AUTH_USER_REPOSITORY,
+  LOGIN_ATTEMPT_STORE,
   SESSION_STORE,
   type SessionData,
 } from "../src/auth/auth.contracts.js";
@@ -20,6 +21,8 @@ describe("POST /api/v1/auth/login", () => {
   beforeAll(async () => {
     passwordHash = await new PasswordHasherService().hash("correct-password");
     const moduleRef = await Test.createTestingModule({ imports: [AuthModule] })
+      .overrideProvider(LOGIN_ATTEMPT_STORE)
+      .useValue({ consume: async () => true })
       .overrideProvider(AUTH_USER_REPOSITORY)
       .useValue({
         findActiveByEmail: async (email: string) =>

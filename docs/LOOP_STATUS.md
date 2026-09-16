@@ -1498,3 +1498,46 @@ Commit:
 ```text
 feat(auth): add csrf protection
 ```
+
+## LOOP 2.12 — Concluído
+
+Escopo atual:
+- limitar login a 5 tentativas por minuto por IP e por conta normalizada;
+- manter contadores compartilhados e expiração atômica no Redis;
+- contar payloads inválidos por IP e retornar HTTP 429 acima do limite;
+- testar concorrência, expiração, isolamento e rejeição HTTP;
+- não implementar recuperação de senha ou funcionalidades futuras.
+
+Implementado:
+- contadores Redis separados por IP e conta normalizada, com identificadores SHA-256 nas chaves;
+- política inicial de 5 tentativas por janela de 60 segundos;
+- incremento e expiração inicial atômicos por Lua, inclusive entre instâncias concorrentes;
+- janela fixa sem renovação por tentativas bloqueadas;
+- payloads inválidos também consomem o limite por IP;
+- rejeição HTTP 429 antes de consultar credenciais, sem criar cookie ou sessão, com `Retry-After: 60` e OpenAPI;
+- testes Redis reais de concorrência, isolamento, normalização, expiração e limites independentes;
+- testes Supertest de limite HTTP e rejeição de spoofing de `X-Forwarded-For`.
+
+Checks executados com sucesso:
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 62 testes aprovados;
+- `pnpm build`;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm peers check`;
+- `.\\node_modules\\.bin\\prettier.cmd --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Observação:
+- uma incompatibilidade de inferência de tipos Redis foi corrigida antes do typecheck final;
+- o endereço usado é o IP da conexão, sem confiar em headers de proxy fornecidos pelo cliente; configuração de proxy confiável permanece no escopo de deployment;
+- recuperação de senha não foi implementada.
+
+Critério de aceite validado:
+- cinco tentativas foram permitidas e a sexta foi bloqueada, por IP ou conta, com retorno à janela inicial após expiração.
+
+Commit:
+```text
+feat(auth): limit login attempts with Redis
+```
