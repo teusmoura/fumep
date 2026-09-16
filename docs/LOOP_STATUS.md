@@ -1983,3 +1983,19 @@ Falha resolvida: drizzle-kit no sandbox retornou uv_os_get_passwd ENOMEM; geraç
 Aceite cumprido. architecture-guard: conforme com observação de nomenclatura e categoria futura; drizzle-data-model orientou UUID/TIMESTAMPTZ, constraints e migration limpa; media-storage orientou metadados sem arquivos no banco e checksum não único; execute-loop manteve escopo/commit.
 
 Commit: `feat(db): add canonical media metadata model`.
+
+## LOOP 4.2 — Bloqueado por decisão MEDIA-001
+
+Escopo analisado:
+- upload autenticado/CSRF Browser → NestJS → MinIO → PostgreSQL;
+- autorização de criação de mídia global antes de categorias institucionais.
+
+Estado inicial: loop 4.1 concluído no commit `ef3b1d0`, Git limpo.
+Evidências: Segurança limita EDITOR por instituição; Storage usa categoria institucional; MediaCategory só no 4.13. A documentação não define criação global por EDITOR neste estágio. uploaded_by não é ownership institucional.
+
+Recomendação MEDIA-001: autorização explícita para upload somente ADMIN no 4.2; EDITOR 403 até categorizações/escopo no 4.13, sem schema alternativo ou antecipação de categoria.
+
+Nenhuma implementação de upload ou alteração de permissão feita. CURRENT_LOOP permanece 4.2. execute-loop/architecture-guard exigem decisão antes dessa implementação; não declarar o loop concluído.
+Checks completos da última implementação: 137 testes, format, lint, typecheck, build, peers e workflow verdes no 4.1, além de migrations local/do zero. Nesta análise só documentação mudou; `git diff --check` executado.
+
+Commit de registro: `docs: record transitional media upload authorization decision`.

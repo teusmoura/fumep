@@ -63,7 +63,7 @@ LOOP 4.2 — ATUAL
 
 ### LOOP 4.2 — Upload de imagem
 
-Estado: preparado; loop 4.1 concluído, tabela Media e migration local/do zero validadas.
+Estado: bloqueado pela decisão MEDIA-001 em docs/ISSUES_ARCHITECTURE.md. Loop 4.1 concluído e commitado, migration local/do zero validada. Autorizar política de upload antes de MediaCategory; recomendado ADMIN somente no 4.2, EDITOR institucional no 4.13. Não ampliar permissões nem antecipar categorias silenciosamente.
 
 Objetivo:
 

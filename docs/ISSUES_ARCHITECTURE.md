@@ -4,7 +4,28 @@ Use este arquivo apenas quando a implementação encontrar uma contradição rea
 
 ## Abertos
 
-Nenhum.
+### MEDIA-001 — Autorização de upload antes de MediaCategory
+
+Classificação: bloqueador de definição de acesso no loop 4.2.
+
+Evidências:
+- Segurança §§3.2, 4 e 46 limita gestão de mídia do EDITOR às instituições atribuídas;
+- Storage §61 vincula escopo institucional à categoria e permite reutilização global, sem definir criação de mídia global por EDITOR;
+- modelo lógico §8.2 representa o vínculo via category_id → MediaCategory → Institution, não via institution_id em Media;
+- MediaCategory pertence ao loop 4.13; no 4.2 não existe vínculo institucional persistido para o upload;
+- uploaded_by identifica autoria, não substitui autorização institucional nem propriedade global.
+
+Decisão necessária:
+- política transitória para upload sem categoria no 4.2, sem ampliar implicitamente permissões do EDITOR;
+- não antecipar tabela/ownership alternativo fora do plano sem autorização.
+
+Recomendação:
+- autorizar upload global somente por ADMIN no 4.2, mantendo sessão/CSRF e validações;
+- EDITOR recebe 403 no upload até o vínculo institucional por MediaCategory ser implementado no 4.13;
+- no 4.13, liberar upload categorizado para EDITOR autorizado e documentar a política de criação/reutilização global;
+- não adicionar institution_id em Media nem antecipar categorias apenas para contornar a decisão.
+
+Nenhum endpoint de upload foi implementado nem permissão ampliada. Registrado por execute-loop/architecture-guard; aguardando autorização explícita da política transitória.
 
 ## Resolvidos
 
