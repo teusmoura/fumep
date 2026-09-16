@@ -1857,3 +1857,32 @@ Falhas corrigidas: typings DOM, schema Swagger e transformação JSX OXC. Instal
 Aceite cumprido. execute-loop disciplinou escopo/status; architecture-guard condicionou a fronteira pública à decisão THEME-001, agora autorizada. Loop anterior commitado e worktree inicialmente limpo.
 
 Commit: `feat(theme): expose public themes and add server-loaded context`.
+
+## LOOP 3.7 — Concluído
+
+Escopo atual:
+- InstitutionContext por rota: `/` FUMEP, `/etmsl` ETMSL e `/cramam` CRAMAM;
+- página compartilhada com loader público e ThemeContext existentes;
+- SSR, isolamento entre instituições e fallback sem dados privados;
+- sem preferência manual de tema, menus ou conteúdo dos próximos loops.
+
+Estado inicial: loop 3.6 concluído no commit `56ed3e0`, Git limpo.
+
+Implementado:
+- resolver por segmentos completos e identidade compartilhada (slug, nome institucional e rota da Home);
+- InstitutionProvider/useInstitution sem estado global mutável, identidade disponível também no fallback;
+- três entradas de rota usam uma única página server-rendered e carregam somente o tema da instituição atual;
+- proteção adicional contra tema de slug divergente; fallback neutro não expõe detalhes internos;
+- testes do contexto, rotas reais, retorno à FUMEP, isolamento e indisponibilidade; main/heading e skip link/foco existentes preservados.
+
+Checks aprovados:
+- `pnpm --filter @fumep/web test` (17 testes) e `pnpm --filter @fumep/web typecheck`;
+- `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`;
+- 119 testes: 13 validation, 36 db, 53 API e 17 frontend;
+- `pnpm peers check`, `.\\node_modules\\.bin\\prettier.cmd --check .github/workflows/ci.yml` e `git diff --check`;
+- build confirma `/`, `/etmsl` e `/cramam` dinâmicas com renderização no servidor;
+- Playwright/axe ainda sem script disponível; não executados nem declarados como aprovados.
+
+Aceite cumprido sem falhas de execução/testes. Sem alteração de API, schema, dependências ou funcionalidades futuras. execute-loop manteve o escopo; nextjs-frontend orientou reutilização e SSR; testing-qa orientou fixtures determinísticas e testes de isolamento.
+
+Commit: `feat(institutions): resolve public route context`.

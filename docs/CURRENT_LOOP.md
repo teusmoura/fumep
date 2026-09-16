@@ -52,40 +52,43 @@ LOOP 3.3 — CONCLUÍDO
 LOOP 3.4 — CONCLUÍDO
 LOOP 3.5 — CONCLUÍDO
 LOOP 3.6 — CONCLUÍDO
-LOOP 3.7 — ATUAL
+LOOP 3.7 — CONCLUÍDO
+LOOP 3.8 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 3.7 — InstitutionContext
+### LOOP 3.8 — Dark mode
 
-Estado: preparado; loop 3.6 concluído com THEME-001 autorizado e checks verdes.
+Estado: preparado; loop 3.7 concluído com três rotas institucionais e checks verdes.
 
 Objetivo:
 
 ```text
-Resolver a instituição atual pela rota pública.
+Completar a prioridade de aparência: preferência manual → ADMIN → sistema.
 ```
 
 Implementar:
 
-- InstitutionContext compartilhado;
-- `/` → FUMEP, `/etmsl` → ETMSL, `/cramam` → CRAMAM;
-- reutilizar loader público e ThemeContext, sem acesso direto ao banco;
-- testes de isolamento entre rotas, SSR e checks aplicáveis.
+- permitir visitante alternar LIGHT/DARK com controle acessível;
+- preferência manual prevalece sobre appearanceDefault do ADMIN;
+- quando ADMIN = SYSTEM e não há preferência manual, respeitar prefers-color-scheme;
+- reutilizar ThemeContext/InstitutionContext nas três instituições;
+- resolver aparência cedo, sem flash de tema, e testar prioridades/checks aplicáveis.
 
 Não implementar:
 
-- preferência manual de dark mode (3.8), páginas e funcionalidades dos próximos loops.
+- funcionalidades de mídia, menus ou outros loops futuros;
+- credenciais/sessão em armazenamento local.
 
 Critério de aceite:
 
 ```text
-Instituição atual resolvida corretamente nas três rotas públicas, sem vazamento de tema entre instituições.
+Dark mode funciona nas três instituições respeitando preferência manual, ADMIN e sistema, sem flash de tema e com controle acessível.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 3.8 — Dark mode
+LOOP 3.9 — Testes de contraste
 ```
