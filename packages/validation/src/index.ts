@@ -44,3 +44,21 @@ export const sessionDataSchema = z
   .strict();
 
 export type SessionData = z.infer<typeof sessionDataSchema>;
+
+export const institutionIdSchema = z.uuid();
+export const createInstitutionRequestSchema = z
+  .object({
+    name: z.string().trim().min(1).max(150),
+    slug: z
+      .string()
+      .min(1)
+      .max(100)
+      .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    isActive: z.boolean().optional(),
+  })
+  .strict();
+export const updateInstitutionRequestSchema = createInstitutionRequestSchema
+  .partial()
+  .refine((input) => Object.keys(input).length > 0);
+export type CreateInstitutionRequest = z.infer<typeof createInstitutionRequestSchema>;
+export type UpdateInstitutionRequest = z.infer<typeof updateInstitutionRequestSchema>;

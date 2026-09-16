@@ -46,26 +46,27 @@ LOOP 2.13 — CONCLUÍDO
 LOOP 2.14 — CONCLUÍDO
 LOOP 2.15 — CONCLUÍDO
 LOOP 2.16 — CONCLUÍDO
-LOOP 3.1 — ATUAL
+LOOP 3.1 — CONCLUÍDO
+LOOP 3.2 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 3.1 — CRUD administrativo de Institution
+### LOOP 3.2 — InstitutionSetting
 
 Objetivo:
 
 ```text
-Disponibilizar CRUD administrativo de instituições exclusivamente para ADMIN.
+Persistir configurações institucionais de contato, links e aparência padrão.
 ```
 
 Implementar:
 
-- listar, consultar, criar, atualizar e excluir Institution por REST/OpenAPI;
-- reutilizar repository Drizzle existente e contratos Zod compartilhados;
-- SessionGuard, RoleGuard ADMIN e CSRF nas mutações;
-- validar UUID, campos, unicidade de slug e dependências na exclusão;
-- testar CRUD, validação, 401, 403 e CSRF.
+- tabela InstitutionSetting 1:1 com Institution e exclusão em cascata;
+- address, phone, email, social_links, footer_links e appearance_default;
+- contratos Zod de links seguros e enum SYSTEM/LIGHT/DARK;
+- repository e API administrativa protegida para consulta/atualização;
+- migration limpa e testes de persistência, validação e autorização.
 
 Não implementar:
 
@@ -74,11 +75,11 @@ Não implementar:
 Critério de aceite:
 
 ```text
-ADMIN opera o CRUD; EDITOR e visitantes não acessam; entradas inválidas e conflitos são tratados sem detalhes internos.
+Configurações persistem por instituição; somente ADMIN as altera; links e aparência são validados.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 3.2 — InstitutionSetting
+LOOP 3.3 — Theme
 ```

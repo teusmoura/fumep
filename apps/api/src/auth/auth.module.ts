@@ -46,6 +46,14 @@ import { SessionGuard } from "./session.guard.js";
     { provide: LOGIN_ATTEMPT_STORE, useClass: RedisLoginAttemptStore },
     { provide: FORGOT_PASSWORD_ATTEMPT_STORE, useClass: RedisForgotPasswordAttemptStore },
   ],
-  exports: [SessionGuard, RoleGuard, InstitutionGuard, CsrfGuard],
+  exports: [
+    AuthService,
+    CsrfService,
+    SESSION_CONFIG,
+    SessionGuard,
+    RoleGuard,
+    InstitutionGuard,
+    CsrfGuard,
+  ],
 })
 export class AuthModule {}

@@ -1692,3 +1692,31 @@ Checks aprovados:
 Sem mudanças de produção, schema, migrations ou UI; aceite cumprido sem falhas. AUTH-003 orientou o loop a reforçar testes, pois a revogação já integra o 2.15.
 
 Commit: `test(auth): verify password reset session lifecycle`.
+
+## LOOP 3.1 — Concluído
+
+Escopo atual:
+- CRUD REST/OpenAPI de Institution usando repository existente;
+- Zod estrito, ADMIN obrigatório e CSRF;
+- testes de CRUD, validação, acesso e conflitos.
+
+Implementado:
+- módulo/controller/service NestJS e adapter lazy Drizzle;
+- GET/POST `/api/v1/institutions` e GET/PATCH/DELETE por UUID;
+- contratos Zod estritos, nomes com limite 150, slugs com limite 100 e updates não vazios;
+- SessionGuard, ADMIN e CSRF; respostas 400/401/403/404/409 e exclusão 204;
+- conflitos PostgreSQL mapeados sem SQL, nomes de constraints ou segredos;
+- OpenAPI das cinco operações e seis testes Supertest;
+- exportações do AuthModule ajustadas para reutilização dos guards entre módulos.
+
+Checks aprovados:
+- `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`;
+- 88 testes: 6 validation, 32 db e 50 API;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm peers check`;
+- `.\\node_modules\\.bin\\prettier.cmd --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Aceite cumprido: ADMIN opera CRUD, EDITOR/visitante bloqueados em todas as rotas, CSRF e conflitos comprovados em PostgreSQL. Falha inicial de injeção corrigida e checks repetidos. Sem schema/migration nova ou UI; campos de settings/tema/logo não antecipados.
+
+Commit: `feat(api): add admin institution CRUD`.

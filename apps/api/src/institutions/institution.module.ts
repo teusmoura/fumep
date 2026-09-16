@@ -1,0 +1,14 @@
+import { Module } from "@nestjs/common";
+import { AuthModule } from "../auth/auth.module.js";
+import { InstitutionController } from "./institution.controller.js";
+import { INSTITUTION_REPOSITORY, InstitutionService } from "./institution.service.js";
+import { LazyInstitutionRepository } from "./lazy-institution.repository.js";
+@Module({
+  imports: [AuthModule],
+  controllers: [InstitutionController],
+  providers: [
+    InstitutionService,
+    { provide: INSTITUTION_REPOSITORY, useClass: LazyInstitutionRepository },
+  ],
+})
+export class InstitutionModule {}
