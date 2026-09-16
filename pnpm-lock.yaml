@@ -135,10 +135,26 @@ importers:
         version: 5.0.0(@types/node@26.4.1)(jsdom@30.0.1(@noble/hashes@1.8.0))(vite@8.2.2(@types/node@26.4.1)(esbuild@0.28.2)(tsx@4.23.13))
 
   apps/worker:
+    dependencies:
+      '@fumep/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      '@fumep/jobs':
+        specifier: workspace:*
+        version: link:../../packages/jobs
+      '@fumep/validation':
+        specifier: workspace:*
+        version: link:../../packages/validation
     devDependencies:
       '@types/node':
         specifier: ^26.4.1
         version: 26.4.1
+      dotenv:
+        specifier: ^17.4.2
+        version: 17.4.2
+      vitest:
+        specifier: ^5.0.0
+        version: 5.0.0(@types/node@26.4.1)(jsdom@30.0.1(@noble/hashes@1.8.0))(vite@8.2.2(@types/node@26.4.1)(esbuild@0.28.2)(tsx@4.23.13))
 
   packages/db:
     dependencies:
@@ -161,6 +177,9 @@ importers:
 
   packages/jobs:
     dependencies:
+      '@fumep/validation':
+        specifier: workspace:*
+        version: link:../validation
       bullmq:
         specifier: ^5.81.5
         version: 5.81.5(redis@5.12.1)(supports-color@7.2.0)

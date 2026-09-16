@@ -1,4 +1,6 @@
-import { Queue, type DefaultJobOptions, type RedisOptions } from "bullmq";
+import { Queue, Worker, type Processor, type DefaultJobOptions, type RedisOptions } from "bullmq";
+import { processMediaPayloadSchema } from "@fumep/validation";
+export { UnrecoverableError, type Job } from "bullmq";
 
 export const MEDIA_QUEUE_NAME = "media";
 
@@ -93,4 +95,29 @@ export class MediaQueue {
     this.closed = true;
     await this.instance?.close();
   }
+
+  async enqueue(mediaId: string): Promise<void> {
+    const payload = processMediaPayloadSchema.parse({ mediaId });
+    await this.queue().add("PROCESS_MEDIA", payload, { jobId: `process-media-${payload.mediaId}` });
+  }
+}
+
+export function createMediaWorker(
+  processor: Processor,
+  env: NodeJS.ProcessEnv = process.env,
+  prefix = "bull",
+) {
+  const { connection } = mediaQueueConfiguration(env);
+  const concurrency = Number(env.MEDIA_WORKER_CONCURRENCY ?? 2);
+  if (!Number.isSafeInteger(concurrency) || concurrency < 1 || concurrency > 32)
+    throw new Error("Invalid MEDIA_WORKER_CONCURRENCY");
+  return new Worker(MEDIA_QUEUE_NAME, processor, {
+    prefix,
+    concurrency,
+    connection: {
+      ...connection,
+      maxRetriesPerRequest: null,
+      retryStrategy: (attempt) => Math.min(attempt * 250, 5000),
+    },
+  });
 }

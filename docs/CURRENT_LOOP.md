@@ -61,45 +61,46 @@ LOOP 4.3 — CONCLUÍDO
 LOOP 4.4 — CONCLUÍDO
 LOOP 4.5 — CONCLUÍDO
 LOOP 4.6 — CONCLUÍDO
-LOOP 4.7 — ATUAL
+LOOP 4.7 — CONCLUÍDO
+LOOP 4.8 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 4.7 — PROCESS_MEDIA
+### LOOP 4.8 — Sharp
 
-Estado: pronto para execução após commit do 4.6. Fila media configurada e verificada com Redis real. Preservar upload, checksum, autorização e escolhas de duplicidade.
+Estado: pronto para execução após commit do 4.7. Worker recebe referência validada e consulta PostgreSQL. Recepção ainda não processa imagem nem marca READY.
 
 Objetivo:
 
 ```text
-Worker separado recebe job PROCESS_MEDIA da fila media.
+Implementar processamento de imagem com Sharp exclusivamente no Worker.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop e arquitetura de Jobs/Storage; confirmar 4.6 commitado e Git limpo;
+- reler AGENTS.md, execute-loop e arquitetura de Jobs/Storage; confirmar 4.7 commitado e Git limpo;
 - usar jobs-worker/media-storage/testing-qa conforme o escopo;
-- contrato mínimo PROCESS_MEDIA com referência Media.id, sem bytes/credenciais no payload;
-- enfileiramento após persistência, sem apagar original ou Media caso Redis falhe;
-- consumidor apps/worker com validação, logs estruturados seguros e shutdown;
-- testar recepção real, payload inválido, repetição e falhas/retries aplicáveis;
+- obter original via adapter MinIO interno, preservando bytes/objeto original;
+- integrar Sharp ao handler PROCESS_MEDIA com leitura/decodificação e dimensões;
+- manter processamento fora do HTTP e payload sem bytes/credenciais;
+- testar formatos aceitos, corrupção, limites de recursos e repetição/falhas aplicáveis;
 - não executar processamento no request NestJS;
 - checks, documentação, commit e Git limpo.
 
 Não implementar:
 
-- processamento Sharp/variantes e transições finais do processamento dos loops seguintes, PDF, gestão completa de categorias, MediaUsage e logos;
+- MediaVariant WebP/AVIF/thumbnail do 4.9, transições finais do 4.10, PDF, gestão completa de categorias, MediaUsage e logos;
 - upload direto Browser → MinIO ou armazenamento físico no PostgreSQL.
 
 Critério de aceite:
 
 ```text
-Worker recebe PROCESS_MEDIA com referência validada, sem antecipar Sharp/variantes; testes/checks verdes.
+Worker processa imagem com Sharp, preserva original e verifica dimensões, sem antecipar variantes/status finais; testes/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 4.8 — Sharp
+LOOP 4.9 — MediaVariant
 ```

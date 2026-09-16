@@ -1,13 +1,31 @@
-import process from "node:process";
+import { createDatabase, MediaRepository } from "@fumep/db";
+import { createMediaWorker } from "@fumep/jobs";
+import { receiveMediaJob } from "./receive-media.js";
 
-const keepAlive = setInterval(() => undefined, 60_000);
-
-function shutdown(signal: NodeJS.Signals) {
-  clearInterval(keepAlive);
-  console.info(`Worker FUMEP encerrado (${signal}).`);
+if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL required");
+const { db, client } = createDatabase(process.env.DATABASE_URL);
+const repository = new MediaRepository(db);
+const worker = createMediaWorker((job) => receiveMediaJob(job, (id) => repository.findById(id)));
+worker.on("error", () =>
+  console.error(JSON.stringify({ event: "worker_connection_error", queue: "media" })),
+);
+let shutdownStarted = false;
+async function shutdown() {
+  if (shutdownStarted) return;
+  shutdownStarted = true;
+  try {
+    await worker.close();
+  } finally {
+    await client.end();
+  }
 }
-
-process.once("SIGINT", shutdown);
-process.once("SIGTERM", shutdown);
-
-console.info("Worker FUMEP iniciado.");
+for (const signal of ["SIGINT", "SIGTERM"] as const) {
+  process.once(signal, () => {
+    void shutdown().catch(() => {
+      console.error(JSON.stringify({ event: "worker_shutdown_failed" }));
+      process.exitCode = 1;
+    });
+  });
+}
+await worker.waitUntilReady();
+console.info(JSON.stringify({ event: "worker_ready", queue: "media" }));

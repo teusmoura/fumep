@@ -1,4 +1,7 @@
 import { z } from "zod";
+
+export const processMediaPayloadSchema = z.object({ mediaId: z.uuid() }).strict();
+export type ProcessMediaPayload = z.infer<typeof processMediaPayloadSchema>;
 export const IMAGE_MAX_BYTES = 15 * 1024 * 1024;
 export const mediaUploadFieldsSchema = z
   .object({

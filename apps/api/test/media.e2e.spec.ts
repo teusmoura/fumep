@@ -13,6 +13,7 @@ import { SESSION_CONFIG } from "../src/auth/auth.contracts.js";
 import { MediaModule } from "../src/media/media.module.js";
 import { MediaStore } from "../src/media/media.store.js";
 import { MediaStorage } from "../src/media/media.storage.js";
+import { MediaQueueProvider } from "../src/media/media-queue.provider.js";
 
 config({ path: resolve(import.meta.dirname, "../../../.env"), quiet: true });
 if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL required");
@@ -28,6 +29,7 @@ const png = Buffer.from(
 );
 const csrf = "a".repeat(43);
 const origin = "http://localhost:3000";
+const enqueue = vi.fn<(id: string) => Promise<void>>(async () => undefined);
 describe("Image upload through NestJS to real MinIO/PostgreSQL", () => {
   let app: INestApplication;
   let storage: MediaStorage;
@@ -45,6 +47,8 @@ describe("Image upload through NestJS to real MinIO/PostgreSQL", () => {
     for (const id of [own, other])
       await client`INSERT INTO institutions (id,name,slug) VALUES (${id},'Media fixture',${`media-${id}`})`;
     const moduleRef = await Test.createTestingModule({ imports: [MediaModule] })
+      .overrideProvider(MediaQueueProvider)
+      .useValue({ producer: { enqueue } })
       .overrideProvider(SESSION_CONFIG)
       .useValue({
         appOrigin: origin,
@@ -108,6 +112,7 @@ describe("Image upload through NestJS to real MinIO/PostgreSQL", () => {
       "sizeBytes",
     ]);
     const [row] = await client`SELECT * FROM media WHERE id = ${response.body.id}`;
+    expect(enqueue).toHaveBeenCalledWith(response.body.id);
     keys.push(row.storage_key);
     expect(row.stored_filename).toBe(`${response.body.id}.png`);
     expect(row.storage_key).toBe(`images/originals/${response.body.id}.png`);
@@ -119,6 +124,18 @@ describe("Image upload through NestJS to real MinIO/PostgreSQL", () => {
     expect(Buffer.concat(chunks)).toEqual(png);
     const [audit] = await client`SELECT * FROM audit_logs WHERE entity_id = ${response.body.id}`;
     expect(audit.action).toBe("MEDIA_UPLOADED");
+  });
+  it("preserves persisted Media and original when derived enqueue fails", async () => {
+    enqueue.mockRejectedValueOnce(new Error("fixture unavailable"));
+    const response = await mutate("images")
+      .attach("file", png, { filename: "redis-failure.png", contentType: "image/png" })
+      .expect(201);
+    const [row] = await client`SELECT * FROM media WHERE id = ${response.body.id}`;
+    keys.push(row.storage_key);
+    expect(row.processing_status).toBe("PENDING");
+    expect((await storage.client().statObject("portal-public", row.storage_key)).size).toBe(
+      png.length,
+    );
   });
   it("allows global ADMIN and filters EDITOR category selection", async () => {
     const response = await mutate("images").attach("file", png, "fixture.png").expect(201);
@@ -280,6 +297,7 @@ describe("Image upload through NestJS to real MinIO/PostgreSQL", () => {
     create.mockRestore();
   });
   it("warns before writing, selects authorized existing media or explicitly uploads another record", async () => {
+    const enqueuedBefore = enqueue.mock.calls.length;
     const probe = () =>
       request(app.getHttpServer())
         .post("/api/v1/media/images")
@@ -301,6 +319,7 @@ describe("Image upload through NestJS to real MinIO/PostgreSQL", () => {
       .send({ id: warning.body.existing.id })
       .expect(200);
     expect(selected.body).toEqual(warning.body.existing);
+    expect(enqueue.mock.calls.length).toBe(enqueuedBefore);
     expect(await client`SELECT count(*) FROM media WHERE uploaded_by = ${userId}`).toEqual(before);
     expect(put).not.toHaveBeenCalled();
     expect(create).not.toHaveBeenCalled();

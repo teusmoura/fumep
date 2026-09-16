@@ -2136,3 +2136,16 @@ Checks aprovados: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test
 Falhas resolvidas: política de build do addon opcional msgpackr-extract explicitamente false; diagnóstico usava ping ausente na interface pública BullMQ, substituído por leitura suportada. Rechecks completos verdes. Docker CLI indisponível em Windows/WSL; Compose/CI remota não executados. Playwright/axe não executados (script E2E inexistente).
 
 Aceite cumprido. jobs-worker manteve fila sem processamento no request; testing-qa orientou isolamento/limpeza de fixtures. Commit: `feat(media): configure shared BullMQ media queue`.
+
+## LOOP 4.7 — Concluído
+
+Estado inicial: 4.6 concluído em `97ec6b4`, Git limpo.
+Escopo: contrato PROCESS_MEDIA mínimo, producer após commit Media, preservação do original/registro se Redis falhar, consumidor separado com lookup PostgreSQL e logs seguros, testes de recepção/repetição/retry/falha/shutdown. Sem Sharp, variantes ou marcação READY.
+
+Entregue: payload Zod estrito mediaId, ID determinístico compatível BullMQ, enqueue após persistência (fora da compensação), consumer real apps/worker, lookup PostgreSQL, logs sanitizados, concorrência configurável e SIGINT/SIGTERM com fechamento. Recepção é checkpoint incremental, não processamento concluído; Media permanece PENDING.
+
+Checks aprovados: `pnpm format:check`, `pnpm lint` sem warnings finais, `pnpm typecheck`, `pnpm test` (209: 18 validation, 42 DB, 12 jobs, 93 API, 38 web, 6 worker), `pnpm build`, `pnpm peers check`, `pnpm --filter @fumep/worker test`, `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`, Prettier workflow e `git diff --check`.
+
+Cenários: lookup real PostgreSQL, recepção Redis, dedupe, reexecução sem alteração de estado, retry temporário, três tentativas exauridas, payload inválido sem secrets, fechamento de consumidor/conexões, preservação do original/registro na falha Redis e ausência de enqueue no aviso/seleção. Log ERROR de enqueue no teste é falha simulada esperada. Warning de argumento não usado corrigido. Nenhuma falha pendente. E2E browser/axe/CI remota não executados.
+
+Aceite cumprido. jobs-worker orientou consumer separado e retry; nestjs-api/media-storage preservaram transação principal e original; testing-qa orientou fixtures isoladas. Commit: `feat(media): deliver PROCESS_MEDIA to dedicated worker`.

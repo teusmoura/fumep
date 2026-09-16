@@ -6,9 +6,18 @@
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
     "start": "node dist/main.js",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "pretest": "pnpm --filter @fumep/jobs --filter @fumep/db --filter @fumep/validation build",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@fumep/jobs": "workspace:*",
+    "@fumep/db": "workspace:*",
+    "@fumep/validation": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^26.4.1"
+    "@types/node": "^26.4.1",
+    "dotenv": "^17.4.2",
+    "vitest": "^5.0.0"
   }
 }

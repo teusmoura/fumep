@@ -21,6 +21,7 @@ import { MediaStore } from "./media.store.js";
 import { MediaStorage } from "./media.storage.js";
 import { validateImage } from "./image-validation.js";
 import { mediaChecksum } from "./media-checksum.js";
+import { MediaQueueProvider } from "./media-queue.provider.js";
 
 @Injectable()
 export class MediaService {
@@ -28,6 +29,7 @@ export class MediaService {
   constructor(
     private readonly store: MediaStore,
     private readonly storage: MediaStorage,
+    private readonly jobs: MediaQueueProvider,
   ) {}
   private authorize(session: SessionData, institutionId: string | null) {
     if (
@@ -102,7 +104,6 @@ export class MediaService {
         checksumSha256,
         uploadedBy: session.userId,
       });
-      return response;
     } catch {
       try {
         await this.storage.remove(key);
@@ -111,6 +112,13 @@ export class MediaService {
       }
       throw new ServiceUnavailableException("Não foi possível salvar a imagem. Tente novamente.");
     }
+    // Derived enqueue failure must never compensate persisted Media.
+    try {
+      await this.jobs.producer.enqueue(id);
+    } catch {
+      this.logger.error(JSON.stringify({ event: "media_enqueue_failed", media_id: id }));
+    }
+    return response;
   }
   private selection(media: Media) {
     return mediaSelectionResponseSchema.parse({
