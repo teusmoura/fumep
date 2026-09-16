@@ -42,6 +42,7 @@ export async function processImage(
   media: Media,
   storage: Pick<MediaStorage, "read">,
   saveDimensions: (id: string, width: number, height: number) => Promise<Media | undefined>,
+  persistVariants?: (original: Buffer, dimensions: ImageDimensions) => Promise<void>,
 ): Promise<ImageDimensions> {
   if (
     media.type !== "IMAGE" ||
@@ -63,5 +64,6 @@ export async function processImage(
   const dimensions = await decodeImage(original);
   if (!(await saveDimensions(media.id, dimensions.width, dimensions.height)))
     throw new UnrecoverableError("MEDIA_NO_LONGER_EXISTS");
+  await persistVariants?.(original, dimensions);
   return dimensions;
 }

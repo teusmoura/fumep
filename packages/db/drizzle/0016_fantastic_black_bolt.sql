@@ -1,0 +1,2 @@
+ALTER TABLE "media_variants" DROP CONSTRAINT "media_variants_key_relative";--> statement-breakpoint
+ALTER TABLE "media_variants" ADD CONSTRAINT "media_variants_key_relative" CHECK ("media_variants"."storage_key" !~ '(^/|:|(^|/)[.][.](/|$))' AND length("media_variants"."storage_key") > 0);

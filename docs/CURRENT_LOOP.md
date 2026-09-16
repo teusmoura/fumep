@@ -63,46 +63,48 @@ LOOP 4.5 — CONCLUÍDO
 LOOP 4.6 — CONCLUÍDO
 LOOP 4.7 — CONCLUÍDO
 LOOP 4.8 — CONCLUÍDO
-LOOP 4.9 — ATUAL
+LOOP 4.9 — CONCLUÍDO
+LOOP 4.10 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 4.9 — MediaVariant
+### LOOP 4.10 — Status de processamento
 
-Estado: pronto para execução após commit do 4.8. Sharp decodifica/verifica original e grava dimensões. Media ainda PENDING, sem variantes.
+Estado: pronto para execução após commit do 4.9. Worker gera variantes WebP/AVIF e thumbnail compartilhada, sem upscale. Media ainda PENDING; estados finais são o escopo atual.
 
 Objetivo:
 
 ```text
-Criar MediaVariant e gerar WebP, AVIF e thumbnail no Worker.
+Cobrir PENDING, PROCESSING, READY e FAILED no pipeline de processamento.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop e arquitetura de Jobs/Storage/modelo lógico; confirmar 4.8 commitado e Git limpo;
+- reler AGENTS.md, execute-loop e arquitetura de Jobs/Storage/modelo lógico; confirmar 4.9 commitado e Git limpo;
 - usar jobs-worker/media-storage/testing-qa conforme o escopo;
-- schema/migration/repository MediaVariant, storage_key relativo conforme documento especializado;
-- gerar WebP/AVIF/thumbnail segundo política canônica aplicável, sem upscale e preservando original;
-- persistir objetos MinIO e metadados PostgreSQL com idempotência/repetição segura;
+- transições no Worker: PENDING/FAILED → PROCESSING → READY somente após derivados persistidos;
+- FAILED/processing_error sanitizado em erro permanente ou tentativas exauridas, com auditoria aplicável;
+- repetição segura, preservação do original/variantes válidas e logs estruturados;
+- contratos/projeções de estado observáveis sem vazar detalhes internos ao Editor;
 - manter processamento fora do HTTP e payload sem bytes/credenciais;
-- testar variantes/dimensões, imagem pequena, idempotência, falhas e migrations do zero;
+- testar sucesso, falha permanente/temporária/exaurida, repetição e estados persistidos;
 - não executar processamento no request NestJS;
 - checks, documentação, commit e Git limpo.
 
 Não implementar:
 
-- transições finais do 4.10, PDF, gestão completa de categorias, MediaUsage e logos;
+- PDF do 4.11, gestão completa de categorias, MediaUsage e logos; não inventar outbox/tabelas auxiliares;
 - upload direto Browser → MinIO ou armazenamento físico no PostgreSQL.
 
 Critério de aceite:
 
 ```text
-WebP/AVIF/thumbnail registrados em MediaVariant e MinIO, sem upscale/perda do original; migrations/testes/checks verdes.
+Estados PENDING/PROCESSING/READY/FAILED coerentes com o pipeline, erro seguro e testes/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 4.10 — Status de processamento
+LOOP 4.11 — Upload de PDF
 ```

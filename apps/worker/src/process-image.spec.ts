@@ -3,11 +3,12 @@ import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import { config } from "dotenv";
 import { describe, expect, it, vi } from "vitest";
-import { createDatabase, MediaRepository, type Media } from "@fumep/db";
+import { createDatabase, MediaRepository, MediaVariantRepository, type Media } from "@fumep/db";
 import { MediaStorage } from "@fumep/storage";
 import { MediaQueue, createMediaWorker, UnrecoverableError } from "@fumep/jobs";
 import { decodeImage, processImage } from "./process-image.js";
 import { receiveMediaJob } from "./receive-media.js";
+import { persistMediaVariants } from "./media-variants.js";
 
 config({ path: fileURLToPath(new URL("../../../.env", import.meta.url)), quiet: true });
 const source = () =>
@@ -73,6 +74,7 @@ describe("Sharp image processing", () => {
     if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL required");
     const { client, db } = createDatabase(process.env.DATABASE_URL);
     const repository = new MediaRepository(db);
+    const variants = new MediaVariantRepository(db);
     const storage = new MediaStorage();
     const id = randomUUID();
     const key = `images/originals/${id}.png`;
@@ -86,8 +88,12 @@ describe("Sharp image processing", () => {
           (mediaId) => repository.findById(mediaId),
           () => undefined,
           (media) =>
-            processImage(media, storage, (mediaId, width, height) =>
-              repository.updateDimensions(mediaId, width, height),
+            processImage(
+              media,
+              storage,
+              (mediaId, width, height) => repository.updateDimensions(mediaId, width, height),
+              (bytes, dimensions) =>
+                persistMediaVariants(media.id, bytes, dimensions, storage, variants),
             ),
         ),
       process.env,
@@ -120,6 +126,19 @@ describe("Sharp image processing", () => {
         height: 8,
         processingStatus: "PENDING",
       });
+      const firstVariants = await variants.findForMedia(id);
+      expect(firstVariants).toHaveLength(2);
+      for (const variant of firstVariants) {
+        const bytes = await storage.read(variant.storageKey, Number(variant.sizeBytes));
+        const metadata = await sharp(bytes).metadata();
+        expect(metadata).toMatchObject({
+          width: variant.width,
+          height: variant.height,
+          format: variant.format === "WEBP" ? "webp" : "heif",
+        });
+      }
+      await persistMediaVariants(id, original, { width: 12, height: 8 }, storage, variants);
+      expect(await variants.findForMedia(id)).toEqual(firstVariants);
       await processImage(media, storage, (mediaId, width, height) =>
         repository.updateDimensions(mediaId, width, height),
       );
@@ -133,6 +152,8 @@ describe("Sharp image processing", () => {
       await producer.queue().obliterate({ force: true });
       await producer.close();
       await storage.remove(key);
+      for (const variant of await variants.findForMedia(id))
+        await storage.remove(variant.storageKey);
       await client`DELETE FROM media WHERE id = ${id}`;
       await client.end();
     }

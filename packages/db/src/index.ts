@@ -7,6 +7,7 @@ export {
 } from "./institution.repository.js";
 export * from "./schema.js";
 export { MediaRepository } from "./media.repository.js";
+export { MediaVariantRepository } from "./media-variant.repository.js";
 export { MediaCategoryRepository } from "./media-category.repository.js";
 export {
   InstitutionSettingRepository,

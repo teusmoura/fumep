@@ -2162,3 +2162,16 @@ Checks aprovados: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test
 Falhas resolvidas: update tentou timestamp ausente em Media, removido sem alterar schema; Drizzle no sandbox retornou uv_os_get_passwd ENOMEM, reexecução autorizada aplicou migrations e passou. Nenhuma falha pendente. Browser E2E/axe/QA visual/CI remota não executados.
 
 Aceite cumprido. media-storage orientou preservação/integridade; drizzle-data-model restringiu persistência aos campos existentes; jobs-worker manteve Sharp fora do request; testing-qa cobriu quatro formatos, EXIF, corrupção, pixel limit, integridade, storage indisponível, stream limitado e integração real/repetição. Commit: `feat(media): decode originals with Sharp in worker`.
+
+## LOOP 4.9 — Concluído
+
+Estado inicial: 4.8 concluído em `207ebd5`, Git limpo.
+Escopo: MediaVariant canônico com storage_key relativo, migration/repository idempotente, geração WebP/AVIF sem upscale e thumbnail reutilizando menor WebP (até 320px), objetos/metadados e testes reais de repetição/concorrência/falhas/migrations. Tamanhos sugeridos canônicos 320/640/960/1280/1920, incluindo largura original se menor que 1920. Sem READY/UI de biblioteca.
+
+Entregue: media_variants UUID/FK CASCADE/TIMESTAMPTZ/BIGINT/storage_key, constraints/unique media-format-width, repository upsert estável/concorrente; Sharp WebP/AVIF sequenciais, sRGB/orientação/timeout/sem upscale, thumbnail compartilhada e integração do consumer. Original e derivados válidos preservados em falhas. Sem status final.
+
+Checks aprovados: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` (230: 18 validation, 47 DB, 12 jobs, 3 storage, 93 API, 38 web, 19 worker), `pnpm build`, `pnpm peers check`, `pnpm --filter @fumep/db --filter @fumep/worker test`, Prettier workflow e `git diff --check`. Migrations 0015/0016 geradas pelo Drizzle/aplicadas localmente; todas as migrations do zero em `portal_fumep_loop_4_9_test` + 47 testes DB. Banco de fixture preservado; nenhuma dependência/lockfile nova.
+
+Falhas resolvidas: tipo OutputInfo importado explicitamente do Sharp; escape literal '..' no CHECK corrigido em 0016 aditiva após 0015 aplicada. Teste garante segmento legítimo de dois caracteres e rejeita traversal/URL. Rechecks verdes, nenhuma falha pendente. Browser E2E/axe/QA visual/CI remota não executados.
+
+Aceite cumprido. drizzle-data-model orientou constraints/idempotência e precedência storage_key; media-storage orientou tamanhos sugeridos, thumbnail compartilhada/preservação; jobs-worker manteve processamento separado; testing-qa cobriu codecs/aspecto/imagem pequena/integridade/repetição/concorrência/falhas/objetos reais. Commit: `feat(media): persist responsive WebP and AVIF variants`.

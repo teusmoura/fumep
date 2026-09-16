@@ -106,6 +106,20 @@
       "when": 1789583947774,
       "tag": "0014_nostalgic_peter_parker",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1789586809740,
+      "tag": "0015_foamy_gargoyle",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1789586857677,
+      "tag": "0016_fantastic_black_bolt",
+      "breakpoints": true
     }
   ]
 }

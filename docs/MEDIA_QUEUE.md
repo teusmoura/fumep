@@ -28,6 +28,16 @@ Dimensões consideram orientação EXIF. Decodificação não gera upscale ou ob
 
 Job `completed` no checkpoint 4.8 significa decodificação/dimensões, NÃO pipeline pronto: Media continua PENDING, sem variantes. Reprocessamento de job completed retido exige liberar o ID interno antes de reenfileirar, ou aguardar sua remoção por retention; dedupe não cria segunda execução enquanto o ID existir. A implementação completa de estados/reprocessamento pertence ao 4.10.
 
+## MediaVariant (4.9)
+
+Worker gera WebP (qualidade 80) e AVIF (qualidade 50, effort 4), com orientação aplicada, sRGB e sem upscale. Larguras sugeridas canônicas: 320/640/960/1280/1920; quando original menor que 1920, também gera sua largura exata (900px → 320/640/900). Imagem de 12px gera somente 12px nos dois formatos. Menor WebP (até 320px) é também thumbnail; reutiliza seu registro/objeto, não inventa novo formato/campo/tabela. Estes defaults concretizam o conjunto sugerido de Storage, sem UI de política administrativa.
+
+Objetos relativos `images/variants/<mediaId>-<width>.webp|avif`, metadados em media_variants: UUID, FK Media CASCADE, format, width/height, size_bytes BIGINT, storage_key e created_at TIMESTAMPTZ. Documento especializado define storage_key, substituindo storage_path do modelo lógico. Unicidade media_id/format/width e upsert preservam identidade/data, incluindo concorrência.
+
+Uma variante é codificada e persistida por vez. Falha temporária mantém original e variantes já persistidas; reexecução usa mesmas chaves/upsert sem duplicar registros. PostgreSQL/MinIO não são uma transação distribuída: queda entre put e upsert pode deixar objeto órfão reparável no retry. Não excluir objetos válidos como compensação. Encoding inválido falha permanentemente; storage/banco são erros sanitizados retriáveis.
+
+Pipeline 4.9 já gera derivados, mas estados READY/FAILED e recuperação operacional pertencem ao 4.10. Nenhuma URL MinIO é enviada ao navegador; entrega pública/seletores responsivos não são implementados neste loop.
+
 Testes reais usam namespace UUID exclusivo `fumep-test-queue-*`, verificam persistência, deduplicação e fechamento e removem apenas suas fixtures. Não usam FLUSHDB nem limpam `bull:media`. O addon nativo opcional msgpackr-extract permanece bloqueado; o fallback JavaScript passou nos testes.
 
 CI provisiona Redis/MinIO pelo Compose no projeto efêmero `portal-fumep-ci`, além de PostgreSQL do runner. Credenciais desse workflow são fixtures descartáveis, não credenciais de implantação. A limpeza afeta somente esse projeto de testes. Execução remota da CI e validação Docker local não foram realizadas: CLI Docker indisponível no ambiente atual.

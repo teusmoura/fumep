@@ -298,3 +298,36 @@ export const passwordResetTokens = pgTable(
 );
 
 export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
+
+export const mediaVariants = pgTable(
+  "media_variants",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    mediaId: uuid("media_id")
+      .notNull()
+      .references(() => media.id, { onDelete: "cascade" }),
+    format: varchar("format", { length: 20 }).notNull(),
+    width: integer("width"),
+    height: integer("height"),
+    sizeBytes: bigint("size_bytes", { mode: "bigint" }).notNull(),
+    storageKey: text("storage_key").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("media_variants_media_format_width_unique").on(
+      table.mediaId,
+      table.format,
+      table.width,
+    ),
+    check("media_variants_width_positive", sql`${table.width} IS NULL OR ${table.width} > 0`),
+    check("media_variants_height_positive", sql`${table.height} IS NULL OR ${table.height} > 0`),
+    check("media_variants_size_positive", sql`${table.sizeBytes} > 0`),
+    check("media_variants_format_allowed", sql`${table.format} IN ('WEBP', 'AVIF')`),
+    check(
+      "media_variants_key_relative",
+      sql`${table.storageKey} !~ '(^/|:|(^|/)[.][.](/|$))' AND length(${table.storageKey}) > 0`,
+    ),
+  ],
+);
+export type MediaVariant = typeof mediaVariants.$inferSelect;
+export type NewMediaVariant = typeof mediaVariants.$inferInsert;
