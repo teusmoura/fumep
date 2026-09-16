@@ -1828,3 +1828,25 @@ Checks aprovados:
 Aceite completo sem falhas; persistência já exigida no 3.2 foi reutilizada, sem migration duplicada. Sem frontend ou UI.
 
 Commit: `test(institutions): consolidate appearance defaults and transitions`.
+
+## LOOP 3.6 — Bloqueado
+
+Escopo analisado:
+- ThemeContext público com tema persistido por instituição;
+- fronteira de leitura segura entre Next.js e API.
+
+Evidência:
+- loop 3.5 concluído no commit `6190749`, com worktree limpo antes desta análise;
+- CRUD institucional exige ADMIN em todos os GETs;
+- frontend não pode acessar banco nem inventar endpoints;
+- contrato público de tema não está definido nos documentos canônicos.
+
+Bloqueio architectural THEME-001:
+- a entrega integrada depende de definir a projeção pública e autorizar essa fronteira de acesso no 3.6;
+- recomendada rota pública somente leitura, restrita a temas de instituições ativas;
+- nenhuma alteração de produção ou frontend feita; CURRENT_LOOP permanece no 3.6;
+- registrado por execute-loop/architecture-guard, sem liberar CRUD administrativo.
+
+Checks da última implementação: format, lint, typecheck, 101 testes, build, frozen install, peers e workflow aprovados no 3.5. Nesta análise somente documentação mudou; `git diff --check` executado.
+
+Commit de registro: `docs: record public theme data boundary decision`.

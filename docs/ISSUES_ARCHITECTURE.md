@@ -4,7 +4,32 @@ Use este arquivo apenas quando a implementação encontrar uma contradição rea
 
 ## Abertos
 
-Nenhum.
+### THEME-001 — Fonte pública de tema institucional no loop 3.6
+
+Classificação: **bloqueador**.
+
+Contexto e evidências:
+- o loop 3.6 exige tema mínimo resolvido por instituição no frontend;
+- o documento especializado de frontend, seções 70–71 e 90, exige tema institucional e dados vindos de Institution/InstitutionSetting/Theme;
+- o loop 3.1 reserva o CRUD institucional exclusivamente a ADMIN;
+- `InstitutionController` aplica SessionGuard e Roles("ADMIN") à classe, inclusive aos GETs;
+- `apps/web/AGENTS.md` proíbe acesso direto ao banco e invenção de endpoints;
+- a documentação canônica não define rota/contrato de leitura pública de tema institucional;
+- os temas e appearance_default já são configuráveis/persistidos, portanto cópia estática não refletiria a fonte institucional.
+
+Decisão necessária:
+- definir como o frontend público recebe essa projeção sem sessão administrativa e sem abrir o CRUD;
+- confirmar a inclusão dessa leitura no escopo 3.6.
+
+Recomendação:
+- autorizar GET `/api/v1/public/institutions/:slug/theme`, público e somente leitura;
+- retornar somente id, slug, os quatro tokens e appearanceDefault para instituições ativas;
+- retornar 404 para instituição inexistente/inativa, sem contatos, usuários, metadados administrativos ou credenciais;
+- usar SYSTEM se ainda não houver settings;
+- manter todo o CRUD atual protegido e documentar/testar a projeção com Zod/OpenAPI/Supertest;
+- consumir a projeção no servidor Next.js e repassar apenas dados públicos ao ThemeContext.
+
+Nenhuma abertura de autorização, endpoint público ou acesso direto ao banco implementado sem decisão. Loop 3.6 permanece atual.
 
 ## Resolvidos
 

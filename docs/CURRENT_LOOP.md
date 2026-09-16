@@ -58,6 +58,8 @@ LOOP 3.6 — ATUAL
 
 ### LOOP 3.6 — ThemeContext no frontend
 
+Estado: bloqueado pela decisão THEME-001 em `docs/ISSUES_ARCHITECTURE.md`. Definir a leitura pública do tema antes de integrar o frontend; não abrir o CRUD ADMIN nem acessar banco diretamente.
+
 Objetivo:
 
 ```text
