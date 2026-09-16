@@ -1626,14 +1626,42 @@ Commit:
 feat(auth): add secure password reset tokens
 ```
 
-## LOOP 2.15 — Bloqueado
+## LOOP 2.15 — Concluído
+
+Escopo autorizado (AUTH-003):
+- endpoint Zod/OpenAPI e Argon2id;
+- transação de senha, consumo e auditoria, condicionada à revogação Redis;
+- testes de validade, concorrência e falha de revogação;
+- reforço do ciclo de vida no loop 2.16.
 
 Escopo analisado:
 - reset por token único e expirável;
 - atualização Argon2id e consumo atômico;
 - exigência canônica de revogar sessões após o sucesso.
 
-Bloqueio:
-- o plano reserva a invalidação de sessões ao loop 2.16, enquanto o documento especializado e a skill de segurança exigem essa ação no sucesso do reset;
-- `AUTH-003` registrada em `docs/ISSUES_ARCHITECTURE.md`, com recomendação de revogação já no 2.15 e testes reforçados no 2.16;
-- nenhuma alteração de código realizada neste loop; `docs/CURRENT_LOOP.md` permanece em 2.15.
+Implementado:
+- contrato Zod estrito e endpoint REST documentado em OpenAPI;
+- token SHA-256 validado por expiração e consumo, com bloqueio de linha para uso único concorrente;
+- Argon2id, senha mínima de 10 caracteres e rejeição de conta desativada;
+- senha, consumo e PASSWORD_RESET em transação; falha Redis faz rollback e permite retry;
+- remoção atômica das sessões do usuário, incluindo sessões legadas; refresh condicional não recria sessão revogada;
+- testes PostgreSQL e Supertest de sucesso, rejeição, concorrência, rollback, auditoria e revogação real Redis.
+
+Checks aprovados:
+- `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`;
+- `pnpm test`: 80 testes (6 validation, 32 db, 42 API);
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm peers check`;
+- `.\\node_modules\\.bin\\prettier.cmd --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Aceite: token válido redefine a senha uma única vez; tokens desconhecidos, expirados ou consumidos falham. Revogação obrigatória comprovada.
+
+Observações:
+- AUTH-003 resolvida por autorização; 2.16 reforçará o ciclo de vida;
+- falhas iniciais de import no teste, lint e formato corrigidas e checks repetidos;
+- sem alteração de schema/migration; banco local de desenvolvimento;
+- a revogação percorre sessões Redis em um script atômico (custo proporcional ao keyspace); apropriada ao escopo V1, sem índice adicional;
+- emissão/envio de e-mail não antecipados; sem UI, acessibilidade visual não aplicável.
+
+Commit: `feat(auth): reset passwords and revoke sessions`.

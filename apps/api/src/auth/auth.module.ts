@@ -19,6 +19,7 @@ import {
   PasswordResetTokenService,
 } from "./password-reset-token.service.js";
 import { PasswordHasherService } from "./password-hasher.service.js";
+import { PasswordResetService } from "./password-reset.service.js";
 import { RedisSessionStore } from "./redis-session.store.js";
 import { RedisLoginAttemptStore } from "./redis-login-attempt.store.js";
 import { RedisForgotPasswordAttemptStore } from "./redis-forgot-password-attempt.store.js";
@@ -30,6 +31,7 @@ import { SessionGuard } from "./session.guard.js";
   controllers: [AuthController],
   providers: [
     AuthService,
+    PasswordResetService,
     PasswordResetTokenService,
     { provide: PASSWORD_RESET_TOKEN_REPOSITORY, useClass: LazyPasswordResetTokenRepository },
     CsrfService,

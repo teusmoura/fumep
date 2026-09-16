@@ -23,6 +23,14 @@ export const forgotPasswordRequestSchema = z
 
 export type ForgotPasswordRequest = z.infer<typeof forgotPasswordRequestSchema>;
 
+export const resetPasswordRequestSchema = z
+  .object({
+    token: z.string().regex(/^[A-Za-z0-9_-]{43}$/),
+    password: z.string().min(10),
+  })
+  .strict();
+export type ResetPasswordRequest = z.infer<typeof resetPasswordRequestSchema>;
+
 export const sessionDataSchema = z
   .object({
     userId: z.uuid(),

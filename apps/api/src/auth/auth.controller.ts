@@ -24,7 +24,12 @@ import {
 } from "@nestjs/swagger";
 import type { Request, Response } from "express";
 
-import { forgotPasswordRequestSchema, loginRequestSchema } from "@fumep/validation";
+import {
+  forgotPasswordRequestSchema,
+  loginRequestSchema,
+  resetPasswordRequestSchema,
+} from "@fumep/validation";
+import { PasswordResetService } from "./password-reset.service.js";
 
 import { AuthService } from "./auth.service.js";
 import { CsrfService } from "./csrf.service.js";
@@ -43,6 +48,7 @@ import { type AuthenticatedRequest, SessionGuard } from "./session.guard.js";
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
+    private readonly passwordReset: PasswordResetService,
     @Inject(SESSION_CONFIG) private readonly sessionConfig: SessionConfig,
     private readonly csrf: CsrfService,
     @Inject(LOGIN_ATTEMPT_STORE) private readonly attempts: LoginAttemptStore,
@@ -130,6 +136,28 @@ export class AuthController {
     }
     if (!parsed.success) throw new BadRequestException("Invalid recovery request");
     return this.authService.requestPasswordRecovery();
+  }
+
+  @Post("reset-password")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Reset password with a single-use token and revoke all sessions" })
+  @ApiBody({
+    schema: {
+      type: "object",
+      required: ["token", "password"],
+      additionalProperties: false,
+      properties: {
+        token: { type: "string", pattern: "^[A-Za-z0-9_-]{43}$" },
+        password: { type: "string", minLength: 10, writeOnly: true },
+      },
+    },
+  })
+  @ApiOkResponse({ description: "Password reset; a new login is required" })
+  @ApiBadRequestResponse({ description: "Invalid request or invalid, expired or consumed token" })
+  async resetPassword(@Body() body: unknown) {
+    const parsed = resetPasswordRequestSchema.safeParse(body);
+    if (!parsed.success) throw new BadRequestException("Invalid reset request");
+    return this.passwordReset.reset(parsed.data);
   }
 
   @Post("logout")

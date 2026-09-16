@@ -4,9 +4,15 @@ Use este arquivo apenas quando a implementação encontrar uma contradição rea
 
 ## Abertos
 
+Nenhum.
+
+## Resolvidos
+
 ### AUTH-003 — Limite entre Reset password (2.15) e invalidação de sessões (2.16)
 
-Classificação: **bloqueador**.
+Classificação: **resolvido**.
+
+Decisão: recomendação AUTH-003 autorizada pelo responsável do projeto; revogação no 2.15 e reforço dos testes de ciclo de vida no 2.16.
 
 Contexto:
 - o plano canônico exige `POST /auth/reset-password` no loop 2.15;
@@ -25,8 +31,6 @@ Decisão recomendada:
 Decisão necessária:
 - autorizar o ajuste de escopo recomendado; ou
 - definir uma separação alternativa que não permita disponibilizar reset com sessões antigas ainda válidas.
-
-## Resolvidos
 
 ### AUTH-002 — Contrato de token e origem para proteção CSRF
 

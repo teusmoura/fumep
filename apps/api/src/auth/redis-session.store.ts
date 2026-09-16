@@ -53,13 +53,41 @@ export class RedisSessionStore implements SessionStore, OnModuleDestroy {
     }
 
     const refreshed = { ...data, lastActivityAt: new Date().toISOString() };
-    await client.set(key, JSON.stringify(refreshed), { EX: this.config.inactivitySeconds });
-    return refreshed;
+    const updated = await client.eval(
+      `if redis.call('GET', KEYS[1]) == ARGV[1] then
+      redis.call('SET', KEYS[1], ARGV[2], 'EX', ARGV[3]); return 1 end; return 0`,
+      {
+        keys: [key],
+        arguments: [serialized, JSON.stringify(refreshed), String(this.config.inactivitySeconds)],
+      },
+    );
+    return updated === 1 ? refreshed : undefined;
   }
 
   async delete(sessionId: string): Promise<void> {
     const client = await this.getClient();
     await client.del(`session:${sessionId}`);
+  }
+
+  async deleteForUser(userId: string): Promise<void> {
+    const client = await this.getClient();
+    // Atomic scan covers legacy sessions too; refresh cannot resurrect a removed key.
+    await client.eval(
+      `local cursor = '0'
+      repeat
+        local page = redis.call('SCAN', cursor, 'MATCH', 'session:*', 'COUNT', 100)
+        cursor = page[1]
+        for _, key in ipairs(page[2]) do
+          local value = redis.call('GET', key)
+          if value then
+            local ok, data = pcall(cjson.decode, value)
+            if ok and type(data) == 'table' and data.userId == ARGV[1] then redis.call('DEL', key) end
+          end
+        end
+      until cursor == '0'
+      return 1`,
+      { keys: [], arguments: [userId] },
+    );
   }
 
   private async getClient(): Promise<RedisClientType> {
