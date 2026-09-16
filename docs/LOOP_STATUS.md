@@ -1778,3 +1778,28 @@ Checks aprovados:
 Aceite cumprido. Arquitetura conforme com observação: Theme incorporado em Institution, sem tabela adicional; tokens mínimos neutros, não definição final de branding. Sem logos, frontend ou CSS livre. Sem falhas nesta rodada.
 
 Commit: `feat(institutions): add controlled theme colors`.
+
+## LOOP 3.4 — Concluído
+
+Escopo atual:
+- contrato opcional de referências futuras light/dark;
+- instituição válida sem logos, com teste de ausência;
+- sem upload, tabela Media, FK, consulta ou vínculo funcional.
+
+Implementado:
+- schema Zod estrito e tipo compartilhado de configuração de logo;
+- variantes light/dark opcionais e nullable, referências futuras UUID;
+- dois testes comprovam ausência permitida e rejeição de URLs/campos arbitrários;
+- nenhum campo/API funcional de mídia criado.
+
+Checks aprovados:
+- `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`;
+- 99 testes: 12 validation, 35 db e 52 API;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm peers check`;
+- `.\\node_modules\\.bin\\prettier.cmd --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Aceite cumprido sem falhas: instituições válidas sem logo e contrato preparado sem dependência funcional Media. Sem schema/migration/UI.
+
+Commit: `feat(validation): prepare optional institution logo configuration`.

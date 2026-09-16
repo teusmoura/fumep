@@ -49,25 +49,26 @@ LOOP 2.16 — CONCLUÍDO
 LOOP 3.1 — CONCLUÍDO
 LOOP 3.2 — CONCLUÍDO
 LOOP 3.3 — CONCLUÍDO
-LOOP 3.4 — ATUAL
+LOOP 3.4 — CONCLUÍDO
+LOOP 3.5 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 3.4 — Preparar configuração de logos
+### LOOP 3.5 — appearance_default
 
 Objetivo:
 
 ```text
-Preparar contratos de logos institucionais opcionais, sem upload ou vínculo funcional com Media.
+Consolidar o enum e o ciclo de vida da aparência padrão institucional.
 ```
 
 Implementar:
 
-- contrato de configuração opcional light/dark para referência futura de mídia;
-- permitir instituição válida sem logos;
-- testar ausência e validação dos contratos;
-- não criar upload, FK ou vínculo funcional com Media antes da fase 4.
+- reutilizar appearance_default implementado no 3.2, conforme campos explícitos daquele loop;
+- enum compartilhado SYSTEM/LIGHT/DARK e testes do padrão SYSTEM;
+- comprovar transições e preservação das configurações de contato;
+- não implementar resolução de tema no frontend (3.6).
 
 Não implementar:
 
@@ -76,11 +77,11 @@ Não implementar:
 Critério de aceite:
 
 ```text
-A instituição permanece válida sem logos cadastrados; contratos preparados sem dependência funcional de mídia.
+Somente SYSTEM, LIGHT e DARK são aceitos e persistidos, com SYSTEM como padrão.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 3.5 — appearance_default
+LOOP 3.6 — ThemeContext no frontend
 ```

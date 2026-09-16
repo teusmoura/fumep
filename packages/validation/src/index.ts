@@ -75,6 +75,15 @@ export const institutionThemeSchema = z
     "Theme contrast must be at least 4.5:1",
   );
 export type InstitutionTheme = z.infer<typeof institutionThemeSchema>;
+
+// Configuration contract only: resolving or persisting Media references belongs to phase 4.
+export const institutionLogoConfigurationSchema = z
+  .object({
+    logoLightId: z.uuid().nullable().optional(),
+    logoDarkId: z.uuid().nullable().optional(),
+  })
+  .strict();
+export type InstitutionLogoConfiguration = z.infer<typeof institutionLogoConfigurationSchema>;
 export const createInstitutionRequestSchema = z
   .object({
     name: z.string().trim().min(1).max(150),
