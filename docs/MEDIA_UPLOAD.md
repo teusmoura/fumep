@@ -10,6 +10,8 @@ Formatos: JPEG, PNG, WebP e AVIF. Limite: 15 × 1024 × 1024 bytes. Extensão, M
 
 Após sucesso, o original está salvo e o status é `PENDING`. Fila, processamento e variantes pertencem aos loops 4.6–4.10; não indicar que a imagem já foi processada.
 
+SHA-256 é obrigatório e calculado no servidor sobre o Buffer original, antes da gravação no MinIO. Nome/categoria não entram no hash; checksum fornecido pelo cliente é rejeitado. O índice não é único, preservando registros distintos com os mesmos bytes.
+
 ## Categorias mínimas autorizadas (MEDIA-001)
 
 Antecipação explícita do vínculo canônico `Media.category_id → MediaCategory.institution_id` para permitir upload de EDITOR já no 4.2. A gestão/interface completa continua no 4.13.

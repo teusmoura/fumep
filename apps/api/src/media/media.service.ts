@@ -1,4 +1,4 @@
-import { createHash, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import {
   BadRequestException,
   ForbiddenException,
@@ -16,6 +16,7 @@ import {
 import { MediaStore } from "./media.store.js";
 import { MediaStorage } from "./media.storage.js";
 import { validateImage } from "./image-validation.js";
+import { mediaChecksum } from "./media-checksum.js";
 
 @Injectable()
 export class MediaService {
@@ -61,6 +62,7 @@ export class MediaService {
     const id = randomUUID();
     const storedFilename = `${id}${extension}`;
     const key = `images/originals/${storedFilename}`;
+    const checksumSha256 = mediaChecksum(image.buffer);
     const response = mediaUploadResponseSchema.parse({
       id,
       originalFilename: image.originalname,
@@ -80,7 +82,7 @@ export class MediaService {
         mimeType: image.mimetype,
         sizeBytes: BigInt(image.buffer.length),
         storageKey: key,
-        checksumSha256: createHash("sha256").update(image.buffer).digest("hex"),
+        checksumSha256,
         uploadedBy: session.userId,
       });
       return response;

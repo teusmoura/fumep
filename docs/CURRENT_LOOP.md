@@ -58,43 +58,46 @@ LOOP 3.9 — CONCLUÍDO
 LOOP 4.1 — CONCLUÍDO
 LOOP 4.2 — CONCLUÍDO
 LOOP 4.3 — CONCLUÍDO
-LOOP 4.4 — ATUAL
+LOOP 4.4 — CONCLUÍDO
+LOOP 4.5 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 4.4 — SHA-256
+### LOOP 4.5 — Duplicata
 
-Estado: pronto para execução após commit do 4.3. Validação de imagem comprovada; checksum já obrigatório no modelo/upload por precedência do documento Storage, sem duplicar regra.
+Estado: pronto para execução após commit do 4.4. SHA-256 obrigatório comprovado, calculado no servidor. Preservar autorização institucional de MEDIA-001.
 
 Objetivo:
 
 ```text
-Consolidar e comprovar SHA-256 obrigatório, calculado no backend sobre os bytes originais enviados.
+Avisar quando checksum já existir e oferecer usar arquivo existente ou enviar assim mesmo, sem bloquear duplicidade automaticamente.
 ```
 
 Implementar:
 
 - reler AGENTS.md, execute-loop, arquitetura de Storage/Segurança e verificar Git limpo;
-- reutilizar o cálculo existente, centralizando apenas se necessário aos testes;
-- testar vetores conhecidos e bytes binários, sem depender do nome original ou categoria;
-- comprovar checksum persistido em uploads e rejeição de checksum fornecido pelo cliente;
-- manter índice não único e constraints do modelo, sem fluxo de duplicidade futuro;
+- reutilizar SHA-256 e consultar mídias existentes antes de gravar novo original;
+- definir contratos Zod/OpenAPI do aviso/escolha e validar acesso no backend;
+- oferecer as duas escolhas no formulário, sem upload direto ao MinIO;
+- não expor metadados de outra instituição a EDITOR nem transformar autoria em autorização;
+- testar uso existente sem novo arquivo/registro e envio explícito de duplicata;
+- manter índice não único e comportamento seguro em concorrência;
 - checks, documentação, commit e Git limpo.
 
 Não implementar:
 
-- duplicidade, BullMQ/Worker/Sharp/variantes, PDF, gestão completa de categorias, MediaUsage e logos;
+- BullMQ/Worker/Sharp/variantes, PDF, gestão completa de categorias, MediaUsage e logos;
 - upload direto Browser → MinIO ou armazenamento físico no PostgreSQL.
 
 Critério de aceite:
 
 ```text
-Uploads têm SHA-256 obrigatório dos bytes originais, gerado no servidor e persistido; testes/checks verdes.
+Duplicata gera aviso e permite usar mídia existente autorizada ou enviar novo registro explicitamente; testes/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 4.5 — Duplicata
+LOOP 4.6 — BullMQ
 ```

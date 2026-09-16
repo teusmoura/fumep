@@ -237,6 +237,46 @@ describe("Image upload through NestJS to real MinIO/PostgreSQL", () => {
     create.mockRestore();
     remove.mockRestore();
   });
+  it("persists checksum by binary content, independently of original name and category", async () => {
+    const uploaded: string[] = [];
+    for (const [name, category] of [
+      ["same-a.png", categoryIds[0]],
+      ["same-b.PNG", categoryIds[1]],
+    ] as const) {
+      const response = await mutate("images")
+        .field("categoryId", category)
+        .attach("file", png, { filename: name, contentType: "image/png" })
+        .expect(201);
+      uploaded.push(response.body.id);
+      keys.push(`images/originals/${response.body.id}.png`);
+    }
+    const changed = Buffer.from(png);
+    changed[changed.length - 1] ^= 1;
+    const response = await mutate("images").attach("file", changed, "same-a.png").expect(201);
+    uploaded.push(response.body.id);
+    keys.push(`images/originals/${response.body.id}.png`);
+    const rows = await Promise.all(
+      uploaded.map(
+        async (id) => (await client`SELECT checksum_sha256 FROM media WHERE id = ${id}`)[0],
+      ),
+    );
+    expect(uploaded[0]).not.toBe(uploaded[1]);
+    expect(rows[0].checksum_sha256).toBe(rows[1].checksum_sha256);
+    expect(rows[2].checksum_sha256).not.toBe(rows[0].checksum_sha256);
+    expect(rows[2].checksum_sha256).toBe(createHash("sha256").update(changed).digest("hex"));
+  });
+  it("rejects client-supplied checksum before any storage or metadata write", async () => {
+    const put = vi.spyOn(storage, "put");
+    const create = vi.spyOn(store, "create");
+    await mutate("images")
+      .field("checksumSha256", "f".repeat(64))
+      .attach("file", png, "fixture.png")
+      .expect(400);
+    expect(put).not.toHaveBeenCalled();
+    expect(create).not.toHaveBeenCalled();
+    put.mockRestore();
+    create.mockRestore();
+  });
   it("does not create metadata on MinIO failure and documents multipart/OpenAPI", async () => {
     const put = vi
       .spyOn(storage, "put")

@@ -2050,3 +2050,30 @@ Checks aprovados:
 Aceite cumprido, nenhuma falha nesta rodada. Fixtures de assinaturas não afirmam decodificação completa; essa etapa pertence ao Sharp/Worker. media-storage/testing-qa orientaram matriz e prova de não persistência; execute-loop manteve escopo.
 
 Commit: `test(media): cover upload signatures and size boundaries`.
+
+## LOOP 4.4 — Concluído
+
+Estado inicial: loop 4.3 concluído em `199665b`, Git limpo.
+Escopo atual:
+- consolidar cálculo SHA-256 obrigatório no backend e testar vetores conhecidos/binários;
+- provar igualdade por bytes, independência do nome/categoria e rejeição de hash do cliente;
+- preservar constraints/índice não único existentes, sem antecipar fluxo de duplicidade.
+
+Implementado:
+- helper puro mediaChecksum centraliza SHA-256 já obrigatório, sem conversão textual ou estado compartilhado;
+- cálculo antes de MinIO e persistência canônica existente preservada;
+- quatro testes unitários com vetores fixos (vazio, abc, byte nulo), binários, mutação e independência entre chamadas;
+- Supertest comprova mesmos bytes/nome e categoria diferentes → mesmo hash, byte diferente → hash diferente;
+- checksum do cliente rejeitado antes de put/create; constraints/índice não único e formato de resposta preservados;
+- documentação do fluxo atualizada, sem migration/dependência ou aviso de duplicidade futuro.
+
+Checks aprovados:
+- Vitest focado `src/media/media-checksum.spec.ts test/media.e2e.spec.ts --fileParallelism=false`: 15 testes;
+- `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`;
+- 179 testes finais: 16 validation, 41 DB, 88 API, 34 frontend;
+- `pnpm peers check`, Prettier do workflow e `git diff --check`;
+- E2E/axe não disponíveis, sem nova UI nesta etapa.
+
+Aceite cumprido sem falhas de código/checks. media-storage/testing-qa orientaram checksum dos bytes e vetores de referência; execute-loop preservou escopo e constraints existentes.
+
+Commit: `test(media): consolidate mandatory server-side SHA-256`.
