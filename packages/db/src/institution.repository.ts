@@ -6,7 +6,12 @@ import { institutions, type Institution, type NewInstitution } from "./schema.js
 export type CreateInstitutionInput = Pick<NewInstitution, "name" | "slug"> &
   Partial<Pick<NewInstitution, "isActive">>;
 
-export type UpdateInstitutionInput = Partial<Pick<Institution, "name" | "slug" | "isActive">>;
+export type UpdateInstitutionInput = Partial<
+  Pick<
+    Institution,
+    "name" | "slug" | "isActive" | "primary" | "primaryForeground" | "accent" | "accentForeground"
+  >
+>;
 
 export class InstitutionRepository {
   constructor(private readonly database: Database) {}

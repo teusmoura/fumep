@@ -46,6 +46,35 @@ export const sessionDataSchema = z
 export type SessionData = z.infer<typeof sessionDataSchema>;
 
 export const institutionIdSchema = z.uuid();
+export function contrastRatio(background: string, foreground: string): number {
+  const luminance = (hex: string) => {
+    const channels = [1, 3, 5]
+      .map((offset) => parseInt(hex.slice(offset, offset + 2), 16) / 255)
+      .map((value) => (value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4));
+    return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+  };
+  const values = [luminance(background), luminance(foreground)].sort((a, b) => b - a);
+  return (values[0] + 0.05) / (values[1] + 0.05);
+}
+const themeColorSchema = z
+  .string()
+  .regex(/^#[0-9a-fA-F]{6}$/)
+  .transform((value) => value.toLowerCase());
+export const institutionThemeSchema = z
+  .object({
+    primary: themeColorSchema,
+    primaryForeground: themeColorSchema,
+    accent: themeColorSchema,
+    accentForeground: themeColorSchema,
+  })
+  .strict()
+  .refine(
+    (value) =>
+      contrastRatio(value.primary, value.primaryForeground) >= 4.5 &&
+      contrastRatio(value.accent, value.accentForeground) >= 4.5,
+    "Theme contrast must be at least 4.5:1",
+  );
+export type InstitutionTheme = z.infer<typeof institutionThemeSchema>;
 export const createInstitutionRequestSchema = z
   .object({
     name: z.string().trim().min(1).max(150),

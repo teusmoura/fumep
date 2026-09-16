@@ -1750,3 +1750,31 @@ Checks aprovados:
 Aceite completo. ENOMEM do gerador no sandbox resolvido fora dele; tipagem de URL corrigida no pacote compartilhado. Sem UI, temas ou logos antecipados. O banco isolado foi preservado para diagnóstico.
 
 Commit: `feat(institutions): add contact and appearance settings`.
+
+## LOOP 3.3 — Concluído
+
+Escopo atual:
+- quatro tokens de cor de Theme incorporados a Institution;
+- formato hexadecimal e contraste validado;
+- persistência/configuração ADMIN e testes.
+
+Implementado:
+- Theme incorporado a Institution conforme permissão explícita do domínio canônico;
+- primary, primary_foreground, accent, accent_foreground, com padrão neutro preto/branco;
+- PATCH `/api/v1/institutions/:id/theme` protegido por ADMIN/CSRF e documentado;
+- cores hexadecimais normalizadas, sem CSS livre, contraste mínimo 4.5:1 nos dois pares;
+- migration `0012_free_havok.sql`, testes de repository, contrato e Supertest.
+
+Checks aprovados:
+- migrations do zero em `portal_fumep_loop_3_3_test`, 35 testes DB;
+- migration aplicada no banco local;
+- `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`;
+- 97 testes: 10 validation, 35 db e 52 API;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm peers check`;
+- `.\\node_modules\\.bin\\prettier.cmd --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Aceite cumprido. Arquitetura conforme com observação: Theme incorporado em Institution, sem tabela adicional; tokens mínimos neutros, não definição final de branding. Sem logos, frontend ou CSS livre. Sem falhas nesta rodada.
+
+Commit: `feat(institutions): add controlled theme colors`.

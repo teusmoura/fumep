@@ -29,6 +29,7 @@ import {
   createInstitutionRequestSchema,
   updateInstitutionRequestSchema,
   institutionIdSchema,
+  institutionThemeSchema,
   updateInstitutionSettingRequestSchema,
 } from "@fumep/validation";
 import { SessionGuard } from "../auth/session.guard.js";
@@ -57,6 +58,31 @@ export class InstitutionController {
     private readonly institutions: InstitutionService,
     private readonly settings: InstitutionSettingService,
   ) {}
+
+  @Patch(":id/theme")
+  @ApiParam({ name: "id", format: "uuid" })
+  @ApiOperation({ summary: "Configure four controlled theme colors with at least 4.5:1 contrast" })
+  @ApiBody({
+    schema: {
+      type: "object",
+      additionalProperties: false,
+      required: ["primary", "primaryForeground", "accent", "accentForeground"],
+      properties: Object.fromEntries(
+        ["primary", "primaryForeground", "accent", "accentForeground"].map((key) => [
+          key,
+          { type: "string", pattern: "^#[0-9a-fA-F]{6}$" },
+        ]),
+      ),
+    },
+  })
+  @ApiOkResponse({ description: "Institution theme updated" })
+  @ApiNotFoundResponse({ description: "Institution not found" })
+  updateTheme(@Param("id") id: string, @Body() body: unknown) {
+    const parsed = institutionThemeSchema.safeParse(body);
+    if (!parsed.success)
+      throw new BadRequestException("Invalid theme colors or insufficient contrast");
+    return this.institutions.updateTheme(this.id(id), parsed.data);
+  }
 
   @Get(":id/settings")
   @ApiParam({ name: "id", format: "uuid" })

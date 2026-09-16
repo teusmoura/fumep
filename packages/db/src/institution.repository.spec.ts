@@ -38,10 +38,20 @@ describe("InstitutionRepository", () => {
     expect(created).toMatchObject({ name: "FUMEP", slug: "fumep", isActive: true });
     expect(await repository.findById(created.id)).toEqual(created);
     expect(await repository.findAll()).toEqual([created]);
+    expect(created).toMatchObject({
+      primary: "#000000",
+      primaryForeground: "#ffffff",
+      accent: "#000000",
+      accentForeground: "#ffffff",
+    });
 
     const updated = await repository.update(created.id, {
       name: "Fundação Municipal de Ensino Profissionalizante",
       isActive: false,
+      primary: "#123456",
+      primaryForeground: "#ffffff",
+      accent: "#000000",
+      accentForeground: "#ffffff",
     });
 
     expect(updated).toMatchObject({
@@ -49,6 +59,10 @@ describe("InstitutionRepository", () => {
       name: "Fundação Municipal de Ensino Profissionalizante",
       slug: "fumep",
       isActive: false,
+      primary: "#123456",
+      primaryForeground: "#ffffff",
+      accent: "#000000",
+      accentForeground: "#ffffff",
     });
 
     expect(await repository.delete(created.id)).toBe(true);

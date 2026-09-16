@@ -1,5 +1,6 @@
 import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import type { Institution, CreateInstitutionInput, UpdateInstitutionInput } from "@fumep/db";
+import type { InstitutionTheme } from "@fumep/validation";
 
 export const INSTITUTION_REPOSITORY = Symbol("INSTITUTION_REPOSITORY");
 export interface InstitutionStore {
@@ -15,6 +16,9 @@ export class InstitutionService {
   constructor(@Inject(INSTITUTION_REPOSITORY) private readonly repository: InstitutionStore) {}
   list() {
     return this.repository.findAll();
+  }
+  updateTheme(id: string, input: InstitutionTheme) {
+    return this.update(id, input);
   }
   async get(id: string) {
     const row = await this.repository.findById(id);

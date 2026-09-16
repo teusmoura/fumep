@@ -48,26 +48,26 @@ LOOP 2.15 — CONCLUÍDO
 LOOP 2.16 — CONCLUÍDO
 LOOP 3.1 — CONCLUÍDO
 LOOP 3.2 — CONCLUÍDO
-LOOP 3.3 — ATUAL
+LOOP 3.3 — CONCLUÍDO
+LOOP 3.4 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 3.3 — Theme
+### LOOP 3.4 — Preparar configuração de logos
 
 Objetivo:
 
 ```text
-Implementar os campos iniciais controlados do tema institucional.
+Preparar contratos de logos institucionais opcionais, sem upload ou vínculo funcional com Media.
 ```
 
 Implementar:
 
-- primary, primary_foreground, accent e accent_foreground;
-- incorporar Theme a Institution conforme opção explícita do modelo de domínio;
-- contratos de cor e validação de contraste das combinações configuradas;
-- persistência e configuração administrativa controlada;
-- migration limpa e testes aplicáveis.
+- contrato de configuração opcional light/dark para referência futura de mídia;
+- permitir instituição válida sem logos;
+- testar ausência e validação dos contratos;
+- não criar upload, FK ou vínculo funcional com Media antes da fase 4.
 
 Não implementar:
 
@@ -76,11 +76,11 @@ Não implementar:
 Critério de aceite:
 
 ```text
-Os quatro campos de tema são configuráveis por ADMIN, persistidos por instituição e validados sem CSS livre.
+A instituição permanece válida sem logos cadastrados; contratos preparados sem dependência funcional de mídia.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 3.4 — Preparar configuração de logos (sem vínculo funcional com Media)
+LOOP 3.5 — appearance_default
 ```

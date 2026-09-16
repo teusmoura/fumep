@@ -213,4 +213,43 @@ describe("Institution administrative CRUD", () => {
       .expect(404);
     await mutate("patch", path).send({ email: null, appearanceDefault: "LIGHT" }).expect(200);
   });
+
+  it("configures controlled theme colors only for ADMIN and rejects insufficient contrast", async () => {
+    const created = await mutate("post", "/api/v1/institutions")
+      .send({ name: "Theme fixture", slug: `fixture-${crypto.randomUUID()}` })
+      .expect(201);
+    const id = created.body.id;
+    ids.push(id);
+    const path = `/api/v1/institutions/${id}/theme`;
+    const theme = {
+      primary: "#123456",
+      primaryForeground: "#ffffff",
+      accent: "#000000",
+      accentForeground: "#ffffff",
+    };
+    const updated = await mutate("patch", path).send(theme).expect(200);
+    expect(updated.body).toMatchObject(theme);
+    const read = await request(app.getHttpServer())
+      .get(`/api/v1/institutions/${id}`)
+      .set("Cookie", "fumep_session=admin")
+      .expect(200);
+    expect(read.body).toMatchObject(theme);
+    await mutate("patch", path)
+      .send({ ...theme, primary: "#ffffff" })
+      .expect(400);
+    await mutate("patch", path)
+      .send({ ...theme, css: "arbitrary" })
+      .expect(400);
+    await request(app.getHttpServer()).patch(path).send(theme).expect(401);
+    await request(app.getHttpServer())
+      .patch(path)
+      .set("Cookie", "fumep_session=editor")
+      .send(theme)
+      .expect(403);
+    await request(app.getHttpServer())
+      .patch(path)
+      .set("Cookie", "fumep_session=admin")
+      .send(theme)
+      .expect(403);
+  });
 });
