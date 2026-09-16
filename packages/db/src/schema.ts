@@ -74,6 +74,26 @@ export const users = pgTable(
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 
+export const mediaCategories = pgTable(
+  "media_categories",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    institutionId: uuid("institution_id").references(() => institutions.id, {
+      onDelete: "restrict",
+    }),
+    name: varchar("name", { length: 120 }).notNull(),
+    slug: varchar("slug", { length: 120 }).notNull(),
+    createdBy: uuid("created_by").references(() => users.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("media_categories_institution_slug_unique").on(table.institutionId, table.slug),
+  ],
+);
+export type MediaCategory = typeof mediaCategories.$inferSelect;
+export type NewMediaCategory = typeof mediaCategories.$inferInsert;
+
 export const mediaType = pgEnum("media_type", ["IMAGE", "DOCUMENT", "VIDEO", "OTHER"]);
 export const mediaProcessingStatus = pgEnum("media_processing_status", [
   "PENDING",
@@ -99,11 +119,13 @@ export const media = pgTable(
     isDecorative: boolean("is_decorative").notNull().default(false),
     processingStatus: mediaProcessingStatus("processing_status").notNull().default("PENDING"),
     processingError: text("processing_error"),
+    categoryId: uuid("category_id").references(() => mediaCategories.id, { onDelete: "restrict" }),
     uploadedBy: uuid("uploaded_by").references(() => users.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
     index("media_type_index").on(table.type),
+    index("media_category_index").on(table.categoryId),
     index("media_uploaded_by_index").on(table.uploadedBy),
     index("media_created_at_index").on(table.createdAt),
     index("media_checksum_sha256_index").on(table.checksumSha256),

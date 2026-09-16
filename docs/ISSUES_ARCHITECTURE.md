@@ -4,9 +4,15 @@ Use este arquivo apenas quando a implementação encontrar uma contradição rea
 
 ## Abertos
 
+Nenhum.
+
+## Resolvidos
+
 ### MEDIA-001 — Autorização de upload antes de MediaCategory
 
-Classificação: bloqueador de definição de acesso no loop 4.2.
+Classificação: resolvido por autorização explícita do responsável em 2026-09-16.
+
+Decisão autorizada: antecipar somente o modelo mínimo MediaCategory, category_id em Media e autorização institucional ao 4.2. EDITOR poderá enviar em categorias de suas instituições; uploads sem categoria ou em categoria global permanecem exclusivos de ADMIN. A interface/gestão completa de categorias continua no 4.13. Não adicionar institution_id em Media ou ownership alternativo.
 
 Evidências:
 - Segurança §§3.2, 4 e 46 limita gestão de mídia do EDITOR às instituições atribuídas;
@@ -25,9 +31,7 @@ Recomendação:
 - no 4.13, liberar upload categorizado para EDITOR autorizado e documentar a política de criação/reutilização global;
 - não adicionar institution_id em Media nem antecipar categorias apenas para contornar a decisão.
 
-Nenhum endpoint de upload foi implementado nem permissão ampliada. Registrado por execute-loop/architecture-guard; aguardando autorização explícita da política transitória.
-
-## Resolvidos
+A recomendação ADMIN-only acima foi substituída pela decisão autorizada após o responsável esclarecer que EDITOR precisa enviar arquivos já neste estágio. Implementação retomada no 4.2; categories integrais continuam no 4.13.
 
 ### THEME-001 — Fonte pública de tema institucional no loop 3.6
 

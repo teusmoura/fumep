@@ -20,7 +20,8 @@ main {
   padding: 4rem 2rem;
 }
 
-.institution-theme {
+.institution-theme,
+.media-upload-page {
   --color-background: #ffffff;
   --color-text: #1f2937;
   background: var(--color-background);
@@ -34,10 +35,35 @@ main {
   color-scheme: dark;
 }
 @media (prefers-color-scheme: dark) {
-  .institution-theme[data-appearance="SYSTEM"] {
+  .institution-theme[data-appearance="SYSTEM"],
+  .media-upload-page {
     --color-background: #111827;
     --color-text: #f9fafb;
     color-scheme: dark;
+  }
+}
+
+.media-upload-page {
+  max-width: 100%;
+}
+.media-upload-form {
+  display: grid;
+  gap: 1rem;
+  max-width: 40rem;
+}
+.media-upload-form :is(input, select, button) {
+  max-width: 100%;
+  min-width: 0;
+  font: inherit;
+  padding: 0.75rem;
+}
+.media-upload-form :is(input, select, button):focus-visible {
+  outline: 3px solid var(--color-text);
+  outline-offset: 3px;
+}
+@media (max-width: 639px) {
+  .media-upload-page {
+    padding: 2rem 1rem;
   }
 }
 .institution-theme h1 {

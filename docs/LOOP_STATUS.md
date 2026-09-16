@@ -1984,18 +1984,40 @@ Aceite cumprido. architecture-guard: conforme com observação de nomenclatura e
 
 Commit: `feat(db): add canonical media metadata model`.
 
-## LOOP 4.2 — Bloqueado por decisão MEDIA-001
+## LOOP 4.2 — Concluído (MEDIA-001 autorizado)
 
-Escopo analisado:
-- upload autenticado/CSRF Browser → NestJS → MinIO → PostgreSQL;
-- autorização de criação de mídia global antes de categorias institucionais.
+Escopo retomado em 2026-09-16:
+- upload de imagem Browser → Next.js → NestJS → MinIO → PostgreSQL, sessão/CSRF;
+- antecipação explicitamente autorizada de MediaCategory mínimo/category_id e escopo institucional de EDITOR;
+- ADMIN global; EDITOR somente categorias de instituições atribuídas;
+- validações básicas, SHA-256 obrigatório, nomes internos seguros, compensação de falhas;
+- testes, migration limpa, checks e commit; sem gestão completa de categorias/Worker/variantes/PDF.
 
-Estado inicial: loop 4.1 concluído no commit `ef3b1d0`, Git limpo.
-Evidências: Segurança limita EDITOR por instituição; Storage usa categoria institucional; MediaCategory só no 4.13. A documentação não define criação global por EDITOR neste estágio. uploaded_by não é ownership institucional.
+Git inicialmente limpo; HEAD `96c8c4b` registra o bloqueio anterior. Loop 4.1 concluído em `ef3b1d0`.
 
-Recomendação MEDIA-001: autorização explícita para upload somente ADMIN no 4.2; EDITOR 403 até categorizações/escopo no 4.13, sem schema alternativo ou antecipação de categoria.
+Implementado:
+- `/admin/media`: formulário com labels, categoria obrigatória para EDITOR, estado de envio e status acessível; leitura SSR da sessão e categorias sem cache;
+- proxy streaming Next.js com timeout, preservando origem/CSRF/cookie para validação no NestJS, sem credenciais em localStorage;
+- POST `/api/v1/media/images`: sessão Redis/CSRF antes do multipart, validação de JPEG/PNG/WebP/AVIF e limite inclusivo de 15 MiB;
+- arquivo original no MinIO com nome UUID e chave relativa; SHA-256 e metadados Media PENDING no PostgreSQL;
+- transação Media + MEDIA_UPLOADED; compensação da chave recém-gerada em falhas, sem expor detalhes internos;
+- modelo/repository mínimo MediaCategory, FK category_id RESTRICT e migration aditiva `0014_nostalgic_peter_parker.sql`;
+- GET/POST de categorias mínimas para seleção/provisionamento de uploads, com escopo institucional no backend; sem edição/exclusão ou interface completa do 4.13;
+- adapter MinIO reutilizado pelo diagnóstico storage:check; tipos multipart apenas de desenvolvimento;
+- instruções e limites em `docs/MEDIA_UPLOAD.md`; MEDIA-001 resolvido com autorização explícita.
 
-Nenhuma implementação de upload ou alteração de permissão feita. CURRENT_LOOP permanece 4.2. execute-loop/architecture-guard exigem decisão antes dessa implementação; não declarar o loop concluído.
-Checks completos da última implementação: 137 testes, format, lint, typecheck, build, peers e workflow verdes no 4.1, além de migrations local/do zero. Nesta análise só documentação mudou; `git diff --check` executado.
+Checks aprovados:
+- migration aplicada localmente e todas as migrations do zero em `portal_fumep_loop_4_2_test`, com 41 testes DB;
+- sete testes Supertest do upload com MinIO/PostgreSQL reais: bytes originais, checksum, auditoria, permissões cruzadas/globais, CSRF, falhas e compensação;
+- `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`;
+- 152 testes finais: 16 validation, 41 DB, 61 API, 34 frontend;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false` aprovado;
+- `pnpm --filter @fumep/api storage:check`, `pnpm peers check`, Prettier do workflow, `git diff --check`;
+- SSR/jsdom/proxy cobrem labels, foco, FormData/CSRF, sucesso/erro e ausência de categoria;
+- Playwright/axe e QA visual não executados; não existe script E2E nesta etapa.
 
-Commit de registro: `docs: record transitional media upload authorization decision`.
+Falhas corrigidas: tipos ambientais Multer, aceitação de transaction no repository, import do diagnóstico, nome de variável reservado pelo lint, limite multipart exato do Busboy e resolução de export relativo .js pelo Turbopack. Rechecks completos verdes; nenhuma falha pendente.
+
+Aceite cumprido. architecture-guard: conforme com antecipação mínima autorizada; drizzle-data-model orientou FK/migration limpa; media-storage/security-access orientaram validação, checksum e escopo persistido; nextjs-frontend/testing-qa orientaram SSR, interação e provas de consistência. Gestão completa de categorias permanece no 4.13; fila/Sharp/variantes/PDF/MediaUsage não antecipados.
+
+Commit: `feat(media): add institution-scoped image upload`.

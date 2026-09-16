@@ -1,4 +1,35 @@
 import { z } from "zod";
+export const IMAGE_MAX_BYTES = 15 * 1024 * 1024;
+export const mediaUploadFieldsSchema = z.object({ categoryId: z.uuid().optional() }).strict();
+export const createMediaCategorySchema = z
+  .object({
+    institutionId: z.uuid().nullable(),
+    name: z.string().trim().min(1).max(120),
+    slug: z
+      .string()
+      .max(120)
+      .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  })
+  .strict();
+export type CreateMediaCategory = z.infer<typeof createMediaCategorySchema>;
+export const mediaCategoryOptionSchema = z
+  .object({
+    id: z.uuid(),
+    name: z.string(),
+    institutionId: z.uuid().nullable(),
+  })
+  .strict();
+export const mediaUploadResponseSchema = z
+  .object({
+    id: z.uuid(),
+    originalFilename: z.string(),
+    mimeType: z.string(),
+    sizeBytes: z.number().int().positive().max(IMAGE_MAX_BYTES),
+    categoryId: z.uuid().nullable(),
+    processingStatus: z.literal("PENDING"),
+  })
+  .strict();
+export type MediaCategoryOption = z.infer<typeof mediaCategoryOptionSchema>;
 
 export const healthResponseSchema = z
   .object({

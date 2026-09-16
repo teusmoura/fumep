@@ -1,0 +1,89 @@
+import { afterEach, describe, expect, it, vi } from "vitest";
+vi.mock("server-only", () => ({}));
+import { proxyImageUpload } from "./upload-proxy";
+import { loadUploadContext } from "./upload-context";
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
+});
+describe("server-only upload transport", () => {
+  it("streams multipart to the fixed NestJS endpoint preserving CSRF and origin, not arbitrary headers", async () => {
+    vi.stubEnv("API_INTERNAL_URL", "http://api.internal:3001");
+    const fetcher = vi.fn().mockResolvedValue(new Response('{"id":"fixture"}', { status: 201 }));
+    vi.stubGlobal("fetch", fetcher);
+    const request = new Request("http://localhost:3000/admin/media/upload", {
+      method: "POST",
+      body: "multipart fixture",
+      headers: {
+        cookie: "fumep_session=fixture",
+        origin: "http://localhost:3000",
+        "x-csrf-token": "token",
+        "content-type": "multipart/form-data; boundary=fixture",
+        "x-extra": "not-forwarded",
+      },
+    });
+    const response = await proxyImageUpload(request);
+    expect(response.status).toBe(201);
+    expect(response.headers.get("Cache-Control")).toBe("no-store");
+    const [url, options] = fetcher.mock.calls[0];
+    expect(url.href).toBe("http://api.internal:3001/api/v1/media/images");
+    expect(options.body).toBe(request.body);
+    expect(options.headers.get("origin")).toBe("http://localhost:3000");
+    expect(options.headers.get("cookie")).toBe("fumep_session=fixture");
+    expect(options.headers.get("x-csrf-token")).toBe("token");
+    expect(options.headers.has("x-extra")).toBe(false);
+  });
+  it("rejects oversized content length and handles infrastructure failures without disclosure", async () => {
+    const fetcher = vi.fn().mockRejectedValue(new Error("internal secret"));
+    vi.stubGlobal("fetch", fetcher);
+    expect(
+      (
+        await proxyImageUpload(
+          new Request("http://localhost/upload", {
+            method: "POST",
+            headers: { "content-length": "16000000" },
+          }),
+        )
+      ).status,
+    ).toBe(413);
+    expect(fetcher).not.toHaveBeenCalled();
+    const response = await proxyImageUpload(
+      new Request("http://localhost/upload", { method: "POST" }),
+    );
+    expect(response.status).toBe(503);
+    expect(await response.text()).not.toContain("secret");
+  });
+  it("loads only session and scoped category projection without caching or exposing internal origin", async () => {
+    vi.stubEnv("API_INTERNAL_URL", "http://api.internal:3001");
+    const category = { id: crypto.randomUUID(), name: "ETMSL", institutionId: crypto.randomUUID() };
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(Response.json({ user: { role: "EDITOR" }, csrfToken: "a".repeat(43) }))
+      .mockResolvedValueOnce(Response.json([category]));
+    vi.stubGlobal("fetch", fetcher);
+    expect(await loadUploadContext("fumep_session=fixture")).toEqual({
+      csrfToken: "a".repeat(43),
+      isAdmin: false,
+      categories: [category],
+    });
+    expect(fetcher.mock.calls.map(([url]) => url.pathname)).toEqual([
+      "/api/v1/auth/session",
+      "/api/v1/media/upload-categories",
+    ]);
+    expect(fetcher.mock.calls[0][1]).toMatchObject({
+      cache: "no-store",
+      redirect: "error",
+      headers: { cookie: "fumep_session=fixture" },
+    });
+  });
+  it("fails closed for absent session and invalid category responses", async () => {
+    const fetcher = vi.fn().mockResolvedValueOnce(new Response(null, { status: 401 }));
+    vi.stubGlobal("fetch", fetcher);
+    expect(await loadUploadContext("fixture")).toBeUndefined();
+    expect(fetcher).toHaveBeenCalledOnce();
+    fetcher
+      .mockResolvedValueOnce(Response.json({ user: { role: "EDITOR" }, csrfToken: "a".repeat(43) }))
+      .mockResolvedValueOnce(Response.json([{ id: "invalid" }]));
+    expect(await loadUploadContext("fixture")).toBeUndefined();
+  });
+});

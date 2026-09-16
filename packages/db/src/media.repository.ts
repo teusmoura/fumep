@@ -3,7 +3,7 @@ import type { Database } from "./client.js";
 import { media, type Media, type NewMedia } from "./schema.js";
 
 export class MediaRepository {
-  constructor(private readonly database: Database) {}
+  constructor(private readonly database: Pick<Database, "insert" | "query">) {}
   async create(input: NewMedia): Promise<Media> {
     const [created] = await this.database.insert(media).values(input).returning();
     if (!created) throw new Error("Media was not created");

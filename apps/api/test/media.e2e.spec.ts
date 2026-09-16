@@ -1,0 +1,209 @@
+import { resolve } from "node:path";
+import { createHash, randomUUID } from "node:crypto";
+import { UnauthorizedException, type INestApplication } from "@nestjs/common";
+import { Test } from "@nestjs/testing";
+import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
+import { createDatabase } from "@fumep/db";
+import { config } from "dotenv";
+import request from "supertest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { AuthService } from "../src/auth/auth.service.js";
+import { SESSION_CONFIG } from "../src/auth/auth.contracts.js";
+import { MediaModule } from "../src/media/media.module.js";
+import { MediaStore } from "../src/media/media.store.js";
+import { MediaStorage } from "../src/media/media.storage.js";
+
+config({ path: resolve(import.meta.dirname, "../../../.env"), quiet: true });
+if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL required");
+const { client } = createDatabase(process.env.DATABASE_URL);
+const userId = randomUUID();
+const own = randomUUID();
+const other = randomUUID();
+const categoryIds: string[] = [];
+const keys: string[] = [];
+const png = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aK1sAAAAASUVORK5CYII=",
+  "base64",
+);
+const csrf = "a".repeat(43);
+const origin = "http://localhost:3000";
+describe("Image upload through NestJS to real MinIO/PostgreSQL", () => {
+  let app: INestApplication;
+  let storage: MediaStorage;
+  let store: MediaStore;
+  const mutate = (path: string, role = "admin") =>
+    request(app.getHttpServer())
+      .post(`/api/v1/media/${path}`)
+      .set("Cookie", `fumep_session=${role}`)
+      .set("Origin", origin)
+      .set("X-CSRF-Token", csrf);
+  beforeAll(async () => {
+    await client`INSERT INTO users (id,name,email,password_hash,role) VALUES (${userId},'Media fixture',${`${userId}@fixture.test`},'unused','ADMIN')`;
+    for (const id of [own, other])
+      await client`INSERT INTO institutions (id,name,slug) VALUES (${id},'Media fixture',${`media-${id}`})`;
+    const moduleRef = await Test.createTestingModule({ imports: [MediaModule] })
+      .overrideProvider(SESSION_CONFIG)
+      .useValue({
+        appOrigin: origin,
+        secureCookie: false,
+        inactivitySeconds: 1800,
+        absoluteSeconds: 28800,
+      })
+      .overrideProvider(AuthService)
+      .useValue({
+        getSession: async (id: string) => {
+          if (!["admin", "editor"].includes(id)) throw new UnauthorizedException();
+          return {
+            userId,
+            role: id === "admin" ? "ADMIN" : "EDITOR",
+            institutionIds: [own],
+            csrfToken: csrf,
+          };
+        },
+      })
+      .compile();
+    app = moduleRef.createNestApplication();
+    app.setGlobalPrefix("api/v1");
+    await app.init();
+    storage = moduleRef.get(MediaStorage);
+    store = moduleRef.get(MediaStore);
+    for (const institutionId of [own, other, null]) {
+      const category = await mutate("upload-categories")
+        .send({ institutionId, name: institutionId ?? "Global", slug: `fixture-${randomUUID()}` })
+        .expect(201);
+      categoryIds.push(category.body.id);
+    }
+  });
+  afterAll(async () => {
+    vi.restoreAllMocks();
+    for (const key of keys) await storage?.remove(key);
+    await client`DELETE FROM audit_logs WHERE user_id = ${userId}`;
+    await client`DELETE FROM media WHERE uploaded_by = ${userId}`;
+    await client`DELETE FROM media_categories WHERE created_by = ${userId}`;
+    for (const id of [own, other]) await client`DELETE FROM institutions WHERE id = ${id}`;
+    await client`DELETE FROM users WHERE id = ${userId}`;
+    await app?.close();
+    await client.end();
+  });
+  it("stores identical original bytes, safe names, checksum, category and audit", async () => {
+    const response = await mutate("images", "editor")
+      .field("categoryId", categoryIds[0])
+      .attach("file", png, { filename: "laboratorio.PNG", contentType: "image/png" })
+      .expect(201);
+    expect(response.body).toMatchObject({
+      originalFilename: "laboratorio.PNG",
+      sizeBytes: png.length,
+      categoryId: categoryIds[0],
+      processingStatus: "PENDING",
+    });
+    expect(Object.keys(response.body).sort()).toEqual([
+      "categoryId",
+      "id",
+      "mimeType",
+      "originalFilename",
+      "processingStatus",
+      "sizeBytes",
+    ]);
+    const [row] = await client`SELECT * FROM media WHERE id = ${response.body.id}`;
+    keys.push(row.storage_key);
+    expect(row.stored_filename).toBe(`${response.body.id}.png`);
+    expect(row.storage_key).toBe(`images/originals/${response.body.id}.png`);
+    expect(row.checksum_sha256).toBe(createHash("sha256").update(png).digest("hex"));
+    expect(row.uploaded_by).toBe(userId);
+    const stream = await storage.client().getObject("portal-public", row.storage_key);
+    const chunks: Buffer[] = [];
+    for await (const chunk of stream) chunks.push(Buffer.from(chunk));
+    expect(Buffer.concat(chunks)).toEqual(png);
+    const [audit] = await client`SELECT * FROM audit_logs WHERE entity_id = ${response.body.id}`;
+    expect(audit.action).toBe("MEDIA_UPLOADED");
+  });
+  it("allows global ADMIN and filters EDITOR category selection", async () => {
+    const response = await mutate("images").attach("file", png, "fixture.png").expect(201);
+    keys.push(`images/originals/${response.body.id}.png`);
+    expect(response.body.categoryId).toBeNull();
+    const categories = await request(app.getHttpServer())
+      .get("/api/v1/media/upload-categories")
+      .set("Cookie", "fumep_session=editor")
+      .expect(200);
+    expect(categories.body.map((item: { id: string }) => item.id)).toEqual([categoryIds[0]]);
+  });
+  it("blocks unauthenticated, invalid CSRF, foreign/global/uncategorized EDITOR uploads", async () => {
+    await request(app.getHttpServer())
+      .post("/api/v1/media/images")
+      .attach("file", png, "fixture.png")
+      .expect(401);
+    await request(app.getHttpServer())
+      .post("/api/v1/media/images")
+      .set("Cookie", "fumep_session=admin")
+      .attach("file", png, "fixture.png")
+      .expect(403);
+    for (const categoryId of [categoryIds[1], categoryIds[2]])
+      await mutate("images", "editor")
+        .field("categoryId", categoryId)
+        .attach("file", png, "fixture.png")
+        .expect(403);
+    await mutate("images", "editor").attach("file", png, "fixture.png").expect(403);
+    await mutate("images")
+      .field("categoryId", randomUUID())
+      .attach("file", png, "fixture.png")
+      .expect(404);
+  });
+  it("validates minimal category creation with institution scope and uniqueness", async () => {
+    await mutate("upload-categories", "editor")
+      .send({ institutionId: other, name: "No", slug: "no" })
+      .expect(403);
+    await mutate("upload-categories", "editor")
+      .send({ institutionId: null, name: "No", slug: "no" })
+      .expect(403);
+    const body = { institutionId: own, name: "Editor category", slug: `editor-${randomUUID()}` };
+    await mutate("upload-categories", "editor").send(body).expect(201);
+    await mutate("upload-categories", "editor").send(body).expect(400);
+  });
+  it("rejects unsafe/invalid file input before storage write", async () => {
+    const put = vi.spyOn(storage, "put");
+    await mutate("images").expect(400);
+    await mutate("images")
+      .attach("file", Buffer.from("<svg/>"), { filename: "fake.png", contentType: "image/png" })
+      .expect(400);
+    await mutate("images")
+      .attach("file", png, { filename: "fixture.svg", contentType: "image/svg+xml" })
+      .expect(400);
+    await mutate("images")
+      .field("uploadedBy", userId)
+      .attach("file", png, "fixture.png")
+      .expect(400);
+    expect(put).not.toHaveBeenCalled();
+    put.mockRestore();
+  });
+  it("compensates storage when database fails, without metadata or error disclosure", async () => {
+    const count = await client`SELECT count(*) FROM media WHERE uploaded_by = ${userId}`;
+    const create = vi.spyOn(store, "create").mockRejectedValueOnce(new Error("secret SQL details"));
+    const remove = vi.spyOn(storage, "remove");
+    const response = await mutate("images").attach("file", png, "fixture.png").expect(503);
+    expect(response.text).not.toContain("secret");
+    expect(remove).toHaveBeenCalledOnce();
+    const key = remove.mock.calls[0][0];
+    await expect(storage.client().statObject("portal-public", key)).rejects.toThrow();
+    expect(await client`SELECT count(*) FROM media WHERE uploaded_by = ${userId}`).toEqual(count);
+    create.mockRestore();
+    remove.mockRestore();
+  });
+  it("does not create metadata on MinIO failure and documents multipart/OpenAPI", async () => {
+    const put = vi
+      .spyOn(storage, "put")
+      .mockRejectedValueOnce(new Error("internal MinIO credentials"));
+    const create = vi.spyOn(store, "create");
+    await mutate("images").attach("file", png, "fixture.png").expect(503);
+    expect(create).not.toHaveBeenCalled();
+    put.mockRestore();
+    create.mockRestore();
+    const document = SwaggerModule.createDocument(
+      app,
+      new DocumentBuilder().addCookieAuth("fumep_session").build(),
+    );
+    expect(document.paths["/api/v1/media/images"].post?.requestBody).toHaveProperty(
+      "content.multipart/form-data",
+    );
+    expect(document.paths["/api/v1/media/images"].post?.responses).toHaveProperty("413");
+  });
+});

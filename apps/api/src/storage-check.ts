@@ -1,4 +1,4 @@
-import { Client } from "minio";
+import { MediaStorage } from "./media/media.storage.js";
 
 const requiredEnvironment = [
   "MINIO_ENDPOINT",
@@ -14,13 +14,7 @@ for (const name of requiredEnvironment) {
   }
 }
 
-const client = new Client({
-  endPoint: process.env.MINIO_ENDPOINT!,
-  port: Number(process.env.MINIO_PORT),
-  useSSL: process.env.MINIO_USE_SSL === "true",
-  accessKey: process.env.MINIO_ROOT_USER!,
-  secretKey: process.env.MINIO_ROOT_PASSWORD!,
-});
+const client = new MediaStorage().client();
 
 const buckets = await client.listBuckets();
 const bucketNames = new Set(buckets.map(({ name }) => name));

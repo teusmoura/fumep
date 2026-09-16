@@ -56,45 +56,44 @@ LOOP 3.7 — CONCLUÍDO
 LOOP 3.8 — CONCLUÍDO
 LOOP 3.9 — CONCLUÍDO
 LOOP 4.1 — CONCLUÍDO
-LOOP 4.2 — ATUAL
+LOOP 4.2 — CONCLUÍDO
+LOOP 4.3 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 4.2 — Upload de imagem
+### LOOP 4.3 — Validação de imagem
 
-Estado: bloqueado pela decisão MEDIA-001 em docs/ISSUES_ARCHITECTURE.md. Loop 4.1 concluído e commitado, migration local/do zero validada. Autorizar política de upload antes de MediaCategory; recomendado ADMIN somente no 4.2, EDITOR institucional no 4.13. Não ampliar permissões nem antecipar categorias silenciosamente.
+Estado: pronto para execução após commit do 4.2. Upload e vínculo institucional mínimo implementados conforme MEDIA-001 autorizado; gestão completa de categorias continua no 4.13.
 
 Objetivo:
 
 ```text
-Implementar o fluxo Browser → NestJS → MinIO → PostgreSQL para upload de imagem.
+Testar extensão, MIME, magic bytes e tamanho máximo do upload de imagem existente.
 ```
 
 Implementar:
 
-- ler a arquitetura especializada de Storage e Segurança;
-- usar media-storage, nestjs-api, security-access e testing-qa conforme o escopo;
-- upload autenticado/autorizado no NestJS com sessão Redis e CSRF;
-- reutilizar MediaRepository, arquivo físico MinIO e metadados PostgreSQL;
-- preservar nome original somente como metadado e gerar nome interno seguro;
-- respeitar validações básicas de segurança e limite de imagem, sem expor MinIO interno;
-- testar sucesso, acesso e falhas/consistência aplicáveis;
+- reler AGENTS.md, execute-loop, arquitetura de Storage/Segurança e verificar Git limpo;
+- reutilizar validateImage e limite existentes, sem duplicar validação;
+- testar formatos permitidos e inconsistências de extensão/MIME/assinatura;
+- testar truncamentos, nomes/tipos proibidos e fronteira inclusiva de 15 MiB;
+- Supertest deve comprovar rejeição antes de gravar storage/metadados;
 - checks, documentação, commit e Git limpo.
 
 Não implementar:
 
-- processamento Sharp/variantes, PDF, categorias, MediaUsage e seleção de logos dos próximos loops;
+- duplicidade, BullMQ/Worker/Sharp/variantes, PDF, gestão completa de categorias, MediaUsage e logos;
 - upload direto Browser → MinIO ou armazenamento físico no PostgreSQL.
 
 Critério de aceite:
 
 ```text
-Upload de imagem passa pelo NestJS, grava original no MinIO e metadados em Media, com segurança e testes/checks verdes.
+Extensão, MIME, assinatura e limite máximo comprovados por testes; rejeições não persistem mídia; checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 4.3 — Validação de imagem
+LOOP 4.4 — SHA-256
 ```

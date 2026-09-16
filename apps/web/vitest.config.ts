@@ -7,6 +7,8 @@ export default defineConfig({
       "theme/**/*.spec.tsx",
       "institution/**/*.spec.ts",
       "institution/**/*.spec.tsx",
+      "media/**/*.spec.ts",
+      "media/**/*.spec.tsx",
     ],
   },
 });
