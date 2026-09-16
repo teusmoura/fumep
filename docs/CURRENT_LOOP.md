@@ -45,26 +45,27 @@ LOOP 2.12 — CONCLUÍDO
 LOOP 2.13 — CONCLUÍDO
 LOOP 2.14 — CONCLUÍDO
 LOOP 2.15 — CONCLUÍDO
-LOOP 2.16 — ATUAL
+LOOP 2.16 — CONCLUÍDO
+LOOP 3.1 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 2.16 — Invalidar sessões após reset
+### LOOP 3.1 — CRUD administrativo de Institution
 
 Objetivo:
 
 ```text
-Reforçar o ciclo de vida e o isolamento da revogação após reset (AUTH-003 autorizada).
+Disponibilizar CRUD administrativo de instituições exclusivamente para ADMIN.
 ```
 
 Implementar:
 
-- comprovar remoção de múltiplas sessões do usuário após reset;
-- comprovar isolamento: sessões de outros usuários permanecem válidas;
-- testar idempotência, sessões legadas e concorrência de refresh/revogação;
-- comprovar novo login obrigatório e ausência de revogação em reset rejeitado;
-- ajustar somente falhas identificadas nesses testes.
+- listar, consultar, criar, atualizar e excluir Institution por REST/OpenAPI;
+- reutilizar repository Drizzle existente e contratos Zod compartilhados;
+- SessionGuard, RoleGuard ADMIN e CSRF nas mutações;
+- validar UUID, campos, unicidade de slug e dependências na exclusão;
+- testar CRUD, validação, 401, 403 e CSRF.
 
 Não implementar:
 
@@ -73,11 +74,11 @@ Não implementar:
 Critério de aceite:
 
 ```text
-Todas as sessões anteriores do usuário são removidas; outros usuários não são afetados e novo login é necessário.
+ADMIN opera o CRUD; EDITOR e visitantes não acessam; entradas inválidas e conflitos são tratados sem detalhes internos.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 3.1 — CRUD administrativo de Institution (ADMIN apenas)
+LOOP 3.2 — InstitutionSetting
 ```

@@ -23,6 +23,36 @@ describe("RedisSessionStore", () => {
     await inspector.quit();
   });
 
+  it("revokes legacy and concurrent refreshed sessions idempotently without affecting another user", async () => {
+    const now = new Date();
+    const data: SessionData = {
+      userId: crypto.randomUUID(),
+      role: "ADMIN",
+      institutionIds: [],
+      csrfToken: "a".repeat(43),
+      createdAt: now.toISOString(),
+      lastActivityAt: now.toISOString(),
+      absoluteExpiresAt: new Date(now.getTime() + 60000).toISOString(),
+    };
+    const id = await store.create(data);
+    const legacyId = crypto.randomUUID();
+    await inspector.set(`session:${legacyId}`, JSON.stringify(data), { EX: 60 });
+    const other = await store.create({ ...data, userId: crypto.randomUUID() });
+    try {
+      await Promise.all([
+        ...Array.from({ length: 20 }, () => store.find(id)),
+        store.deleteForUser(data.userId),
+      ]);
+      await store.deleteForUser(data.userId);
+      expect(await inspector.exists(`session:${id}`)).toBe(0);
+      expect(await inspector.exists(`session:${legacyId}`)).toBe(0);
+      expect(await store.find(id)).toBeUndefined();
+      expect(await store.find(other)).toBeDefined();
+    } finally {
+      await inspector.del([`session:${id}`, `session:${legacyId}`, `session:${other}`]);
+    }
+  });
+
   it("persists an opaque session with an inactivity TTL", async () => {
     const now = new Date();
     const data: SessionData = {

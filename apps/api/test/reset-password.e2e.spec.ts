@@ -106,4 +106,52 @@ describe("POST reset-password", () => {
       content: { "application/json": { schema: { required: ["token", "password"] } } },
     });
   });
+
+  it("revokes every previous session, preserves other users and requires a fresh login", async () => {
+    const sessions = app.get<SessionStore>(SESSION_STORE);
+    const now = new Date();
+    const data = {
+      userId,
+      role: "ADMIN" as const,
+      institutionIds: [],
+      csrfToken: "a".repeat(43),
+      createdAt: now.toISOString(),
+      lastActivityAt: now.toISOString(),
+      absoluteExpiresAt: new Date(now.getTime() + 60000).toISOString(),
+    };
+    const ids = [await sessions.create(data), await sessions.create(data)];
+    const other = await sessions.create({ ...data, userId: crypto.randomUUID() });
+    try {
+      await request(app.getHttpServer())
+        .post("/api/v1/auth/reset-password")
+        .send({ token: randomBytes(32).toString("base64url"), password: "fresh login password" })
+        .expect(400);
+      for (const id of ids) expect(await sessions.find(id)).toBeDefined();
+      const token = await issue();
+      await request(app.getHttpServer())
+        .post("/api/v1/auth/reset-password")
+        .send({ token, password: "fresh login password" })
+        .expect(200);
+      for (const id of ids) {
+        await request(app.getHttpServer())
+          .get("/api/v1/auth/session")
+          .set("Cookie", `fumep_session=${id}`)
+          .expect(401);
+      }
+      expect(await sessions.find(other)).toBeDefined();
+      const [user] = await client`SELECT email FROM users WHERE id = ${userId}`;
+      const login = await request(app.getHttpServer())
+        .post("/api/v1/auth/login")
+        .send({ email: user.email, password: "fresh login password" })
+        .expect(200);
+      const cookie = login.headers["set-cookie"][0].split(";")[0];
+      await request(app.getHttpServer())
+        .get("/api/v1/auth/session")
+        .set("Cookie", cookie)
+        .expect(200);
+      await sessions.delete(cookie.slice("fumep_session=".length));
+    } finally {
+      for (const id of [...ids, other]) await sessions.delete(id);
+    }
+  });
 });

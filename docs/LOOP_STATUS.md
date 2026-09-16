@@ -1665,3 +1665,30 @@ Observações:
 - emissão/envio de e-mail não antecipados; sem UI, acessibilidade visual não aplicável.
 
 Commit: `feat(auth): reset passwords and revoke sessions`.
+
+## LOOP 2.16 — Concluído
+
+Escopo atual:
+- múltiplas sessões, isolamento e sessão legada;
+- refresh concorrente sem ressurreição e revogação idempotente;
+- reset rejeitado preserva sessões; reset válido exige novo login.
+
+Implementado e comprovado:
+- duas sessões anteriores rejeitadas com HTTP 401 após reset;
+- sessão de outro usuário preservada;
+- novo login com nova senha e consulta de sessão aprovados;
+- reset inválido não revoga sessões;
+- sessão legada removida e revogação repetida segura;
+- vinte refreshes concorrentes não ressuscitam sessão removida.
+
+Checks aprovados:
+- `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`;
+- 82 testes: 6 validation, 32 db e 44 API;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm peers check`;
+- `.\\node_modules\\.bin\\prettier.cmd --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Sem mudanças de produção, schema, migrations ou UI; aceite cumprido sem falhas. AUTH-003 orientou o loop a reforçar testes, pois a revogação já integra o 2.15.
+
+Commit: `test(auth): verify password reset session lifecycle`.
