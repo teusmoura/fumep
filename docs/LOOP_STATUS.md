@@ -1829,24 +1829,31 @@ Aceite completo sem falhas; persistência já exigida no 3.2 foi reutilizada, se
 
 Commit: `test(institutions): consolidate appearance defaults and transitions`.
 
-## LOOP 3.6 — Bloqueado
+## LOOP 3.6 — Concluído
 
-Escopo analisado:
-- ThemeContext público com tema persistido por instituição;
-- fronteira de leitura segura entre Next.js e API.
+Escopo autorizado THEME-001:
+- GET público restrito de tema por slug para instituições ativas;
+- contrato compartilhado e OpenAPI, sem contatos/dados administrativos;
+- consumo server-only Next.js e ThemeContext compartilhado;
+- SSR, aparência e testes da fronteira pública.
 
-Evidência:
-- loop 3.5 concluído no commit `6190749`, com worktree limpo antes desta análise;
-- CRUD institucional exige ADMIN em todos os GETs;
-- frontend não pode acessar banco nem inventar endpoints;
-- contrato público de tema não está definido nos documentos canônicos.
+Implementado:
+- THEME-001 resolvido por autorização explícita; GET `/api/v1/public/institutions/:slug/theme` expõe somente identidade, quatro cores e aparência;
+- instituições ausentes/inativas retornam 404 neutro; CRUD ADMIN/CSRF permanece protegido;
+- contrato Zod estrito, OpenAPI e repository por slug, sem alteração de schema/migration;
+- loader server-only sem credenciais, com timeout e validação; `API_INTERNAL_URL` obrigatório em produção;
+- ThemeContext compartilhado, SSR e aparência LIGHT/DARK/SYSTEM; raiz FUMEP mantém fallback neutro quando a fonte está indisponível;
+- testes de fronteira pública, loader, provider e semântica da página; sem rotas institucionais ou preferência manual dos próximos loops.
 
-Bloqueio architectural THEME-001:
-- a entrega integrada depende de definir a projeção pública e autorizar essa fronteira de acesso no 3.6;
-- recomendada rota pública somente leitura, restrita a temas de instituições ativas;
-- nenhuma alteração de produção ou frontend feita; CURRENT_LOOP permanece no 3.6;
-- registrado por execute-loop/architecture-guard, sem liberar CRUD administrativo.
+Checks aprovados:
+- `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`;
+- 109 testes: 13 validation, 36 db, 53 API e 7 frontend;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`, `pnpm peers check`;
+- Prettier do workflow e `git diff --check`;
+- sem script Playwright/axe disponível nesta etapa; testes SSR preservam main, heading e fallback, com foco/skip link existentes.
 
-Checks da última implementação: format, lint, typecheck, 101 testes, build, frozen install, peers e workflow aprovados no 3.5. Nesta análise somente documentação mudou; `git diff --check` executado.
+Falhas corrigidas: typings DOM, schema Swagger e transformação JSX OXC. Instalação concorrente foi refeita sequencialmente; suites API serializadas para eliminar timeout de inicialização sob contenção. Checks finais verdes, sem bloqueios.
 
-Commit de registro: `docs: record public theme data boundary decision`.
+Aceite cumprido. execute-loop disciplinou escopo/status; architecture-guard condicionou a fronteira pública à decisão THEME-001, agora autorizada. Loop anterior commitado e worktree inicialmente limpo.
+
+Commit: `feat(theme): expose public themes and add server-loaded context`.

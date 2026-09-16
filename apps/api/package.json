@@ -12,7 +12,7 @@
     "pretest": "pnpm --filter @fumep/validation --filter @fumep/db build",
     "build": "nest build",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run --fileParallelism=false"
   },
   "dependencies": {
     "@fumep/db": "workspace:*",

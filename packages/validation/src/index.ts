@@ -119,6 +119,17 @@ export const institutionalLinkSchema = z
   .strict();
 export const appearanceDefaultSchema = z.enum(["SYSTEM", "LIGHT", "DARK"]);
 export type AppearanceDefault = z.infer<typeof appearanceDefaultSchema>;
+export const institutionSlugSchema = z
+  .string()
+  .min(1)
+  .max(100)
+  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+export const publicInstitutionThemeSchema = institutionThemeSchema.safeExtend({
+  id: z.uuid(),
+  slug: institutionSlugSchema,
+  appearanceDefault: appearanceDefaultSchema,
+});
+export type PublicInstitutionTheme = z.infer<typeof publicInstitutionThemeSchema>;
 export const updateInstitutionSettingRequestSchema = z
   .object({
     email: z.email().max(255).nullable().optional(),

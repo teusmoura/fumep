@@ -37,6 +37,8 @@ describe("InstitutionRepository", () => {
 
     expect(created).toMatchObject({ name: "FUMEP", slug: "fumep", isActive: true });
     expect(await repository.findById(created.id)).toEqual(created);
+    expect(await repository.findBySlug(created.slug)).toEqual(created);
+    expect(await repository.findBySlug("missing-institution")).toBeUndefined();
     expect(await repository.findAll()).toEqual([created]);
     expect(created).toMatchObject({
       primary: "#000000",

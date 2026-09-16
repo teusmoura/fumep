@@ -36,6 +36,10 @@ export class InstitutionRepository {
     return this.database.select().from(institutions).orderBy(asc(institutions.name));
   }
 
+  async findBySlug(slug: string): Promise<Institution | undefined> {
+    return this.database.query.institutions.findFirst({ where: eq(institutions.slug, slug) });
+  }
+
   async update(id: string, input: UpdateInstitutionInput): Promise<Institution | undefined> {
     const [institution] = await this.database
       .update(institutions)

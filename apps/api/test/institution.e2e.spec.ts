@@ -252,4 +252,47 @@ describe("Institution administrative CRUD", () => {
       .send(theme)
       .expect(403);
   });
+
+  it("publishes only active institution theme fields, uses SYSTEM and never opens CRUD", async () => {
+    const slug = `fixture-${crypto.randomUUID()}`;
+    const created = await mutate("post", "/api/v1/institutions")
+      .send({ name: "Private administrative name", slug })
+      .expect(201);
+    const id = created.body.id;
+    ids.push(id);
+    const path = `/api/v1/public/institutions/${slug}/theme`;
+    const first = await request(app.getHttpServer()).get(path).expect(200);
+    expect(Object.keys(first.body).sort()).toEqual(
+      [
+        "id",
+        "slug",
+        "primary",
+        "primaryForeground",
+        "accent",
+        "accentForeground",
+        "appearanceDefault",
+      ].sort(),
+    );
+    expect(first.body.appearanceDefault).toBe("SYSTEM");
+    await mutate("patch", `/api/v1/institutions/${id}/settings`)
+      .send({ email: "private@fumep.test", address: "Private address", appearanceDefault: "DARK" })
+      .expect(200);
+    const read = await request(app.getHttpServer()).get(path).expect(200);
+    expect(read.body.appearanceDefault).toBe("DARK");
+    expect(JSON.stringify(read.body)).not.toContain("Private");
+    expect(JSON.stringify(read.body)).not.toContain("private@fumep.test");
+    await request(app.getHttpServer()).get(`/api/v1/institutions/${id}`).expect(401);
+    await request(app.getHttpServer()).patch(path).send({ appearanceDefault: "LIGHT" }).expect(404);
+    await mutate("patch", `/api/v1/institutions/${id}`).send({ isActive: false }).expect(200);
+    const inactive = await request(app.getHttpServer()).get(path).expect(404);
+    const missing = await request(app.getHttpServer())
+      .get(`/api/v1/public/institutions/missing-${crypto.randomUUID()}/theme`)
+      .expect(404);
+    expect(inactive.body).toEqual(missing.body);
+    await request(app.getHttpServer())
+      .get("/api/v1/public/institutions/Invalid%20Slug/theme")
+      .expect(400);
+    const doc = SwaggerModule.createDocument(app, new DocumentBuilder().build());
+    expect(doc.paths["/api/v1/public/institutions/{slug}/theme"]?.get?.security).toBeUndefined();
+  });
 });

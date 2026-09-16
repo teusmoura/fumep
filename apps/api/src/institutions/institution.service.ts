@@ -6,6 +6,7 @@ export const INSTITUTION_REPOSITORY = Symbol("INSTITUTION_REPOSITORY");
 export interface InstitutionStore {
   findAll(): Promise<Institution[]>;
   findById(id: string): Promise<Institution | undefined>;
+  findBySlug(slug: string): Promise<Institution | undefined>;
   create(input: CreateInstitutionInput): Promise<Institution>;
   update(id: string, input: UpdateInstitutionInput): Promise<Institution | undefined>;
   delete(id: string): Promise<boolean>;

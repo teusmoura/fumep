@@ -51,41 +51,41 @@ LOOP 3.2 — CONCLUÍDO
 LOOP 3.3 — CONCLUÍDO
 LOOP 3.4 — CONCLUÍDO
 LOOP 3.5 — CONCLUÍDO
-LOOP 3.6 — ATUAL
+LOOP 3.6 — CONCLUÍDO
+LOOP 3.7 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 3.6 — ThemeContext no frontend
+### LOOP 3.7 — InstitutionContext
 
-Estado: bloqueado pela decisão THEME-001 em `docs/ISSUES_ARCHITECTURE.md`. Definir a leitura pública do tema antes de integrar o frontend; não abrir o CRUD ADMIN nem acessar banco diretamente.
+Estado: preparado; loop 3.6 concluído com THEME-001 autorizado e checks verdes.
 
 Objetivo:
 
 ```text
-Resolver o tema mínimo por instituição no frontend público.
+Resolver a instituição atual pela rota pública.
 ```
 
 Implementar:
 
-- ThemeContext compartilhado com tokens mínimos por instituição;
-- consumir a fonte institucional por API/contratos, sem acesso direto ao banco;
-- respeitar aparência padrão e SSR, sem expor credenciais administrativas;
-- testes aplicáveis e checks do frontend;
-- não antecipar InstitutionContext por rotas (3.7) ou funcionalidades futuras.
+- InstitutionContext compartilhado;
+- `/` → FUMEP, `/etmsl` → ETMSL, `/cramam` → CRAMAM;
+- reutilizar loader público e ThemeContext, sem acesso direto ao banco;
+- testes de isolamento entre rotas, SSR e checks aplicáveis.
 
 Não implementar:
 
-- entidades e funcionalidades dos próximos loops.
+- preferência manual de dark mode (3.8), páginas e funcionalidades dos próximos loops.
 
 Critério de aceite:
 
 ```text
-Tema mínimo resolvido por instituição e compartilhado no frontend, com fonte de dados segura.
+Instituição atual resolvida corretamente nas três rotas públicas, sem vazamento de tema entre instituições.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 3.7 — InstitutionContext
+LOOP 3.8 — Dark mode
 ```

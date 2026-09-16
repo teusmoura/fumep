@@ -4,9 +4,15 @@ Use este arquivo apenas quando a implementação encontrar uma contradição rea
 
 ## Abertos
 
+Nenhum.
+
+## Resolvidos
+
 ### THEME-001 — Fonte pública de tema institucional no loop 3.6
 
-Classificação: **bloqueador**.
+Classificação: **resolvido**.
+
+Decisão: recomendação THEME-001 autorizada pelo responsável do projeto. Implementar a projeção pública restrita e consumir no servidor Next.js no loop 3.6, sem abrir o CRUD ADMIN.
 
 Contexto e evidências:
 - o loop 3.6 exige tema mínimo resolvido por instituição no frontend;
@@ -29,9 +35,7 @@ Recomendação:
 - manter todo o CRUD atual protegido e documentar/testar a projeção com Zod/OpenAPI/Supertest;
 - consumir a projeção no servidor Next.js e repassar apenas dados públicos ao ThemeContext.
 
-Nenhuma abertura de autorização, endpoint público ou acesso direto ao banco implementado sem decisão. Loop 3.6 permanece atual.
-
-## Resolvidos
+Implementação autorizada no loop 3.6: endpoint público separado, projeção estrita validada por Zod e consumo server-only no Next.js. CRUD institucional continua restrito a ADMIN; não há acesso ao banco pelo frontend.
 
 ### AUTH-003 — Limite entre Reset password (2.15) e invalidação de sessões (2.16)
 

@@ -20,6 +20,31 @@ main {
   padding: 4rem 2rem;
 }
 
+.institution-theme {
+  --color-background: #ffffff;
+  --color-text: #1f2937;
+  background: var(--color-background);
+  color: var(--color-text);
+  min-height: 100svh;
+  color-scheme: light;
+}
+.institution-theme[data-appearance="DARK"] {
+  --color-background: #111827;
+  --color-text: #f9fafb;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  .institution-theme[data-appearance="SYSTEM"] {
+    --color-background: #111827;
+    --color-text: #f9fafb;
+    color-scheme: dark;
+  }
+}
+.institution-theme h1 {
+  color: var(--color-primary-foreground);
+  background: var(--color-primary);
+}
+
 .skip-link {
   left: 1rem;
   position: fixed;

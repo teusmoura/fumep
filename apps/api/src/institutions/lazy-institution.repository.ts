@@ -23,6 +23,9 @@ export class LazyInstitutionRepository implements InstitutionStore, OnModuleDest
   findById(id: string) {
     return this.repository().findById(id);
   }
+  findBySlug(slug: string) {
+    return this.repository().findBySlug(slug);
+  }
   create(input: CreateInstitutionInput) {
     return this.repository().create(input);
   }
