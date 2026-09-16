@@ -1,6 +1,14 @@
 import { z } from "zod";
 export const IMAGE_MAX_BYTES = 15 * 1024 * 1024;
-export const mediaUploadFieldsSchema = z.object({ categoryId: z.uuid().optional() }).strict();
+export const mediaUploadFieldsSchema = z
+  .object({
+    categoryId: z.uuid().optional(),
+    uploadAnyway: z
+      .enum(["true", "false"])
+      .transform((value) => value === "true")
+      .optional(),
+  })
+  .strict();
 export const createMediaCategorySchema = z
   .object({
     institutionId: z.uuid().nullable(),
@@ -30,6 +38,14 @@ export const mediaUploadResponseSchema = z
   })
   .strict();
 export type MediaCategoryOption = z.infer<typeof mediaCategoryOptionSchema>;
+export const mediaSelectionResponseSchema = mediaUploadResponseSchema.extend({
+  processingStatus: z.enum(["PENDING", "PROCESSING", "READY", "FAILED"]),
+});
+export const mediaDuplicateResponseSchema = z
+  .object({ duplicate: z.literal(true), existing: mediaSelectionResponseSchema })
+  .strict();
+export const mediaSelectionRequestSchema = z.object({ id: z.uuid() }).strict();
+export type MediaSelection = z.infer<typeof mediaSelectionResponseSchema>;
 
 export const healthResponseSchema = z
   .object({

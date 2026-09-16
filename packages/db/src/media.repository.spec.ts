@@ -10,6 +10,8 @@ if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is required");
 const { client, db } = createDatabase(process.env.DATABASE_URL);
 const repository = new MediaRepository(db);
 const ids: string[] = [];
+const categoryIds: string[] = [];
+const institutionIds: string[] = [];
 const input: NewMedia = {
   type: "IMAGE",
   originalFilename: "fixture.png",
@@ -26,9 +28,38 @@ async function create(values: NewMedia = input) {
 }
 afterAll(async () => {
   for (const id of ids) await client`DELETE FROM media WHERE id = ${id}`;
+  for (const id of categoryIds) await client`DELETE FROM media_categories WHERE id = ${id}`;
+  for (const id of institutionIds) await client`DELETE FROM institutions WHERE id = ${id}`;
   await client.end();
 });
 describe("MediaRepository", () => {
+  it("finds checksum duplicates deterministically only inside permitted institutions", async () => {
+    const own = crypto.randomUUID();
+    const foreign = crypto.randomUUID();
+    for (const id of [own, foreign]) {
+      await client`INSERT INTO institutions (id,name,slug) VALUES (${id},'Duplicate fixture',${`duplicate-${id}`})`;
+      institutionIds.push(id);
+    }
+    const created = [];
+    for (const [index, institutionId] of [null, own, foreign].entries()) {
+      const category = crypto.randomUUID();
+      categoryIds.push(category);
+      await client`INSERT INTO media_categories (id,institution_id,name,slug) VALUES (${category},${institutionId},'Duplicate fixture','fixture')`;
+      created.push(
+        await create({
+          ...input,
+          checksumSha256: "b".repeat(64),
+          categoryId: category,
+          createdAt: new Date(`202${index}-01-01T00:00:00Z`),
+        }),
+      );
+    }
+    expect(await repository.findDuplicate("b".repeat(64))).toEqual(created[0]);
+    expect(await repository.findDuplicate("b".repeat(64), [own])).toEqual(created[1]);
+    expect(await repository.findDuplicate("b".repeat(64), [foreign])).toEqual(created[2]);
+    expect(await repository.findDuplicate("b".repeat(64), [])).toBeUndefined();
+    expect(await repository.findDuplicate("f".repeat(64), [own])).toBeUndefined();
+  });
   it("creates and reads canonical metadata with PENDING, nullable fields and timestamps", async () => {
     const created = await create();
     expect(created).toMatchObject({

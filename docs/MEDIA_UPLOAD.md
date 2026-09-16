@@ -19,6 +19,12 @@ Antecipação explícita do vínculo canônico `Media.category_id → MediaCateg
 - `GET /api/v1/media/upload-categories`: lista somente categorias institucionais autorizadas para EDITOR; ADMIN recebe todas.
 - `POST /api/v1/media/upload-categories`: cria a categoria mínima usando `{ institutionId, name, slug }`. Requer sessão, origem confiável e `X-CSRF-Token`. EDITOR pode criar somente em instituições atribuídas; `institutionId: null` é global e exclusivo de ADMIN. Slug institucional deve ser único.
 - `POST /api/v1/media/images`: multipart com `file` e `categoryId` opcional. EDITOR precisa selecionar uma categoria de instituição atribuída; ADMIN pode enviar sem categoria ou em categoria global.
+- Se houver checksum igual na biblioteca autorizada, o upload responde 200 com `{ duplicate: true, existing }`, sem gravar novo original ou Media. O aviso registra `MEDIA_DUPLICATE_DETECTED`.
+- O formulário oferece **Usar arquivo existente** (POST `/api/v1/media/selection`, JSON `{ id }`, sessão/CSRF e nova verificação de escopo) ou **Enviar assim mesmo** (`uploadAnyway: "true"` no multipart, resposta 201 com registro distinto). `"false"` não confirma envio.
+
+EDITOR só recebe avisos/seleciona mídias em categorias de suas instituições. Mídia global ou de outra instituição não é oferecida no aviso nem expõe seus metadados ao EDITOR; sua seleção retorna 403. ADMIN pode consultá-la. O uploader não substitui escopo. Uploads simultâneos ou confirmação explícita podem criar registros distintos, com UUID/chaves independentes; checksum não possui constraint UNIQUE.
+
+Selecionar existente retorna a referência autorizada e seu status atual, sem novo arquivo/registro. Não cria MediaUsage nem associa automaticamente a página/bloco; esses consumidores pertencem aos loops futuros. Mídia PENDING continua pendente, sem afirmar processamento concluído.
 
 O backend resolve a instituição consultando a categoria persistida. Não aceita institutionId/uploadedBy no multipart nem usa a autoria como autorização institucional.
 

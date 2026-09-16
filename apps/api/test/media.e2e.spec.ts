@@ -32,12 +32,14 @@ describe("Image upload through NestJS to real MinIO/PostgreSQL", () => {
   let app: INestApplication;
   let storage: MediaStorage;
   let store: MediaStore;
-  const mutate = (path: string, role = "admin") =>
-    request(app.getHttpServer())
+  const mutate = (path: string, role = "admin") => {
+    const operation = request(app.getHttpServer())
       .post(`/api/v1/media/${path}`)
       .set("Cookie", `fumep_session=${role}`)
       .set("Origin", origin)
       .set("X-CSRF-Token", csrf);
+    return path === "images" ? operation.field("uploadAnyway", "true") : operation;
+  };
   beforeAll(async () => {
     await client`INSERT INTO users (id,name,email,password_hash,role) VALUES (${userId},'Media fixture',${`${userId}@fixture.test`},'unused','ADMIN')`;
     for (const id of [own, other])
@@ -276,6 +278,107 @@ describe("Image upload through NestJS to real MinIO/PostgreSQL", () => {
     expect(create).not.toHaveBeenCalled();
     put.mockRestore();
     create.mockRestore();
+  });
+  it("warns before writing, selects authorized existing media or explicitly uploads another record", async () => {
+    const probe = () =>
+      request(app.getHttpServer())
+        .post("/api/v1/media/images")
+        .set("Cookie", "fumep_session=editor")
+        .set("Origin", origin)
+        .set("X-CSRF-Token", csrf);
+    const before = await client`SELECT count(*) FROM media WHERE uploaded_by = ${userId}`;
+    const put = vi.spyOn(storage, "put");
+    const create = vi.spyOn(store, "create");
+    const warning = await probe()
+      .field("categoryId", categoryIds[0])
+      .attach("file", png, "duplicate.png")
+      .expect(200);
+    expect(warning.body.duplicate).toBe(true);
+    expect(warning.body.existing.categoryId).toBe(categoryIds[0]);
+    expect(put).not.toHaveBeenCalled();
+    expect(create).not.toHaveBeenCalled();
+    const selected = await mutate("selection", "editor")
+      .send({ id: warning.body.existing.id })
+      .expect(200);
+    expect(selected.body).toEqual(warning.body.existing);
+    expect(await client`SELECT count(*) FROM media WHERE uploaded_by = ${userId}`).toEqual(before);
+    expect(put).not.toHaveBeenCalled();
+    expect(create).not.toHaveBeenCalled();
+    const audit =
+      await client`SELECT action FROM audit_logs WHERE user_id = ${userId} AND action = 'MEDIA_DUPLICATE_DETECTED' AND entity_id = ${selected.body.id}`;
+    expect(audit.length).toBeGreaterThan(0);
+    const uploaded = await probe()
+      .field("categoryId", categoryIds[0])
+      .field("uploadAnyway", "true")
+      .attach("file", png, "duplicate.png")
+      .expect(201);
+    keys.push(`images/originals/${uploaded.body.id}.png`);
+    expect(uploaded.body.id).not.toBe(selected.body.id);
+    expect(put).toHaveBeenCalledOnce();
+    expect(create).toHaveBeenCalledOnce();
+    put.mockRestore();
+    create.mockRestore();
+  });
+  it("does not disclose or select foreign/global media for EDITOR, even when uploader is the same", async () => {
+    for (const category of [categoryIds[1], null]) {
+      const bytes = Buffer.concat([png, Buffer.from(`${userId}-${category ?? "global"}`)]);
+      const operation = mutate("images");
+      if (category) operation.field("categoryId", category);
+      const foreign = await operation.attach("file", bytes, "restricted.png").expect(201);
+      keys.push(`images/originals/${foreign.body.id}.png`);
+      const ownUpload = await request(app.getHttpServer())
+        .post("/api/v1/media/images")
+        .set("Cookie", "fumep_session=editor")
+        .set("Origin", origin)
+        .set("X-CSRF-Token", csrf)
+        .field("categoryId", categoryIds[0])
+        .attach("file", bytes, "restricted.png")
+        .expect(201);
+      keys.push(`images/originals/${ownUpload.body.id}.png`);
+      expect(ownUpload.body).not.toHaveProperty("duplicate");
+      expect(ownUpload.text).not.toContain(foreign.body.id);
+      await mutate("selection", "editor").send({ id: foreign.body.id }).expect(403);
+      await mutate("selection").send({ id: foreign.body.id }).expect(200);
+    }
+  });
+  it("revalidates existing media institution on selection and rejects invalid/unprotected choices", async () => {
+    const existing = await store.duplicate(createHash("sha256").update(png).digest("hex"), [own]);
+    expect(existing).toBeDefined();
+    await client`UPDATE media_categories SET institution_id = ${other} WHERE id = ${categoryIds[0]}`;
+    try {
+      await mutate("selection", "editor").send({ id: existing!.id }).expect(403);
+    } finally {
+      await client`UPDATE media_categories SET institution_id = ${own} WHERE id = ${categoryIds[0]}`;
+    }
+    await mutate("selection").send({ id: "invalid" }).expect(400);
+    await mutate("selection").send({ id: existing!.id, institutionId: own }).expect(400);
+    await mutate("selection").send({ id: randomUUID() }).expect(404);
+    await request(app.getHttpServer())
+      .post("/api/v1/media/selection")
+      .send({ id: existing!.id })
+      .expect(401);
+    await request(app.getHttpServer())
+      .post("/api/v1/media/selection")
+      .set("Cookie", "fumep_session=admin")
+      .send({ id: existing!.id })
+      .expect(403);
+  });
+  it("allows concurrent explicit duplicates without overwriting storage keys or records", async () => {
+    const responses = await Promise.all([
+      mutate("images").attach("file", png, "concurrent.png"),
+      mutate("images").attach("file", png, "concurrent.png"),
+    ]);
+    for (const response of responses) {
+      expect(response.status).toBe(201);
+      keys.push(`images/originals/${response.body.id}.png`);
+    }
+    expect(responses[0].body.id).not.toBe(responses[1].body.id);
+    for (const response of responses) {
+      const object = await storage
+        .client()
+        .statObject("portal-public", `images/originals/${response.body.id}.png`);
+      expect(object.size).toBe(png.length);
+    }
   });
   it("does not create metadata on MinIO failure and documents multipart/OpenAPI", async () => {
     const put = vi

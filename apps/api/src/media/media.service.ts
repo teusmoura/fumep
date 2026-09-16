@@ -11,8 +11,12 @@ import {
   createMediaCategorySchema,
   mediaUploadFieldsSchema,
   mediaUploadResponseSchema,
+  mediaDuplicateResponseSchema,
+  mediaSelectionRequestSchema,
+  mediaSelectionResponseSchema,
   type SessionData,
 } from "@fumep/validation";
+import type { Media } from "@fumep/db";
 import { MediaStore } from "./media.store.js";
 import { MediaStorage } from "./media.storage.js";
 import { validateImage } from "./image-validation.js";
@@ -59,10 +63,23 @@ export class MediaService {
     this.authorize(session, category?.institutionId ?? null);
     const extension = validateImage(file);
     const image = file!;
+    const checksumSha256 = mediaChecksum(image.buffer);
+    if (!parsed.data.uploadAnyway) {
+      const existing = await this.store.duplicate(
+        checksumSha256,
+        session.role === "ADMIN" ? undefined : session.institutionIds,
+      );
+      if (existing) {
+        await this.store.recordDuplicate(session.userId, existing.id);
+        return mediaDuplicateResponseSchema.parse({
+          duplicate: true,
+          existing: this.selection(existing),
+        });
+      }
+    }
     const id = randomUUID();
     const storedFilename = `${id}${extension}`;
     const key = `images/originals/${storedFilename}`;
-    const checksumSha256 = mediaChecksum(image.buffer);
     const response = mediaUploadResponseSchema.parse({
       id,
       originalFilename: image.originalname,
@@ -94,5 +111,24 @@ export class MediaService {
       }
       throw new ServiceUnavailableException("Não foi possível salvar a imagem. Tente novamente.");
     }
+  }
+  private selection(media: Media) {
+    return mediaSelectionResponseSchema.parse({
+      id: media.id,
+      originalFilename: media.originalFilename,
+      mimeType: media.mimeType,
+      sizeBytes: Number(media.sizeBytes),
+      categoryId: media.categoryId,
+      processingStatus: media.processingStatus,
+    });
+  }
+  async select(session: SessionData, body: unknown) {
+    const parsed = mediaSelectionRequestSchema.safeParse(body);
+    if (!parsed.success) throw new BadRequestException("Seleção inválida");
+    const media = await this.store.media(parsed.data.id);
+    if (!media || media.type !== "IMAGE") throw new NotFoundException("Mídia inexistente");
+    const category = media.categoryId ? await this.store.category(media.categoryId) : undefined;
+    this.authorize(session, category?.institutionId ?? null);
+    return this.selection(media);
   }
 }

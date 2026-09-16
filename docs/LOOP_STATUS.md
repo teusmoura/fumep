@@ -2077,3 +2077,41 @@ Checks aprovados:
 Aceite cumprido sem falhas de código/checks. media-storage/testing-qa orientaram checksum dos bytes e vetores de referência; execute-loop preservou escopo e constraints existentes.
 
 Commit: `test(media): consolidate mandatory server-side SHA-256`.
+
+## LOOP 4.5 — Concluído
+
+Estado inicial: loop 4.4 concluído em `b56b480`, Git limpo.
+Escopo atual:
+- consultar checksum antes do novo original e avisar sobre mídia existente autorizada;
+- formulário oferece usar existente ou enviar assim mesmo explicitamente;
+- seleção revalida autorização no backend e não cria arquivo/Media/MediaUsage;
+- EDITOR consulta apenas categorias institucionais atribuídas, preservando MEDIA-001; não abrir mídia global/estrangeira;
+- contratos Zod/OpenAPI, testes, checks, status e commit; sem fila/Worker/variantes ou busca futura.
+
+Implementado:
+- lookup determinístico de checksum no repository, usando o índice existente e escopo institucional por categoria;
+- POST images responde 200 com aviso/projeção estrita de duplicata autorizada antes de put/create; evento MEDIA_DUPLICATE_DETECTED;
+- `uploadAnyway: "true"` confirma registro/UUID/chave separados, sem constraint UNIQUE ou bloqueio automático;
+- POST selection revalida mídia/categoria/sessão/CSRF e retorna referência autorizada sem novo objeto/Media/MediaUsage;
+- formulário preserva FormData, oferece as duas escolhas, invalida escolha após alteração de campos e apresenta sucesso/erro acessível;
+- foco no primeiro controle de escolha e retorno ao campo após sucesso, respeitando estado disabled;
+- EDITOR não consulta mídia global/estrangeira no aviso, nem seleciona por autoria; ADMIN global;
+- contratos Zod/OpenAPI, proxy Next.js de seleção com endpoint fixo e documentação do fluxo;
+- ausência de novo schema/migration/dependência ou funcionalidades futuras.
+
+Checks aprovados:
+- `pnpm --filter @fumep/db --filter @fumep/validation test`: 42 DB + 18 validation;
+- Vitest/Supertest focado `test/media.e2e.spec.ts`: 15 testes com MinIO/PostgreSQL reais;
+- `pnpm --filter @fumep/web test`: 38 testes;
+- todas as migrations do zero em `portal_fumep_loop_4_5_test` + 42 testes DB;
+- `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`;
+- 190 testes finais: 18 validation, 42 DB, 92 API, 38 frontend;
+- `pnpm peers check`, Prettier do workflow e `git diff --check`;
+- cenários: aviso sem gravação, seleção, confirmação, concorrência, mídia global/estrangeira com mesmo uploader, mudança de categoria após aviso, CSRF e payload estrito;
+- Playwright/axe/QA visual não executados; script E2E ainda inexistente.
+
+Falhas resolvidas: teste encontrou foco chamado antes de reabilitar o input; retorno movido para efeito após busy=false. Formatação de media.store.ts corrigida. Rechecks completos verdes, nenhuma falha pendente.
+
+Aceite cumprido. security-access manteve menor privilégio; drizzle-data-model orientou lookup/fixture e banco limpo; media-storage orientou aviso sem bloquear confirmação; nextjs-frontend/testing-qa orientaram escolhas e foco. Seleção não é associação a conteúdo nem processamento concluído.
+
+Commit: `feat(media): offer authorized duplicate reuse or explicit upload`.

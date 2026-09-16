@@ -21,6 +21,20 @@ export class MediaStore implements OnModuleDestroy {
   category(id: string) {
     return new MediaCategoryRepository(this.database()).findById(id);
   }
+  media(id: string) {
+    return new MediaRepository(this.database()).findById(id);
+  }
+  duplicate(checksum: string, institutions?: string[]) {
+    return new MediaRepository(this.database()).findDuplicate(checksum, institutions);
+  }
+  recordDuplicate(userId: string, mediaId: string) {
+    return this.database().insert(auditLogs).values({
+      userId,
+      action: "MEDIA_DUPLICATE_DETECTED",
+      entityType: "MEDIA",
+      entityId: mediaId,
+    });
+  }
   categories(institutions?: string[]) {
     return new MediaCategoryRepository(this.database()).findForInstitutions(institutions);
   }

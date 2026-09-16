@@ -4,10 +4,13 @@ import {
   Get,
   Post,
   Req,
+  Res,
+  HttpCode,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
+import type { Response } from "express";
 import { FileInterceptor } from "@nestjs/platform-express";
 import {
   ApiBody,
@@ -69,24 +72,52 @@ export class MediaController {
       properties: {
         file: { type: "string", format: "binary" },
         categoryId: { type: "string", format: "uuid" },
+        uploadAnyway: { type: "string", enum: ["true", "false"] },
       },
     },
   })
   @ApiCreatedResponse({
     description: "Original armazenado, processamento PENDING; sem URL interna",
   })
+  @ApiOkResponse({
+    description: "Duplicata autorizada encontrada; escolha usar existente ou enviar assim mesmo",
+    schema: {
+      type: "object",
+      required: ["duplicate", "existing"],
+      properties: { duplicate: { type: "boolean", enum: [true] }, existing: { type: "object" } },
+    },
+  })
   @ApiResponse({ status: 413, description: "Imagem excede 15 MB" })
   @ApiResponse({ status: 503, description: "Falha ao salvar imagem" })
   @UseInterceptors(
     FileInterceptor("file", {
-      limits: { fileSize: IMAGE_MAX_BYTES + 1, files: 1, fields: 1, parts: 3, fieldSize: 100 },
+      limits: { fileSize: IMAGE_MAX_BYTES + 1, files: 1, fields: 2, parts: 4, fieldSize: 100 },
     }),
   )
-  upload(
+  async upload(
     @Req() request: AuthenticatedRequest,
     @Body() body: unknown,
     @UploadedFile() file?: Express.Multer.File,
+    @Res({ passthrough: true }) response?: Response,
   ) {
-    return this.media.upload(request.auth, body, file);
+    const result = await this.media.upload(request.auth, body, file);
+    if ("duplicate" in result) response?.status(200);
+    return result;
+  }
+  @Post("selection")
+  @HttpCode(200)
+  @ApiBody({
+    schema: {
+      type: "object",
+      additionalProperties: false,
+      required: ["id"],
+      properties: { id: { type: "string", format: "uuid" } },
+    },
+  })
+  @ApiOkResponse({
+    description: "Mídia autorizada selecionada, sem novo arquivo/registro ou vínculo de uso",
+  })
+  select(@Req() request: AuthenticatedRequest, @Body() body: unknown) {
+    return this.media.select(request.auth, body);
   }
 }

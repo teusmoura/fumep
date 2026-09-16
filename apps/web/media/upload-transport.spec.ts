@@ -1,12 +1,33 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
-import { proxyImageUpload } from "./upload-proxy";
+import { proxyImageUpload, proxyMediaSelection } from "./upload-proxy";
 import { loadUploadContext } from "./upload-context";
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
 });
 describe("server-only upload transport", () => {
+  it("forwards selection only to the defined backend endpoint with CSRF and JSON", async () => {
+    vi.stubEnv("API_INTERNAL_URL", "http://api.internal:3001");
+    const fetcher = vi.fn().mockResolvedValue(Response.json({ id: "fixture" }));
+    vi.stubGlobal("fetch", fetcher);
+    const response = await proxyMediaSelection(
+      new Request("http://localhost/admin/media/select", {
+        method: "POST",
+        body: '{"id":"fixture"}',
+        headers: {
+          "content-type": "application/json",
+          "x-csrf-token": "token",
+          origin: "http://localhost:3000",
+        },
+      }),
+    );
+    expect(response.status).toBe(200);
+    const [url, options] = fetcher.mock.calls[0];
+    expect(url.pathname).toBe("/api/v1/media/selection");
+    expect(options.headers.get("x-csrf-token")).toBe("token");
+    expect(options.headers.get("content-type")).toBe("application/json");
+  });
   it("streams multipart to the fixed NestJS endpoint preserving CSRF and origin, not arbitrary headers", async () => {
     vi.stubEnv("API_INTERNAL_URL", "http://api.internal:3001");
     const fetcher = vi.fn().mockResolvedValue(new Response('{"id":"fixture"}', { status: 201 }));
