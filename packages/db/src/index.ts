@@ -6,6 +6,7 @@ export {
   type UpdateInstitutionInput,
 } from "./institution.repository.js";
 export * from "./schema.js";
+export { MediaRepository } from "./media.repository.js";
 export {
   InstitutionSettingRepository,
   type UpdateInstitutionSettingInput,

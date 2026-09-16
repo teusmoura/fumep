@@ -1948,3 +1948,38 @@ Checks aprovados:
 Aceite cumprido sem falhas nesta rodada. Contraste mínimo 4.5:1 aplicado aos dois pares e rejeição antes da persistência comprovada. Não é auditoria completa de acessibilidade visual. execute-loop manteve o escopo; testing-qa orientou referências determinísticas e prova de não persistência; nextjs-frontend orientou a matriz SSR das instituições.
 
 Commit: `test(theme): verify contrast boundaries and persistence safety`.
+
+## LOOP 4.1 — Concluído
+
+Escopo atual:
+- tabela Media e migration aditiva, metadados canônicos, checksum e status;
+- repository mínimo create/findById e testes de constraints;
+- migration em banco local e do zero, checks disponíveis;
+- sem upload, Worker, categorias, variantes, MediaUsage ou logos.
+
+Estado inicial: loop 3.9 concluído no commit `e40bc01`, Git limpo.
+Observação de precedência: Storage §21/modelo lógico §8.2 definem stored_filename, size_bytes e uploaded_by; são usados em vez dos aliases filename, size e created_by do plano. category_id/FK/índice ficam no loop 4.13, sem tabela futura antecipada.
+
+Implementado:
+- Media com UUID, TIMESTAMPTZ, nomes canônicos, storage_key relativo e metadados de acessibilidade/dimensões;
+- enums media_type e media_processing_status, padrão PENDING;
+- SHA-256 obrigatório hexadecimal minúsculo, índice não único permite duplicidade;
+- BIGINT preservado como bigint, tamanho não negativo e dimensões opcionais positivas;
+- uploaded_by nullable com ON DELETE SET NULL e índices de tipo/uploader/data/checksum;
+- repository somente create/findById, sem exclusão insegura antes de MediaUsage;
+- migration aditiva `0013_windy_juggernaut.sql`, sem alterações nas tabelas anteriores.
+
+Checks aprovados:
+- geração e aplicação local da migration;
+- todas as migrations do zero em `portal_fumep_loop_4_1_test`, com 40 testes DB aprovados;
+- `pnpm --filter @fumep/db test` (40 testes também no ambiente local);
+- `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`;
+- 137 testes finais: 16 validation, 40 db, 54 API e 27 frontend;
+- `pnpm peers check`, Prettier do workflow e `git diff --check`;
+- sem alteração de dependências/lockfile; E2E/axe não disponíveis nesta etapa; acessibilidade de metadados apenas, sem UI nova.
+
+Falha resolvida: drizzle-kit no sandbox retornou uv_os_get_passwd ENOMEM; geração repetida com execução autorizada fora dessa restrição passou. Sem falhas pendentes.
+
+Aceite cumprido. architecture-guard: conforme com observação de nomenclatura e categoria futura; drizzle-data-model orientou UUID/TIMESTAMPTZ, constraints e migration limpa; media-storage orientou metadados sem arquivos no banco e checksum não único; execute-loop manteve escopo/commit.
+
+Commit: `feat(db): add canonical media metadata model`.

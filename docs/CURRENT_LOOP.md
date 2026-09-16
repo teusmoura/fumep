@@ -55,43 +55,46 @@ LOOP 3.6 — CONCLUÍDO
 LOOP 3.7 — CONCLUÍDO
 LOOP 3.8 — CONCLUÍDO
 LOOP 3.9 — CONCLUÍDO
-LOOP 4.1 — ATUAL
+LOOP 4.1 — CONCLUÍDO
+LOOP 4.2 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 4.1 — Media
+### LOOP 4.2 — Upload de imagem
 
-Estado: preparado; fase 3 concluída, loop 3.9 com testes de contraste e checks verdes.
+Estado: preparado; loop 4.1 concluído, tabela Media e migration local/do zero validadas.
 
 Objetivo:
 
 ```text
-Implementar a tabela Media conforme o modelo e a arquitetura canônicos.
+Implementar o fluxo Browser → NestJS → MinIO → PostgreSQL para upload de imagem.
 ```
 
 Implementar:
 
-- ler o modelo de dados lógico e a arquitetura especializada de Storage/Biblioteca de Mídia;
-- usar as skills drizzle-data-model, media-storage e testing-qa conforme o escopo;
-- tabela Drizzle e migration com campos essenciais: id, filename, original_filename, mime_type, size, storage_key, checksum_sha256, processing_status, processing_error, created_by e created_at;
-- constraints, relações e índices conforme documentos canônicos, sem inventar decisões conflitantes;
-- testes aplicáveis e validação da migration, incluindo banco do zero quando aplicável;
-- checks disponíveis, status, commit e Git limpo.
+- ler a arquitetura especializada de Storage e Segurança;
+- usar media-storage, nestjs-api, security-access e testing-qa conforme o escopo;
+- upload autenticado/autorizado no NestJS com sessão Redis e CSRF;
+- reutilizar MediaRepository, arquivo físico MinIO e metadados PostgreSQL;
+- preservar nome original somente como metadado e gerar nome interno seguro;
+- respeitar validações básicas de segurança e limite de imagem, sem expor MinIO interno;
+- testar sucesso, acesso e falhas/consistência aplicáveis;
+- checks, documentação, commit e Git limpo.
 
 Não implementar:
 
-- upload de imagem (4.2), processamento Worker/Sharp, seleção de logos ou demais funcionalidades futuras;
-- endpoint/interface de biblioteca não exigido neste loop.
+- processamento Sharp/variantes, PDF, categorias, MediaUsage e seleção de logos dos próximos loops;
+- upload direto Browser → MinIO ou armazenamento físico no PostgreSQL.
 
 Critério de aceite:
 
 ```text
-Tabela Media criada conforme documentação canônica, migration aplicável e testes/checks verdes.
+Upload de imagem passa pelo NestJS, grava original no MinIO e metadados em Media, com segurança e testes/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 4.2 — Upload de imagem
+LOOP 4.3 — Validação de imagem
 ```

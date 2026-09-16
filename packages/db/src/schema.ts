@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import {
   boolean,
+  bigint,
   check,
   index,
   inet,
@@ -72,6 +73,48 @@ export const users = pgTable(
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
+
+export const mediaType = pgEnum("media_type", ["IMAGE", "DOCUMENT", "VIDEO", "OTHER"]);
+export const mediaProcessingStatus = pgEnum("media_processing_status", [
+  "PENDING",
+  "PROCESSING",
+  "READY",
+  "FAILED",
+]);
+export const media = pgTable(
+  "media",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    type: mediaType("type").notNull(),
+    originalFilename: varchar("original_filename", { length: 255 }).notNull(),
+    storedFilename: varchar("stored_filename", { length: 255 }).notNull(),
+    mimeType: varchar("mime_type", { length: 150 }).notNull(),
+    sizeBytes: bigint("size_bytes", { mode: "bigint" }).notNull(),
+    storageKey: text("storage_key").notNull(),
+    checksumSha256: varchar("checksum_sha256", { length: 64 }).notNull(),
+    width: integer("width"),
+    height: integer("height"),
+    altText: text("alt_text"),
+    caption: text("caption"),
+    isDecorative: boolean("is_decorative").notNull().default(false),
+    processingStatus: mediaProcessingStatus("processing_status").notNull().default("PENDING"),
+    processingError: text("processing_error"),
+    uploadedBy: uuid("uploaded_by").references(() => users.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("media_type_index").on(table.type),
+    index("media_uploaded_by_index").on(table.uploadedBy),
+    index("media_created_at_index").on(table.createdAt),
+    index("media_checksum_sha256_index").on(table.checksumSha256),
+    check("media_size_bytes_check", sql`${table.sizeBytes} >= 0`),
+    check("media_checksum_sha256_check", sql`${table.checksumSha256} ~ '^[0-9a-f]{64}$'`),
+    check("media_width_check", sql`${table.width} IS NULL OR ${table.width} > 0`),
+    check("media_height_check", sql`${table.height} IS NULL OR ${table.height} > 0`),
+  ],
+);
+export type Media = typeof media.$inferSelect;
+export type NewMedia = typeof media.$inferInsert;
 
 export const userInstitutions = pgTable(
   "user_institutions",
