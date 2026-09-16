@@ -1918,3 +1918,33 @@ Checks aprovados:
 Aceite cumprido, checks verdes e sem falhas nesta rodada. Resolução inicial da preferência persistida no SSR e SYSTEM por CSS evitam troca visual tardia. Fallback neutro existente sem fonte de tema foi preservado. Sem API/migration ou funcionalidades futuras. execute-loop manteve escopo/status; nextjs-frontend orientou SSR sem flash e controle compartilhado; testing-qa orientou testes determinísticos de prioridade/interação.
 
 Commit: `feat(theme): add persistent visitor dark mode preference`.
+
+## LOOP 3.9 — Concluído
+
+Escopo atual:
+- reutilizar validação de contraste do 3.3;
+- testar referências numéricas, limites, normalização e independência dos pares;
+- Supertest comprova rejeição sem persistir alteração;
+- testar tokens nos temas LIGHT/DARK das três instituições;
+- sem alteração de branding, schema/migration ou escopo de mídia.
+
+Estado inicial: loop 3.8 concluído no commit `520f2f1`, Git limpo.
+
+Implementado:
+- testes de referência sRGB (preto/branco, canais RGB e cinzas adjacentes ao limite), simetria e rejeição sem arredondar para 4.5;
+- pares primary/foreground e accent/foreground testados independentemente, com posições invertidas;
+- normalização dos quatro tokens e manutenção da validação no contrato público LIGHT/DARK/SYSTEM;
+- Supertest/PostgreSQL comprova que quatro configurações inválidas retornam 400 sem alterar registro, timestamp ou projeção pública;
+- testes SSR dos quatro tokens validados em FUMEP, ETMSL e CRAMAM LIGHT/DARK;
+- validação de produção do 3.3 reutilizada sem duplicar regras, alterar branding ou criar migrations.
+
+Checks aprovados:
+- `pnpm --filter @fumep/validation test` (16 testes), `pnpm --filter @fumep/web test` (27 testes);
+- `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`;
+- 133 testes finais: 16 validation, 36 db, 54 API e 27 frontend;
+- `pnpm peers check`, `.\\node_modules\\.bin\\prettier.cmd --check .github/workflows/ci.yml` e `git diff --check`;
+- sem mudanças de dependências/lockfile; Playwright/axe e QA visual não executados, ainda sem script E2E disponível.
+
+Aceite cumprido sem falhas nesta rodada. Contraste mínimo 4.5:1 aplicado aos dois pares e rejeição antes da persistência comprovada. Não é auditoria completa de acessibilidade visual. execute-loop manteve o escopo; testing-qa orientou referências determinísticas e prova de não persistência; nextjs-frontend orientou a matriz SSR das instituições.
+
+Commit: `test(theme): verify contrast boundaries and persistence safety`.

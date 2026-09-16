@@ -1,6 +1,10 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import type { PublicInstitutionTheme } from "@fumep/validation";
+import {
+  contrastRatio,
+  publicInstitutionThemeSchema,
+  type PublicInstitutionTheme,
+} from "@fumep/validation";
 import { ThemeProvider, useTheme } from "./theme-context";
 const theme: PublicInstitutionTheme = {
   id: "11111111-1111-4111-8111-111111111111",
@@ -20,6 +24,36 @@ function Probe() {
   );
 }
 describe("ThemeContext SSR", () => {
+  it("preserves validated foreground/background tokens in every institution's LIGHT and DARK SSR", () => {
+    for (const slug of ["fumep", "etmsl", "cramam"]) {
+      for (const appearanceDefault of ["LIGHT", "DARK"] as const) {
+        const validated = publicInstitutionThemeSchema.parse({
+          ...theme,
+          slug,
+          appearanceDefault,
+          primary: "#0000FF",
+          accent: "#FF0000",
+          accentForeground: "#000000",
+        });
+        const html = renderToStaticMarkup(
+          <ThemeProvider theme={validated}>
+            <Probe />
+          </ThemeProvider>,
+        );
+        expect(html).toContain(`data-institution="${slug}"`);
+        expect(html).toContain(`data-appearance="${appearanceDefault}"`);
+        expect(html).toContain("--color-primary:#0000ff");
+        expect(html).toContain("--color-primary-foreground:#ffffff");
+        expect(html).toContain("--color-accent:#ff0000");
+        expect(html).toContain("--color-accent-foreground:#000000");
+        expect(contrastRatio(validated.primary, validated.primaryForeground)).toBeCloseTo(
+          8.59247136,
+          6,
+        );
+        expect(contrastRatio(validated.accent, validated.accentForeground)).toBeCloseTo(5.252, 6);
+      }
+    }
+  });
   it("renders the saved visual preference ahead of every ADMIN default in all institutions", () => {
     for (const slug of ["fumep", "etmsl", "cramam"]) {
       for (const appearanceDefault of ["SYSTEM", "LIGHT", "DARK"] as const) {

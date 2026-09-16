@@ -54,42 +54,44 @@ LOOP 3.5 — CONCLUÍDO
 LOOP 3.6 — CONCLUÍDO
 LOOP 3.7 — CONCLUÍDO
 LOOP 3.8 — CONCLUÍDO
-LOOP 3.9 — ATUAL
+LOOP 3.9 — CONCLUÍDO
+LOOP 4.1 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 3.9 — Testes de contraste
+### LOOP 4.1 — Media
 
-Estado: preparado; loop 3.8 concluído com preferência visual persistida, SSR e checks verdes.
+Estado: preparado; fase 3 concluída, loop 3.9 com testes de contraste e checks verdes.
 
 Objetivo:
 
 ```text
-Validar contraste para cores configuráveis dos temas institucionais.
+Implementar a tabela Media conforme o modelo e a arquitetura canônicos.
 ```
 
 Implementar:
 
-- revisar/reutilizar a validação de contraste introduzida no 3.3;
-- testes de pares primary/foreground e accent/foreground, limites e cores normalizadas;
-- garantir que configuração inválida seja rejeitada sem persistir alteração;
-- verificar aplicação dos tokens controlados em LIGHT/DARK nas instituições;
-- checks aplicáveis sem duplicar schema/migrations ou alterar branding.
+- ler o modelo de dados lógico e a arquitetura especializada de Storage/Biblioteca de Mídia;
+- usar as skills drizzle-data-model, media-storage e testing-qa conforme o escopo;
+- tabela Drizzle e migration com campos essenciais: id, filename, original_filename, mime_type, size, storage_key, checksum_sha256, processing_status, processing_error, created_by e created_at;
+- constraints, relações e índices conforme documentos canônicos, sem inventar decisões conflitantes;
+- testes aplicáveis e validação da migration, incluindo banco do zero quando aplicável;
+- checks disponíveis, status, commit e Git limpo.
 
 Não implementar:
 
-- funcionalidades de mídia, menus ou outros loops futuros;
-- CSS livre ou mudança arbitrária de identidade institucional.
+- upload de imagem (4.2), processamento Worker/Sharp, seleção de logos ou demais funcionalidades futuras;
+- endpoint/interface de biblioteca não exigido neste loop.
 
 Critério de aceite:
 
 ```text
-Cores configuráveis com contraste insuficiente são rejeitadas e os testes de contraste dos temas passam.
+Tabela Media criada conforme documentação canônica, migration aplicável e testes/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 4.1 — Media
+LOOP 4.2 — Upload de imagem
 ```

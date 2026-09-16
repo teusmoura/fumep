@@ -295,4 +295,45 @@ describe("Institution administrative CRUD", () => {
     const doc = SwaggerModule.createDocument(app, new DocumentBuilder().build());
     expect(doc.paths["/api/v1/public/institutions/{slug}/theme"]?.get?.security).toBeUndefined();
   });
+  it("rejects either insufficient pair without changing PostgreSQL or the public theme", async () => {
+    const slug = `fixture-${crypto.randomUUID()}`;
+    const created = await mutate("post", "/api/v1/institutions")
+      .send({ name: "Contrast fixture", slug })
+      .expect(201);
+    const id = created.body.id;
+    ids.push(id);
+    const path = `/api/v1/institutions/${id}/theme`;
+    const colors = {
+      primary: "#0000FF",
+      primaryForeground: "#FFFFFF",
+      accent: "#FF0000",
+      accentForeground: "#000000",
+    };
+    await mutate("patch", path).send(colors).expect(200);
+    const [before] = await client`SELECT * FROM institutions WHERE id = ${id}`;
+    const publicBefore = await request(app.getHttpServer())
+      .get(`/api/v1/public/institutions/${slug}/theme`)
+      .expect(200);
+    expect(publicBefore.body).toMatchObject({
+      primary: "#0000ff",
+      primaryForeground: "#ffffff",
+      accent: "#ff0000",
+      accentForeground: "#000000",
+    });
+    for (const invalid of [
+      { ...colors, primary: "#777777" },
+      { ...colors, accent: "#ffffff", accentForeground: "#777777" },
+      { ...colors, primaryForeground: "#0000ff" },
+      { ...colors, accentForeground: "#ff0000" },
+    ]) {
+      const rejected = await mutate("patch", path).send(invalid).expect(400);
+      expect(JSON.stringify(rejected.body)).not.toContain("SELECT");
+      const [after] = await client`SELECT * FROM institutions WHERE id = ${id}`;
+      expect(after).toEqual(before);
+      const publicAfter = await request(app.getHttpServer())
+        .get(`/api/v1/public/institutions/${slug}/theme`)
+        .expect(200);
+      expect(publicAfter.body).toEqual(publicBefore.body);
+    }
+  });
 });
