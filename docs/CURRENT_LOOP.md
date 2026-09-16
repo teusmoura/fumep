@@ -60,44 +60,46 @@ LOOP 4.2 — CONCLUÍDO
 LOOP 4.3 — CONCLUÍDO
 LOOP 4.4 — CONCLUÍDO
 LOOP 4.5 — CONCLUÍDO
-LOOP 4.6 — ATUAL
+LOOP 4.6 — CONCLUÍDO
+LOOP 4.7 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 4.6 — BullMQ
+### LOOP 4.7 — PROCESS_MEDIA
 
-Estado: pronto para execução após commit do 4.5. Upload, checksum e escolhas de duplicidade concluídos. Preservar autoria/escopo institucional e seleção sem novo upload.
+Estado: pronto para execução após commit do 4.6. Fila media configurada e verificada com Redis real. Preservar upload, checksum, autorização e escolhas de duplicidade.
 
 Objetivo:
 
 ```text
-Implementar a fila BullMQ `media` conforme arquitetura de Jobs, preservando Worker separado.
+Worker separado recebe job PROCESS_MEDIA da fila media.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop e arquitetura de Jobs/Storage; confirmar 4.5 commitado e Git limpo;
+- reler AGENTS.md, execute-loop e arquitetura de Jobs/Storage; confirmar 4.6 commitado e Git limpo;
 - usar jobs-worker/media-storage/testing-qa conforme o escopo;
-- fila media com conexão Redis interna e configuração/retries/retention canônicos aplicáveis;
-- adapter/provedor reutilizável e lifecycle seguro, sem duplicar conexões ad hoc;
-- testar fila/configuração/conectividade e encerramento com infraestrutura local;
+- contrato mínimo PROCESS_MEDIA com referência Media.id, sem bytes/credenciais no payload;
+- enfileiramento após persistência, sem apagar original ou Media caso Redis falhe;
+- consumidor apps/worker com validação, logs estruturados seguros e shutdown;
+- testar recepção real, payload inválido, repetição e falhas/retries aplicáveis;
 - não executar processamento no request NestJS;
 - checks, documentação, commit e Git limpo.
 
 Não implementar:
 
-- handler PROCESS_MEDIA/processamento Sharp/variantes dos loops seguintes, PDF, gestão completa de categorias, MediaUsage e logos;
+- processamento Sharp/variantes e transições finais do processamento dos loops seguintes, PDF, gestão completa de categorias, MediaUsage e logos;
 - upload direto Browser → MinIO ou armazenamento físico no PostgreSQL.
 
 Critério de aceite:
 
 ```text
-Fila media configurada e verificável com Redis, sem antecipar o processamento do Worker; testes/checks verdes.
+Worker recebe PROCESS_MEDIA com referência validada, sem antecipar Sharp/variantes; testes/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 4.7 — PROCESS_MEDIA
+LOOP 4.8 — Sharp
 ```

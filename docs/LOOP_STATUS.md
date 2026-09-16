@@ -2115,3 +2115,24 @@ Falhas resolvidas: teste encontrou foco chamado antes de reabilitar o input; ret
 Aceite cumprido. security-access manteve menor privilégio; drizzle-data-model orientou lookup/fixture e banco limpo; media-storage orientou aviso sem bloquear confirmação; nextjs-frontend/testing-qa orientaram escolhas e foco. Seleção não é associação a conteúdo nem processamento concluído.
 
 Commit: `feat(media): offer authorized duplicate reuse or explicit upload`.
+
+## LOOP 4.6 — Concluído
+
+Estado inicial: loop 4.5 concluído em `cecce38`, Git limpo.
+Escopo atual:
+- biblioteca compartilhada mínima da fila media BullMQ/Redis e lifecycle de conexão;
+- provedor NestJS e diagnóstico da fila, sem consumidor PROCESS_MEDIA ou processamento antecipado;
+- retries limitados, retention configurável e namespace bull:media;
+- testes reais de configuração/conexão/persistência da fila e fechamento;
+- ajustar provisionamento CI de Redis/MinIO para os testes de infraestrutura existentes, sem pular testes ou expor serviços;
+- checks, documentação e commit.
+
+Observação: CI atual provisiona apenas PostgreSQL, mas testes de sessão já exigem REDIS_URL e testes de upload exigem MinIO. O loop de fila adiciona provisionamento explícito dessas dependências de teste no workflow, sem alterar arquitetura de produção.
+
+Entregue: pacote @fumep/jobs, configuração Redis/TLS, retries/backoff/retention, producer lazy com fechamento, provedor NestJS, diagnóstico queue:check, testes isolados reais e docs/MEDIA_QUEUE.md. Nenhum upload enfileirado nem consumidor antecipado.
+
+Checks aprovados: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` (202: 18 validation, 42 DB, 12 jobs, 92 API, 38 web), `pnpm build`, `pnpm peers check`, `pnpm --filter @fumep/api queue:check`, `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`, Prettier do workflow e `git diff --check`.
+
+Falhas resolvidas: política de build do addon opcional msgpackr-extract explicitamente false; diagnóstico usava ping ausente na interface pública BullMQ, substituído por leitura suportada. Rechecks completos verdes. Docker CLI indisponível em Windows/WSL; Compose/CI remota não executados. Playwright/axe não executados (script E2E inexistente).
+
+Aceite cumprido. jobs-worker manteve fila sem processamento no request; testing-qa orientou isolamento/limpeza de fixtures. Commit: `feat(media): configure shared BullMQ media queue`.

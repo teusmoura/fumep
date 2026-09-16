@@ -19,6 +19,17 @@ jobs:
     timeout-minutes: 15
     env:
       DATABASE_URL: postgresql://portal_fumep:portal_fumep@127.0.0.1:5432/portal_fumep_test
+      POSTGRES_USER: portal_fumep
+      POSTGRES_PASSWORD: portal_fumep
+      POSTGRES_DB: portal_fumep_test
+      REDIS_PASSWORD: ci-ephemeral-redis
+      REDIS_URL: redis://:ci-ephemeral-redis@127.0.0.1:6379
+      MINIO_ROOT_USER: ci-ephemeral-minio
+      MINIO_ROOT_PASSWORD: ci-ephemeral-storage
+      MINIO_ENDPOINT: 127.0.0.1
+      MINIO_PORT: 9000
+      MINIO_USE_SSL: "false"
+      APP_ORIGIN: http://localhost:3000
 
     services:
       postgres:
@@ -54,6 +65,9 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      - name: Start ephemeral Redis and MinIO test dependencies
+        run: docker compose -p portal-fumep-ci -f docker-compose.dev.yml up -d --wait --wait-timeout 120 redis minio
+
       - name: Typecheck
         run: pnpm typecheck
 
@@ -65,3 +79,7 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+      - name: Clean ephemeral test dependencies
+        if: always()
+        run: docker compose -p portal-fumep-ci -f docker-compose.dev.yml down --volumes
