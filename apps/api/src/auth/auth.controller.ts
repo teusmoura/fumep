@@ -15,6 +15,7 @@ import {
 } from "@nestjs/common";
 import {
   ApiBadRequestResponse,
+  ApiBody,
   ApiCookieAuth,
   ApiOkResponse,
   ApiOperation,
@@ -23,14 +24,16 @@ import {
 } from "@nestjs/swagger";
 import type { Request, Response } from "express";
 
-import { loginRequestSchema } from "@fumep/validation";
+import { forgotPasswordRequestSchema, loginRequestSchema } from "@fumep/validation";
 
 import { AuthService } from "./auth.service.js";
 import { CsrfService } from "./csrf.service.js";
 import {
   LOGIN_ATTEMPT_STORE,
+  FORGOT_PASSWORD_ATTEMPT_STORE,
   SESSION_CONFIG,
   type LoginAttemptStore,
+  type AuthAttemptStore,
   type SessionConfig,
 } from "./auth.contracts.js";
 import { readSessionId, SESSION_COOKIE_NAME, sessionCookieOptions } from "./session-cookie.js";
@@ -43,6 +46,7 @@ export class AuthController {
     @Inject(SESSION_CONFIG) private readonly sessionConfig: SessionConfig,
     private readonly csrf: CsrfService,
     @Inject(LOGIN_ATTEMPT_STORE) private readonly attempts: LoginAttemptStore,
+    @Inject(FORGOT_PASSWORD_ATTEMPT_STORE) private readonly recoveryAttempts: AuthAttemptStore,
   ) {}
 
   @Post("login")
@@ -93,6 +97,39 @@ export class AuthController {
       },
       csrfToken: request.auth.csrfToken,
     };
+  }
+
+  @Post("forgot-password")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Request password recovery without exposing account existence" })
+  @ApiBody({
+    schema: {
+      type: "object",
+      required: ["email"],
+      additionalProperties: false,
+      properties: { email: { type: "string", format: "email" } },
+    },
+  })
+  @ApiOkResponse({ description: "Neutral password recovery response" })
+  @ApiBadRequestResponse({ description: "Invalid recovery request" })
+  @ApiTooManyRequestsResponse({ description: "Too many requests; retry after one hour" })
+  async forgotPassword(
+    @Body() body: unknown,
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const parsed = forgotPasswordRequestSchema.safeParse(body);
+    if (
+      !(await this.recoveryAttempts.consume(
+        request.ip ?? request.socket.remoteAddress ?? "unknown",
+        parsed.success ? parsed.data.email : undefined,
+      ))
+    ) {
+      response.setHeader("Retry-After", "3600");
+      throw new HttpException("Too many recovery requests", HttpStatus.TOO_MANY_REQUESTS);
+    }
+    if (!parsed.success) throw new BadRequestException("Invalid recovery request");
+    return this.authService.requestPasswordRecovery();
   }
 
   @Post("logout")

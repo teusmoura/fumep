@@ -17,6 +17,12 @@ export const loginRequestSchema = z
 
 export type LoginRequest = z.infer<typeof loginRequestSchema>;
 
+export const forgotPasswordRequestSchema = z
+  .object({ email: z.string().trim().toLowerCase().pipe(z.email()) })
+  .strict();
+
+export type ForgotPasswordRequest = z.infer<typeof forgotPasswordRequestSchema>;
+
 export const sessionDataSchema = z
   .object({
     userId: z.uuid(),

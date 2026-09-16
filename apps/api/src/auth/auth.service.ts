@@ -59,4 +59,11 @@ export class AuthService {
   async logout(sessionId: string | undefined): Promise<void> {
     if (sessionId) await this.sessions.delete(sessionId);
   }
+
+  requestPasswordRecovery(): { message: string } {
+    return {
+      message:
+        "Se existir uma conta associada a esse e-mail, enviaremos as instruções para redefinição da senha.",
+    };
+  }
 }

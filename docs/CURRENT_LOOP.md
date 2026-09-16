@@ -42,41 +42,42 @@ LOOP 2.9 — CONCLUÍDO
 LOOP 2.10 — CONCLUÍDO
 LOOP 2.11 — CONCLUÍDO
 LOOP 2.12 — CONCLUÍDO
-LOOP 2.13 — ATUAL
+LOOP 2.13 — CONCLUÍDO
+LOOP 2.14 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 2.13 — Forgot password
+### LOOP 2.14 — Password reset tokens
 
 Objetivo:
 
 ```text
-Implementar a solicitação inicial de recuperação de senha com resposta neutra.
+Criar a persistência e emissão segura de tokens temporários de recuperação de senha.
 ```
 
 Implementar:
 
-- implementar `POST /api/v1/auth/forgot-password`;
-- validar e normalizar o e-mail com Zod;
-- responder de forma neutra independentemente da existência da conta;
-- limitar abuso por IP e conta conforme o documento de segurança;
-- testar validação, neutralidade e limitação.
+- criar `password_reset_tokens` conforme o documento de segurança;
+- gerar tokens criptograficamente aleatórios e persistir somente seu hash;
+- aplicar validade de 30 minutos;
+- incluir expiração, consumo e vínculo com usuário no modelo;
+- testar estrutura, hash, expiração e exclusão em cascata.
 
 Não implementar:
 
-- tabela e geração de tokens de recuperação (loop 2.14);
 - redefinição de senha (loop 2.15);
+- invalidação de sessões após reset (loop 2.16);
 - entidades e funcionalidades dos próximos loops.
 
 Critério de aceite:
 
 ```text
-Solicitações válidas recebem a mesma resposta independentemente da existência da conta, sem enumeração de usuários.
+Token de recuperação possui alta entropia, somente hash persistido e expiração de 30 minutos.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 2.14 — Password reset tokens
+LOOP 2.15 — Reset password
 ```

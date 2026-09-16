@@ -1541,3 +1541,42 @@ Commit:
 ```text
 feat(auth): limit login attempts with Redis
 ```
+
+## LOOP 2.13 — Concluído
+
+Escopo atual:
+- implementar solicitação inicial `POST /api/v1/auth/forgot-password` com contrato Zod;
+- normalizar o e-mail e devolver resposta neutra sem consultar a existência de conta;
+- limitar a 5 solicitações por hora por IP e conta com contadores Redis separados dos de login;
+- testar validação, neutralidade, limites e isolamento entre políticas;
+- reservar tokens e redefinição aos loops 2.14–2.15; não enviar e-mail nesta etapa.
+
+Implementado:
+- schema Zod estrito para e-mail normalizado da solicitação;
+- endpoint REST e OpenAPI com resposta pública neutra em português;
+- nenhuma consulta de usuário, cookie ou token na resposta desta etapa inicial;
+- política Redis de 5 solicitações por hora por IP e conta, com namespace independente de login;
+- adapter atômico existente reutilizado por políticas, sem duplicar acesso ao Redis;
+- testes de validação, neutralidade, limites HTTP, janela de uma hora e isolamento de login.
+
+Checks executados com sucesso:
+- `pnpm format:check`;
+- `pnpm lint`;
+- `pnpm typecheck`;
+- `pnpm test` — 68 testes aprovados;
+- `pnpm build`;
+- `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`;
+- `pnpm peers check`;
+- `.\\node_modules\\.bin\\prettier.cmd --check .github/workflows/ci.yml`;
+- `git diff --check`.
+
+Critério de aceite validado:
+- e-mails válidos receberam a mesma resposta e pedidos acima do limite receberam HTTP 429; payloads inválidos foram rejeitados e contados por IP.
+
+Observação:
+- o endpoint estabelece o contrato inicial previsto neste loop; tokens, envio de link e redefinição ainda não estão disponíveis.
+
+Commit:
+```text
+feat(auth): add neutral password recovery request
+```

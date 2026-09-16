@@ -8,10 +8,26 @@ import type { LoginAttemptStore } from "./auth.contracts.js";
 export const LOGIN_ATTEMPT_LIMIT = 5;
 export const LOGIN_ATTEMPT_WINDOW_SECONDS = 60;
 
+export interface AuthAttemptPolicy {
+  namespace: string;
+  limit: number;
+  windowSeconds: number;
+}
+
+const loginPolicy: AuthAttemptPolicy = {
+  namespace: "login-attempt",
+  limit: LOGIN_ATTEMPT_LIMIT,
+  windowSeconds: LOGIN_ATTEMPT_WINDOW_SECONDS,
+};
+
 export function loginAttemptKeys(ip: string, email?: string): string[] {
+  return authAttemptKeys(loginPolicy, ip, email);
+}
+
+export function authAttemptKeys(policy: AuthAttemptPolicy, ip: string, email?: string): string[] {
   const hash = (value: string) => createHash("sha256").update(value).digest("hex");
-  const keys = [`login-attempt:ip:${hash(ip)}`];
-  if (email) keys.push(`login-attempt:account:${hash(email.trim().toLowerCase())}`);
+  const keys = [`${policy.namespace}:ip:${hash(ip)}`];
+  if (email) keys.push(`${policy.namespace}:account:${hash(email.trim().toLowerCase())}`);
   return keys;
 }
 
@@ -30,11 +46,13 @@ export class RedisLoginAttemptStore implements LoginAttemptStore, OnModuleDestro
   private client?: RedisClientType;
   private connection?: Promise<RedisClientType>;
 
+  constructor(private readonly policy: AuthAttemptPolicy = loginPolicy) {}
+
   async consume(ip: string, email?: string): Promise<boolean> {
     const client = await this.getClient();
     const allowed = await client.eval(consumeScript, {
-      keys: loginAttemptKeys(ip, email),
-      arguments: [String(LOGIN_ATTEMPT_LIMIT), String(LOGIN_ATTEMPT_WINDOW_SECONDS)],
+      keys: authAttemptKeys(this.policy, ip, email),
+      arguments: [String(this.policy.limit), String(this.policy.windowSeconds)],
     });
     return allowed === 1;
   }
