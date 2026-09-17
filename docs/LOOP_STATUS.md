@@ -1,5 +1,17 @@
 # LOOP STATUS
 
+## LOOP 5.7 — Concluído
+
+Estado inicial: 5.6 concluído em `7f9ab6f`, Git limpo. Escopo: editor HERO Client controlado, seleção de imagens READY disponíveis fornecidas pelo caller, escolha informativa/decorativa explícita e CTA seguro; renderer SSR com descriptor de imagem resolvido pelo caller/URL same-origin do portal, definição completa PAGE no Registry, testes e checks. Sem rede/persistência própria, endpoints, Preview/publicação, lookup autorizado ou outros blocos.
+
+Entregue: HeroBlockEditor com seleção validada/filtrada, alt contextual ou decoração explicitamente marcada, remoção pareada de imageId/alt, CTA opcional seguro, draft inválido retido, onApply validado/async sem concorrência e feedback/status focável. HeroBlockRenderer valida envelope/visibilidade e descriptor UUID correspondente IMAGE/READY/NONE/MIME/dimensões/src do portal, falha fechada sem conteúdo bruto, Next/Image unoptimized/escapado, sem vídeo ou endereço interno. Descriptor de transporte é separado do JSONB e não autoriza owner/publicação. Registry frontend inclui HERO v1 PAGE e mantém TEXT PAGE/ARTICLE. Layout controlado, tokens herdados, focus-visible e campos HERO 44px. HERO_EDITOR_RENDERER_V1.md documenta responsabilidades do caller/limitações.
+
+Checks aprovados: `pnpm --filter @fumep/web test` (85), `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` final (366: 47 validation, 67 DB, 12 jobs, 3 storage, 122 API, 85 web, 30 Worker), `pnpm build`, `pnpm peers check`, `git diff --check`. Recheck integral após QA/ajuste CSS/remoção fixture. axe-core semântico em jsdom para alt informativo/decorativo/CTA/feedback: zero violações, sem contraste/layout. Primeiro prettier detectou chave CSS fora de lugar; primeira correção resolveu, warnings de variáveis não usadas também removidos. Nenhuma falha pendente/migration/dependência nova.
+
+QA local via navegador: 1280×900/390×844 LIGHT/DARK; imagem sintética carregada, HERO duas/uma coluna, sem overflow global, tabelas roláveis localmente/por teclado, foco visível/status, CTA perigoso e alt vazio informativo bloqueados, decoração alt="" e aplicação TEXT por teclado. Fixture/pixel removidos, porta 3100 sem listener após encerrar servidor, viewport restaurado e aba fechada. Não certifica contraste global/E2E/integração real; test:e2e inexistente e CI remota não executada. computer-use orientou QA via navegador disponível (sem automação Windows nativa); inspeção mobile levou ao ajuste de espaçamento/campos 44px.
+
+Aceite cumprido. page-builder/architecture-guard mantiveram UI/renderer sem autoridade/persistência/gateway antecipado; nextjs-frontend e testing-qa verificaram SSR, interação, segurança, A11y e regressões. Commit: `feat(builder): edit and render image-only hero`. Próximo loop: 5.8.
+
 ## LOOP 5.6 — Concluído
 
 Estado inicial: 5.5 concluído em `7308e78`, Git limpo. Escopo: contrato Zod HERO v1 somente imagem, title/description/imageId/imageAlt/button, alt explícito informativo ou vazio decorativo, URLs seguras, envelope comum, limites, testes e documentação/checks. Sem editor/renderer, registro incompleto, I/O de mídia, endpoints/Preview/publicação ou outros blocos.

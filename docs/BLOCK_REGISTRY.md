@@ -6,6 +6,8 @@ O catálogo UI central é `frontendBlockRegistry` em `apps/web/page-builder/bloc
 
 ## Entrega original do 5.1
 
+Após 5.7, o catálogo operacional também inclui HERO v1 completo apenas para PAGE; ARTICLE continua limitado ao TEXT já implementado. A imagem resolvida do renderer é metadado de transporte separado do JSONB, fornecido pelo caller e não obtido pelo registry.
+
 Loop 5.1 entrega somente infraestrutura: `blockRegistry` de produção vazio, `BlockDefinition`, `BlockContext`, `BlockRegistry` e `createBlockRegistry`, compartilhados em @fumep/validation. Nenhum bloco concreto, schema comum, editor, renderer de conteúdo ou endpoint foi implementado.
 
 Cada definição controlada pelo código terá type, schemaVersion, zodSchema, renderer, editor, label e allowedContexts PAGE/ARTICLE, conforme §9 de PAGE_BUILDER_CONTENT_BLOCKS.md. A factory recebe definições, valida metadados/versão/contextos e recusa pares type+schemaVersion duplicados. Versões diferentes coexistem; lookup não escolhe silenciosamente versão mais nova. Contexto incompatível e tipo/versão desconhecidos retornam undefined. A futura validação/publicação deverá tratar ausência como inválida, nunca como autorização ou fallback automático.

@@ -115,14 +115,14 @@ it("keeps supported URL kinds in the same tab and does not create empty public l
   expect(html).not.toContain('href="/"');
 });
 it("registers only the complete TEXT version for PAGE/ARTICLE without polluting API infrastructure", () => {
-  expect(frontendBlockRegistry.list()).toHaveLength(1);
+  expect(frontendBlockRegistry.list()).toHaveLength(2);
   const definition = frontendBlockRegistry.get("TEXT", 1, "PAGE")!;
   expect(definition.renderer).toBe(TextBlockRenderer);
   expect(definition.editor).toBe(TextBlockEditor);
   expect(definition.zodSchema.safeParse(block()).success).toBe(true);
   expect(frontendBlockRegistry.get("TEXT", 1, "ARTICLE")).toBe(definition);
   expect(frontendBlockRegistry.get("TEXT", 2)).toBeUndefined();
-  expect(frontendBlockRegistry.get("HERO", 1)).toBeUndefined();
+  expect(frontendBlockRegistry.get("HERO", 1, "ARTICLE")).toBeUndefined();
   expect(blockRegistry.list()).toEqual([]);
 });
 it("has no semantic axe violations for links/lists/headings/table (jsdom, no contrast)", async () => {

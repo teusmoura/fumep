@@ -78,43 +78,45 @@ LOOP 5.3 — CONCLUÍDO
 LOOP 5.4 — CONCLUÍDO
 LOOP 5.5 — CONCLUÍDO
 LOOP 5.6 — CONCLUÍDO
-LOOP 5.7 — ATUAL
+LOOP 5.7 — CONCLUÍDO
+LOOP 5.8 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 5.7 — HERO editor e renderer
+### LOOP 5.8 — IMAGE v1
 
-Estado: pronto para execução após commit do 5.6. Contrato HERO v1 implementado, checks verdes (353 testes). Revalidar commit/Git limpo antes de iniciar.
+Estado: pronto para execução após commit do 5.7. TEXT/HERO completos, checks verdes (366 testes). Revalidar commit/Git limpo antes de iniciar.
 
 Objetivo:
 
 ```text
-Editor e renderer HERO v1 seguros/acessíveis, validando alt e CTA.
+Bloco IMAGE v1 com Media.id, alt contextual/fallback válido e caption.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.6 commitado e Git limpo;
+- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.7 commitado e Git limpo;
 - usar page-builder, nextjs-frontend, architecture-guard e testing-qa conforme escopo;
-- editor visual HERO controlado sem persistência própria, usando contrato v1 e imagens disponíveis fornecidas pelo caller;
-- renderer SSR imagem-only com alt explícito/CTA seguro, sem endereços internos MinIO; resolução/disponibilidade autorizada de mídia pertence ao consumidor backend futuro;
-- definição HERO completa no Registry frontend somente para PAGE, sem placeholders/outros blocos;
-- controles acessíveis, feedback/foco, responsividade/tokens e testes de alt/CTA;
+- contrato IMAGE v1/envelope comum com imageId obrigatório, alt/caption/link/decorative controlados, sem URL física/HTML/CSS livres;
+- editor visual e renderer SSR com imagem disponível resolvida pelo caller, alt contextual ou fallback válido para imagem informativa, decoração explícita e caption escapada;
+- usar apenas URLs de mídia do domínio do portal; não criar gateway/endpoints ou lookup de proprietário antecipados;
+- definição IMAGE completa no Registry frontend PAGE/ARTICLE, sem outros blocos;
+- controles acessíveis, feedback/foco, responsividade/tokens, testes de mídia/alt/caption/links;
 - testes, checks disponíveis, documentação, commit e Git limpo.
 
 Não implementar:
 
-- IMAGE (5.8) ou outros blocos, Page Builder básico, endpoints/preview/publicação ou novos consumidores antecipados.
+- Page Builder básico (5.9), outros blocos, endpoints/preview/publicação ou novos consumidores antecipados.
 
 Critério de aceite:
 
 ```text
-Editor/renderer HERO imagem-only com alt e CTA validados, seguros/acessíveis, testados, documentados e checks verdes.
+IMAGE v1 com schema/editor/renderer/registro completo, Media.id/alt/caption seguros/acessíveis, testes/documentação e checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 5.8 — IMAGE v1
+LOOP 5.9 — Page Builder básico
 ```

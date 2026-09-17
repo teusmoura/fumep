@@ -351,6 +351,29 @@ export const heroBlockSchemaV1 = contentBlockCommonSchema.safeExtend({
 export type HeroBlockDataV1 = z.infer<typeof heroBlockDataSchemaV1>;
 export type HeroBlockV1 = z.infer<typeof heroBlockSchemaV1>;
 
+// Resolved transport metadata, never persisted as HERO JSONB or used as backend
+// authorization. Caller must resolve a fresh, authorized library image.
+export const heroResolvedImageSchemaV1 = z
+  .object({
+    id: z.uuid(),
+    type: z.literal("IMAGE"),
+    processingStatus: z.literal("READY"),
+    deletionStatus: z.literal("NONE"),
+    mimeType: z.enum(["image/png", "image/jpeg", "image/webp", "image/avif"]),
+    width: z.number().int().positive().max(100000),
+    height: z.number().int().positive().max(100000),
+    src: z
+      .string()
+      .max(2048)
+      .regex(/^\/media\/[a-zA-Z0-9_-]+(?:\/[a-zA-Z0-9_.-]+)*$/)
+      .refine(
+        (value) => !value.split("/").some((segment) => segment === "." || segment === ".."),
+        "Invalid media path",
+      ),
+  })
+  .strict();
+export type HeroResolvedImageV1 = z.infer<typeof heroResolvedImageSchemaV1>;
+
 export const processMediaPayloadSchema = z.object({ mediaId: z.uuid() }).strict();
 export type ProcessMediaPayload = z.infer<typeof processMediaPayloadSchema>;
 export const mediaProcessingResponseSchema = z

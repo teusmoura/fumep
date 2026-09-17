@@ -1,5 +1,10 @@
 import { expect, it } from "vitest";
-import { HERO_V1_LIMITS, heroBlockDataSchemaV1, heroBlockSchemaV1 } from "./index.js";
+import {
+  HERO_V1_LIMITS,
+  heroBlockDataSchemaV1,
+  heroBlockSchemaV1,
+  heroResolvedImageSchemaV1,
+} from "./index.js";
 const imageId = "11111111-1111-4111-8111-111111111111";
 const data = () => ({
   title: "ETMSL",
@@ -16,6 +21,51 @@ const block = () => ({
   isVisible: true,
   background: "DEFAULT",
   data: data(),
+});
+const resolved = () => ({
+  id: imageId,
+  type: "IMAGE",
+  processingStatus: "READY",
+  deletionStatus: "NONE",
+  mimeType: "image/webp",
+  width: 1200,
+  height: 800,
+  src: "/media/fixtures/fachada.webp",
+});
+it("validates resolved image metadata separately from persisted HERO data", () => {
+  expect(heroResolvedImageSchemaV1.parse(resolved())).toEqual(resolved());
+  expect(heroBlockDataSchemaV1.safeParse({ ...data(), image: resolved() }).success).toBe(false);
+  expect(
+    heroResolvedImageSchemaV1.safeParse({ ...resolved(), storageKey: "internal" }).success,
+  ).toBe(false);
+});
+it("requires available image metadata, allowed MIME and bounded intrinsic dimensions", () => {
+  for (const extra of [
+    { type: "DOCUMENT" },
+    { processingStatus: "PROCESSING" },
+    { deletionStatus: "REQUESTED" },
+    { deletionStatus: "FAILED" },
+    { mimeType: "image/svg+xml" },
+    { width: 0 },
+    { height: 100001 },
+    { id: "invalid" },
+  ])
+    expect(heroResolvedImageSchemaV1.safeParse({ ...resolved(), ...extra }).success).toBe(false);
+});
+it("limits image delivery metadata to normalized portal media paths without tokens/internal hosts", () => {
+  for (const src of [
+    "http://minio:9000/file",
+    "//evil.invalid/file",
+    "/media/a/../b",
+    "/media/a/./b",
+    "/media/a/%2e%2e/b",
+    "/media/a?token=secret",
+    "/media/a#fragment",
+    "/admin/media/a",
+    "data:image/png,x",
+    "/media/a\\b",
+  ])
+    expect(heroResolvedImageSchemaV1.safeParse({ ...resolved(), src }).success).toBe(false);
 });
 it("supports image-only HERO v1, optional image and explicit decorative alt", () => {
   expect(heroBlockDataSchemaV1.parse(data())).toEqual(data());

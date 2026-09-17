@@ -133,6 +133,72 @@ main {
   display: none;
 }
 
+.hero-block {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+  overflow-wrap: anywhere;
+}
+.hero-block-content {
+  min-width: 0;
+  max-width: 75ch;
+}
+.hero-block-content p {
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+.hero-block-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+.hero-block-cta {
+  display: inline-block;
+  padding: 0.75rem 1rem;
+  color: inherit;
+  border: 2px solid currentColor;
+  text-decoration: underline;
+}
+.hero-block-cta:focus-visible,
+.hero-block-editor :is(input, select, textarea, button):focus-visible {
+  outline: 3px solid var(--color-text, currentColor);
+  outline-offset: 3px;
+}
+.hero-block-editor {
+  max-width: 50rem;
+  min-width: 0;
+}
+.hero-block-editor fieldset {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem;
+  min-width: 0;
+  border: 1px solid currentColor;
+}
+.hero-block-editor :is(input:not([type="checkbox"]), select, textarea) {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  font: inherit;
+  min-height: 2.75rem;
+  padding: 0.5rem;
+}
+.hero-block-editor button {
+  font: inherit;
+  min-height: 2.75rem;
+  padding: 0.5rem;
+  justify-self: start;
+}
+.hero-block-editor p {
+  margin-block: 0.5rem;
+}
+@media (min-width: 1024px) {
+  .hero-block:has(.hero-block-image) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
 .text-block {
   max-width: 75ch;
   margin-inline: auto;
