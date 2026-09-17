@@ -133,6 +133,48 @@ main {
   display: none;
 }
 
+.text-block {
+  max-width: 75ch;
+  margin-inline: auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+}
+.text-block p,
+.text-block li,
+.text-block td,
+.text-block th {
+  white-space: pre-wrap;
+}
+.text-block a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.text-block a:focus-visible,
+.text-block-table-scroll:focus-visible {
+  outline: 3px solid var(--color-text, currentColor);
+  outline-offset: 3px;
+}
+.text-block-highlight {
+  border-inline-start: 0.25rem solid currentColor;
+  padding-inline-start: 1rem;
+}
+.text-block-table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.text-block table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.text-block th,
+.text-block td {
+  border: 1px solid currentColor;
+  padding: 0.5rem;
+  min-width: 8rem;
+  text-align: start;
+}
 .text-block-editor {
   max-width: 50rem;
   overflow-wrap: anywhere;

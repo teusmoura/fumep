@@ -1,5 +1,15 @@
 # LOOP STATUS
 
+## LOOP 5.5 — Concluído
+
+Estado inicial: 5.4 concluído em `97c28b8`, Git limpo. Escopo: renderer público TEXT v1 SSR com validação do envelope/versão, nós React escapados, semântica acessível e estilos institucionais controlados; definição TEXT completa no Registry frontend, testes e checks. Sem rota pública/Preview, endpoints, persistência, backgrounds/anchors UI, Page Builder básico ou outros blocos.
+
+Entregue: TextBlockRenderer sem hooks/I/O/HTML interpretado, envelope/versão validados antes do rendering, dados inválidos/tipos ou versões desconhecidos/ocultos retornam null; nós semânticos para todos os recursos TEXT, escaping de strings, links validados na mesma aba e ausência de links sem nome em drafts incompletos. Tabela com headers scope=col/caption e região de rolagem focável; largura de leitura 75ch, wrapping/novas linhas, sublinhado/focus-visible e cores herdadas. frontendBlockRegistry compõe somente TEXT v1 completo nos contextos PAGE/ARTICLE, sem React no módulo compartilhado API; docs registram esta separação e reutilização pelo Preview futuro. Sem nova rota ou consumidor antecipado.
+
+Checks aprovados: `pnpm --filter @fumep/web test` (75), `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm test` (348: 39 validation, 67 DB, 12 jobs, 3 storage, 122 API, 75 web, 30 Worker), `pnpm build`, `pnpm peers check`, `git diff --check`; prettier CSS recheck após ajustar largura. axe-core: zero violações semânticas no fixture SSR em jsdom, sem contraste/layout. Browser/QA visual/E2E/CI remota não executados; script test:e2e inexistente. Sem dependência/migration nova ou falha pendente.
+
+Aceite cumprido. page-builder/architecture-guard preservaram schema versionado/Registry e renderer compartilhável sem antecipar Preview/publicação; nextjs-frontend manteve SSR/tokens/semântica; testing-qa cobriu segurança/A11y/versões/bindings/regressões. Commit: `feat(builder): render structured text safely`. Próximo loop: 5.6.
+
 ## LOOP 5.4 — Concluído
 
 Estado inicial: 5.3 concluído em `f17e3fd`, Git limpo. Escopo: componente editor visual estruturado TEXT v1 com trechos/formatação, links, parágrafos/títulos/destaques, listas e tabela simples, validação antes de emitir dados ao caller, desfazer/refazer local, controles acessíveis/teclado/foco/tokens, testes e checks. Sem JSON/HTML livre, persistência própria, endpoints, renderer público, registro incompleto ou Page Builder básico.

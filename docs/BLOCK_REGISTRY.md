@@ -1,5 +1,11 @@
 # BlockRegistry
 
+## Catálogo operacional após 5.5
+
+O catálogo UI central é `frontendBlockRegistry` em `apps/web/page-builder/block-registry.ts`. Ele compõe somente definições completas e inclui TEXT v1 com schema compartilhado, editor Client e renderer SSR, nos contextos PAGE/ARTICLE. Lookup continua exato e sem fallback de versão. Outros blocos serão acrescentados somente em seus loops; o 5.30 verifica o catálogo completo. A instância vazia compartilhada abaixo permanece infraestrutura agnóstica de UI, não catálogo operacional da API. Nenhum backend deve importar o registry frontend para carregar contratos Zod.
+
+## Entrega original do 5.1
+
 Loop 5.1 entrega somente infraestrutura: `blockRegistry` de produção vazio, `BlockDefinition`, `BlockContext`, `BlockRegistry` e `createBlockRegistry`, compartilhados em @fumep/validation. Nenhum bloco concreto, schema comum, editor, renderer de conteúdo ou endpoint foi implementado.
 
 Cada definição controlada pelo código terá type, schemaVersion, zodSchema, renderer, editor, label e allowedContexts PAGE/ARTICLE, conforme §9 de PAGE_BUILDER_CONTENT_BLOCKS.md. A factory recebe definições, valida metadados/versão/contextos e recusa pares type+schemaVersion duplicados. Versões diferentes coexistem; lookup não escolhe silenciosamente versão mais nova. Contexto incompatível e tipo/versão desconhecidos retornam undefined. A futura validação/publicação deverá tratar ausência como inválida, nunca como autorização ou fallback automático.
