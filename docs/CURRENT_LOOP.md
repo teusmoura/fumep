@@ -65,48 +65,44 @@ LOOP 4.7 — CONCLUÍDO
 LOOP 4.8 — CONCLUÍDO
 LOOP 4.9 — CONCLUÍDO
 LOOP 4.10 — CONCLUÍDO
-LOOP 4.11 — ATUAL
+LOOP 4.11 — CONCLUÍDO
+LOOP 4.12 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 4.11 — Upload de PDF
+### LOOP 4.12 — Bloquear SVG editorial
 
-Estado: pronto para execução após commit do 4.10. Pipeline de imagem com estados persistidos e leitura autorizada concluído. Preservar upload, duplicidade e autorização institucional.
+Estado: pronto para execução após commit do 4.11. Imagens e PDF validados com checksum/escopo; SVG já ausente das allowlists. Consolidar regressões de segurança sem antecipar categorias.
 
 Objetivo:
 
 ```text
-Implementar upload editorial de PDF de até 30 MB.
+Comprovar que upload SVG editorial é rejeitado no backend.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop e arquitetura de Storage/Segurança; confirmar 4.10 commitado e Git limpo;
-- usar jobs-worker/media-storage/testing-qa conforme o escopo;
-- validar extensão/MIME/magic bytes e limite de 30 MB no backend;
-- salvar original PDF no MinIO com UUID/chave relativa documents/<uuid>.pdf;
-- persistir Media DOCUMENT, SHA-256 obrigatório e auditoria, sem enfileirar Sharp;
-- preservar escopo institucional/CSRF/duplicidade aplicáveis e contratos OpenAPI/Zod;
-- interface administrativa mínima para envio de PDF, sem biblioteca pública independente;
-- manter processamento fora do HTTP e payload sem bytes/credenciais;
-- testar arquivo válido/inválido, limites, autorização, duplicidade e falhas de storage/persistência;
-- não executar processamento no request NestJS;
+- reler AGENTS.md, execute-loop e documentos Storage/Segurança; confirmar 4.11 commitado e Git limpo;
+- usar media-storage/security-access/testing-qa no escopo;
+- testar EDITOR autorizado tentando SVG nas rotas de imagem e PDF, inclusive extensão/MIME disfarçados;
+- garantir rejeição antes de storage/Media/auditoria de upload/enqueue, não confiar no accept HTML;
+- preservar uploads válidos e autorização/CSRF;
+- documentar bloqueio editorial SVG V1;
 - checks, documentação, commit e Git limpo.
 
 Não implementar:
 
-- gestão completa de categorias, MediaUsage, logos e biblioteca pública de documentos; não inventar visualizador PDF próprio;
-- upload direto Browser → MinIO ou armazenamento físico no PostgreSQL.
+- gestão de categorias, MediaUsage, logos, sanitização/allowlist SVG ou novos formatos.
 
 Critério de aceite:
 
 ```text
-PDF de até 30 MB enviado por usuário autorizado, validado e persistido com checksum, sem processamento Sharp; testes/checks verdes.
+Upload .svg por EDITOR autorizado rejeitado, sem efeitos persistidos; testes/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 4.12 — Bloquear SVG editorial
+LOOP 4.13 — MediaCategory
 ```

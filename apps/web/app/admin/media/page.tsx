@@ -6,12 +6,17 @@ export default async function MediaUploadPage() {
   const context = cookie ? await loadUploadContext(`fumep_session=${cookie.value}`) : undefined;
   return (
     <main id="main-content" className="media-upload-page">
-      <h1>Enviar imagem</h1>
+      <h1>Enviar arquivos</h1>
       {context ? (
-        <ImageUploadForm {...context} />
+        <>
+          <h2>Imagem</h2>
+          <ImageUploadForm {...context} />
+          <h2>Documento PDF</h2>
+          <ImageUploadForm {...context} kind="pdf" />
+        </>
       ) : (
         <p>
-          Entre com uma sessão administrativa válida para enviar imagens. Se já entrou, tente
+          Entre com uma sessão administrativa válida para enviar arquivos. Se já entrou, tente
           novamente.
         </p>
       )}

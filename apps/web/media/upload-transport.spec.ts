@@ -1,12 +1,35 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
-import { proxyImageUpload, proxyMediaSelection } from "./upload-proxy";
+import { proxyImageUpload, proxyPdfUpload, proxyMediaSelection } from "./upload-proxy";
 import { loadUploadContext } from "./upload-context";
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
 });
 describe("server-only upload transport", () => {
+  it("streams PDF only to documents endpoint with independent 30 MB transport limit", async () => {
+    vi.stubEnv("API_INTERNAL_URL", "http://api.internal:3001");
+    const fetcher = vi.fn().mockResolvedValue(new Response(null, { status: 201 }));
+    vi.stubGlobal("fetch", fetcher);
+    const headers = {
+      "content-length": String(30 * 1024 * 1024 + 4096),
+      "x-csrf-token": "fixture",
+    };
+    const response = await proxyPdfUpload(
+      new Request("http://localhost/upload-pdf", { method: "POST", headers }),
+    );
+    expect(response.status).toBe(201);
+    expect(fetcher.mock.calls[0][0].pathname).toBe("/api/v1/media/documents");
+    expect(fetcher.mock.calls[0][1].headers.get("x-csrf-token")).toBe("fixture");
+    const rejected = await proxyPdfUpload(
+      new Request("http://localhost/upload-pdf", {
+        method: "POST",
+        headers: { "content-length": String(30 * 1024 * 1024 + 4097) },
+      }),
+    );
+    expect(rejected.status).toBe(413);
+    expect(fetcher).toHaveBeenCalledOnce();
+  });
   it("forwards selection only to the defined backend endpoint with CSRF and JSON", async () => {
     vi.stubEnv("API_INTERNAL_URL", "http://api.internal:3001");
     const fetcher = vi.fn().mockResolvedValue(Response.json({ id: "fixture" }));

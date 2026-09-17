@@ -27,7 +27,7 @@ import {
   ApiNotFoundResponse,
   ApiResponse,
 } from "@nestjs/swagger";
-import { IMAGE_MAX_BYTES } from "@fumep/validation";
+import { IMAGE_MAX_BYTES, PDF_MAX_BYTES } from "@fumep/validation";
 import { SessionGuard, type AuthenticatedRequest } from "../auth/session.guard.js";
 import { CsrfGuard } from "../auth/csrf.guard.js";
 import { MediaService } from "./media.service.js";
@@ -103,6 +103,68 @@ export class MediaController {
     @Res({ passthrough: true }) response?: Response,
   ) {
     const result = await this.media.upload(request.auth, body, file);
+    if ("duplicate" in result) response?.status(200);
+    return result;
+  }
+  @Post("documents")
+  @ApiConsumes("multipart/form-data")
+  @ApiBody({
+    schema: {
+      type: "object",
+      additionalProperties: false,
+      required: ["file"],
+      properties: {
+        file: { type: "string", format: "binary" },
+        categoryId: { type: "string", format: "uuid" },
+        uploadAnyway: { type: "string", enum: ["true", "false"] },
+      },
+    },
+  })
+  @ApiCreatedResponse({
+    description: "PDF original salvo com SHA-256, READY, sem Sharp ou URL interna",
+    schema: {
+      type: "object",
+      additionalProperties: false,
+      required: [
+        "id",
+        "originalFilename",
+        "mimeType",
+        "sizeBytes",
+        "categoryId",
+        "processingStatus",
+      ],
+      properties: {
+        id: { type: "string", format: "uuid" },
+        originalFilename: { type: "string" },
+        mimeType: { type: "string", enum: ["application/pdf"] },
+        sizeBytes: { type: "integer", minimum: 1, maximum: PDF_MAX_BYTES },
+        categoryId: { type: "string", format: "uuid", nullable: true },
+        processingStatus: { type: "string", enum: ["READY"] },
+      },
+    },
+  })
+  @ApiOkResponse({
+    description: "PDF duplicado autorizado; usar existente ou enviar assim mesmo",
+    schema: {
+      type: "object",
+      required: ["duplicate", "existing"],
+      properties: { duplicate: { type: "boolean", enum: [true] }, existing: { type: "object" } },
+    },
+  })
+  @ApiResponse({ status: 413, description: "PDF excede 30 MB" })
+  @ApiResponse({ status: 503, description: "Falha ao salvar PDF" })
+  @UseInterceptors(
+    FileInterceptor("file", {
+      limits: { fileSize: PDF_MAX_BYTES + 1, files: 1, fields: 2, parts: 4, fieldSize: 100 },
+    }),
+  )
+  async uploadPdf(
+    @Req() request: AuthenticatedRequest,
+    @Body() body: unknown,
+    @UploadedFile() file?: Express.Multer.File,
+    @Res({ passthrough: true }) response?: Response,
+  ) {
+    const result = await this.media.upload(request.auth, body, file, "DOCUMENT");
     if ("duplicate" in result) response?.status(200);
     return result;
   }

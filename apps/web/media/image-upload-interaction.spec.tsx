@@ -8,6 +8,50 @@ afterEach(() => {
   document.body.innerHTML = "";
 });
 describe("image upload interaction", () => {
+  it.each(["select", "copy"])(
+    "uploads PDFs with CSRF and supports duplicate %s",
+    async (choice) => {
+      vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
+      const existing = {
+        id: crypto.randomUUID(),
+        originalFilename: "matriz.pdf",
+        mimeType: "application/pdf",
+        sizeBytes: 30 * 1024 * 1024,
+        categoryId: null,
+        processingStatus: "READY",
+      };
+      const fetcher = vi
+        .fn()
+        .mockResolvedValueOnce({ ok: true, json: async () => ({ duplicate: true, existing }) })
+        .mockResolvedValueOnce({ ok: true, json: async () => existing });
+      vi.stubGlobal("fetch", fetcher);
+      const container = document.createElement("div");
+      document.body.append(container);
+      const root = createRoot(container);
+      await act(() =>
+        root.render(
+          <ImageUploadForm csrfToken="fixture-csrf" isAdmin categories={[]} kind="pdf" />,
+        ),
+      );
+      await act(() => {
+        container
+          .querySelector("form")!
+          .dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+      });
+      expect(fetcher.mock.calls[0][0]).toBe("/admin/media/upload-pdf");
+      expect(fetcher.mock.calls[0][1].headers["X-CSRF-Token"]).toBe("fixture-csrf");
+      expect(document.activeElement).toBe(container.querySelectorAll("button")[1]);
+      await act(() => container.querySelectorAll("button")[choice === "select" ? 1 : 2].click());
+      expect(fetcher.mock.calls[1][0]).toBe(
+        choice === "select" ? "/admin/media/select" : "/admin/media/upload-pdf",
+      );
+      expect(container.querySelector('[role="status"]')!.textContent).toContain(
+        choice === "select" ? "Nenhum novo upload" : "PDF salvo; pronto para uso",
+      );
+      expect(document.activeElement).toBe(container.querySelector("input"));
+      await act(() => root.unmount());
+    },
+  );
   it("focuses duplicate choices and selects existing media without another binary upload", async () => {
     vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
     const existing = {

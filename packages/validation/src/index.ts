@@ -12,6 +12,7 @@ export const mediaProcessingResponseSchema = z
   })
   .strict();
 export const IMAGE_MAX_BYTES = 15 * 1024 * 1024;
+export const PDF_MAX_BYTES = 30 * 1024 * 1024;
 export const mediaUploadFieldsSchema = z
   .object({
     categoryId: z.uuid().optional(),
@@ -50,7 +51,13 @@ export const mediaUploadResponseSchema = z
   })
   .strict();
 export type MediaCategoryOption = z.infer<typeof mediaCategoryOptionSchema>;
+export const pdfUploadResponseSchema = mediaUploadResponseSchema.extend({
+  mimeType: z.literal("application/pdf"),
+  sizeBytes: z.number().int().positive().max(PDF_MAX_BYTES),
+  processingStatus: z.literal("READY"),
+});
 export const mediaSelectionResponseSchema = mediaUploadResponseSchema.extend({
+  sizeBytes: z.number().int().positive().max(PDF_MAX_BYTES),
   processingStatus: z.enum(["PENDING", "PROCESSING", "READY", "FAILED"]),
 });
 export const mediaDuplicateResponseSchema = z

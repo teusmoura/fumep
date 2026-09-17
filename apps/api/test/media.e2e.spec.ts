@@ -4,7 +4,7 @@ import { UnauthorizedException, type INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { createDatabase } from "@fumep/db";
-import { IMAGE_MAX_BYTES } from "@fumep/validation";
+import { IMAGE_MAX_BYTES, PDF_MAX_BYTES } from "@fumep/validation";
 import { config } from "dotenv";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
@@ -91,6 +91,129 @@ describe("Image upload through NestJS to real MinIO/PostgreSQL", () => {
     await client`DELETE FROM users WHERE id = ${userId}`;
     await app?.close();
     await client.end();
+  });
+  it("stores PDF originals with checksum and audit, reuses duplicates without Sharp", async () => {
+    const pdf = Buffer.from("%PDF-1.7\n1 0 obj\n<< /Type /Catalog >>\nendobj\n%%EOF\n");
+    const before = enqueue.mock.calls.length;
+    const uploaded = await mutate("documents", "editor")
+      .field("categoryId", categoryIds[0])
+      .attach("file", pdf, { filename: "matriz.PDF", contentType: "application/pdf" })
+      .expect(201);
+    keys.push(`documents/${uploaded.body.id}.pdf`);
+    expect(uploaded.body).toMatchObject({
+      processingStatus: "READY",
+      mimeType: "application/pdf",
+      sizeBytes: pdf.length,
+    });
+    const [row] = await client`SELECT * FROM media WHERE id = ${uploaded.body.id}`;
+    expect(row.type).toBe("DOCUMENT");
+    expect(row.width).toBeNull();
+    expect(row.height).toBeNull();
+    expect(row.storage_key).toBe(`documents/${uploaded.body.id}.pdf`);
+    expect(row.checksum_sha256).toBe(createHash("sha256").update(pdf).digest("hex"));
+    expect(await storage.read(row.storage_key, PDF_MAX_BYTES)).toEqual(pdf);
+    const [audit] =
+      await client`SELECT action FROM audit_logs WHERE entity_id = ${uploaded.body.id}`;
+    expect(audit.action).toBe("MEDIA_UPLOADED");
+    const put = vi.spyOn(storage, "put");
+    const warning = await mutate("documents", "editor")
+      .field("categoryId", categoryIds[0])
+      .attach("file", pdf, "duplicate.pdf")
+      .expect(200);
+    expect(warning.body.existing.id).toBe(uploaded.body.id);
+    const selected = await mutate("selection", "editor").send({ id: uploaded.body.id }).expect(200);
+    expect(selected.body).toEqual(warning.body.existing);
+    expect(put).not.toHaveBeenCalled();
+    const copy = await mutate("documents", "editor")
+      .field("categoryId", categoryIds[0])
+      .field("uploadAnyway", "true")
+      .attach("file", pdf, "copy.pdf")
+      .expect(201);
+    keys.push(`documents/${copy.body.id}.pdf`);
+    expect(copy.body.id).not.toBe(uploaded.body.id);
+    expect(enqueue.mock.calls.length).toBe(before);
+    put.mockRestore();
+  });
+  it("rejects unauthorized/unprotected PDF and does not disclose foreign duplicates", async () => {
+    const pdf = Buffer.from(`%PDF-2.0\n${userId}\n%%EOF\n`);
+    await request(app.getHttpServer())
+      .post("/api/v1/media/documents")
+      .attach("file", pdf, "a.pdf")
+      .expect(401);
+    await request(app.getHttpServer())
+      .post("/api/v1/media/documents")
+      .set("Cookie", "fumep_session=admin")
+      .attach("file", pdf, "a.pdf")
+      .expect(403);
+    for (const category of [categoryIds[1], categoryIds[2], undefined]) {
+      const operation = mutate("documents", "editor");
+      if (category) operation.field("categoryId", category);
+      await operation.attach("file", pdf, "a.pdf").expect(403);
+    }
+    const foreign = await mutate("documents")
+      .field("categoryId", categoryIds[1])
+      .attach("file", pdf, "a.pdf")
+      .expect(201);
+    keys.push(`documents/${foreign.body.id}.pdf`);
+    const local = await mutate("documents", "editor")
+      .field("categoryId", categoryIds[0])
+      .attach("file", pdf, "a.pdf")
+      .expect(201);
+    keys.push(`documents/${local.body.id}.pdf`);
+    expect(local.body).not.toHaveProperty("duplicate");
+    expect(local.text).not.toContain(foreign.body.id);
+    await mutate("selection", "editor").send({ id: foreign.body.id }).expect(403);
+    await mutate("selection").send({ id: foreign.body.id }).expect(200);
+  });
+  it("enforces PDF signatures and exact 30 MB boundary before writes", async () => {
+    const put = vi.spyOn(storage, "put");
+    for (const [bytes, filename, contentType] of [
+      [png, "a.pdf", "application/pdf"],
+      [Buffer.from("<svg/>"), "a.pdf", "application/pdf"],
+      [Buffer.from("%PDF-1.7\n"), "a.exe", "application/pdf"],
+      [Buffer.from("%PDF-1.7\n"), "a.pdf", "image/png"],
+    ] as const)
+      await mutate("documents").attach("file", bytes, { filename, contentType }).expect(400);
+    for (const size of [PDF_MAX_BYTES + 1, PDF_MAX_BYTES + 2]) {
+      const excess = Buffer.alloc(size);
+      excess.write("%PDF-1.7\n");
+      await mutate("documents").attach("file", excess, "large.pdf").expect(413);
+    }
+    expect(put).not.toHaveBeenCalled();
+    put.mockRestore();
+    const maximum = Buffer.alloc(PDF_MAX_BYTES);
+    maximum.write("%PDF-1.7\n");
+    const saved = await mutate("documents").attach("file", maximum, "maximum.pdf").expect(201);
+    keys.push(`documents/${saved.body.id}.pdf`);
+    expect(saved.body.sizeBytes).toBe(PDF_MAX_BYTES);
+    await mutate("selection").send({ id: saved.body.id }).expect(200);
+  });
+  it("compensates failed PDF persistence and reports storage failure safely", async () => {
+    const pdf = Buffer.from(`%PDF-1.7\n${randomUUID()}\n%%EOF\n`);
+    const before = await client`SELECT count(*) FROM media WHERE uploaded_by = ${userId}`;
+    const create = vi.spyOn(store, "create").mockRejectedValueOnce(new Error("secret SQL"));
+    const remove = vi.spyOn(storage, "remove");
+    const failed = await mutate("documents").attach("file", pdf, "a.pdf").expect(503);
+    expect(failed.text).not.toContain("secret");
+    expect(remove).toHaveBeenCalledOnce();
+    await expect(
+      storage.client().statObject("portal-public", remove.mock.calls[0][0]),
+    ).rejects.toThrow();
+    create.mockRestore();
+    remove.mockRestore();
+    const put = vi.spyOn(storage, "put").mockRejectedValueOnce(new Error("secret storage"));
+    const broken = await mutate("documents").attach("file", pdf, "a.pdf").expect(503);
+    expect(broken.text).not.toContain("secret");
+    expect(await client`SELECT count(*) FROM media WHERE uploaded_by = ${userId}`).toEqual(before);
+    put.mockRestore();
+    const document = SwaggerModule.createDocument(
+      app,
+      new DocumentBuilder().addCookieAuth("fumep_session").build(),
+    );
+    expect(document.paths["/api/v1/media/documents"].post?.requestBody).toHaveProperty(
+      "content.multipart/form-data",
+    );
+    expect(document.paths["/api/v1/media/documents"].post?.responses).toHaveProperty("413");
   });
   it("stores identical original bytes, safe names, checksum, category and audit", async () => {
     const response = await mutate("images", "editor")

@@ -24,8 +24,8 @@ export class MediaStore implements OnModuleDestroy {
   media(id: string) {
     return new MediaRepository(this.database()).findById(id);
   }
-  duplicate(checksum: string, institutions?: string[]) {
-    return new MediaRepository(this.database()).findDuplicate(checksum, institutions);
+  duplicate(checksum: string, institutions?: string[], type: "IMAGE" | "DOCUMENT" = "IMAGE") {
+    return new MediaRepository(this.database()).findDuplicate(checksum, institutions, type);
   }
   recordDuplicate(userId: string, mediaId: string) {
     return this.database().insert(auditLogs).values({

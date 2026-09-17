@@ -1,4 +1,4 @@
-# Upload de imagem — loop 4.2
+# Upload editorial de imagens e PDF — loops 4.2–4.11
 
 Fluxo: navegador → Next.js → NestJS → MinIO → PostgreSQL. O original permanece no storage; metadados e auditoria ficam no banco. Não existe upload direto ao MinIO ou URL interna entregue ao navegador.
 
@@ -6,9 +6,17 @@ Fluxo: navegador → Next.js → NestJS → MinIO → PostgreSQL. O original per
 
 Com uma sessão administrativa válida, acessar `/admin/media`. O login visual completo não pertence a este loop; a sessão é criada pelo endpoint de autenticação existente. O formulário usa cookie HttpOnly automaticamente e o token CSRF obtido do backend, somente em memória.
 
-Formatos: JPEG, PNG, WebP e AVIF. Limite: 15 × 1024 × 1024 bytes. Extensão, MIME e assinatura precisam corresponder. SVG e PDF não são aceitos neste estágio. Nome original é metadado; chave interna é `images/originals/<uuid>.<extensão>`.
+Imagens: JPEG, PNG, WebP e AVIF. Limite: 15 × 1024 × 1024 bytes. Extensão, MIME e assinatura precisam corresponder. SVG não é aceito. Nome original é metadado; chave interna é `images/originals/<uuid>.<extensão>`.
 
-Após sucesso, o original está salvo e o status é `PENDING`. Fila, processamento e variantes pertencem aos loops 4.6–4.10; não indicar que a imagem já foi processada.
+Após sucesso de imagem, o original está salvo e o status é `PENDING`. BullMQ/Worker/Sharp geram variantes e persistem READY ou FAILED (loops 4.6–4.10); não indicar processamento concluído no retorno do upload.
+
+## PDF — loop 4.11
+
+O segundo formulário em `/admin/media` aceita `.pdf` (case-insensitive), MIME `application/pdf` e assinatura `%PDF-1.0` até `%PDF-1.7` ou `%PDF-2.0` seguida de quebra de linha. Limite inclusivo: 30 × 1024 × 1024 bytes. O backend valida também tamanho real do Buffer e nome; não confia no filtro HTML. A validação é de assinatura, não um parser completo, antivírus ou remoção de conteúdo ativo.
+
+`POST /api/v1/media/documents` recebe `file`, `categoryId` opcional para ADMIN e `uploadAnyway` opcional. O proxy same-origin é `/admin/media/upload-pdf`. Mantém sessão/CSRF/escopo e as mesmas escolhas de duplicidade, consultadas por checksum e tipo DOCUMENT dentro das instituições autorizadas. EDITOR não pode usar arquivos globais/estrangeiros.
+
+O original é salvo como `documents/<uuid>.pdf`; Media usa DOCUMENT, SHA-256 obrigatório, dimensões nulas e READY após armazenamento e transação de metadados/auditoria. Não enfileira PROCESS_MEDIA nem executa Sharp. Retorna apenas id/nome/MIME/tamanho/categoria/status (201), aviso autorizado de duplicata (200), entrada inválida (400), tamanho excessivo (413) ou falha de gravação amigável (503). A seleção existente aceita PDF e preserva nova checagem institucional, sem MediaUsage. Sem visualizador próprio, endpoint público ou biblioteca independente nesta etapa.
 
 SHA-256 é obrigatório e calculado no servidor sobre o Buffer original, antes da gravação no MinIO. Nome/categoria não entram no hash; checksum fornecido pelo cliente é rejeitado. O índice não é único, preservando registros distintos com os mesmos bytes.
 

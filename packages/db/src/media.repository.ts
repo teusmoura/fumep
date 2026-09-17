@@ -26,7 +26,11 @@ export class MediaRepository {
   async findById(id: string): Promise<Media | undefined> {
     return this.database.query.media.findFirst({ where: eq(media.id, id) });
   }
-  async findDuplicate(checksum: string, institutionIds?: string[]): Promise<Media | undefined> {
+  async findDuplicate(
+    checksum: string,
+    institutionIds?: string[],
+    type: "IMAGE" | "DOCUMENT" = "IMAGE",
+  ): Promise<Media | undefined> {
     if (institutionIds?.length === 0) return undefined;
     const [result] = await this.database
       .select({ media })
@@ -35,7 +39,7 @@ export class MediaRepository {
       .where(
         and(
           eq(media.checksumSha256, checksum),
-          eq(media.type, "IMAGE"),
+          eq(media.type, type),
           institutionIds ? inArray(mediaCategories.institutionId, institutionIds) : undefined,
         ),
       )

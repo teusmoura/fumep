@@ -3,13 +3,16 @@ import "server-only";
 export function proxyImageUpload(request: Request): Promise<Response> {
   return proxy(request, "/api/v1/media/images", 15 * 1024 * 1024 + 4096);
 }
+export function proxyPdfUpload(request: Request): Promise<Response> {
+  return proxy(request, "/api/v1/media/documents", 30 * 1024 * 1024 + 4096);
+}
 export function proxyMediaSelection(request: Request): Promise<Response> {
   return proxy(request, "/api/v1/media/selection", 4096);
 }
 async function proxy(request: Request, endpoint: string, maximumLength: number): Promise<Response> {
   const length = Number(request.headers.get("content-length"));
   if (length > maximumLength)
-    return Response.json({ message: "Imagem excede 15 MB" }, { status: 413 });
+    return Response.json({ message: "Arquivo excede o limite permitido" }, { status: 413 });
   const headers = new Headers();
   for (const name of ["cookie", "origin", "referer", "x-csrf-token", "content-type"]) {
     const value = request.headers.get(name);
@@ -34,7 +37,7 @@ async function proxy(request: Request, endpoint: string, maximumLength: number):
     });
   } catch {
     return Response.json(
-      { message: "Não foi possível enviar a imagem. Tente novamente." },
+      { message: "Não foi possível enviar o arquivo. Tente novamente." },
       { status: 503 },
     );
   }

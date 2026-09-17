@@ -1,5 +1,16 @@
 # LOOP STATUS
 
+## LOOP 4.11 — Concluído
+
+Estado inicial: 4.10 concluído em `f042488`, Git limpo.
+Escopo: PDF até 30 MB com extensão/MIME/magic bytes, SHA-256, original UUID no MinIO, Media DOCUMENT READY sem fila Sharp, autorização institucional/CSRF/duplicidade, formulário mínimo e testes/checks. Sem gestão completa de categorias, MediaUsage ou visualizador PDF.
+
+Entregue: POST media/documents com contratos Zod/OpenAPI, validação inclusiva de 30 MiB, extensão/MIME/assinatura PDF, checksum obrigatório, original documents/UUID.pdf e auditoria transacional; READY sem enfileirar Sharp. Duplicidade por tipo/checksum/escopo, escolha existente reautorizada e confirmação de cópia independente. Formulário PDF/proxy same-origin reutilizam o fluxo acessível de imagem com IDs distintos, CSRF e foco restaurado.
+
+Checks aprovados: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` (256: 19 validation, 47 DB, 12 jobs, 3 storage, 113 API, 42 web, 20 worker), `pnpm build`, `pnpm peers check`, `pnpm --filter @fumep/api --filter @fumep/web test`, Prettier workflow e `git diff --check`. Sem schema/migration/dependências novas. Testes MinIO/PostgreSQL reais cobrem bytes/checksum/auditoria, exato máximo/excesso, extensão/MIME/assinatura, CSRF/escopo/duplicidade e compensação/falhas. Vitest/jsdom cobrem labels/IDs, transporte, duplicata e foco. Browser E2E/axe/QA visual/CI remota não executados; não existe script test:e2e.
+
+Aceite cumprido, nenhuma falha pendente. media-storage orientou limites e assinatura (não parser completo/antivírus); jobs-worker restringiu fila a imagens; security-access/nestjs-api preservaram autorização; nextjs-frontend orientou reaproveitamento sem IDs duplicados; testing-qa cobriu limites e regressões. Commit: `feat(media): support authorized PDF uploads without image jobs`.
+
 ## LOOP 0.1 — Concluído
 
 Implementado:

@@ -11,6 +11,7 @@ import {
   createMediaCategorySchema,
   mediaUploadFieldsSchema,
   mediaUploadResponseSchema,
+  pdfUploadResponseSchema,
   mediaDuplicateResponseSchema,
   mediaSelectionRequestSchema,
   mediaSelectionResponseSchema,
@@ -21,6 +22,7 @@ import type { Media } from "@fumep/db";
 import { MediaStore } from "./media.store.js";
 import { MediaStorage } from "./media.storage.js";
 import { validateImage } from "./image-validation.js";
+import { validatePdf } from "./pdf-validation.js";
 import { mediaChecksum } from "./media-checksum.js";
 import { MediaQueueProvider } from "./media-queue.provider.js";
 
@@ -57,20 +59,26 @@ export class MediaService {
       throw new BadRequestException("Não foi possível criar categoria; verifique o slug");
     }
   }
-  async upload(session: SessionData, fields: unknown, file?: Express.Multer.File) {
+  async upload(
+    session: SessionData,
+    fields: unknown,
+    file?: Express.Multer.File,
+    type: "IMAGE" | "DOCUMENT" = "IMAGE",
+  ) {
     const parsed = mediaUploadFieldsSchema.safeParse(fields);
     if (!parsed.success) throw new BadRequestException("Campos de upload inválidos");
     const categoryId = parsed.data.categoryId ?? null;
     const category = categoryId ? await this.store.category(categoryId) : undefined;
     if (categoryId && !category) throw new NotFoundException("Categoria inexistente");
     this.authorize(session, category?.institutionId ?? null);
-    const extension = validateImage(file);
+    const extension = type === "IMAGE" ? validateImage(file) : validatePdf(file);
     const image = file!;
     const checksumSha256 = mediaChecksum(image.buffer);
     if (!parsed.data.uploadAnyway) {
       const existing = await this.store.duplicate(
         checksumSha256,
         session.role === "ADMIN" ? undefined : session.institutionIds,
+        type,
       );
       if (existing) {
         await this.store.recordDuplicate(session.userId, existing.id);
@@ -82,20 +90,24 @@ export class MediaService {
     }
     const id = randomUUID();
     const storedFilename = `${id}${extension}`;
-    const key = `images/originals/${storedFilename}`;
-    const response = mediaUploadResponseSchema.parse({
-      id,
-      originalFilename: image.originalname,
-      mimeType: image.mimetype,
-      sizeBytes: image.buffer.length,
-      categoryId,
-      processingStatus: "PENDING",
-    });
+    const key = `${type === "IMAGE" ? "images/originals" : "documents"}/${storedFilename}`;
+    const processingStatus = type === "IMAGE" ? "PENDING" : "READY";
+    const response = (type === "IMAGE" ? mediaUploadResponseSchema : pdfUploadResponseSchema).parse(
+      {
+        id,
+        originalFilename: image.originalname,
+        mimeType: image.mimetype,
+        sizeBytes: image.buffer.length,
+        categoryId,
+        processingStatus,
+      },
+    );
     try {
       await this.storage.put(key, image.buffer, image.mimetype);
       await this.store.create({
         id,
-        type: "IMAGE",
+        type,
+        processingStatus,
         categoryId,
         originalFilename: image.originalname,
         storedFilename,
@@ -111,14 +123,15 @@ export class MediaService {
       } catch {
         this.logger.error(`Upload compensation failed for media ${id}`);
       }
-      throw new ServiceUnavailableException("Não foi possível salvar a imagem. Tente novamente.");
+      throw new ServiceUnavailableException("Não foi possível salvar o arquivo. Tente novamente.");
     }
     // Derived enqueue failure must never compensate persisted Media.
-    try {
-      await this.jobs.producer.enqueue(id);
-    } catch {
-      this.logger.error(JSON.stringify({ event: "media_enqueue_failed", media_id: id }));
-    }
+    if (type === "IMAGE")
+      try {
+        await this.jobs.producer.enqueue(id);
+      } catch {
+        this.logger.error(JSON.stringify({ event: "media_enqueue_failed", media_id: id }));
+      }
     return response;
   }
   private selection(media: Media) {
@@ -135,7 +148,14 @@ export class MediaService {
     const parsed = mediaSelectionRequestSchema.safeParse(body);
     if (!parsed.success) throw new BadRequestException("Seleção inválida");
     const media = await this.store.media(parsed.data.id);
-    if (!media || media.type !== "IMAGE") throw new NotFoundException("Mídia inexistente");
+    if (
+      !media ||
+      !(
+        media.type === "IMAGE" ||
+        (media.type === "DOCUMENT" && media.mimeType === "application/pdf")
+      )
+    )
+      throw new NotFoundException("Mídia inexistente");
     const category = media.categoryId ? await this.store.category(media.categoryId) : undefined;
     this.authorize(session, category?.institutionId ?? null);
     return this.selection(media);

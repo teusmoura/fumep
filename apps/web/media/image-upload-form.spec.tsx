@@ -2,6 +2,20 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { ImageUploadForm } from "./image-upload-form";
 describe("ImageUploadForm", () => {
+  it("renders distinct PDF labels, signature hint and 30 MB limit alongside image controls", () => {
+    const html = renderToStaticMarkup(
+      <>
+        <ImageUploadForm csrfToken="" isAdmin categories={[]} />
+        <ImageUploadForm csrfToken="" isAdmin categories={[]} kind="pdf" />
+      </>,
+    );
+    expect(html).toContain('for="upload-pdf"');
+    expect(html).toContain('for="pdf-upload-category"');
+    expect(html).toContain('aria-describedby="pdf-help"');
+    expect(html).toContain('accept=".pdf,application/pdf"');
+    expect(html).toContain("PDF até 30 MB");
+    expect((html.match(/id="upload-category"/g) ?? []).length).toBe(1);
+  });
   it("renders labeled controls and status without internal storage or credentials", () => {
     const html = renderToStaticMarkup(
       <ImageUploadForm
