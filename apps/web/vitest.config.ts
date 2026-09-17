@@ -9,6 +9,8 @@ export default defineConfig({
       "institution/**/*.spec.tsx",
       "media/**/*.spec.ts",
       "media/**/*.spec.tsx",
+      "page-builder/**/*.spec.ts",
+      "page-builder/**/*.spec.tsx",
     ],
   },
 });

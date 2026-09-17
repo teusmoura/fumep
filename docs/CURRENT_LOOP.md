@@ -75,43 +75,44 @@ LOOP 4.17 — CONCLUÍDO
 LOOP 5.1 — CONCLUÍDO
 LOOP 5.2 — CONCLUÍDO
 LOOP 5.3 — CONCLUÍDO
-LOOP 5.4 — ATUAL
+LOOP 5.4 — CONCLUÍDO
+LOOP 5.5 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 5.4 — TEXT editor
+### LOOP 5.5 — TEXT renderer
 
-Estado: pronto para execução após commit do 5.3. Contrato TEXT v1 estruturado/seguro implementado e checks verdes (334 testes). Revalidar commit/Git limpo antes de iniciar.
+Estado: pronto para execução após commit do 5.4. Schema e editor TEXT v1 implementados, checks verdes (342 testes). Revalidar commit/Git limpo antes de iniciar.
 
 Objetivo:
 
 ```text
-Editor visual TEXT usando o contrato v1, com feedback e edição controlada/acessível.
+Renderer público TEXT usando o contrato v1, sem HTML livre e compartilhável com Preview futuro.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop, plano e PAGE_BUILDER_CONTENT_BLOCKS.md/FRONTEND; confirmar 5.3 commitado e Git limpo;
+- reler AGENTS.md, execute-loop, plano e PAGE_BUILDER_CONTENT_BLOCKS.md/FRONTEND; confirmar 5.4 commitado e Git limpo;
 - usar page-builder, nextjs-frontend, architecture-guard e testing-qa conforme escopo;
-- implementar somente editor visual TEXT, consumindo os schemas/tipos/limites v1 existentes;
-- permitir edição controlada dos recursos TEXT, feedback de validação, teclado/foco e configuração institucional via tokens, sem HTML/CSS/grid livres;
-- manter componente sem persistência própria ou autoridade sobre proprietário; integração backend/Page Builder básico pertence aos loops posteriores;
-- não registrar definição incompleta sem renderer nem antecipar o renderer público;
+- implementar somente renderer público TEXT SSR, consumindo schemas/tipos v1 e escapando texto sem dangerouslySetInnerHTML;
+- renderizar recursos TEXT com semântica acessível, URLs validadas, responsividade e tokens institucionais;
+- compor definição TEXT v1 completa com schema/editor/renderer no Registry frontend, sem importar React na API;
+- manter componente sem endpoints, persistência ou autoridade sobre proprietário; Preview/Page Builder básico pertencem aos loops posteriores;
 - testes, checks disponíveis, documentação, commit e Git limpo.
 
 Não implementar:
 
-- TEXT renderer público (5.5), outros blocos, Page Builder básico, endpoints/preview/publicação ou novos consumidores antecipados.
+- HERO ou outros blocos, Page Builder básico, endpoints/preview/publicação ou novos consumidores antecipados.
 
 Critério de aceite:
 
 ```text
-Editor visual TEXT seguro e acessível implementado, testado, documentado e checks verdes.
+Renderer TEXT seguro e acessível e definição versionada completa implementados, testados, documentados e checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 5.5 — TEXT renderer
+LOOP 5.6 — HERO v1
 ```

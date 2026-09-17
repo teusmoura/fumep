@@ -1,5 +1,15 @@
 # LOOP STATUS
 
+## LOOP 5.4 — Concluído
+
+Estado inicial: 5.3 concluído em `f17e3fd`, Git limpo. Escopo: componente editor visual estruturado TEXT v1 com trechos/formatação, links, parágrafos/títulos/destaques, listas e tabela simples, validação antes de emitir dados ao caller, desfazer/refazer local, controles acessíveis/teclado/foco/tokens, testes e checks. Sem JSON/HTML livre, persistência própria, endpoints, renderer público, registro incompleto ou Page Builder básico.
+
+Entregue: componente Client TextBlockEditor e subeditores de conteúdo/trechos/tabela, reducer com histórico local limitado a 20 operações, validação Zod compartilhada antes de onApply, draft inválido retido para correção, callback async com bloqueio concorrente e recuperação de falha. Controles nativos/labels/fieldset, URLs com aria-invalid e ajuda, feedback/foco no status, tabela semântica com rolagem focável e estilos por tokens existentes. Dados iniciais inválidos não são substituídos. Nenhuma persistência/rede/autoridade sobre proprietário. TEXT_EDITOR_V1.md documenta montagem por key e responsabilidade futura do caller. Registry continua vazio até definição completa no 5.5.
+
+Checks aprovados: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` (342: 39 validation, 67 DB, 12 jobs, 3 storage, 122 API, 69 web, 30 Worker), `pnpm build`, `pnpm peers check`, `git diff --check`; web focado inicial 68 testes. axe-core nos testes ativos/com erro e desabilitados: zero violações em jsdom, contraste desativado por ausência de layout. Browser/QA visual/contraste/E2E/CI remota não executados; script test:e2e inexistente. Dependência dev axe-core instalada do cache existente; primeira tentativa falhou por store incompatível, segunda com store dos módulos existentes resolveu sem reinstalar. Nenhuma falha de teste/build pendente.
+
+Aceite cumprido. page-builder/architecture-guard preservaram estrutura versionada sem HTML/CSS livre, publicação ou integração antecipada. nextjs-frontend manteve interação Client isolada, tokens/foco e controles nativos; testing-qa cobriu segurança/estado/A11y/regressões. Commit: `feat(builder): add structured text editor`. Próximo loop: 5.5.
+
 ## LOOP 5.3 — Concluído
 
 Estado inicial: 5.2 concluído em `b61c1d9`, Git limpo. Escopo estrito: schemas Zod TEXT v1 com JSON estruturado para texto rico simples, título/estrutura/formatações canônicas e URLs seguras; composição type TEXT/schemaVersion 1 com contrato comum; testes, limites de segurança, documentação e checks. Sem HTML livre, registro incompleto, editor, renderer, endpoints, preview ou publicação.
