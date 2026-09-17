@@ -13,6 +13,8 @@ import {
   updateMediaCategorySchema,
   mediaCategoryResponseSchema,
   mediaCategoryContextSchema,
+  mediaLibraryQuerySchema,
+  mediaLibraryResponseSchema,
   mediaUploadFieldsSchema,
   mediaUploadResponseSchema,
   pdfUploadResponseSchema,
@@ -44,6 +46,29 @@ export class MediaService {
       (!institutionId || !session.institutionIds.includes(institutionId))
     )
       throw new ForbiddenException("Instituição não autorizada");
+  }
+  async search(session: SessionData, query: unknown) {
+    const parsed = mediaLibraryQuerySchema.safeParse(query);
+    if (!parsed.success) throw new BadRequestException("Busca inválida");
+    const result = await this.store.search(
+      parsed.data,
+      session.role === "ADMIN" ? undefined : session.institutionIds,
+    );
+    return mediaLibraryResponseSchema.parse({
+      items: result.items.map(({ media, categoryName }) => ({
+        ...this.selection(media),
+        type: media.type,
+        categoryName,
+        altText: media.altText,
+        caption: media.caption,
+        width: media.width,
+        height: media.height,
+        createdAt: media.createdAt.toISOString(),
+      })),
+      total: result.total,
+      page: parsed.data.page,
+      limit: parsed.data.limit,
+    });
   }
   async categories(session: SessionData) {
     const categories = await this.store.categories(

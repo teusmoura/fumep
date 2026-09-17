@@ -7,7 +7,11 @@ import {
   auditLogs,
   type NewMedia,
 } from "@fumep/db";
-import type { CreateMediaCategory, UpdateMediaCategory } from "@fumep/validation";
+import type {
+  CreateMediaCategory,
+  UpdateMediaCategory,
+  MediaLibraryQuery,
+} from "@fumep/validation";
 
 export class MediaStore implements OnModuleDestroy {
   private connection?: ReturnType<typeof createDatabase>;
@@ -23,6 +27,9 @@ export class MediaStore implements OnModuleDestroy {
   }
   media(id: string) {
     return new MediaRepository(this.database()).findById(id);
+  }
+  search(input: MediaLibraryQuery, institutionIds?: string[]) {
+    return new MediaRepository(this.database()).search(input, institutionIds);
   }
   duplicate(checksum: string, institutions?: string[], type: "IMAGE" | "DOCUMENT" = "IMAGE") {
     return new MediaRepository(this.database()).findDuplicate(checksum, institutions, type);

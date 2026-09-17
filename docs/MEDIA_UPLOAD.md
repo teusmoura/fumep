@@ -51,7 +51,13 @@ SVG não é permitido para ADMIN nem EDITOR em nenhuma rota editorial. O filtro 
 
 Todas as mutações exigem CSRF/origem. Criação/edição/exclusão registram MEDIA_CATEGORY_CREATED/UPDATED/DELETED na mesma transação dos dados. Edição/exclusão bloqueiam a linha e reautorizam o escopo persistido antes de alterar; falha de FK não gera auditoria de sucesso. Erros de infraestrutura são amigáveis. A unicidade existente é canônica `UNIQUE(institution_id, slug)`: instituição nullable continua com semântica SQL de NULL, sem nova regra de unicidade global inventada. A rota mínima upload-categories permanece compatível, agora auditada; conflito de slug usa 409.
 
-## Consistência de armazenamento
+## Busca da biblioteca — loop 4.14
+
+`/admin/media/library` usa SSR e formulário GET com labels, estado vazio e navegação anterior/próxima preservando busca/categoria. O GET autenticado `/api/v1/media` aceita `q` (até 200 caracteres, nome original/alt/legenda/nome da categoria), `categoryId` opcional, `page` (1–10000, padrão 1) e `limit` (1–100, padrão 20). Parâmetros extras e paginação inválida retornam 400. Busca não modifica dados/auditoria e dispensa CSRF por ser leitura.
+
+Consulta Drizzle parametrizada, substring case-insensitive e `%`/`_`/backslash literais; sem SQL montado a partir do usuário. Ordenação fixa por mais recente/id, offset limitado e mesma autorização/filtro aplicados a itens e total. EDITOR só consulta mídias em categorias de suas instituições, incluindo filtro estrangeiro que retorna vazio; ADMIN vê globais/sem categoria. Resposta `{ items, total, page, limit }` contém apenas referência/metadados de apresentação (nome/tipo/MIME/tamanho/categoria/alt/legenda/dimensões/data/status), nunca storage key/checksum/uploader/erro interno/URL MinIO. Não há preview físico, edição de alt/legenda, MediaUsage ou exclusão neste loop. Paginação não oferece snapshot imutável entre requisições concorrentes.
+
+## Consistência dos objetos
 
 Gravação de Media e `MEDIA_UPLOADED` na mesma transação PostgreSQL, após a gravação do original. Em falha, tenta remover somente a chave recém-gerada no MinIO e retorna erro amigável. Falha de compensação gera log com identificador da mídia, sem segredos. MinIO e PostgreSQL não formam uma transação distribuída; quedas abruptas podem deixar um objeto órfão, sem disponibilizar endpoint de exclusão inseguro.
 

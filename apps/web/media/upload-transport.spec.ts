@@ -8,11 +8,32 @@ import {
 } from "./upload-proxy";
 import { loadUploadContext } from "./upload-context";
 import { loadCategoryContext } from "./category-context";
+import { loadMediaLibrary } from "./library-context";
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
 });
 describe("server-only upload transport", () => {
+  it("loads paginated library results through no-store API and rejects invalid queries before fetch", async () => {
+    const fetcher = vi.fn();
+    vi.stubGlobal("fetch", fetcher);
+    expect(await loadMediaLibrary("fumep_session=fixture", { page: "0" })).toBeUndefined();
+    expect(fetcher).not.toHaveBeenCalled();
+    vi.stubEnv("API_INTERNAL_URL", "http://api.internal:3001");
+    fetcher
+      .mockResolvedValueOnce(Response.json({ user: { role: "EDITOR" }, csrfToken: "a".repeat(43) }))
+      .mockResolvedValueOnce(Response.json([]))
+      .mockResolvedValueOnce(Response.json({ items: [], total: 0, page: 2, limit: 10 }));
+    expect(
+      await loadMediaLibrary("fumep_session=fixture", { q: "A & B", page: "2", limit: "10" }),
+    ).toMatchObject({ query: { q: "A & B", page: 2, limit: 10 }, result: { items: [], total: 0 } });
+    expect(fetcher.mock.calls[2][0].pathname).toBe("/api/v1/media");
+    expect(fetcher.mock.calls[2][0].searchParams.get("q")).toBe("A & B");
+    expect(fetcher.mock.calls[2][1]).toMatchObject({
+      cache: "no-store",
+      headers: { cookie: "fumep_session=fixture" },
+    });
+  });
   it("loads category management context through authorized no-store API projections", async () => {
     vi.stubEnv("API_INTERNAL_URL", "http://api.internal:3001");
     const category = {

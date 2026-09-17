@@ -7,8 +7,31 @@ import {
   pdfUploadResponseSchema,
   PDF_MAX_BYTES,
   updateMediaCategorySchema,
+  mediaLibraryQuerySchema,
 } from "./index.js";
 describe("media duplication contracts", () => {
+  it("validates bounded library queries and rejects extra ownership, duplicate and invalid pagination", () => {
+    expect(mediaLibraryQuerySchema.parse({})).toEqual({ page: 1, limit: 20 });
+    expect(
+      mediaLibraryQuerySchema.parse({
+        q: "  Laboratory  ",
+        categoryId: "",
+        page: "2",
+        limit: "100",
+      }),
+    ).toMatchObject({ q: "Laboratory", page: 2, limit: 100 });
+    for (const query of [
+      { page: "0" },
+      { page: "10001" },
+      { page: "1e2" },
+      { limit: "101" },
+      { limit: ["1", "2"] },
+      { q: "x".repeat(201) },
+      { categoryId: "bad" },
+      { institutionId: crypto.randomUUID() },
+    ])
+      expect(mediaLibraryQuerySchema.safeParse(query).success).toBe(false);
+  });
   it("limits category editing to valid name/slug without institution transfer", () => {
     expect(
       updateMediaCategorySchema.parse({ name: "  Laboratórios  ", slug: "laboratorios" }),

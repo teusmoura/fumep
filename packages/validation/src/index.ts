@@ -75,6 +75,44 @@ export const mediaDuplicateResponseSchema = z
   .strict();
 export const mediaSelectionRequestSchema = z.object({ id: z.uuid() }).strict();
 export type MediaSelection = z.infer<typeof mediaSelectionResponseSchema>;
+export const mediaLibraryQuerySchema = z
+  .object({
+    q: z.string().trim().max(200).optional(),
+    categoryId: z.preprocess((value) => (value === "" ? undefined : value), z.uuid().optional()),
+    page: z
+      .string()
+      .regex(/^[1-9]\d*$/)
+      .default("1")
+      .transform(Number)
+      .pipe(z.number().int().max(10000)),
+    limit: z
+      .string()
+      .regex(/^[1-9]\d*$/)
+      .default("20")
+      .transform(Number)
+      .pipe(z.number().int().max(100)),
+  })
+  .strict();
+export type MediaLibraryQuery = z.infer<typeof mediaLibraryQuerySchema>;
+export const mediaLibraryResponseSchema = z
+  .object({
+    items: mediaSelectionResponseSchema
+      .extend({
+        type: z.enum(["IMAGE", "DOCUMENT"]),
+        categoryName: z.string().nullable(),
+        altText: z.string().nullable(),
+        caption: z.string().nullable(),
+        width: z.number().int().positive().nullable(),
+        height: z.number().int().positive().nullable(),
+        createdAt: z.iso.datetime(),
+      })
+      .array(),
+    total: z.number().int().nonnegative(),
+    page: z.number().int().positive(),
+    limit: z.number().int().positive().max(100),
+  })
+  .strict();
+export type MediaLibraryResponse = z.infer<typeof mediaLibraryResponseSchema>;
 
 export const healthResponseSchema = z
   .object({

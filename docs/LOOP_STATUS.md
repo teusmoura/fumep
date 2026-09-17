@@ -1,5 +1,16 @@
 # LOOP STATUS
 
+## LOOP 4.14 — Concluído
+
+Estado inicial: 4.13 concluído em `6b8eb39`, Git limpo.
+Escopo: busca administrativa parametrizada por nome/alt/caption/categoria, filtro de categoria, paginação limitada, projeção autorizada sem storage interno e interface SSR mínima; contratos/testes/checks. Sem MediaUsage/exclusão/logos/biblioteca pública.
+
+Entregue: GET media com contrato Zod/OpenAPI/no-store, Drizzle parametrizado com escape literal de wildcards, nome/alt/caption/nome de categoria e filtro UUID, paginação limitada/ordenação determinística, itens/total igualmente escopados. Projeção explícita sem chave/checksum/uploader/erro interno/URL MinIO. Interface SSR /admin/media/library com formulário GET, labels, resultados escapados/estado vazio e links de paginação preservando filtros. Sem preview físico ou mutações de mídia.
+
+Checks aprovados: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` (271: 21 validation, 49 DB, 12 jobs, 3 storage, 117 API, 49 web, 20 worker), `pnpm build`, `pnpm peers check`, `pnpm --filter @fumep/db --filter @fumep/api --filter @fumep/web test`, Prettier workflow e `git diff --check`. Falha de tipo Record no helper de testes corrigida em uma tentativa, rechecks completos verdes. Testes reais cobrem quatro campos/categoria/paginação/isolamento/total, queries inválidas/literais/injeção/sem auditoria de leitura; SSR/transporte cobrem labels/escape/links/no-store. Sem schema/migration/dependências novas. Browser E2E/axe/QA visual/CI remota não executados; script test:e2e inexistente.
+
+Aceite cumprido, nenhuma falha pendente. drizzle-data-model/security-access mantiveram consultas parametrizadas/escopo; nestjs-api definiu projeção pública administrativa; nextjs-frontend orientou SSR com searchParams assíncrono e GET nativo; testing-qa cobriu campos e isolamento. Commit: `feat(media): search authorized library with bounded pagination`.
+
 ## LOOP 4.13 — Concluído
 
 Estado inicial: 4.12 concluído em `b180f40`, Git limpo.

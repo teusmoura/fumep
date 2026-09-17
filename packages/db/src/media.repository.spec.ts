@@ -33,6 +33,42 @@ afterAll(async () => {
   await client.end();
 });
 describe("MediaRepository", () => {
+  it("searches each canonical field with scoped pagination and literal wildcard escaping", async () => {
+    const institution = crypto.randomUUID();
+    institutionIds.push(institution);
+    await client`INSERT INTO institutions (id,name,slug) VALUES (${institution},'Search fixture',${`search-${institution}`})`;
+    const category = crypto.randomUUID();
+    categoryIds.push(category);
+    await client`INSERT INTO media_categories (id,institution_id,name,slug) VALUES (${category},${institution},'search-category','search')`;
+    for (const fields of [
+      { originalFilename: "search-name.png" },
+      { originalFilename: "plain-a.png", altText: "search-alt" },
+      { originalFilename: "plain-b.png", caption: "search-caption" },
+    ])
+      await create({ ...input, ...fields, categoryId: category });
+    for (const q of ["search-name", "SEARCH-ALT", "search-caption"])
+      expect((await repository.search({ q, page: 1, limit: 20 }, [institution])).total).toBe(1);
+    const first = await repository.search({ q: "search-category", page: 1, limit: 2 }, [
+      institution,
+    ]);
+    const second = await repository.search({ q: "search-category", page: 2, limit: 2 }, [
+      institution,
+    ]);
+    expect(first.total).toBe(3);
+    expect(first.items).toHaveLength(2);
+    expect(second.items).toHaveLength(1);
+    expect(first.items.map((row) => row.media.id)).not.toContain(second.items[0].media.id);
+    for (const q of ["%", "_", "' OR 1=1 --"])
+      expect((await repository.search({ q, page: 1, limit: 20 }, [institution])).total).toBe(0);
+    expect((await repository.search({ page: 1, limit: 20 }, [])).items).toEqual([]);
+    expect(
+      (await repository.search({ categoryId: category, page: 1, limit: 20 }, [crypto.randomUUID()]))
+        .total,
+    ).toBe(0);
+    await expect(repository.search({ page: 0, limit: 101 })).rejects.toThrow(
+      "Invalid media pagination",
+    );
+  });
   it("updates image dimensions idempotently without changing processing state or checksum", async () => {
     const created = await create();
     const dimensions = await repository.updateDimensions(created.id, 12, 8);

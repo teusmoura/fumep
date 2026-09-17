@@ -668,6 +668,79 @@ describe("Image upload through NestJS to real MinIO/PostgreSQL", () => {
       expect(object.size).toBe(png.length);
     }
   });
+  it("searches canonical library fields with pagination and no unauthorized or internal data", async () => {
+    const marker = randomUUID();
+    const category = await mutate("categories", "editor")
+      .send({ institutionId: own, name: `${marker}-categoria`, slug: `search-${marker}` })
+      .expect(201);
+    categoryIds.push(category.body.id);
+    const uploaded: string[] = [];
+    for (const name of ["nome", "plain-a", "plain-b"]) {
+      const response = await mutate("images", "editor")
+        .field("categoryId", category.body.id)
+        .attach("file", png, `${marker}-${name}.png`)
+        .expect(201);
+      uploaded.push(response.body.id);
+      keys.push(`images/originals/${response.body.id}.png`);
+    }
+    await client`UPDATE media SET alt_text = ${`${marker}-alt`} WHERE id = ${uploaded[1]}`;
+    await client`UPDATE media SET caption = ${`${marker}-caption`} WHERE id = ${uploaded[2]}`;
+    const forbidden: string[] = [];
+    for (const categoryId of [categoryIds[1], undefined]) {
+      const operation = mutate("images");
+      if (categoryId) operation.field("categoryId", categoryId);
+      const response = await operation.attach("file", png, `${marker}-secret.png`).expect(201);
+      forbidden.push(response.body.id);
+      keys.push(`images/originals/${response.body.id}.png`);
+    }
+    const auditBefore = await client`SELECT count(*) FROM audit_logs WHERE user_id = ${userId}`;
+    const search = (query: Record<string, string | undefined>, role = "editor") =>
+      request(app.getHttpServer())
+        .get("/api/v1/media")
+        .set("Cookie", `fumep_session=${role}`)
+        .query(query);
+    for (const field of ["nome", "alt", "caption"]) {
+      const result = await search({ q: `${marker}-${field}` })
+        .expect(200)
+        .expect("Cache-Control", "no-store");
+      expect(result.body.total).toBe(1);
+    }
+    const page1 = await search({ q: marker, limit: "2" }).expect(200);
+    const page2 = await search({ q: marker, limit: "2", page: "2" }).expect(200);
+    expect(page1.body.total).toBe(3);
+    expect(page1.body.items).toHaveLength(2);
+    expect(page2.body.items).toHaveLength(1);
+    expect(page1.body.items.map((row: { id: string }) => row.id)).not.toContain(
+      page2.body.items[0].id,
+    );
+    const categorySearch = await search({ q: `${marker}-categoria` }).expect(200);
+    expect(categorySearch.body.total).toBe(3);
+    const all = await search({ q: marker }, "admin").expect(200);
+    expect(all.body.total).toBe(5);
+    for (const id of forbidden) expect(page1.text + page2.text).not.toContain(id);
+    for (const key of ["storageKey", "checksumSha256", "uploadedBy", "minio", "processingError"])
+      expect(all.text).not.toContain(key);
+    expect((await search({ categoryId: categoryIds[1], q: marker }).expect(200)).body.total).toBe(
+      0,
+    );
+    expect((await search({ categoryId: category.body.id, q: marker }).expect(200)).body.total).toBe(
+      3,
+    );
+    for (const q of ["%", "_", "' OR 1=1 --"])
+      expect((await search({ q }).expect(200)).body.total).toBe(0);
+    for (const query of [
+      { limit: "101" },
+      { page: "0" },
+      { categoryId: "bad" },
+      { institutionId: own },
+      { q: "x".repeat(201) },
+    ])
+      await search(query).expect(400);
+    await request(app.getHttpServer()).get("/api/v1/media").expect(401);
+    expect(await client`SELECT count(*) FROM audit_logs WHERE user_id = ${userId}`).toEqual(
+      auditBefore,
+    );
+  });
   it("does not create metadata on MinIO failure and documents multipart/OpenAPI", async () => {
     const put = vi
       .spyOn(storage, "put")

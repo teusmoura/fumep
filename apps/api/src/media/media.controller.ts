@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   Res,
   HttpCode,
@@ -30,6 +31,7 @@ import {
   ApiResponse,
   ApiConflictResponse,
   ApiNoContentResponse,
+  ApiQuery,
 } from "@nestjs/swagger";
 import { IMAGE_MAX_BYTES, PDF_MAX_BYTES } from "@fumep/validation";
 import { SessionGuard, type AuthenticatedRequest } from "../auth/session.guard.js";
@@ -46,6 +48,23 @@ import { MediaService } from "./media.service.js";
 @UseGuards(SessionGuard, CsrfGuard)
 export class MediaController {
   constructor(private readonly media: MediaService) {}
+  @Get()
+  @Header("Cache-Control", "no-store")
+  @ApiQuery({
+    name: "q",
+    required: false,
+    type: String,
+    description: "Nome/alt/caption/nome da categoria; até 200 caracteres",
+  })
+  @ApiQuery({ name: "categoryId", required: false, type: String, format: "uuid" })
+  @ApiQuery({ name: "page", required: false, type: Number, description: "1–10000; padrão 1" })
+  @ApiQuery({ name: "limit", required: false, type: Number, description: "1–100; padrão 20" })
+  @ApiOkResponse({
+    description: "items/total/page/limit autorizados; sem storage_key/checksum/URL interna",
+  })
+  search(@Req() request: AuthenticatedRequest, @Query() query: unknown) {
+    return this.media.search(request.auth, query);
+  }
   @Get("categories")
   @Header("Cache-Control", "no-store")
   @ApiOkResponse({

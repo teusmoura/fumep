@@ -9,6 +9,7 @@ export default async function MediaUploadPage() {
     <main id="main-content" className="media-upload-page">
       <h1>Enviar arquivos</h1>
       <Link href="/admin/media/manage-categories">Gerenciar categorias</Link>
+      <Link href="/admin/media/library">Buscar arquivos</Link>
       {context ? (
         <>
           <h2>Imagem</h2>
