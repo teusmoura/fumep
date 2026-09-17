@@ -92,6 +92,49 @@ describe("Image upload through NestJS to real MinIO/PostgreSQL", () => {
     await app?.close();
     await client.end();
   });
+  it.each(["images", "documents"])(
+    "rejects editorial SVG and disguises on %s before any side effect",
+    async (endpoint) => {
+      const svg = Buffer.from(
+        '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>',
+      );
+      const mediaBefore = await client`SELECT count(*) FROM media WHERE uploaded_by = ${userId}`;
+      const auditBefore = await client`SELECT count(*) FROM audit_logs WHERE user_id = ${userId}`;
+      const queuedBefore = enqueue.mock.calls.length;
+      const put = vi.spyOn(storage, "put");
+      const create = vi.spyOn(store, "create");
+      try {
+        for (const [bytes, filename, contentType] of [
+          [svg, "unsafe.svg", "image/svg+xml"],
+          [svg, "unsafe.SVG", "image/svg+xml"],
+          [svg, "disguised.png", "image/png"],
+          [svg, "disguised.pdf", "application/pdf"],
+          [png, "unsafe.svg", "image/png"],
+          [Buffer.from("%PDF-1.7\n"), "unsafe.svg", "application/pdf"],
+          [svg, "unsafe.svg.png", "image/png"],
+          [svg, "unsafe.svg.pdf", "application/pdf"],
+        ] as const) {
+          const response = await mutate(endpoint, "editor")
+            .field("categoryId", categoryIds[0])
+            .attach("file", bytes, { filename, contentType })
+            .expect(400);
+          expect(response.text).not.toContain("<script>");
+        }
+        expect(put).not.toHaveBeenCalled();
+        expect(create).not.toHaveBeenCalled();
+        expect(enqueue.mock.calls.length).toBe(queuedBefore);
+        expect(await client`SELECT count(*) FROM media WHERE uploaded_by = ${userId}`).toEqual(
+          mediaBefore,
+        );
+        expect(await client`SELECT count(*) FROM audit_logs WHERE user_id = ${userId}`).toEqual(
+          auditBefore,
+        );
+      } finally {
+        put.mockRestore();
+        create.mockRestore();
+      }
+    },
+  );
   it("stores PDF originals with checksum and audit, reuses duplicates without Sharp", async () => {
     const pdf = Buffer.from("%PDF-1.7\n1 0 obj\n<< /Type /Catalog >>\nendobj\n%%EOF\n");
     const before = enqueue.mock.calls.length;

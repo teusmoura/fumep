@@ -1,5 +1,16 @@
 # LOOP STATUS
 
+## LOOP 4.12 — Concluído
+
+Estado inicial: 4.11 concluído em `bde4c2d`, Git limpo.
+Escopo: consolidar rejeição backend de SVG por EDITOR autorizado nas rotas de imagem/PDF, extensões/MIME disfarçados, ausência de gravação/auditoria/enqueue e documentação. Sem novos formatos ou categorias.
+
+Entregue: regressões Supertest com EDITOR autorizado e 16 combinações (SVG verdadeiro, uppercase, conteúdo SVG disfarçado como PNG/PDF, extensão dupla e bytes válidos com extensão SVG). Rejeição 400 antes de MinIO, Media, auditoria e enqueue, confirmada por spies/contagens reais. Allowlists de produção já atendiam o bloqueio; não foram alteradas. Política SVG editorial V1 documentada.
+
+Checks aprovados: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` (258: 19 validation, 47 DB, 12 jobs, 3 storage, 115 API, 42 web, 20 worker), `pnpm build`, `pnpm peers check`, Prettier workflow e `git diff --check`. Nenhuma falha pendente; ERROR do enqueue pertence à fixture de indisponibilidade esperada. Browser E2E/axe/QA visual/CI remota não executados; script test:e2e inexistente.
+
+Aceite cumprido. media-storage/security-access mantiveram bloqueio SVG V1 sem exceção editorial; testing-qa comprovou rejeição por backend independente do HTML. Commit: `test(media): prove editorial SVG rejection without side effects`.
+
 ## LOOP 4.11 — Concluído
 
 Estado inicial: 4.10 concluído em `f042488`, Git limpo.

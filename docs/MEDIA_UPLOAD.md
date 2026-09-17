@@ -36,7 +36,11 @@ Selecionar existente retorna a referência autorizada e seu status atual, sem no
 
 O backend resolve a instituição consultando a categoria persistida. Não aceita institutionId/uploadedBy no multipart nem usa a autoria como autorização institucional.
 
-## Consistência e limites desta etapa
+## Bloqueio SVG editorial — loop 4.12
+
+SVG não é permitido para ADMIN nem EDITOR em nenhuma rota editorial. O filtro HTML é apenas conveniência: o backend exige correspondência extensão/MIME/assinatura. SVG real com nome PNG/PDF, MIME alterado ou extensão dupla também é rejeitado; bytes PNG/PDF com extensão SVG não são aceitos. A rejeição ocorre antes de MinIO, Media, auditoria de upload/duplicata ou BullMQ. Não há sanitização SVG ou exceção editorial para logos nesta etapa.
+
+## Consistência de gravação
 
 Gravação de Media e `MEDIA_UPLOADED` na mesma transação PostgreSQL, após a gravação do original. Em falha, tenta remover somente a chave recém-gerada no MinIO e retorna erro amigável. Falha de compensação gera log com identificador da mídia, sem segredos. MinIO e PostgreSQL não formam uma transação distribuída; quedas abruptas podem deixar um objeto órfão, sem disponibilizar endpoint de exclusão inseguro.
 

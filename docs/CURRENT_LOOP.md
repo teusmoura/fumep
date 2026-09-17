@@ -66,43 +66,44 @@ LOOP 4.8 — CONCLUÍDO
 LOOP 4.9 — CONCLUÍDO
 LOOP 4.10 — CONCLUÍDO
 LOOP 4.11 — CONCLUÍDO
-LOOP 4.12 — ATUAL
+LOOP 4.12 — CONCLUÍDO
+LOOP 4.13 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 4.12 — Bloquear SVG editorial
+### LOOP 4.13 — MediaCategory
 
-Estado: pronto para execução após commit do 4.11. Imagens e PDF validados com checksum/escopo; SVG já ausente das allowlists. Consolidar regressões de segurança sem antecipar categorias.
+Estado: pronto para execução após commit do 4.12. Schema/vínculo e criação/listagem mínimos antecipados no 4.2 (MEDIA-001 autorizada); completar gestão de categorias sem antecipar busca da biblioteca.
 
 Objetivo:
 
 ```text
-Comprovar que upload SVG editorial é rejeitado no backend.
+Completar gestão institucional de MediaCategory.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop e documentos Storage/Segurança; confirmar 4.11 commitado e Git limpo;
-- usar media-storage/security-access/testing-qa no escopo;
-- testar EDITOR autorizado tentando SVG nas rotas de imagem e PDF, inclusive extensão/MIME disfarçados;
-- garantir rejeição antes de storage/Media/auditoria de upload/enqueue, não confiar no accept HTML;
-- preservar uploads válidos e autorização/CSRF;
-- documentar bloqueio editorial SVG V1;
+- reler AGENTS.md, execute-loop e documentos canônicos necessários; confirmar 4.12 commitado e Git limpo;
+- usar drizzle-data-model/nestjs-api/nextjs-frontend/security-access/testing-qa conforme escopo;
+- completar contratos/repository/endpoints de gestão de categorias com autorização/CSRF/auditoria;
+- preservar instituição da categoria como escopo: não transferir categorias silenciosamente e não excluir categorias referenciadas;
+- disponibilizar interface administrativa mínima para listar/criar/editar nome/slug e excluir categorias sem uso;
+- testar ADMIN global, EDITOR institucional, entradas inválidas, conflitos e integridade do vínculo de mídia;
 - checks, documentação, commit e Git limpo.
 
 Não implementar:
 
-- gestão de categorias, MediaUsage, logos, sanitização/allowlist SVG ou novos formatos.
+- busca/listagem completa da biblioteca, MediaUsage, exclusão de mídia, logos ou novos formatos.
 
 Critério de aceite:
 
 ```text
-Upload .svg por EDITOR autorizado rejeitado, sem efeitos persistidos; testes/checks verdes.
+Categorias gerenciadas por usuário autorizado, respeitando escopo institucional e integridade das mídias; testes/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 4.13 — MediaCategory
+LOOP 4.14 — Busca da biblioteca
 ```
