@@ -1,5 +1,15 @@
 # LOOP STATUS
 
+## LOOP 5.6 — Concluído
+
+Estado inicial: 5.5 concluído em `7308e78`, Git limpo. Escopo: contrato Zod HERO v1 somente imagem, title/description/imageId/imageAlt/button, alt explícito informativo ou vazio decorativo, URLs seguras, envelope comum, limites, testes e documentação/checks. Sem editor/renderer, registro incompleto, I/O de mídia, endpoints/Preview/publicação ou outros blocos.
+
+Entregue: heroBlockDataSchemaV1/heroBlockSchemaV1 e tipos/limites; title não branco, description opcional, imageId UUID opcional conforme exemplo canônico, imageAlt pareado (informativo não branco ou exatamente vazio decorativo), CTA com label não branco/URL segura. Objetos strict sem vídeo, URL física, flags duplicadas ou CSS; safeExtend preserva refinamentos comuns. HERO_BLOCK_V1.md documenta validações backend futuras. Registry operacional permanece somente TEXT completo.
+
+Checks aprovados: `pnpm --filter @fumep/validation test` inicial/final (44), `pnpm format:check`, `pnpm lint`, `pnpm typecheck` final, `pnpm test` (353: 44 validation, 67 DB, 12 jobs, 3 storage, 122 API, 75 web, 30 Worker), `pnpm build`, `pnpm peers check`, `git diff --check`. Typecheck inicial detectou import ESM de teste sem extensão; corrigido para index.js na primeira correção e revalidado. Nenhuma falha pendente, dependência/migration/UI nova. Browser/E2E/CI remota não executados, script test:e2e inexistente; acessibilidade de UI pertence ao 5.7.
+
+Aceite cumprido. page-builder/architecture-guard mantiveram contrato image-only/UUID/versionamento sem antecipar UI ou autorização de mídia; testing-qa cobriu alt/CTA, limites e regressões. Commit: `feat(builder): define image-only hero block v1`. Próximo loop: 5.7.
+
 ## LOOP 5.5 — Concluído
 
 Estado inicial: 5.4 concluído em `97c28b8`, Git limpo. Escopo: renderer público TEXT v1 SSR com validação do envelope/versão, nós React escapados, semântica acessível e estilos institucionais controlados; definição TEXT completa no Registry frontend, testes e checks. Sem rota pública/Preview, endpoints, persistência, backgrounds/anchors UI, Page Builder básico ou outros blocos.

@@ -298,6 +298,59 @@ export type TextDocumentV1 = z.infer<typeof textDocumentSchemaV1>;
 export type TextBlockDataV1 = z.infer<typeof textBlockDataSchemaV1>;
 export type TextBlockV1 = z.infer<typeof textBlockSchemaV1>;
 
+export const HERO_V1_LIMITS = Object.freeze({
+  titleCharacters: 200,
+  descriptionCharacters: 2000,
+  altCharacters: 300,
+  buttonLabelCharacters: 120,
+});
+const heroLabelSchemaV1 = textPlainSchemaV1.refine(
+  (value) => value.trim().length > 0,
+  "Non-blank label required",
+);
+export const heroBlockDataSchemaV1 = z
+  .object({
+    title: heroLabelSchemaV1.max(HERO_V1_LIMITS.titleCharacters),
+    description: textPlainSchemaV1.max(HERO_V1_LIMITS.descriptionCharacters).optional(),
+    imageId: z.uuid().optional(),
+    imageAlt: textPlainSchemaV1
+      .max(HERO_V1_LIMITS.altCharacters)
+      .refine(
+        (value) => value === "" || value.trim().length > 0,
+        "Use an informative alt or exactly empty decorative alt",
+      )
+      .optional(),
+    button: z
+      .object({
+        label: heroLabelSchemaV1.max(HERO_V1_LIMITS.buttonLabelCharacters),
+        url: textLinkUrlSchemaV1,
+      })
+      .strict()
+      .optional(),
+  })
+  .strict()
+  .superRefine((data, context) => {
+    if (data.imageId && data.imageAlt === undefined)
+      context.addIssue({
+        code: "custom",
+        path: ["imageAlt"],
+        message: "Image requires explicit informative or decorative alt",
+      });
+    if (!data.imageId && data.imageAlt !== undefined)
+      context.addIssue({
+        code: "custom",
+        path: ["imageId"],
+        message: "Alt requires a library image reference",
+      });
+  });
+export const heroBlockSchemaV1 = contentBlockCommonSchema.safeExtend({
+  type: z.literal("HERO"),
+  schemaVersion: z.literal(1),
+  data: heroBlockDataSchemaV1,
+});
+export type HeroBlockDataV1 = z.infer<typeof heroBlockDataSchemaV1>;
+export type HeroBlockV1 = z.infer<typeof heroBlockSchemaV1>;
+
 export const processMediaPayloadSchema = z.object({ mediaId: z.uuid() }).strict();
 export type ProcessMediaPayload = z.infer<typeof processMediaPayloadSchema>;
 export const mediaProcessingResponseSchema = z
