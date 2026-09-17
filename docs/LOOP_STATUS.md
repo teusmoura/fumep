@@ -1,5 +1,16 @@
 # LOOP STATUS
 
+## LOOP 4.13 — Concluído
+
+Estado inicial: 4.12 concluído em `b180f40`, Git limpo.
+Escopo: completar MediaCategory com contratos, listagem/criação/edição de nome/slug/exclusão sem uso, auditoria transacional, escopo institucional imutável, formulário administrativo mínimo e testes. Preservar schema canônico existente, sem busca/MediaUsage.
+
+Entregue: contratos Zod, GET/POST categories e PATCH/DELETE categories/:id com OpenAPI, sessão/CSRF/escopo e projeção sem metadados internos; criação/edição/exclusão com auditoria transacional, lock/reautorização da categoria e FK RESTRICT preservando mídias. Instituição imutável; conflitos 409. Interface /admin/media/manage-categories com labels, foco, confirmação de exclusão, status amigável e proxy same-origin. Fluxo mínimo upload-categories preservado/auditado; conflito de slug agora 409. Schema/semântica canônica UNIQUE(institution_id,slug) preservados, sem inventar unicidade global NULL.
+
+Checks aprovados: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` (265: 20 validation, 48 DB, 12 jobs, 3 storage, 116 API, 46 web, 20 worker), `pnpm build`, `pnpm peers check`, `pnpm --filter @fumep/db --filter @fumep/api --filter @fumep/web test`, Prettier workflow, ESLint/Prettier focados na última anotação OpenAPI e `git diff --check`. Falha de formatação media.store.ts corrigida; rechecks completos verdes. Sem schema/migration/dependências novas. Testes reais cobrem CRUD/auditoria/CSRF/escopo/conflito/instituição imutável/exclusão referenciada; jsdom cobre criação/edição/confirmar exclusão/conflito/foco. Browser E2E/axe/QA visual/CI remota não executados; script test:e2e inexistente.
+
+Aceite cumprido, nenhuma falha pendente. drizzle-data-model/security-access orientaram lock, integridade e escopo imutável; nestjs-api orientou contratos/erros; nextjs-frontend reaproveitou estilo e transporte; testing-qa cobriu gestão e regressões. Commit: `feat(media): manage institution-scoped media categories`.
+
 ## LOOP 4.12 — Concluído
 
 Estado inicial: 4.11 concluído em `bde4c2d`, Git limpo.

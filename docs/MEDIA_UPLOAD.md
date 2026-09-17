@@ -40,7 +40,18 @@ O backend resolve a instituição consultando a categoria persistida. Não aceit
 
 SVG não é permitido para ADMIN nem EDITOR em nenhuma rota editorial. O filtro HTML é apenas conveniência: o backend exige correspondência extensão/MIME/assinatura. SVG real com nome PNG/PDF, MIME alterado ou extensão dupla também é rejeitado; bytes PNG/PDF com extensão SVG não são aceitos. A rejeição ocorre antes de MinIO, Media, auditoria de upload/duplicata ou BullMQ. Não há sanitização SVG ou exceção editorial para logos nesta etapa.
 
-## Consistência de gravação
+## Gestão de categorias — loop 4.13
+
+`/admin/media/manage-categories` lista categorias e instituições autorizadas, cria categoria global (ADMIN) ou institucional e edita nome/slug. A instituição é imutável no contrato de edição: não há transferência silenciosa de acesso a mídias. Exclusão exige confirmação e é bloqueada por FK RESTRICT quando a categoria possui mídia, preservando o vínculo. Não exclui nem descategoriza arquivos automaticamente.
+
+- `GET /api/v1/media/categories`: `{ categories: [{ id, institutionId, name, slug }], institutions: [{ id, name }] }`, sessão e no-store; EDITOR só vê suas instituições.
+- `POST /api/v1/media/categories`: `{ institutionId, name, slug }`; ADMIN global ou EDITOR autorizado; 201.
+- `PATCH /api/v1/media/categories/:id`: `{ name, slug }`; instituição/uploadedBy/createdBy extras rejeitados; 200.
+- `DELETE /api/v1/media/categories/:id`: categoria sem mídia; 204; referência existente ou slug institucional em conflito retorna 409.
+
+Todas as mutações exigem CSRF/origem. Criação/edição/exclusão registram MEDIA_CATEGORY_CREATED/UPDATED/DELETED na mesma transação dos dados. Edição/exclusão bloqueiam a linha e reautorizam o escopo persistido antes de alterar; falha de FK não gera auditoria de sucesso. Erros de infraestrutura são amigáveis. A unicidade existente é canônica `UNIQUE(institution_id, slug)`: instituição nullable continua com semântica SQL de NULL, sem nova regra de unicidade global inventada. A rota mínima upload-categories permanece compatível, agora auditada; conflito de slug usa 409.
+
+## Consistência de armazenamento
 
 Gravação de Media e `MEDIA_UPLOADED` na mesma transação PostgreSQL, após a gravação do original. Em falha, tenta remover somente a chave recém-gerada no MinIO e retorna erro amigável. Falha de compensação gera log com identificador da mídia, sem segredos. MinIO e PostgreSQL não formam uma transação distribuída; quedas abruptas podem deixar um objeto órfão, sem disponibilizar endpoint de exclusão inseguro.
 

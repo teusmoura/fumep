@@ -9,7 +9,17 @@ export function proxyPdfUpload(request: Request): Promise<Response> {
 export function proxyMediaSelection(request: Request): Promise<Response> {
   return proxy(request, "/api/v1/media/selection", 4096);
 }
-async function proxy(request: Request, endpoint: string, maximumLength: number): Promise<Response> {
+export function proxyMediaCategory(request: Request, id?: string): Promise<Response> {
+  if (id && !/^[0-9a-f-]{36}$/i.test(id))
+    return Promise.resolve(Response.json({ message: "Categoria inválida" }, { status: 400 }));
+  return proxy(request, `/api/v1/media/categories${id ? `/${id}` : ""}`, 4096, request.method);
+}
+async function proxy(
+  request: Request,
+  endpoint: string,
+  maximumLength: number,
+  method = "POST",
+): Promise<Response> {
   const length = Number(request.headers.get("content-length"));
   if (length > maximumLength)
     return Response.json({ message: "Arquivo excede o limite permitido" }, { status: 413 });
@@ -23,7 +33,7 @@ async function proxy(request: Request, endpoint: string, maximumLength: number):
     if (!origin && process.env.NODE_ENV === "production")
       throw new Error("API_INTERNAL_URL is required");
     const response = await fetch(new URL(endpoint, origin ?? "http://127.0.0.1:3001"), {
-      method: "POST",
+      method,
       headers,
       body: request.body,
       duplex: "half",

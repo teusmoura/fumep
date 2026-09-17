@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   Logger,
@@ -9,6 +10,9 @@ import {
 } from "@nestjs/common";
 import {
   createMediaCategorySchema,
+  updateMediaCategorySchema,
+  mediaCategoryResponseSchema,
+  mediaCategoryContextSchema,
   mediaUploadFieldsSchema,
   mediaUploadResponseSchema,
   pdfUploadResponseSchema,
@@ -53,10 +57,65 @@ export class MediaService {
     this.authorize(session, parsed.data.institutionId);
     if (parsed.data.institutionId && !(await this.store.institution(parsed.data.institutionId)))
       throw new NotFoundException("Instituição inexistente");
+    const row = await this.categoryMutation(() =>
+      this.store.createCategory(parsed.data, session.userId),
+    );
+    return this.categoryResponse(row);
+  }
+  private categoryResponse(row: {
+    id: string;
+    name: string;
+    slug: string;
+    institutionId: string | null;
+  }) {
+    return mediaCategoryResponseSchema.parse({
+      id: row.id,
+      name: row.name,
+      slug: row.slug,
+      institutionId: row.institutionId,
+    });
+  }
+  async categoryContext(session: SessionData) {
+    const scope = session.role === "ADMIN" ? undefined : session.institutionIds;
+    const [categories, institutions] = await Promise.all([
+      this.store.categories(scope),
+      this.store.categoryInstitutions(scope),
+    ]);
+    return mediaCategoryContextSchema.parse({
+      categories: categories.map((row) => this.categoryResponse(row)),
+      institutions,
+    });
+  }
+  async mutateCategory(session: SessionData, id: string, body?: unknown, remove = false) {
+    if (!mediaSelectionRequestSchema.safeParse({ id }).success)
+      throw new BadRequestException("Categoria inválida");
+    const parsed = updateMediaCategorySchema.safeParse(body);
+    if (!remove && !parsed.success) throw new BadRequestException("Categoria inválida");
+    const row = await this.categoryMutation(() =>
+      this.store.mutateCategory(
+        id,
+        session.userId,
+        (institutionId) => this.authorize(session, institutionId),
+        remove ? undefined : parsed.data,
+      ),
+    );
+    if (!row) throw new NotFoundException("Categoria inexistente");
+    return remove ? undefined : this.categoryResponse(row);
+  }
+  private async categoryMutation<T>(operation: () => Promise<T>): Promise<T> {
     try {
-      return await this.store.createCategory(parsed.data, session.userId);
-    } catch {
-      throw new BadRequestException("Não foi possível criar categoria; verifique o slug");
+      return await operation();
+    } catch (error) {
+      if (error instanceof ForbiddenException) throw error;
+      const cause = error instanceof Error && error.cause ? error.cause : error;
+      if (typeof cause === "object" && cause !== null && "code" in cause) {
+        if (cause.code === "23505") throw new ConflictException("Slug já usado nesta instituição");
+        if (cause.code === "23503")
+          throw new ConflictException("Categoria referenciada ou instituição indisponível");
+      }
+      throw new ServiceUnavailableException(
+        "Não foi possível salvar a categoria. Tente novamente.",
+      );
     }
   }
   async upload(

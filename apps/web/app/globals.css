@@ -51,15 +51,24 @@ main {
   gap: 1rem;
   max-width: 40rem;
 }
-.media-upload-form :is(input, select, button) {
+.media-upload-form :is(input, select, button),
+.media-category-manager button {
   max-width: 100%;
   min-width: 0;
   font: inherit;
   padding: 0.75rem;
 }
-.media-upload-form :is(input, select, button):focus-visible {
+.media-upload-form :is(input, select, button):focus-visible,
+.media-category-manager button:focus-visible {
   outline: 3px solid var(--color-text);
   outline-offset: 3px;
+}
+.media-category-manager {
+  max-width: 40rem;
+  overflow-wrap: anywhere;
+}
+.media-category-manager li {
+  margin-block: 1rem;
 }
 @media (max-width: 639px) {
   .media-upload-page {

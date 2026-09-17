@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Header,
   Param,
+  Patch,
   Post,
   Req,
   Res,
@@ -26,6 +28,8 @@ import {
   ApiBadRequestResponse,
   ApiNotFoundResponse,
   ApiResponse,
+  ApiConflictResponse,
+  ApiNoContentResponse,
 } from "@nestjs/swagger";
 import { IMAGE_MAX_BYTES, PDF_MAX_BYTES } from "@fumep/validation";
 import { SessionGuard, type AuthenticatedRequest } from "../auth/session.guard.js";
@@ -42,6 +46,60 @@ import { MediaService } from "./media.service.js";
 @UseGuards(SessionGuard, CsrfGuard)
 export class MediaController {
   constructor(private readonly media: MediaService) {}
+  @Get("categories")
+  @Header("Cache-Control", "no-store")
+  @ApiOkResponse({
+    description: "Categorias e opções institucionais dentro do escopo; inclui slug",
+  })
+  categoryContext(@Req() request: AuthenticatedRequest) {
+    return this.media.categoryContext(request.auth);
+  }
+  @Post("categories")
+  @ApiBody({
+    schema: {
+      type: "object",
+      additionalProperties: false,
+      required: ["institutionId", "name", "slug"],
+      properties: {
+        institutionId: { type: "string", format: "uuid", nullable: true },
+        name: { type: "string", minLength: 1, maxLength: 120 },
+        slug: { type: "string", maxLength: 120, pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+      },
+    },
+  })
+  @ApiCreatedResponse({ description: "Categoria criada e auditada; id/nome/slug/instituição" })
+  @ApiConflictResponse({ description: "Slug já usado na instituição" })
+  createManagedCategory(@Req() request: AuthenticatedRequest, @Body() body: unknown) {
+    return this.media.createCategory(request.auth, body);
+  }
+  @Patch("categories/:id")
+  @ApiBody({
+    schema: {
+      type: "object",
+      additionalProperties: false,
+      required: ["name", "slug"],
+      properties: {
+        name: { type: "string", minLength: 1, maxLength: 120 },
+        slug: { type: "string", maxLength: 120, pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+      },
+    },
+  })
+  @ApiOkResponse({ description: "Nome/slug atualizados e auditados; instituição imutável" })
+  @ApiConflictResponse({ description: "Slug já usado na instituição" })
+  updateCategory(
+    @Req() request: AuthenticatedRequest,
+    @Param("id") id: string,
+    @Body() body: unknown,
+  ) {
+    return this.media.mutateCategory(request.auth, id, body);
+  }
+  @Delete("categories/:id")
+  @HttpCode(204)
+  @ApiNoContentResponse({ description: "Categoria sem uso excluída e auditada" })
+  @ApiConflictResponse({ description: "Categoria referenciada por mídia; exclusão bloqueada" })
+  deleteCategory(@Req() request: AuthenticatedRequest, @Param("id") id: string) {
+    return this.media.mutateCategory(request.auth, id, undefined, true);
+  }
   @Get("upload-categories")
   @ApiOkResponse({ description: "Categorias disponíveis no escopo do usuário" })
   categories(@Req() request: AuthenticatedRequest) {
@@ -61,6 +119,7 @@ export class MediaController {
     },
   })
   @ApiCreatedResponse({ description: "Categoria mínima para upload criada" })
+  @ApiConflictResponse({ description: "Slug já usado na instituição" })
   createCategory(@Req() request: AuthenticatedRequest, @Body() body: unknown) {
     return this.media.createCategory(request.auth, body);
   }

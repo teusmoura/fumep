@@ -33,6 +33,8 @@ export const createMediaCategorySchema = z
   })
   .strict();
 export type CreateMediaCategory = z.infer<typeof createMediaCategorySchema>;
+export const updateMediaCategorySchema = createMediaCategorySchema.omit({ institutionId: true });
+export type UpdateMediaCategory = z.infer<typeof updateMediaCategorySchema>;
 export const mediaCategoryOptionSchema = z
   .object({
     id: z.uuid(),
@@ -51,6 +53,14 @@ export const mediaUploadResponseSchema = z
   })
   .strict();
 export type MediaCategoryOption = z.infer<typeof mediaCategoryOptionSchema>;
+export const mediaCategoryResponseSchema = mediaCategoryOptionSchema.extend({ slug: z.string() });
+export const mediaCategoryContextSchema = z
+  .object({
+    categories: mediaCategoryResponseSchema.array(),
+    institutions: z.object({ id: z.uuid(), name: z.string() }).strict().array(),
+  })
+  .strict();
+export type MediaCategoryContext = z.infer<typeof mediaCategoryContextSchema>;
 export const pdfUploadResponseSchema = mediaUploadResponseSchema.extend({
   mimeType: z.literal("application/pdf"),
   sizeBytes: z.number().int().positive().max(PDF_MAX_BYTES),

@@ -1,12 +1,71 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
-import { proxyImageUpload, proxyPdfUpload, proxyMediaSelection } from "./upload-proxy";
+import {
+  proxyImageUpload,
+  proxyPdfUpload,
+  proxyMediaSelection,
+  proxyMediaCategory,
+} from "./upload-proxy";
 import { loadUploadContext } from "./upload-context";
+import { loadCategoryContext } from "./category-context";
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
 });
 describe("server-only upload transport", () => {
+  it("loads category management context through authorized no-store API projections", async () => {
+    vi.stubEnv("API_INTERNAL_URL", "http://api.internal:3001");
+    const category = {
+      id: crypto.randomUUID(),
+      institutionId: crypto.randomUUID(),
+      name: "Laboratórios",
+      slug: "laboratorios",
+    };
+    const institutions = [{ id: category.institutionId, name: "ETMSL" }];
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(Response.json({ user: { role: "EDITOR" }, csrfToken: "a".repeat(43) }))
+      .mockResolvedValueOnce(
+        Response.json([
+          { id: category.id, institutionId: category.institutionId, name: category.name },
+        ]),
+      )
+      .mockResolvedValueOnce(Response.json({ categories: [category], institutions }));
+    vi.stubGlobal("fetch", fetcher);
+    expect(await loadCategoryContext("fumep_session=fixture")).toEqual({
+      categories: [category],
+      institutions,
+      csrfToken: "a".repeat(43),
+      isAdmin: false,
+    });
+    expect(fetcher.mock.calls[2][0].pathname).toBe("/api/v1/media/categories");
+    expect(fetcher.mock.calls[2][1]).toMatchObject({
+      cache: "no-store",
+      headers: { cookie: "fumep_session=fixture" },
+    });
+  });
+  it("preserves category mutation methods only on fixed backend paths and rejects unsafe IDs", async () => {
+    vi.stubEnv("API_INTERNAL_URL", "http://api.internal:3001");
+    const fetcher = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));
+    vi.stubGlobal("fetch", fetcher);
+    const id = crypto.randomUUID();
+    const response = await proxyMediaCategory(
+      new Request("http://localhost/category", {
+        method: "DELETE",
+        headers: { "x-csrf-token": "csrf" },
+      }),
+      id,
+    );
+    expect(response.status).toBe(204);
+    expect(fetcher.mock.calls[0][0].pathname).toBe(`/api/v1/media/categories/${id}`);
+    expect(fetcher.mock.calls[0][1].method).toBe("DELETE");
+    const invalid = await proxyMediaCategory(
+      new Request("http://localhost/category", { method: "PATCH" }),
+      "../images",
+    );
+    expect(invalid.status).toBe(400);
+    expect(fetcher).toHaveBeenCalledOnce();
+  });
   it("streams PDF only to documents endpoint with independent 30 MB transport limit", async () => {
     vi.stubEnv("API_INTERNAL_URL", "http://api.internal:3001");
     const fetcher = vi.fn().mockResolvedValue(new Response(null, { status: 201 }));

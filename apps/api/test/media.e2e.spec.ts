@@ -92,6 +92,81 @@ describe("Image upload through NestJS to real MinIO/PostgreSQL", () => {
     await app?.close();
     await client.end();
   });
+  it("manages institutional categories with atomic audit, immutable scope and FK protection", async () => {
+    const json = (method: "patch" | "delete", id: string, role = "editor") =>
+      request(app.getHttpServer())
+        [method](`/api/v1/media/categories/${id}`)
+        .set("Cookie", `fumep_session=${role}`)
+        .set("Origin", origin)
+        .set("X-CSRF-Token", csrf);
+    const context = await request(app.getHttpServer())
+      .get("/api/v1/media/categories")
+      .set("Cookie", "fumep_session=editor")
+      .expect(200)
+      .expect("Cache-Control", "no-store");
+    expect(context.body.categories.map((row: { id: string }) => row.id)).toEqual([categoryIds[0]]);
+    expect(context.body.institutions.map((row: { id: string }) => row.id)).toEqual([own]);
+    const body = { institutionId: own, name: "Editorial", slug: `managed-${randomUUID()}` };
+    const created = await mutate("categories", "editor").send(body).expect(201);
+    const id = created.body.id;
+    categoryIds.push(id);
+    expect(created.body).toMatchObject(body);
+    await mutate("categories", "editor").send(body).expect(409);
+    await mutate("categories", "editor")
+      .send({ ...body, institutionId: other })
+      .expect(403);
+    await mutate("categories", "editor")
+      .send({ ...body, institutionId: null })
+      .expect(403);
+    await json("patch", id)
+      .send({ name: "Changed", slug: body.slug, institutionId: other })
+      .expect(400);
+    await json("patch", id).send({ name: "", slug: "bad slug" }).expect(400);
+    const updated = await json("patch", id)
+      .send({ name: "Changed", slug: `${body.slug}-renamed` })
+      .expect(200);
+    expect(updated.body.institutionId).toBe(own);
+    await json("patch", categoryIds[1]).send({ name: "No", slug: "no" }).expect(403);
+    await json("delete", categoryIds[1]).expect(403);
+    await json("delete", categoryIds[2]).expect(403);
+    await json("patch", "invalid").send({ name: "No", slug: "no" }).expect(400);
+    await json("delete", randomUUID()).expect(404);
+    await request(app.getHttpServer())
+      .patch(`/api/v1/media/categories/${id}`)
+      .set("Cookie", "fumep_session=editor")
+      .send({ name: "No", slug: "no" })
+      .expect(403);
+    await request(app.getHttpServer()).delete(`/api/v1/media/categories/${id}`).expect(401);
+    const attached = await mutate("images", "editor")
+      .field("categoryId", id)
+      .attach("file", png, "category.png")
+      .expect(201);
+    keys.push(`images/originals/${attached.body.id}.png`);
+    await json("delete", id).expect(409);
+    expect((await store.media(attached.body.id))?.categoryId).toBe(id);
+    const empty = await mutate("categories")
+      .send({ institutionId: null, name: "Empty global", slug: `global-${randomUUID()}` })
+      .expect(201);
+    categoryIds.push(empty.body.id);
+    await json("delete", empty.body.id, "admin").expect(204);
+    expect(await store.category(empty.body.id)).toBeUndefined();
+    const audits =
+      await client`SELECT action FROM audit_logs WHERE entity_id IN (${id}, ${empty.body.id}) ORDER BY created_at`;
+    expect(audits.map((row) => row.action)).toEqual([
+      "MEDIA_CATEGORY_CREATED",
+      "MEDIA_CATEGORY_UPDATED",
+      "MEDIA_CATEGORY_CREATED",
+      "MEDIA_CATEGORY_DELETED",
+    ]);
+    const spec = SwaggerModule.createDocument(
+      app,
+      new DocumentBuilder().addCookieAuth("fumep_session").build(),
+    );
+    expect(spec.paths["/api/v1/media/categories/{id}"].delete?.responses).toHaveProperty("409");
+    // Keep earlier upload-category fixtures deterministic for the remaining tests.
+    await client`DELETE FROM media WHERE id = ${attached.body.id}`;
+    await json("delete", id).expect(204);
+  });
   it.each(["images", "documents"])(
     "rejects editorial SVG and disguises on %s before any side effect",
     async (endpoint) => {
@@ -371,7 +446,7 @@ describe("Image upload through NestJS to real MinIO/PostgreSQL", () => {
       .expect(403);
     const body = { institutionId: own, name: "Editor category", slug: `editor-${randomUUID()}` };
     await mutate("upload-categories", "editor").send(body).expect(201);
-    await mutate("upload-categories", "editor").send(body).expect(400);
+    await mutate("upload-categories", "editor").send(body).expect(409);
   });
   it("rejects unsafe/invalid file input before storage write", async () => {
     const put = vi.spyOn(storage, "put");

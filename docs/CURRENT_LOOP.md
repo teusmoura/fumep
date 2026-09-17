@@ -67,43 +67,44 @@ LOOP 4.9 — CONCLUÍDO
 LOOP 4.10 — CONCLUÍDO
 LOOP 4.11 — CONCLUÍDO
 LOOP 4.12 — CONCLUÍDO
-LOOP 4.13 — ATUAL
+LOOP 4.13 — CONCLUÍDO
+LOOP 4.14 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 4.13 — MediaCategory
+### LOOP 4.14 — Busca da biblioteca
 
-Estado: pronto para execução após commit do 4.12. Schema/vínculo e criação/listagem mínimos antecipados no 4.2 (MEDIA-001 autorizada); completar gestão de categorias sem antecipar busca da biblioteca.
+Estado: pronto para execução após commit do 4.13. Uploads/duplicidade/processamento/categorias concluídos; biblioteca continua administrativa e institucional.
 
 Objetivo:
 
 ```text
-Completar gestão institucional de MediaCategory.
+Implementar busca administrativa da biblioteca por nome, alt, caption e categoria.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop e documentos canônicos necessários; confirmar 4.12 commitado e Git limpo;
+- reler AGENTS.md, execute-loop e documentos canônicos necessários; confirmar 4.13 commitado e Git limpo;
 - usar drizzle-data-model/nestjs-api/nextjs-frontend/security-access/testing-qa conforme escopo;
-- completar contratos/repository/endpoints de gestão de categorias com autorização/CSRF/auditoria;
-- preservar instituição da categoria como escopo: não transferir categorias silenciosamente e não excluir categorias referenciadas;
-- disponibilizar interface administrativa mínima para listar/criar/editar nome/slug e excluir categorias sem uso;
-- testar ADMIN global, EDITOR institucional, entradas inválidas, conflitos e integridade do vínculo de mídia;
+- implementar contrato Zod/OpenAPI e repository com busca parametrizada pelos campos canônicos e filtro de categoria;
+- listar resultados paginados no escopo autorizado, sem URLs/chaves/credenciais internas;
+- disponibilizar interface administrativa mínima de busca e navegação dos resultados;
+- testar ADMIN global, EDITOR institucional, campos/filtro/paginação/entradas inválidas e ausência de vazamento;
 - checks, documentação, commit e Git limpo.
 
 Não implementar:
 
-- busca/listagem completa da biblioteca, MediaUsage, exclusão de mídia, logos ou novos formatos.
+- MediaUsage, exclusão de mídia, logos, biblioteca pública independente ou mecanismo externo de busca.
 
 Critério de aceite:
 
 ```text
-Categorias gerenciadas por usuário autorizado, respeitando escopo institucional e integridade das mídias; testes/checks verdes.
+Busca por nome/alt/caption/categoria com resultados autorizados e interface administrativa; testes/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 4.14 — Busca da biblioteca
+LOOP 4.15 — MediaUsage
 ```

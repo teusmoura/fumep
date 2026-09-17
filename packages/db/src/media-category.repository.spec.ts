@@ -15,6 +15,22 @@ afterAll(async () => {
   await client.end();
 });
 describe("MediaCategoryRepository", () => {
+  it("updates name/slug without changing institution and deletes only unreferenced categories", async () => {
+    const row = await repository.create({
+      institutionId: null,
+      name: "Temporary",
+      slug: `temporary-${crypto.randomUUID()}`,
+    });
+    ids.push(row.id);
+    const changed = await repository.update(row.id, { name: "Renamed", slug: `renamed-${row.id}` });
+    expect(changed?.institutionId).toBeNull();
+    expect(changed?.name).toBe("Renamed");
+    expect(changed?.createdAt).toEqual(row.createdAt);
+    expect(changed?.updatedAt.getTime()).toBeGreaterThanOrEqual(row.updatedAt.getTime());
+    expect(await repository.delete(row.id)).toBe(true);
+    expect(await repository.delete(row.id)).toBe(false);
+    expect(await repository.update(row.id, { name: "Missing", slug: "missing" })).toBeUndefined();
+  });
   it("supports canonical category/link uniqueness and restricted institution deletion", async () => {
     await client`INSERT INTO institutions (id,name,slug) VALUES (${id},'Media category fixture',${`media-category-${id}`})`;
     const category = await repository.create({

@@ -6,8 +6,21 @@ import {
   mediaUploadResponseSchema,
   pdfUploadResponseSchema,
   PDF_MAX_BYTES,
+  updateMediaCategorySchema,
 } from "./index.js";
 describe("media duplication contracts", () => {
+  it("limits category editing to valid name/slug without institution transfer", () => {
+    expect(
+      updateMediaCategorySchema.parse({ name: "  Laboratórios  ", slug: "laboratorios" }),
+    ).toEqual({ name: "Laboratórios", slug: "laboratorios" });
+    for (const body of [
+      { name: "", slug: "valid" },
+      { name: "Valid", slug: "UPPER" },
+      { name: "Valid", slug: "valid", institutionId: crypto.randomUUID() },
+      { name: "Valid" },
+    ])
+      expect(updateMediaCategorySchema.safeParse(body).success).toBe(false);
+  });
   it("accepts READY PDF up to 30 MB without relaxing image upload contract", () => {
     const pdf = {
       id: crypto.randomUUID(),

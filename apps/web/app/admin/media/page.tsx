@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import Link from "next/link";
 import { loadUploadContext } from "../../../media/upload-context";
 import { ImageUploadForm } from "../../../media/image-upload-form";
 export default async function MediaUploadPage() {
@@ -7,6 +8,7 @@ export default async function MediaUploadPage() {
   return (
     <main id="main-content" className="media-upload-page">
       <h1>Enviar arquivos</h1>
+      <Link href="/admin/media/manage-categories">Gerenciar categorias</Link>
       {context ? (
         <>
           <h2>Imagem</h2>

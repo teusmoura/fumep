@@ -7,7 +7,7 @@ import {
   auditLogs,
   type NewMedia,
 } from "@fumep/db";
-import type { CreateMediaCategory } from "@fumep/validation";
+import type { CreateMediaCategory, UpdateMediaCategory } from "@fumep/validation";
 
 export class MediaStore implements OnModuleDestroy {
   private connection?: ReturnType<typeof createDatabase>;
@@ -41,8 +41,45 @@ export class MediaStore implements OnModuleDestroy {
   institution(id: string) {
     return new InstitutionRepository(this.database()).findById(id);
   }
+  async categoryInstitutions(institutionIds?: string[]) {
+    const rows = await new InstitutionRepository(this.database()).findAll();
+    return rows
+      .filter((row) => !institutionIds || institutionIds.includes(row.id))
+      .map(({ id, name }) => ({ id, name }));
+  }
   createCategory(input: CreateMediaCategory, userId: string) {
-    return new MediaCategoryRepository(this.database()).create({ ...input, createdBy: userId });
+    return this.database().transaction(async (tx) => {
+      const row = await new MediaCategoryRepository(tx).create({ ...input, createdBy: userId });
+      await tx.insert(auditLogs).values({
+        userId,
+        action: "MEDIA_CATEGORY_CREATED",
+        entityType: "MEDIA_CATEGORY",
+        entityId: row.id,
+      });
+      return row;
+    });
+  }
+  mutateCategory(
+    id: string,
+    userId: string,
+    authorize: (institutionId: string | null) => void,
+    input?: UpdateMediaCategory,
+  ) {
+    return this.database().transaction(async (tx) => {
+      const repository = new MediaCategoryRepository(tx);
+      const category = await repository.lock(id);
+      if (!category) return undefined;
+      authorize(category.institutionId);
+      const row = input ? await repository.update(id, input) : category;
+      if (!input) await repository.delete(id);
+      await tx.insert(auditLogs).values({
+        userId,
+        action: input ? "MEDIA_CATEGORY_UPDATED" : "MEDIA_CATEGORY_DELETED",
+        entityType: "MEDIA_CATEGORY",
+        entityId: id,
+      });
+      return row;
+    });
   }
   create(input: NewMedia) {
     return this.database().transaction(async (tx) => {
