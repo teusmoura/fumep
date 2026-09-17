@@ -144,6 +144,7 @@ Jobs iniciais:
 
 ```text
 PROCESS_MEDIA
+DELETE_MEDIA
 ```
 
 Responsabilidades:
@@ -154,6 +155,14 @@ Responsabilidades:
 - coletar dimensões;
 - atualizar MediaVariant;
 - registrar falhas de processamento.
+
+## 6.1 DELETE_MEDIA — MEDIA-002 autorizada em 2026-09-17
+
+Job da fila media implementado somente no loop 4.16 ampliado. Payload Zod estrito `{ mediaId: UUID }`; ID `delete-media-<uuid>`. A API persiste/audita intenção antes do enqueue e não remove objetos. O Worker consulta a intenção PostgreSQL, serializa por advisory lock de sessão em conexão pinned, reserva uma tentativa durável e executa cleanup com row lock: variantes → original → metadados e MEDIA_DELETED no mesmo commit final. Metadados persistem em falhas; objeto ausente/reexecução após commit são sucessos idempotentes. PROCESS_MEDIA não inicia nem produz arquivos quando deletion_status diferente de NONE.
+
+Até três tentativas duráveis por ciclo, backoff exponencial inicial 1 segundo; uma queda após reserva consome tentativa. Exaustão/conflito leva a FAILED com auditoria/erro sanitizado, sem retry automático infinito. Só ADMIN com sessão/CSRF/reautorização pode solicitar novo ciclo explicitamente. O orçamento PostgreSQL não é zerado ao perder/recriar jobs Redis.
+
+Reconciliação do Worker no startup e a cada 60 segundos, independente do Redis: lotes até 100 REQUESTED, cursor sem starvation, sem sobreposição local, try advisory lock por mídia compartilhado com o executor. Preservar jobs pendentes/ativos; recriar ausentes ou terminais retidos somente com orçamento; nunca reenfileirar FAILED automaticamente. Redis indisponível conserva intenção; PostgreSQL indisponível impede I/O físico. Encerrar timer/varredura antes de fechar Worker e banco. Detalhamento obrigatório de lifecycle, constraints, segurança, locks, falhas e testes: Storage §55.1–55.5 e modelo lógico §8.2. Não adicionar fila nova, outbox genérico ou payload sensível.
 
 ---
 
@@ -1040,6 +1049,8 @@ Sem alterar a API pública do portal.
 ```text
 PROCESS_MEDIA
 
+DELETE_MEDIA
+
 PUBLISH_CONTENT
 
 EXPIRE_CONTENT
@@ -1062,6 +1073,7 @@ CLEAN_EXPIRED_RESET_TOKENS
 ```text
 media
 ├── PROCESS_MEDIA
+└── DELETE_MEDIA
 
 content
 ├── PUBLISH_CONTENT

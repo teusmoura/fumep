@@ -1131,13 +1131,62 @@ A exclusão deverá ser projetada de forma idempotente e resistente a falhas.
 
 O sistema não deverá assumir que operações no PostgreSQL e MinIO são uma única transação.
 
-Poderá ser utilizado posteriormente um job:
+Por decisão MEDIA-002 autorizada em 2026-09-17, será utilizado no loop 4.16 o job:
 
 ```text
 DELETE_MEDIA
 ```
 
 para garantir limpeza segura dos objetos.
+
+## 55.1 Lifecycle durável autorizado — MEDIA-002
+
+O lifecycle de exclusão é independente de processing_status. Campos em Media: deletion_status (NONE/REQUESTED/FAILED, default NONE), deletion_requested_at, deletion_requested_by, deletion_attempts (0–3, default 0), deletion_last_attempt_at e deletion_error_code. Timestamps são TIMESTAMPTZ; solicitante é UUID nullable FK users ON DELETE SET NULL. Modelo lógico §8.2 define constraints/índice. FAILED não significa mídia recuperável: arquivos podem já ter sido removidos parcialmente.
+
+Fluxo fechado:
+
+```text
+NONE → REQUESTED (intenção + auditoria, commit antes do enqueue)
+REQUESTED → registro removido (cleanup concluído + auditoria, mesmo commit)
+REQUESTED → FAILED (conflito ou três tentativas de cleanup consumidas)
+FAILED → REQUESTED (novo ciclo explicitamente solicitado por ADMIN)
+```
+
+Não há cancelamento, retorno automático a NONE, lixeira/restauração, outbox genérico ou reutilização de processing_status. Estados REQUESTED e FAILED são indisponíveis para biblioteca selecionável, duplicatas reutilizáveis, seleção, novos MediaUsage e publicação/restauração de referências. Consumidores reais deverão validar essa invariante na transação do owner. A listagem administrativa de pendências/falhas, quando implementada, será autorizada e separada da biblioteca selecionável.
+
+## 55.2 Solicitação e autorização
+
+DELETE /api/v1/media/:id exige sessão, CSRF, confirmação no painel e autorização institucional fresca sobre a categoria persistida. Em transação, bloquear Media FOR UPDATE, autorizar, verificar usos/PROCESSING e impedir exclusão em ambos os casos com 409 e auditoria MEDIA_DELETE_BLOCKED. Nenhum objeto é tocado na rejeição. Informações de owners somente após autorização dos respectivos owners; enquanto esses resolvers não existirem, retornar mensagem genérica, sem IDs/nomes/fields estrangeiros.
+
+Se permitido, persistir REQUESTED, timestamps do banco, solicitante e contador zero, com MEDIA_DELETE_REQUESTED no mesmo commit. Só depois tentar enqueue. Responder 202 com `{ mediaId, status: "REQUESTED" }`, não 204 nem promessa de remoção física imediata. Falha de enqueue após commit não desfaz intenção: logs seguros e reconciliação recuperam a entrega. Falha PostgreSQL antes do commit não dispara job nem MinIO. Nova solicitação autorizada de REQUESTED é idempotente (202, sem zerar contador/trocar solicitante/repetir auditoria). Mídia ausente: 404. FAILED: 409 com mensagem de recuperação administrativa, sem raw error.
+
+POST /api/v1/media/:id/deletion/retry será restrito a ADMIN, com sessão/CSRF. Somente FAILED admite novo ciclo; revalidar ausência de usos/PROCESSING sob lock, resetar contador/erro, renovar solicitante/data e auditar MEDIA_DELETE_RETRY_REQUESTED no commit antes do enqueue. Não desfazer a indisponibilidade durante esse processo.
+
+## 55.3 Execução, concorrência e idempotência
+
+DELETE_MEDIA executa apenas no Worker separado, na fila media. Payload Zod estrito `{ mediaId: UUID }`; sem bytes, chaves, credenciais, owner ou autorização delegada pelo payload. ID determinístico `delete-media-<uuid>`, separado de PROCESS_MEDIA.
+
+Serializar execução e reconciliação por mídia com advisory lock PostgreSQL na chave de dois inteiros `(hashtext('MEDIA_DELETE'), hashtext(mediaId normalizado em lowercase))`, compartilhada por ambos; colisão apenas serializa mídias adicionais. O Worker usa conexão dedicada/pinned para manter o advisory lock de sessão entre commits, liberando-o em finally; desconexão/queda libera o lock no servidor. Não usar lock de sessão sobre conexão devolvida ao pool. A autorização foi resolvida na solicitação; o Worker usa a intenção persistida, não depende de sessão HTTP ainda válida.
+
+Sob esse lock, verificar estado atual e reservar uma tentativa durável em transação antes de tocar objetos: incrementar deletion_attempts e atualizar deletion_last_attempt_at. Mídia ausente ou NONE/FAILED: no-op seguro. Já consumidas três tentativas: marcar FAILED e auditar sem remover mais arquivos. A reserva evita que perda de Redis/restart reinicie o orçamento de tentativas. Uma queda após reserva conta como tentativa; disponibilidade não prevalece sobre segurança.
+
+Na transação de cleanup, manter Media FOR UPDATE durante o I/O limitado por timeout e revalidar REQUESTED, zero usos e ausência de PROCESSING. Remover primeiro todos os objetos derivados (thumbnail compartilhada removida uma vez), depois original, usando exclusivamente chaves relativas persistidas/validadas. Objeto já ausente é sucesso; outros erros não são ignorados. Preservar todos os metadados/chaves até concluir os objetos. Finalmente remover metadados e inserir MEDIA_DELETED na mesma transação PostgreSQL (auditoria com solicitante nullable e entityId histórico, sem FK à Media removida).
+
+Novos MediaUsage obtêm o mesmo row lock e rejeitam deletion_status diferente de NONE, inclusive após esperar. Manter FK RESTRICT. PROCESS_MEDIA só pode iniciar sua transição condicional para PROCESSING quando deletion_status = NONE; a solicitação rejeita PROCESSING. Jobs de imagem atrasados/repetidos não escrevem objetos nem alteram status de mídia com intenção de exclusão. Não presumir que dedupe BullMQ substitui essas garantias no PostgreSQL.
+
+## 55.4 Falhas e recuperação
+
+Retries de cleanup: até três tentativas duráveis por ciclo, backoff exponencial inicial de 1 segundo. Erro externo conserva REQUESTED e todas as chaves; última tentativa leva a FAILED, registra MEDIA_DELETE_FAILED e código allowlisted. Nunca salvar/expor erro bruto, URL interna ou segredo em resposta/auditoria. Códigos permitidos: STORAGE_UNAVAILABLE, USAGE_CONFLICT, PROCESSING_CONFLICT, RETRY_EXHAUSTED. Conflito de uso/processamento bloqueia I/O e leva a FAILED imediatamente; exige investigação, não remoção forçada de referências.
+
+Se a transação de cleanup/auditoria falhar após remover objetos, seu rollback conserva a intenção REQUESTED e as chaves. Se houver queda do processo, a tentativa já reservada permanece persistida. Reexecução remove os objetos restantes/aceita os ausentes e tenta novamente o commit final. Se o commit final já ocorreu, job repetido encontra Media ausente e conclui sem repetir auditoria. Não há compensação por cópia de arquivo em memória.
+
+A reconciliação roda no startup do Worker e a cada 60 segundos, sem depender de um agendamento sobrevivente no Redis; sem sobreposição no processo, lotes de até 100 intenções REQUESTED, ordenadas por data/id e com cursor que não deixe itens posteriores famintos. Obtém advisory lock por mídia em modo try, pulando execuções já ativas. Consulta PostgreSQL e estado do job: waiting/delayed/active/waiting-children existentes são preservados; job ausente é recriado; completed/failed retidos são removidos e recriados somente se ainda houver orçamento durável. Com três tentativas já reservadas e sem execução ativa, finalizar FAILED/auditoria. FAILED não é reenfileirado automaticamente. Reconciliadores concorrentes devem usar a mesma chave/lock; enqueue repetido permanece seguro.
+
+Redis indisponível: conservar intenção, registrar falha sanitizada e tentar entrega nas próximas varreduras, sem executar MinIO pela API. PostgreSQL indisponível: não remover objetos nem confiar no estado Redis. Jobs stalled respeitam recuperação BullMQ, mas o orçamento continua no PostgreSQL. A reconciliação recupera jobs perdidos, não concede retry infinito de cleanup. Shutdown encerra timer, aguarda varredura em andamento, fecha Worker e só depois conexões. Persistência PostgreSQL é requisito operacional; não se promete recuperação de perda do próprio banco.
+
+## 55.5 Aceite obrigatório do 4.16 ampliado
+
+Testar migrations do zero e constraints; autorização/CSRF/404/409/202/retry ADMIN; usos/PROCESSING sem remoção; indisponibilidade em busca/duplicatas/seleção/MediaUsage; corrida uso × intenção e PROCESS_MEDIA × intenção; objetos reais MinIO e auditoria; falha de enqueue; job perdido/retido; duas reconciliações concorrentes; queda após reserva, após remover variantes/original e após commit final; falha PostgreSQL/auditoria; objetos ausentes; orçamento persistido/exaustão sem retry infinito; novo ciclo explícito e shutdown. Fixtures isoladas, sem apagar objetos/fila/dados de produção. Não declarar o loop completo só com a aprovação documental.
 
 ---
 

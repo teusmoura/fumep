@@ -77,9 +77,9 @@ LOOP 4.16 — ATUAL
 
 ### LOOP 4.16 — Bloqueio de exclusão
 
-Estado: parcialmente implementado e pausado por MEDIA-002 em docs/ISSUES_ARCHITECTURE.md. O 4.15 está concluído e commitado em `ab0f177`. Guard interno transacional e seus testes entregues; exclusão física/endpoint ainda não disponibilizados. Não avançar ao 4.17 enquanto o aceite completo não for satisfeito.
+Estado: parcialmente implementado, com MEDIA-002 autorizada e contrato fechado em 2026-09-17. O 4.15 está concluído e commitado em `ab0f177`; guard interno e testes commitados em `f3914ea`. Exclusão física/endpoint/migration/job ainda não disponibilizados. Não avançar ao 4.17 enquanto o aceite completo não for satisfeito.
 
-Para retomar: obter decisão explícita sobre lifecycle durável de exclusão no PostgreSQL, job DELETE_MEDIA e recuperação/reconciliação de intenções persistidas; atualizar os contratos canônicos autorizados antes de implementar essa parte. Não reutilizar processing_status para exclusão nem pressupor atomicidade PostgreSQL/Redis/MinIO. Os checks da entrega parcial passaram (278 testes, lint, typecheck, build, formatação e peers).
+Para retomar implementação: seguir Storage §55.1–55.5, Jobs §6.1, modelo lógico §8.2 e ampliação autorizada do plano 4.16. Estados NONE/REQUESTED/FAILED, intenção antes do enqueue, DELETE_MEDIA idempotente, três tentativas duráveis por ciclo, reconciliação no startup/a cada minuto e retry explícito ADMIN. Não reutilizar processing_status nem pressupor atomicidade PostgreSQL/Redis/MinIO. Os checks da entrega parcial passaram (278 testes, lint, typecheck, build, formatação e peers).
 
 Objetivo:
 
@@ -94,7 +94,7 @@ Implementar:
 - implementar bloqueio transacional/backend de exclusão de mídia referenciada, com autorização institucional/CSRF;
 - manter MediaUsage como fonte de integridade e preservar original/variantes em rejeição;
 - retornar mensagem amigável e informações de uso somente quando os respectivos owners forem autorizados;
-- implementar operações de exclusão coerentes com o fluxo canônico de Storage, sem inventar outbox/soft delete;
+- implementar o lifecycle/recuperação MEDIA-002 conforme contratos canônicos agora autorizados, sem inventar outbox genérico/lixeira/restauração;
 - testar mídia em uso, escopo/CSRF/concorrência/falhas aplicáveis e documentação/auditoria;
 - checks, documentação, commit e Git limpo.
 

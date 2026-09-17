@@ -4,9 +4,13 @@ Use este arquivo apenas quando a implementação encontrar uma contradição rea
 
 ## Abertos
 
+Nenhum bloqueio arquitetural aberto. A implementação e o aceite do 4.16 continuam pendentes.
+
+## Resolvidos
+
 ### MEDIA-002 — Estado durável e recuperação da exclusão física
 
-Classificação architecture-guard: **bloqueador parcial do loop 4.16**, decisão pendente.
+Classificação architecture-guard: **resolvido por autorização explícita do responsável em 2026-09-17**. Contrato fechado em Storage §55.1–55.5, Jobs §6.1 e modelo lógico §8.2. A resolução da decisão não significa implementação concluída.
 
 Evidências canônicas:
 - Storage §§52–54 proíbe exclusão com MediaUsage e define variantes → original → metadados → auditoria;
@@ -20,7 +24,7 @@ Conflito de segurança/consistência:
 - locks/FK resolvem concorrência enquanto o processo está vivo, não tornam a remoção física reversível depois de uma queda;
 - implementar recuperação durável exige uma alteração de modelo/escopo ainda não fechada. Não se trata da preferência entre uma função síncrona e uma fila.
 
-Parte independente permitida: guard interno mantém lock da Media durante a seção crítica, reautoriza a categoria persistida, bloqueia MediaUsage/PROCESSING, registra MEDIA_DELETE_BLOCKED transacionalmente e não expõe owners estrangeiros. Não disponibilizar exclusão física/endpoint nem avançar ao 4.17 antes da decisão.
+Parte independente já entregue em `f3914ea`: guard interno mantém lock da Media durante a seção crítica, reautoriza a categoria persistida, bloqueia MediaUsage/PROCESSING, registra MEDIA_DELETE_BLOCKED transacionalmente e não expõe owners estrangeiros.
 
 Recomendação para aprovação:
 - definir lifecycle de exclusão separado de processing_status, persistido no PostgreSQL antes de tocar objetos (por exemplo, deletion_requested_at/deletion_status, com contrato fechado);
@@ -29,9 +33,7 @@ Recomendação para aprovação:
 - definir recuperação/reconciliação de intenções persistidas quando enqueue ou processo falhar, sem assumir atomicidade PG/Redis/MinIO;
 - revisar documentos especializados/modelo lógico e escopo 4.16 explicitamente, mantendo sem JWT, sem novo storage e sem outbox genérico inventado.
 
-Decisão necessária: autorizar e fechar o lifecycle/recuperação recomendado, ou fornecer alternativa durável compatível com as invariantes. Nenhuma dessas alterações foi implementada sem autorização.
-
-## Resolvidos
+Decisão autorizada e fechada: estados NONE/REQUESTED/FAILED separados de processing_status; intenção e solicitante persistidos/auditados antes do enqueue; DELETE_MEDIA na fila media, payload somente mediaId; cleanup variantes → original → metadados/auditoria transacional; recuperação no startup e a cada minuto a partir do PostgreSQL. Limite durável de três tentativas de cleanup por ciclo, sem retry automático infinito após FAILED; ADMIN pode iniciar novo ciclo explicitamente, com sessão/CSRF/reautorização/auditoria. Campos, locks, tratamento de quedas, contrato REST e testes obrigatórios estão nos documentos canônicos. Nenhuma exclusão física, migration ou job foi implementado neste fechamento documental. O escopo adicional fica autorizado somente no 4.16; 4.17 permanece fechado até seu aceite.
 
 ### MEDIA-001 — Autorização de upload antes de MediaCategory
 

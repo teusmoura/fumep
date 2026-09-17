@@ -461,6 +461,25 @@ uploaded_by         UUID NULL FK -> users.id
 created_at          TIMESTAMPTZ NOT NULL
 ```
 
+### Exclusão durável — MEDIA-002 (autorizada em 2026-09-17)
+
+Adicionar por migration aditiva no loop 4.16, preservando registros existentes como NONE:
+
+```text
+deletion_status          media_deletion_status NOT NULL DEFAULT NONE
+deletion_requested_at    TIMESTAMPTZ NULL
+deletion_requested_by    UUID NULL FK -> users.id ON DELETE SET NULL
+deletion_attempts        INTEGER NOT NULL DEFAULT 0
+deletion_last_attempt_at TIMESTAMPTZ NULL
+deletion_error_code      VARCHAR(40) NULL
+
+media_deletion_status = NONE | REQUESTED | FAILED
+```
+
+Constraints: deletion_attempts entre 0 e 3; NONE exige data/solicitante/última tentativa/erro nulos e contador zero; REQUESTED/FAILED exigem deletion_requested_at não nulo; última tentativa nula se e somente se contador zero. Solicitante pode tornar-se nulo por exclusão do usuário. FAILED exige código de erro; códigos não nulos pertencem a STORAGE_UNAVAILABLE/USAGE_CONFLICT/PROCESSING_CONFLICT/RETRY_EXHAUSTED. REQUESTED pode conservar o código da última falha sanitizada; novo ciclo limpa erro e última tentativa. Índice parcial `(deletion_requested_at, id) WHERE deletion_status = 'REQUESTED'` para reconciliação paginada.
+
+NONE é a única condição elegível para novos usos/seleção/publicação. REQUESTED/FAILED não são estados de processamento de imagem e não representam lixeira/restauração. Intenção e auditoria são persistidas antes do enqueue; metadados/chaves permanecem até remoção física completa. MediaUsage mantém FK RESTRICT. A exclusão dos metadados e MEDIA_DELETED ocorre no mesmo commit, após variantes/original. Contrato de locks, três tentativas duráveis por ciclo, recuperação e retry explícito ADMIN: Storage §55.1–55.5 e Jobs §6.1, que têm precedência.
+
 ### Regras de acessibilidade
 
 Para imagens:

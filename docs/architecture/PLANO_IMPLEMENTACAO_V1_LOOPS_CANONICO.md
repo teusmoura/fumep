@@ -961,6 +961,19 @@ Rastrear uso.
 ### Cenário
 Mídia em uso → exclusão bloqueada.
 
+### Ampliação autorizada — MEDIA-002, 2026-09-17
+
+- lifecycle de exclusão NONE/REQUESTED/FAILED separado de processing_status, migration aditiva e intenção/auditoria antes do enqueue;
+- DELETE administrativo autorizado/CSRF, resposta 202 para intenção persistida; bloqueio de usos/PROCESSING e indisponibilidade para novos usos/seleção/publicação;
+- DELETE_MEDIA na fila media/Worker separado, cleanup idempotente e serializado, até três tentativas duráveis por ciclo;
+- recuperação PostgreSQL no startup/a cada minuto, sem depender da sobrevivência do Redis; FAILED sem retry automático infinito e novo ciclo explícito somente ADMIN;
+- metadados/chaves preservados até concluir objetos, auditoria final no mesmo commit da remoção; contratos fechados em Storage §55.1–55.5, Jobs §6.1 e modelo lógico §8.2;
+- testes de infraestrutura, concorrência, quedas/repetição/exaustão/reconciliação/shutdown, checks, documentação e commit. Não antecipar logos/consumidores do 4.17.
+
+### Aceite
+
+Mídia em uso preservada; exclusão não utilizada segura mesmo após falhas parciais/crash/perda de jobs, orçamento de retry persistido, autorização e checks verdes. Aprovação documental sozinha não conclui o loop.
+
 ---
 
 ## LOOP 4.17 — Logos institucionais via Media
