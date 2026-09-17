@@ -2175,3 +2175,16 @@ Checks aprovados: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test
 Falhas resolvidas: tipo OutputInfo importado explicitamente do Sharp; escape literal '..' no CHECK corrigido em 0016 aditiva após 0015 aplicada. Teste garante segmento legítimo de dois caracteres e rejeita traversal/URL. Rechecks verdes, nenhuma falha pendente. Browser E2E/axe/QA visual/CI remota não executados.
 
 Aceite cumprido. drizzle-data-model orientou constraints/idempotência e precedência storage_key; media-storage orientou tamanhos sugeridos, thumbnail compartilhada/preservação; jobs-worker manteve processamento separado; testing-qa cobriu codecs/aspecto/imagem pequena/integridade/repetição/concorrência/falhas/objetos reais. Commit: `feat(media): persist responsive WebP and AVIF variants`.
+
+## LOOP 4.10 — Concluído
+
+Estado inicial: 4.9 concluído em `89fa52a`, Git limpo.
+Escopo: transições condicionais PENDING/PROCESSING/READY/FAILED, resumo de erro allowlisted, auditoria transacional da falha, integração do pipeline e leitura autorizada do estado. Falha temporária permanece PROCESSING até retry/final; READY preservado em repetição. Sem novas tabelas/migrations, PDF ou UI completa de biblioteca.
+
+Entregue: MediaProcessingRepository com transições condicionais; PROCESSING antes do processamento, READY após todos os derivados, FAILED em erro permanente/última tentativa; resumo allowlisted e MEDIA_PROCESSING_FAILED transacional. Reexecução READY sem leitura/encoding; falha tardia não desfaz READY. GET media/:id/processing com sessão/autorização fresca, contrato Zod/OpenAPI, mensagem amigável e no-store.
+
+Checks aprovados: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` (232: 18 validation, 47 DB, 12 jobs, 3 storage, 94 API, 38 web, 20 worker), `pnpm build`, `pnpm peers check`, `pnpm --filter @fumep/worker test`, ESLint focado nos últimos arquivos API, Prettier workflow e `git diff --check`. Nenhuma alteração de schema/migration/dependência. Pipeline real Redis/MinIO/PostgreSQL/Sharp chega a READY com variantes; testes persistidos cobrem falhas permanentes/temporárias/exauridas, reexecução e auditoria.
+
+Falhas resolvidas: formatação de media-processing.repository.ts corrigida; rechecks verdes. Log ERROR do enqueue é fixture de falha simulada esperada. Nenhuma falha pendente. UI completa de acompanhamento/retry, varredura/outbox, browser E2E/axe/QA visual e CI remota não entregues/executados neste loop.
+
+Aceite cumprido. drizzle-data-model orientou transições/auditoria atômicas no PostgreSQL; jobs-worker/media-storage mantiveram READY dependente dos derivados e original preservado; security-access/nestjs-api revalidaram escopo e projeção segura; testing-qa cobriu integração e estados. Commit: `feat(media): persist processing lifecycle and authorized status`.

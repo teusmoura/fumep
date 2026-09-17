@@ -14,6 +14,7 @@ import {
   mediaDuplicateResponseSchema,
   mediaSelectionRequestSchema,
   mediaSelectionResponseSchema,
+  mediaProcessingResponseSchema,
   type SessionData,
 } from "@fumep/validation";
 import type { Media } from "@fumep/db";
@@ -138,5 +139,20 @@ export class MediaService {
     const category = media.categoryId ? await this.store.category(media.categoryId) : undefined;
     this.authorize(session, category?.institutionId ?? null);
     return this.selection(media);
+  }
+  async processing(session: SessionData, id: string) {
+    if (!mediaSelectionRequestSchema.safeParse({ id }).success)
+      throw new BadRequestException("Mídia inválida");
+    const media = await this.store.media(id);
+    if (!media || media.type !== "IMAGE") throw new NotFoundException("Mídia inexistente");
+    const category = media.categoryId ? await this.store.category(media.categoryId) : undefined;
+    this.authorize(session, category?.institutionId ?? null);
+    return mediaProcessingResponseSchema.parse({
+      id: media.id,
+      processingStatus: media.processingStatus,
+      width: media.width,
+      height: media.height,
+      error: media.processingStatus === "FAILED" ? "Falha no processamento da imagem" : null,
+    });
   }
 }

@@ -38,6 +38,16 @@ Uma variante é codificada e persistida por vez. Falha temporária mantém origi
 
 Pipeline 4.9 já gera derivados, mas estados READY/FAILED e recuperação operacional pertencem ao 4.10. Nenhuma URL MinIO é enviada ao navegador; entrega pública/seletores responsivos não são implementados neste loop.
 
+## Estados persistidos (4.10)
+
+O pipeline atual grava PROCESSING antes de ler/decodificar o original, a partir de PENDING/FAILED ou retomada de PROCESSING. READY somente depois de dimensões e todos os derivados persistidos. Repetição de mídia READY evita nova leitura/encoding e não desfaz o sucesso.
+
+Falha temporária mantém PROCESSING entre tentativas. Erro permanente ou última tentativa grava FAILED e processing_error allowlisted, junto com MEDIA_PROCESSING_FAILED na mesma transação PostgreSQL. Uma atualização tardia de falha não substitui READY. Falha do próprio PostgreSQL pode impedir a transição/auditoria; BullMQ/logs mantêm diagnóstico e não se promete atomicidade entre os serviços.
+
+GET `/api/v1/media/:id/processing` exige sessão e revalida instituição da categoria (ADMIN global, EDITOR institucional). Projeção estrita id/status/dimensões e mensagem amigável para FAILED; não retorna processing_error técnico, payload de job, storage_key ou credenciais. Seleção existente também reflete estado atual.
+
+Este loop conclui estados do pipeline, não uma UI completa de acompanhamento/retry. Não há varredura automática de mídia/outbox. Mídias PENDING recebidas nos checkpoints antigos ou não enfileiradas precisam de reenfileiramento operacional com cuidado sobre dedupe/retention. Interface completa e recuperação automática não são declaradas entregues.
+
 Testes reais usam namespace UUID exclusivo `fumep-test-queue-*`, verificam persistência, deduplicação e fechamento e removem apenas suas fixtures. Não usam FLUSHDB nem limpam `bull:media`. O addon nativo opcional msgpackr-extract permanece bloqueado; o fallback JavaScript passou nos testes.
 
 CI provisiona Redis/MinIO pelo Compose no projeto efêmero `portal-fumep-ci`, além de PostgreSQL do runner. Credenciais desse workflow são fixtures descartáveis, não credenciais de implantação. A limpeza afeta somente esse projeto de testes. Execução remota da CI e validação Docker local não foram realizadas: CLI Docker indisponível no ambiente atual.

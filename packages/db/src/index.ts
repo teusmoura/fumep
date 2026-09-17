@@ -8,6 +8,10 @@ export {
 export * from "./schema.js";
 export { MediaRepository } from "./media.repository.js";
 export { MediaVariantRepository } from "./media-variant.repository.js";
+export {
+  MediaProcessingRepository,
+  safeMediaProcessingError,
+} from "./media-processing.repository.js";
 export { MediaCategoryRepository } from "./media-category.repository.js";
 export {
   InstitutionSettingRepository,

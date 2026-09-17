@@ -64,47 +64,49 @@ LOOP 4.6 — CONCLUÍDO
 LOOP 4.7 — CONCLUÍDO
 LOOP 4.8 — CONCLUÍDO
 LOOP 4.9 — CONCLUÍDO
-LOOP 4.10 — ATUAL
+LOOP 4.10 — CONCLUÍDO
+LOOP 4.11 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 4.10 — Status de processamento
+### LOOP 4.11 — Upload de PDF
 
-Estado: pronto para execução após commit do 4.9. Worker gera variantes WebP/AVIF e thumbnail compartilhada, sem upscale. Media ainda PENDING; estados finais são o escopo atual.
+Estado: pronto para execução após commit do 4.10. Pipeline de imagem com estados persistidos e leitura autorizada concluído. Preservar upload, duplicidade e autorização institucional.
 
 Objetivo:
 
 ```text
-Cobrir PENDING, PROCESSING, READY e FAILED no pipeline de processamento.
+Implementar upload editorial de PDF de até 30 MB.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop e arquitetura de Jobs/Storage/modelo lógico; confirmar 4.9 commitado e Git limpo;
+- reler AGENTS.md, execute-loop e arquitetura de Storage/Segurança; confirmar 4.10 commitado e Git limpo;
 - usar jobs-worker/media-storage/testing-qa conforme o escopo;
-- transições no Worker: PENDING/FAILED → PROCESSING → READY somente após derivados persistidos;
-- FAILED/processing_error sanitizado em erro permanente ou tentativas exauridas, com auditoria aplicável;
-- repetição segura, preservação do original/variantes válidas e logs estruturados;
-- contratos/projeções de estado observáveis sem vazar detalhes internos ao Editor;
+- validar extensão/MIME/magic bytes e limite de 30 MB no backend;
+- salvar original PDF no MinIO com UUID/chave relativa documents/<uuid>.pdf;
+- persistir Media DOCUMENT, SHA-256 obrigatório e auditoria, sem enfileirar Sharp;
+- preservar escopo institucional/CSRF/duplicidade aplicáveis e contratos OpenAPI/Zod;
+- interface administrativa mínima para envio de PDF, sem biblioteca pública independente;
 - manter processamento fora do HTTP e payload sem bytes/credenciais;
-- testar sucesso, falha permanente/temporária/exaurida, repetição e estados persistidos;
+- testar arquivo válido/inválido, limites, autorização, duplicidade e falhas de storage/persistência;
 - não executar processamento no request NestJS;
 - checks, documentação, commit e Git limpo.
 
 Não implementar:
 
-- PDF do 4.11, gestão completa de categorias, MediaUsage e logos; não inventar outbox/tabelas auxiliares;
+- gestão completa de categorias, MediaUsage, logos e biblioteca pública de documentos; não inventar visualizador PDF próprio;
 - upload direto Browser → MinIO ou armazenamento físico no PostgreSQL.
 
 Critério de aceite:
 
 ```text
-Estados PENDING/PROCESSING/READY/FAILED coerentes com o pipeline, erro seguro e testes/checks verdes.
+PDF de até 30 MB enviado por usuário autorizado, validado e persistido com checksum, sem processamento Sharp; testes/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 4.11 — Upload de PDF
+LOOP 4.12 — Bloquear SVG editorial
 ```

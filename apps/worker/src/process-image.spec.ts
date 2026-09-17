@@ -3,11 +3,17 @@ import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import { config } from "dotenv";
 import { describe, expect, it, vi } from "vitest";
-import { createDatabase, MediaRepository, MediaVariantRepository, type Media } from "@fumep/db";
+import {
+  createDatabase,
+  MediaRepository,
+  MediaVariantRepository,
+  MediaProcessingRepository,
+  type Media,
+} from "@fumep/db";
 import { MediaStorage } from "@fumep/storage";
 import { MediaQueue, createMediaWorker, UnrecoverableError } from "@fumep/jobs";
 import { decodeImage, processImage } from "./process-image.js";
-import { receiveMediaJob } from "./receive-media.js";
+import { processMediaJob } from "./process-media-job.js";
 import { persistMediaVariants } from "./media-variants.js";
 
 config({ path: fileURLToPath(new URL("../../../.env", import.meta.url)), quiet: true });
@@ -75,6 +81,7 @@ describe("Sharp image processing", () => {
     const { client, db } = createDatabase(process.env.DATABASE_URL);
     const repository = new MediaRepository(db);
     const variants = new MediaVariantRepository(db);
+    const states = new MediaProcessingRepository(db);
     const storage = new MediaStorage();
     const id = randomUUID();
     const key = `images/originals/${id}.png`;
@@ -82,20 +89,7 @@ describe("Sharp image processing", () => {
     const producer = new MediaQueue(process.env, prefix);
     const original = await source().png().toBuffer();
     const worker = createMediaWorker(
-      (job) =>
-        receiveMediaJob(
-          job,
-          (mediaId) => repository.findById(mediaId),
-          () => undefined,
-          (media) =>
-            processImage(
-              media,
-              storage,
-              (mediaId, width, height) => repository.updateDimensions(mediaId, width, height),
-              (bytes, dimensions) =>
-                persistMediaVariants(media.id, bytes, dimensions, storage, variants),
-            ),
-        ),
+      (job) => processMediaJob(job, repository, states, variants, storage, () => undefined),
       process.env,
       prefix,
     );
@@ -124,7 +118,7 @@ describe("Sharp image processing", () => {
       expect(await repository.findById(id)).toMatchObject({
         width: 12,
         height: 8,
-        processingStatus: "PENDING",
+        processingStatus: "READY",
       });
       const firstVariants = await variants.findForMedia(id);
       expect(firstVariants).toHaveLength(2);
@@ -145,7 +139,7 @@ describe("Sharp image processing", () => {
       expect(await storage.read(key, original.length)).toEqual(original);
       const persisted = await repository.findById(id);
       expect(persisted?.checksumSha256).toBe(media.checksumSha256);
-      expect(persisted?.processingStatus).toBe("PENDING");
+      expect(persisted?.processingStatus).toBe("READY");
     } finally {
       await worker.close();
       if (!/^fumep-test-queue-[a-f0-9-]+$/.test(prefix)) throw new Error("Unsafe cleanup");

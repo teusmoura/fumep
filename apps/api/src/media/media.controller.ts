@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  Header,
+  Param,
   Post,
   Req,
   Res,
@@ -119,5 +121,25 @@ export class MediaController {
   })
   select(@Req() request: AuthenticatedRequest, @Body() body: unknown) {
     return this.media.select(request.auth, body);
+  }
+  @Get(":id/processing")
+  @Header("Cache-Control", "no-store")
+  @ApiOkResponse({
+    description: "Estado autorizado da imagem; erro amigável sem detalhes internos",
+    schema: {
+      type: "object",
+      additionalProperties: false,
+      required: ["id", "processingStatus", "width", "height", "error"],
+      properties: {
+        id: { type: "string", format: "uuid" },
+        processingStatus: { type: "string", enum: ["PENDING", "PROCESSING", "READY", "FAILED"] },
+        width: { type: "integer", minimum: 1, nullable: true },
+        height: { type: "integer", minimum: 1, nullable: true },
+        error: { type: "string", nullable: true },
+      },
+    },
+  })
+  processing(@Req() request: AuthenticatedRequest, @Param("id") id: string) {
+    return this.media.processing(request.auth, id);
   }
 }

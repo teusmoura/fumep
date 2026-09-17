@@ -1,29 +1,21 @@
-import { createDatabase, MediaRepository, MediaVariantRepository } from "@fumep/db";
+import {
+  createDatabase,
+  MediaRepository,
+  MediaVariantRepository,
+  MediaProcessingRepository,
+} from "@fumep/db";
 import { createMediaWorker } from "@fumep/jobs";
-import { receiveMediaJob } from "./receive-media.js";
 import { MediaStorage } from "@fumep/storage";
-import { processImage } from "./process-image.js";
-import { persistMediaVariants } from "./media-variants.js";
+import { processMediaJob } from "./process-media-job.js";
 
 if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL required");
 const { db, client } = createDatabase(process.env.DATABASE_URL);
 const repository = new MediaRepository(db);
 const variants = new MediaVariantRepository(db);
+const states = new MediaProcessingRepository(db);
 const storage = new MediaStorage();
 const worker = createMediaWorker((job) =>
-  receiveMediaJob(
-    job,
-    (id) => repository.findById(id),
-    undefined,
-    (media) =>
-      processImage(
-        media,
-        storage,
-        (id, width, height) => repository.updateDimensions(id, width, height),
-        (original, dimensions) =>
-          persistMediaVariants(media.id, original, dimensions, storage, variants),
-      ),
-  ),
+  processMediaJob(job, repository, states, variants, storage),
 );
 worker.on("error", () =>
   console.error(JSON.stringify({ event: "worker_connection_error", queue: "media" })),

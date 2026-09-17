@@ -137,6 +137,34 @@ describe("Image upload through NestJS to real MinIO/PostgreSQL", () => {
       png.length,
     );
   });
+  it("exposes authorized processing states without leaking processing_error", async () => {
+    const uploaded = await mutate("images", "editor")
+      .field("categoryId", categoryIds[0])
+      .attach("file", png, "status.png")
+      .expect(201);
+    keys.push(`images/originals/${uploaded.body.id}.png`);
+    const read = (id: string, role = "editor") =>
+      request(app.getHttpServer())
+        .get(`/api/v1/media/${id}/processing`)
+        .set("Cookie", `fumep_session=${role}`);
+    for (const status of ["PENDING", "PROCESSING", "READY", "FAILED"]) {
+      await client`UPDATE media SET processing_status = ${status}, processing_error = 'secret fixture' WHERE id = ${uploaded.body.id}`;
+      const result = await read(uploaded.body.id).expect(200).expect("Cache-Control", "no-store");
+      expect(result.body.processingStatus).toBe(status);
+      expect(JSON.stringify(result.body)).not.toContain("secret");
+      expect(result.body.error).toBe(
+        status === "FAILED" ? "Falha no processamento da imagem" : null,
+      );
+    }
+    await client`UPDATE media SET category_id = ${categoryIds[1]} WHERE id = ${uploaded.body.id}`;
+    await read(uploaded.body.id).expect(403);
+    await read(uploaded.body.id, "admin").expect(200);
+    await read("invalid").expect(400);
+    await read(randomUUID()).expect(404);
+    await request(app.getHttpServer())
+      .get(`/api/v1/media/${uploaded.body.id}/processing`)
+      .expect(401);
+  });
   it("allows global ADMIN and filters EDITOR category selection", async () => {
     const response = await mutate("images").attach("file", png, "fixture.png").expect(201);
     keys.push(`images/originals/${response.body.id}.png`);

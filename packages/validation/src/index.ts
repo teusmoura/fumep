@@ -2,6 +2,15 @@ import { z } from "zod";
 
 export const processMediaPayloadSchema = z.object({ mediaId: z.uuid() }).strict();
 export type ProcessMediaPayload = z.infer<typeof processMediaPayloadSchema>;
+export const mediaProcessingResponseSchema = z
+  .object({
+    id: z.uuid(),
+    processingStatus: z.enum(["PENDING", "PROCESSING", "READY", "FAILED"]),
+    width: z.number().int().positive().nullable(),
+    height: z.number().int().positive().nullable(),
+    error: z.literal("Falha no processamento da imagem").nullable(),
+  })
+  .strict();
 export const IMAGE_MAX_BYTES = 15 * 1024 * 1024;
 export const mediaUploadFieldsSchema = z
   .object({

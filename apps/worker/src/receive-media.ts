@@ -27,7 +27,7 @@ export async function receiveMediaJob<T extends MediaReference>(
     const dimensions = process ? await process(media) : undefined;
     log({
       ...fields,
-      status: process ? "decoded" : "received",
+      status: process ? "processed" : "received",
       media_id: media.id,
       finished_at: new Date().toISOString(),
       duration: Date.now() - started,
