@@ -1,5 +1,16 @@
 # LOOP STATUS
 
+## LOOP 4.15 — Concluído
+
+Estado inicial: 4.14 concluído em `2754173`, Git limpo.
+Escopo: tabela canônica media_usages UUID/TIMESTAMPTZ/FK/índices, sincronização interna transacional/idempotente por entidade, consulta/remoção de uso, concorrência/integridade/migration limpa e checks. Sem endpoint de escrita de ownership arbitrário nem consumidores futuros.
+
+Entregue: schema/migration 0017 media_usages com FK RESTRICT, índices, checks de campos não vazios e unicidade da referência; MediaUsageRepository interno com synchronize/findForMedia/hasUsage/removeEntity. Validação/deduplicação/normalização, advisory transaction lock por owner e lock ordenado das mídias, preservação de IDs/datas dos usos mantidos e remoção apenas da entidade alvo. Compatível com transação externa do consumidor; não aceita ownership de navegador como autorização. Consumidores devem resolver/autorizar a entidade real; integração de logos/Builder permanece nos loops próprios.
+
+Checks aprovados: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` (275: 21 validation, 53 DB, 12 jobs, 3 storage, 117 API, 49 web, 20 worker), `pnpm build`, `pnpm peers check`, `pnpm --filter @fumep/db typecheck`, `pnpm --filter @fumep/db test`, Prettier workflow e `git diff --check`. Drizzle gerou/aplicou 0017 localmente. Todas as migrations aplicadas do zero em `portal_fumep_loop_4_15_test` + 53 testes de banco; fixture preservada, nenhuma base existente sobrescrita. Testes cobrem FK/checks/unicidade/IDs estáveis/isolamento/referência ausente/remoção/concorrência/rollback externo. Sem dependências novas. Browser E2E/axe/QA visual/CI remota não executados; script test:e2e inexistente.
+
+Aceite cumprido, nenhuma falha pendente. drizzle-data-model/media-storage orientaram modelo polimórfico canônico/integridade/idempotência, testing-qa validou migrations e concorrência real. Nenhum endpoint externo inseguro ou consumidor antecipado. Commit: `feat(db): track media usages with transactional synchronization`.
+
 ## LOOP 4.14 — Concluído
 
 Estado inicial: 4.13 concluído em `6b8eb39`, Git limpo.

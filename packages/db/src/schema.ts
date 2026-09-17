@@ -138,6 +138,34 @@ export const media = pgTable(
 export type Media = typeof media.$inferSelect;
 export type NewMedia = typeof media.$inferInsert;
 
+export const mediaUsages = pgTable(
+  "media_usages",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    mediaId: uuid("media_id")
+      .notNull()
+      .references(() => media.id, { onDelete: "restrict" }),
+    entityType: varchar("entity_type", { length: 50 }).notNull(),
+    entityId: uuid("entity_id").notNull(),
+    fieldName: varchar("field_name", { length: 100 }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("media_usages_media_index").on(table.mediaId),
+    index("media_usages_entity_index").on(table.entityType, table.entityId),
+    uniqueIndex("media_usages_reference_unique").on(
+      table.mediaId,
+      table.entityType,
+      table.entityId,
+      table.fieldName,
+    ),
+    check("media_usages_entity_type_check", sql`length(trim(${table.entityType})) > 0`),
+    check("media_usages_field_name_check", sql`length(trim(${table.fieldName})) > 0`),
+  ],
+);
+export type MediaUsage = typeof mediaUsages.$inferSelect;
+export type NewMediaUsage = typeof mediaUsages.$inferInsert;
+
 export const userInstitutions = pgTable(
   "user_institutions",
   {

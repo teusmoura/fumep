@@ -69,44 +69,45 @@ LOOP 4.11 — CONCLUÍDO
 LOOP 4.12 — CONCLUÍDO
 LOOP 4.13 — CONCLUÍDO
 LOOP 4.14 — CONCLUÍDO
-LOOP 4.15 — ATUAL
+LOOP 4.15 — CONCLUÍDO
+LOOP 4.16 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 4.15 — MediaUsage
+### LOOP 4.16 — Bloqueio de exclusão
 
-Estado: pronto para execução após commit do 4.14. Biblioteca administrativa pesquisável; implementar infraestrutura canônica de rastreamento sem antecipar consumidores futuros.
+Estado: pronto para execução após commit do 4.15. MediaUsage persistido/FK RESTRICT e sincronização interna prontos; consolidar exclusão administrativa segura conforme Storage.
 
 Objetivo:
 
 ```text
-Implementar rastreamento canônico de uso de mídia.
+Bloquear exclusão de mídia em uso, preservando seus arquivos/referências.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop e documentos canônicos necessários; confirmar 4.14 commitado e Git limpo;
+- reler AGENTS.md, execute-loop e documentos canônicos necessários; confirmar 4.15 commitado e Git limpo;
 - usar drizzle-data-model/nestjs-api/nextjs-frontend/security-access/testing-qa conforme escopo;
-- implementar schema/migration/repository MediaUsage conforme modelo lógico e Storage;
-- rastrear referências de forma idempotente e transacional, preservando mídia e escopo autorizado;
-- não aceitar referências/ownership arbitrários fornecidos pelo cliente como autorização;
-- testar registro/repetição/remoção/consulta de uso, integridade e concorrência aplicáveis;
-- preparar integração interna para consumidores previstos, sem antecipar logos/Page Builder;
+- implementar bloqueio transacional/backend de exclusão de mídia referenciada, com autorização institucional/CSRF;
+- manter MediaUsage como fonte de integridade e preservar original/variantes em rejeição;
+- retornar mensagem amigável e informações de uso somente quando os respectivos owners forem autorizados;
+- implementar operações de exclusão coerentes com o fluxo canônico de Storage, sem inventar outbox/soft delete;
+- testar mídia em uso, escopo/CSRF/concorrência/falhas aplicáveis e documentação/auditoria;
 - checks, documentação, commit e Git limpo.
 
 Não implementar:
 
-- exclusão de mídia (4.16), logos (4.17), Page Builder, biblioteca pública ou novos tipos de mídia.
+- logos (4.17), Page Builder, novos consumidores ou biblioteca pública.
 
 Critério de aceite:
 
 ```text
-Usos persistidos e consultáveis, com integridade/idempotência e testes/checks verdes.
+Mídia em uso não pode ser excluída; arquivos/referências preservados e testes/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 4.16 — Bloqueio de exclusão
+LOOP 4.17 — Logos institucionais via Media
 ```
