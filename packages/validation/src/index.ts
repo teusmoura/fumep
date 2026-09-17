@@ -72,6 +72,62 @@ export function createBlockRegistry<Renderer = unknown, Editor = unknown>(
 // Intentionally empty in loop 5.1: concrete blocks are added only by their loops.
 export const blockRegistry = createBlockRegistry();
 
+// Identifiers from the canonical V1 catalog, not registered/implemented blocks.
+export const contentBlockTypeSchema = z.enum([
+  "TEXT",
+  "HERO",
+  "IMAGE",
+  "IMAGE_TEXT",
+  "CAROUSEL",
+  "CARDS",
+  "QUICK_LINKS",
+  "FAQ",
+  "TABS",
+  "TABLE",
+  "TIMELINE",
+  "STATISTICS",
+  "MAP",
+  "VIDEO",
+  "DOCUMENT",
+  "NEWS_FEED",
+  "EVENT_FEED",
+  "COURSE_FEED",
+  "CONTEST_FEED",
+  "SELECTION_PROCESS_FEED",
+  "GALLERY_FEED",
+  "CTA",
+  "SPACER",
+]);
+export const contentBlockBackgroundSchema = z.enum(["DEFAULT", "LIGHT", "INSTITUTION", "IMAGE"]);
+export const contentBlockCommonSchema = z
+  .object({
+    id: z.uuid(),
+    type: contentBlockTypeSchema,
+    position: z.number().int().min(0).max(2147483647),
+    isVisible: z.boolean(),
+    schemaVersion: z.number().int().min(1).max(2147483647),
+    background: contentBlockBackgroundSchema,
+    backgroundMediaId: z.uuid().nullable().optional(),
+    anchor: z
+      .string()
+      .max(100)
+      .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+      .nullable()
+      .optional(),
+  })
+  .strict()
+  .superRefine((block, context) => {
+    if (block.background === "IMAGE" && !block.backgroundMediaId)
+      context.addIssue({
+        code: "custom",
+        path: ["backgroundMediaId"],
+        message: "Image background requires a library media UUID",
+      });
+  });
+export type ContentBlockType = z.infer<typeof contentBlockTypeSchema>;
+export type ContentBlockBackground = z.infer<typeof contentBlockBackgroundSchema>;
+export type ContentBlockCommon = z.infer<typeof contentBlockCommonSchema>;
+
 export const processMediaPayloadSchema = z.object({ mediaId: z.uuid() }).strict();
 export type ProcessMediaPayload = z.infer<typeof processMediaPayloadSchema>;
 export const mediaProcessingResponseSchema = z

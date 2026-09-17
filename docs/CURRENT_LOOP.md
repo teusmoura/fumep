@@ -73,41 +73,43 @@ LOOP 4.15 — CONCLUÍDO
 LOOP 4.16 — CONCLUÍDO
 LOOP 4.17 — CONCLUÍDO
 LOOP 5.1 — CONCLUÍDO
-LOOP 5.2 — ATUAL
+LOOP 5.2 — CONCLUÍDO
+LOOP 5.3 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 5.2 — Schema comum dos blocos
+### LOOP 5.3 — TEXT v1
 
-Estado: pronto para execução após commit do 5.1. Registry central vazio/infraestrutura versionada implementados e checks verdes (322 testes). Revalidar commit/Git limpo antes de iniciar.
+Estado: pronto para execução após commit do 5.2. Schema comum canônico implementado e checks verdes (327 testes). Revalidar commit/Git limpo antes de iniciar.
 
 Objetivo:
 
 ```text
-Contrato Zod comum dos blocos com campos e configurações controladas da V1.
+Schema Zod versionado TEXT v1 com conteúdo rico simples e seguro, conforme contrato canônico.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop, plano e PAGE_BUILDER_CONTENT_BLOCKS.md; confirmar 5.1 commitado e Git limpo;
+- reler AGENTS.md, execute-loop, plano e PAGE_BUILDER_CONTENT_BLOCKS.md; confirmar 5.2 commitado e Git limpo;
 - usar page-builder, architecture-guard e testing-qa conforme escopo;
-- implementar schema comum compartilhado: id, type, position, isVisible, schemaVersion, background e anchor;
-- seguir o contrato especializado para IMAGE/background_media_id, sem mídia física/URL livre;
+- implementar somente schema TEXT v1, compondo o contrato comum e propriedades específicas controladas;
+- permitir as estruturas/formatações TEXT canônicas sem HTML/JavaScript/CSS/iframe livre, URLs inseguras ou outros blocos;
+- preservar versionamento e documentar o contrato; não registrar definição incompleta com editor/renderer placeholders;
 - testes, checks disponíveis, documentação, commit e Git limpo.
 
 Não implementar:
 
-- blocos concretos (5.3 em diante), editor/renderer/preview/publicação ou novos consumidores antecipados.
+- TEXT editor (5.4), TEXT renderer (5.5), outros blocos, endpoints/preview/publicação ou novos consumidores antecipados.
 
 Critério de aceite:
 
 ```text
-Schema comum canônico implementado, testado, documentado e checks verdes.
+Schema Zod TEXT v1 seguro implementado, testado, documentado e checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 5.3 — TEXT v1
+LOOP 5.4 — TEXT editor
 ```

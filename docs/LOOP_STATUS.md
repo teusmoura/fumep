@@ -1,5 +1,15 @@
 # LOOP STATUS
 
+## LOOP 5.2 — Concluído
+
+Estado inicial: 5.1 concluído em `35ad5d9`, Git limpo. Escopo: schema Zod comum id/type/position/isVisible/schemaVersion/background/anchor e backgroundMediaId exigido para fundo IMAGE pelo contrato especializado; catálogo de tipos canônicos como identificadores sem registrar blocos; contratos estritos sem CSS/grid/URL física, testes, checks e documentação. Sem schemas de data dos blocos, editor, renderer, persistência, preview ou publicação.
+
+Entregue: contentBlockCommonSchema e tipos inferidos, enum dos 23 identificadores canônicos e quatro fundos; UUID/INTEGER PostgreSQL/boolean explícitos, schemaVersion obrigatório e positivo, anchor nullable/opcional slug até 100, backgroundMediaId UUID requerido para IMAGE por refinamento com path de erro. Objeto strict, sem coerção/defaults silenciosos ou propriedades livres. safeExtend preserva refinamentos e prepara composição versionada futura; Registry permanece vazio. Docs/CONTENT_BLOCK_COMMON.md documenta limites do contrato e regras ainda dependentes de consumidores backend.
+
+Checks aprovados: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` (327: 32 validation, 67 DB, 12 jobs, 3 storage, 122 API, 61 web, 30 Worker), `pnpm build`, `pnpm peers check`, `git diff --check` e validation focado (32). Sem falhas, migration, dependência ou interface nova. Acessibilidade visual não se aplica ao schema puro; Browser E2E/axe/CI remota não executados, script test:e2e inexistente.
+
+Aceite cumprido. page-builder/architecture-guard seguiram a precedência especializada para IMAGE+Media.id sem antecipar backgrounds/anchors UI, validação de existência de mídia ou autorização/publicação. testing-qa cobriu contrato estrito, ausência de coerção e safeExtend, além de regressões da suíte completa. Commit: `feat(builder): define common content block contract`. Próximo loop: 5.3.
+
 ## LOOP 5.1 — Concluído
 
 Estado inicial: 4.17 concluído em `d4c4b6e`, Git limpo. Escopo estrito: BlockRegistry central vazio e infraestrutura agnóstica de UI para definições versionadas com schema Zod, renderer/editor, label e allowedContexts; lookup por tipo/versão/contexto, proteção contra registro duplicado/inválido e testes. Sem schema comum, blocos concretos, endpoints, renderer público, editor, preview ou publicação.
