@@ -1,5 +1,15 @@
 # LOOP STATUS
 
+## LOOP 5.1 — Concluído
+
+Estado inicial: 4.17 concluído em `d4c4b6e`, Git limpo. Escopo estrito: BlockRegistry central vazio e infraestrutura agnóstica de UI para definições versionadas com schema Zod, renderer/editor, label e allowedContexts; lookup por tipo/versão/contexto, proteção contra registro duplicado/inválido e testes. Sem schema comum, blocos concretos, endpoints, renderer público, editor, preview ou publicação.
+
+Entregue no entrypoint @fumep/validation: tipos BlockDefinition/BlockContext/BlockRegistry, factory createBlockRegistry e blockRegistry vazio. Definições são controladas pelo código, versionadas, validadas, sem UI/banco/I/O no pacote compartilhado. Lookup exato sem fallback implícito de versão, filtros PAGE/ARTICLE, duplicações proibidas e metadados/contextos/listas frozen com cópia dos inputs. Bindings renderer/editor opacos/genéricos preservam importação segura pela API sem React/Next/browser. Testes sintéticos não registram blocos V1. Docs/BLOCK_REGISTRY.md explica escopo e composição futura.
+
+Checks aprovados: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` (322: 27 validation, 67 DB, 12 jobs, 3 storage, 122 API, 61 web, 30 Worker), `pnpm build`, `pnpm peers check`, `git diff --check` e suíte validation focada (27) após reforçar lookup fail-closed para versão/contexto inválidos. Nenhuma migration/dependência/interface nova; acessibilidade visual não se aplica à infraestrutura pura. Browser E2E/axe/CI remota não executados, script test:e2e inexistente. Nenhuma falha pendente.
+
+Aceite cumprido. page-builder/architecture-guard mantiveram contrato canônico e catálogo vazio sem antecipar blocos; testing-qa verificou isolamento, versões, metadados, Zod e bindings, além da suíte existente. Commit: `feat(builder): add empty versioned block registry`. Próximo loop: 5.2.
+
 ## LOOP 4.17 — Concluído
 
 Estado inicial: 4.16 concluído em `30ec18d`, Git limpo. Escopo: Institution.logo_light_id/logo_dark_id nullable via migration, seleção administrativa pela biblioteca sem duplicação, MediaUsage transacional/idempotente e remoção com owner, validação IMAGE READY/disponível, logo público same-origin/fallback escuro, interface/testes/checks/documentação. Sem Page Builder.

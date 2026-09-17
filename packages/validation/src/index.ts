@@ -1,5 +1,77 @@
 import { z } from "zod";
 
+export type BlockContext = "PAGE" | "ARTICLE";
+// Renderer/editor bindings stay opaque here: importing validation on the API must
+// never load React, Next.js or browser-only editor modules.
+export interface BlockDefinition<Renderer = unknown, Editor = unknown> {
+  readonly type: string;
+  readonly schemaVersion: number;
+  readonly zodSchema: z.ZodType;
+  readonly renderer: Renderer;
+  readonly editor: Editor;
+  readonly label: string;
+  readonly allowedContexts: readonly BlockContext[];
+}
+export interface BlockRegistry<Renderer = unknown, Editor = unknown> {
+  get(
+    type: string,
+    schemaVersion: number,
+    context?: BlockContext,
+  ): BlockDefinition<Renderer, Editor> | undefined;
+  list(context?: BlockContext): readonly BlockDefinition<Renderer, Editor>[];
+}
+// Application-code composition only. There is no runtime/editor registration API.
+export function createBlockRegistry<Renderer = unknown, Editor = unknown>(
+  definitions: readonly BlockDefinition<Renderer, Editor>[] = [],
+): BlockRegistry<Renderer, Editor> {
+  const entries = new Map<string, BlockDefinition<Renderer, Editor>>();
+  for (const definition of definitions) {
+    if (
+      !/^[A-Z][A-Z0-9_]{0,49}$/.test(definition.type) ||
+      !Number.isSafeInteger(definition.schemaVersion) ||
+      definition.schemaVersion < 1 ||
+      typeof definition.label !== "string" ||
+      !definition.label.trim() ||
+      typeof definition.zodSchema?.safeParse !== "function" ||
+      definition.renderer == null ||
+      definition.editor == null ||
+      !Array.isArray(definition.allowedContexts) ||
+      !definition.allowedContexts.length ||
+      definition.allowedContexts.some((context) => context !== "PAGE" && context !== "ARTICLE") ||
+      new Set(definition.allowedContexts).size !== definition.allowedContexts.length
+    )
+      throw new Error("Invalid block definition");
+    const key = `${definition.type}@${definition.schemaVersion}`;
+    if (entries.has(key)) throw new Error("Duplicate block type and schema version");
+    entries.set(
+      key,
+      Object.freeze({
+        ...definition,
+        allowedContexts: Object.freeze([...definition.allowedContexts]),
+      }),
+    );
+  }
+  const snapshot = Object.freeze([...entries.values()]);
+  return Object.freeze({
+    get(type: string, schemaVersion: number, context?: BlockContext) {
+      if (!Number.isSafeInteger(schemaVersion) || schemaVersion < 1) return undefined;
+      const definition = entries.get(`${type}@${schemaVersion}`);
+      return definition && (context === undefined || definition.allowedContexts.includes(context))
+        ? definition
+        : undefined;
+    },
+    list(context?: BlockContext) {
+      return context !== undefined
+        ? Object.freeze(
+            snapshot.filter((definition) => definition.allowedContexts.includes(context)),
+          )
+        : snapshot;
+    },
+  });
+}
+// Intentionally empty in loop 5.1: concrete blocks are added only by their loops.
+export const blockRegistry = createBlockRegistry();
+
 export const processMediaPayloadSchema = z.object({ mediaId: z.uuid() }).strict();
 export type ProcessMediaPayload = z.infer<typeof processMediaPayloadSchema>;
 export const mediaProcessingResponseSchema = z

@@ -72,40 +72,42 @@ LOOP 4.14 — CONCLUÍDO
 LOOP 4.15 — CONCLUÍDO
 LOOP 4.16 — CONCLUÍDO
 LOOP 4.17 — CONCLUÍDO
-LOOP 5.1 — ATUAL
+LOOP 5.1 — CONCLUÍDO
+LOOP 5.2 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 5.1 — BlockRegistry
+### LOOP 5.2 — Schema comum dos blocos
 
-Estado: pronto para execução após commit do 4.17. Logos via Media implementados com autorização, usos transacionais, apresentação pública same-origin/fallback e checks verdes (318 testes). Revalidar commit/Git limpo antes de iniciar.
+Estado: pronto para execução após commit do 5.1. Registry central vazio/infraestrutura versionada implementados e checks verdes (322 testes). Revalidar commit/Git limpo antes de iniciar.
 
 Objetivo:
 
 ```text
-Registry vazio e infraestrutura compartilhada para os blocos canônicos do Page Builder.
+Contrato Zod comum dos blocos com campos e configurações controladas da V1.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop, plano e PAGE_BUILDER_CONTENT_BLOCKS.md; confirmar 4.17 commitado e Git limpo;
+- reler AGENTS.md, execute-loop, plano e PAGE_BUILDER_CONTENT_BLOCKS.md; confirmar 5.1 commitado e Git limpo;
 - usar page-builder, architecture-guard e testing-qa conforme escopo;
-- implementar somente Registry vazio e sua infraestrutura, seguindo o contrato canônico;
+- implementar schema comum compartilhado: id, type, position, isVisible, schemaVersion, background e anchor;
+- seguir o contrato especializado para IMAGE/background_media_id, sem mídia física/URL livre;
 - testes, checks disponíveis, documentação, commit e Git limpo.
 
 Não implementar:
 
-- schema comum dos blocos (5.2), blocos concretos (5.3 em diante), editor/preview/publicação ou novos consumidores antecipados.
+- blocos concretos (5.3 em diante), editor/renderer/preview/publicação ou novos consumidores antecipados.
 
 Critério de aceite:
 
 ```text
-Registry vazio e infraestrutura implementados, testados, documentados e checks verdes.
+Schema comum canônico implementado, testado, documentado e checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 5.2 — Schema comum dos blocos
+LOOP 5.3 — TEXT v1
 ```
