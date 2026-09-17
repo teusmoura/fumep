@@ -6,6 +6,8 @@ describe("SSR library search", () => {
     const categoryId = crypto.randomUUID();
     const html = renderToStaticMarkup(
       <MediaLibraryResults
+        csrfToken="secret-token"
+        isAdmin
         query={{ q: "laboratório & teste", categoryId, page: 2, limit: 1 }}
         categories={[{ id: categoryId, name: "ETMSL", institutionId: crypto.randomUUID() }]}
         result={{
@@ -44,6 +46,9 @@ describe("SSR library search", () => {
     expect(html).toContain("&lt;script&gt;");
     expect(html).not.toContain("<script>");
     expect(html).not.toContain("minio");
+    expect(html).toContain("Excluir arquivo");
+    expect(html).toContain('for="media-recovery-id"');
+    expect(html).not.toContain("secret-token");
   });
   it("renders empty state without a next page", () => {
     const html = renderToStaticMarkup(

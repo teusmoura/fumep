@@ -30,6 +30,7 @@ const png = Buffer.from(
 const csrf = "a".repeat(43);
 const origin = "http://localhost:3000";
 const enqueue = vi.fn<(id: string) => Promise<void>>(async () => undefined);
+const enqueueDeletion = vi.fn<(id: string) => Promise<void>>(async () => undefined);
 describe("Image upload through NestJS to real MinIO/PostgreSQL", () => {
   let app: INestApplication;
   let storage: MediaStorage;
@@ -48,7 +49,7 @@ describe("Image upload through NestJS to real MinIO/PostgreSQL", () => {
       await client`INSERT INTO institutions (id,name,slug) VALUES (${id},'Media fixture',${`media-${id}`})`;
     const moduleRef = await Test.createTestingModule({ imports: [MediaModule] })
       .overrideProvider(MediaQueueProvider)
-      .useValue({ producer: { enqueue } })
+      .useValue({ producer: { enqueue, enqueueDeletion } })
       .overrideProvider(SESSION_CONFIG)
       .useValue({
         appOrigin: origin,
@@ -741,6 +742,87 @@ describe("Image upload through NestJS to real MinIO/PostgreSQL", () => {
       auditBefore,
     );
   });
+  it("requests durable deletion with scope/CSRF, preserves in-use/processing objects and supports only ADMIN retry", async () => {
+    const suffix = randomUUID();
+    const uploaded = await mutate("images")
+      .field("categoryId", categoryIds[0])
+      .attach("file", png, `delete-${suffix}.png`)
+      .expect(201);
+    const id = uploaded.body.id;
+    const key = `images/originals/${id}.png`;
+    keys.push(key);
+    const deletion = (mediaId: string, role = "editor") =>
+      request(app.getHttpServer())
+        .delete(`/api/v1/media/${mediaId}`)
+        .set("Cookie", `fumep_session=${role}`)
+        .set("Origin", origin)
+        .set("X-CSRF-Token", csrf);
+    const remove = vi.spyOn(storage, "remove");
+    await request(app.getHttpServer()).delete(`/api/v1/media/${id}`).expect(401);
+    await request(app.getHttpServer())
+      .delete(`/api/v1/media/${id}`)
+      .set("Cookie", "fumep_session=editor")
+      .set("Origin", origin)
+      .expect(403);
+    await deletion("bad").expect(400);
+    await deletion(randomUUID()).expect(404);
+    const owner = randomUUID();
+    await client`INSERT INTO media_usages(media_id,entity_type,entity_id,field_name) VALUES(${id},'PAGE',${owner},'secret_foreign_owner_field')`;
+    const blocked = await deletion(id).expect(409);
+    expect(blocked.text).not.toContain(owner);
+    expect(blocked.text).not.toContain("secret_foreign");
+    expect(await storage.read(key, 1024)).toEqual(png);
+    await client`DELETE FROM media_usages WHERE media_id=${id}`;
+    await client`UPDATE media SET processing_status='PROCESSING' WHERE id=${id}`;
+    await deletion(id).expect(409);
+    await client`UPDATE media SET processing_status='PENDING' WHERE id=${id}`;
+    expect(remove).not.toHaveBeenCalled();
+    const persistFailure = vi
+      .spyOn(store, "requestDeletion")
+      .mockRejectedValueOnce(new Error("database password secret"));
+    const jobsBefore = enqueueDeletion.mock.calls.length;
+    const failed = await deletion(id).expect(503);
+    expect(failed.text).not.toContain("password");
+    expect(enqueueDeletion.mock.calls.length).toBe(jobsBefore);
+    persistFailure.mockRestore();
+    enqueueDeletion.mockRejectedValueOnce(new Error("Redis credentials secret"));
+    const accepted = await deletion(id).expect(202).expect("Cache-Control", "no-store");
+    expect(accepted.body).toEqual({ mediaId: id, status: "REQUESTED" });
+    await client`UPDATE media SET deletion_attempts=1,deletion_last_attempt_at=now() WHERE id=${id}`;
+    await deletion(id).expect(202);
+    const [current] =
+      await client`SELECT deletion_status,deletion_attempts FROM media WHERE id=${id}`;
+    expect(current).toMatchObject({ deletion_status: "REQUESTED", deletion_attempts: 1 });
+    expect(
+      await client`SELECT id FROM audit_logs WHERE entity_id=${id} AND action='MEDIA_DELETE_REQUESTED'`,
+    ).toHaveLength(1);
+    await mutate("selection", "editor").send({ id }).expect(404);
+    const search = await request(app.getHttpServer())
+      .get("/api/v1/media")
+      .query({ q: suffix })
+      .set("Cookie", "fumep_session=editor")
+      .expect(200);
+    expect(search.body.total).toBe(0);
+    const retry = (role: string) => mutate(`${id}/deletion/retry`, role).send({});
+    await retry("admin").expect(409);
+    await client`UPDATE media SET deletion_status='FAILED',deletion_error_code='RETRY_EXHAUSTED',deletion_attempts=3 WHERE id=${id}`;
+    await deletion(id).expect(409);
+    await retry("editor").expect(403);
+    await retry("admin").expect(202);
+    const [renewed] =
+      await client`SELECT deletion_attempts,deletion_error_code FROM media WHERE id=${id}`;
+    expect(renewed).toMatchObject({ deletion_attempts: 0, deletion_error_code: null });
+    expect(remove).not.toHaveBeenCalled();
+    remove.mockRestore();
+    for (const categoryId of [categoryIds[1], categoryIds[2]]) {
+      const otherMedia = await mutate("images")
+        .field("categoryId", categoryId)
+        .attach("file", png, "other-delete.png")
+        .expect(201);
+      keys.push(`images/originals/${otherMedia.body.id}.png`);
+      await deletion(otherMedia.body.id).expect(403);
+    }
+  });
   it("does not create metadata on MinIO failure and documents multipart/OpenAPI", async () => {
     const put = vi
       .spyOn(storage, "put")
@@ -758,5 +840,9 @@ describe("Image upload through NestJS to real MinIO/PostgreSQL", () => {
       "content.multipart/form-data",
     );
     expect(document.paths["/api/v1/media/images"].post?.responses).toHaveProperty("413");
+    expect(document.paths["/api/v1/media/{id}"].delete?.responses).toHaveProperty("202");
+    expect(document.paths["/api/v1/media/{id}/deletion/retry"].post?.responses).toHaveProperty(
+      "202",
+    );
   });
 });

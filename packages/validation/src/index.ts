@@ -256,3 +256,7 @@ export const updateInstitutionSettingRequestSchema = z
   .strict()
   .refine((input) => Object.keys(input).length > 0);
 export type UpdateInstitutionSettingRequest = z.infer<typeof updateInstitutionSettingRequestSchema>;
+export const deleteMediaPayloadSchema = z.object({ mediaId: z.uuid() }).strict();
+export const mediaDeletionResponseSchema = z
+  .object({ mediaId: z.uuid(), status: z.literal("REQUESTED") })
+  .strict();

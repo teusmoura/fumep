@@ -21,6 +21,8 @@ export async function loadMediaLibrary(cookie: string, query: unknown) {
       query: parsed.data,
       categories: context.categories,
       result: mediaLibraryResponseSchema.parse(await response.json()),
+      csrfToken: context.csrfToken,
+      isAdmin: context.isAdmin,
     };
   } catch {
     return undefined;

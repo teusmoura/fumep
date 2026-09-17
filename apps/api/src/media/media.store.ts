@@ -2,6 +2,7 @@ import type { OnModuleDestroy } from "@nestjs/common";
 import {
   createDatabase,
   MediaRepository,
+  MediaDeletionRepository,
   MediaCategoryRepository,
   InstitutionRepository,
   auditLogs,
@@ -27,6 +28,14 @@ export class MediaStore implements OnModuleDestroy {
   }
   media(id: string) {
     return new MediaRepository(this.database()).findById(id);
+  }
+  requestDeletion(
+    id: string,
+    userId: string,
+    authorize: (institutionId: string | null) => void,
+    retry = false,
+  ) {
+    return new MediaDeletionRepository(this.database()).request(id, userId, authorize, retry);
   }
   search(input: MediaLibraryQuery, institutionIds?: string[]) {
     return new MediaRepository(this.database()).search(input, institutionIds);

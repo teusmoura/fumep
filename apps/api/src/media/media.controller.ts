@@ -48,6 +48,40 @@ import { MediaService } from "./media.service.js";
 @UseGuards(SessionGuard, CsrfGuard)
 export class MediaController {
   constructor(private readonly media: MediaService) {}
+  @Delete(":id")
+  @HttpCode(202)
+  @Header("Cache-Control", "no-store")
+  @ApiResponse({
+    status: 202,
+    description: "Intenção persistida; remoção assíncrona recuperável",
+    schema: {
+      type: "object",
+      additionalProperties: false,
+      required: ["mediaId", "status"],
+      properties: {
+        mediaId: { type: "string", format: "uuid" },
+        status: { type: "string", enum: ["REQUESTED"] },
+      },
+    },
+  })
+  @ApiConflictResponse({
+    description: "Arquivo em uso/processando ou exclusão falhou; sem remoção na rejeição",
+  })
+  @ApiResponse({ status: 503, description: "Falha ao persistir solicitação" })
+  requestDeletion(@Req() request: AuthenticatedRequest, @Param("id") id: string) {
+    return this.media.requestDeletion(request.auth, id);
+  }
+  @Post(":id/deletion/retry")
+  @HttpCode(202)
+  @Header("Cache-Control", "no-store")
+  @ApiResponse({
+    status: 202,
+    description: "Novo ciclo de exclusão de FAILED, somente ADMIN; mediaId/status REQUESTED",
+  })
+  @ApiConflictResponse({ description: "Estado não FAILED, mídia em uso ou PROCESSING" })
+  retryDeletion(@Req() request: AuthenticatedRequest, @Param("id") id: string) {
+    return this.media.requestDeletion(request.auth, id, true);
+  }
   @Get()
   @Header("Cache-Control", "no-store")
   @ApiQuery({

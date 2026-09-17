@@ -19,6 +19,7 @@ export class MediaRepository {
     if (institutionIds?.length === 0) return { items: [], total: 0 };
     const term = input.q ? `%${input.q.replace(/[\\%_]/g, "\\$&")}%` : undefined;
     const filter = and(
+      eq(media.deletionStatus, "NONE"),
       inArray(media.type, ["IMAGE", "DOCUMENT"]),
       institutionIds ? inArray(mediaCategories.institutionId, institutionIds) : undefined,
       input.categoryId ? eq(media.categoryId, input.categoryId) : undefined,
@@ -59,7 +60,7 @@ export class MediaRepository {
     const [updated] = await this.database
       .update(media)
       .set({ width, height })
-      .where(and(eq(media.id, id), eq(media.type, "IMAGE")))
+      .where(and(eq(media.id, id), eq(media.type, "IMAGE"), eq(media.deletionStatus, "NONE")))
       .returning();
     return updated;
   }
@@ -85,6 +86,7 @@ export class MediaRepository {
         and(
           eq(media.checksumSha256, checksum),
           eq(media.type, type),
+          eq(media.deletionStatus, "NONE"),
           institutionIds ? inArray(mediaCategories.institutionId, institutionIds) : undefined,
         ),
       )

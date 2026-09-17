@@ -22,6 +22,7 @@ import {
   mediaSelectionRequestSchema,
   mediaSelectionResponseSchema,
   mediaProcessingResponseSchema,
+  mediaDeletionResponseSchema,
   type SessionData,
 } from "@fumep/validation";
 import type { Media } from "@fumep/db";
@@ -228,12 +229,47 @@ export class MediaService {
       processingStatus: media.processingStatus,
     });
   }
+  async requestDeletion(session: SessionData, id: string, retry = false) {
+    if (!mediaSelectionRequestSchema.safeParse({ id }).success)
+      throw new BadRequestException("Mídia inválida");
+    if (retry && session.role !== "ADMIN")
+      throw new ForbiddenException("Recuperação restrita ao administrador");
+    let result;
+    try {
+      result = await this.store.requestDeletion(
+        id.toLowerCase(),
+        session.userId,
+        (institutionId) => this.authorize(session, institutionId),
+        retry,
+      );
+    } catch (error) {
+      if (error instanceof ForbiddenException) throw error;
+      throw new ServiceUnavailableException(
+        "Não foi possível solicitar a exclusão. Tente novamente.",
+      );
+    }
+    if (result === "MISSING") throw new NotFoundException("Mídia inexistente");
+    if (result === "IN_USE") throw new ConflictException("Não é possível excluir: arquivo em uso.");
+    if (result === "PROCESSING")
+      throw new ConflictException("Aguarde o processamento antes de excluir.");
+    if (result !== "REQUESTED")
+      throw new ConflictException("Exclusão indisponível. Solicite recuperação ao administrador.");
+    try {
+      await this.jobs.producer.enqueueDeletion(id);
+    } catch {
+      this.logger.error(
+        JSON.stringify({ event: "media_delete_enqueue_failed", media_id: id.toLowerCase() }),
+      );
+    }
+    return mediaDeletionResponseSchema.parse({ mediaId: id.toLowerCase(), status: "REQUESTED" });
+  }
   async select(session: SessionData, body: unknown) {
     const parsed = mediaSelectionRequestSchema.safeParse(body);
     if (!parsed.success) throw new BadRequestException("Seleção inválida");
     const media = await this.store.media(parsed.data.id);
     if (
       !media ||
+      media.deletionStatus !== "NONE" ||
       !(
         media.type === "IMAGE" ||
         (media.type === "DOCUMENT" && media.mimeType === "application/pdf")
@@ -248,7 +284,8 @@ export class MediaService {
     if (!mediaSelectionRequestSchema.safeParse({ id }).success)
       throw new BadRequestException("Mídia inválida");
     const media = await this.store.media(id);
-    if (!media || media.type !== "IMAGE") throw new NotFoundException("Mídia inexistente");
+    if (!media || media.type !== "IMAGE" || media.deletionStatus !== "NONE")
+      throw new NotFoundException("Mídia inexistente");
     const category = media.categoryId ? await this.store.category(media.categoryId) : undefined;
     this.authorize(session, category?.institutionId ?? null);
     return mediaProcessingResponseSchema.parse({

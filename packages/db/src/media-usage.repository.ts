@@ -39,12 +39,14 @@ export class MediaUsageRepository {
       const ids = [...new Set([...unique.values()].map((row) => row.mediaId))].sort();
       if (ids.length) {
         const found = await tx
-          .select({ id: media.id })
+          .select({ id: media.id, deletionStatus: media.deletionStatus })
           .from(media)
           .where(inArray(media.id, ids))
           .orderBy(asc(media.id))
           .for("update");
         if (found.length !== ids.length) throw new Error("Referenced media does not exist");
+        if (found.some((row) => row.deletionStatus !== "NONE"))
+          throw new Error("Referenced media is unavailable for use");
       }
       const owner = and(eq(mediaUsages.entityType, entityType), eq(mediaUsages.entityId, ownerId));
       const previous = await tx.select().from(mediaUsages).where(owner);

@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { MediaDeleteControl } from "./media-delete-control";
+import { MediaDeletionRecovery } from "./media-deletion-recovery";
 import type {
   MediaLibraryQuery,
   MediaLibraryResponse,
@@ -8,10 +10,14 @@ export function MediaLibraryResults({
   query,
   result,
   categories,
+  csrfToken,
+  isAdmin,
 }: {
   query: MediaLibraryQuery;
   result: MediaLibraryResponse;
   categories: MediaCategoryOption[];
+  csrfToken?: string;
+  isAdmin?: boolean;
 }) {
   const pageUrl = (page: number) => {
     const params = new URLSearchParams({ page: String(page), limit: String(query.limit) });
@@ -60,6 +66,9 @@ export function MediaLibraryResults({
             <p>Texto alternativo: {row.altText ?? "Não informado"}</p>
             <p>Legenda: {row.caption ?? "Não informada"}</p>
             <p>Referência: {row.id}</p>
+            {csrfToken && (
+              <MediaDeleteControl id={row.id} name={row.originalFilename} csrfToken={csrfToken} />
+            )}
           </li>
         ))}
       </ul>
@@ -69,6 +78,7 @@ export function MediaLibraryResults({
           <Link href={pageUrl(result.page + 1)}>Próxima página</Link>
         )}
       </nav>
+      {isAdmin && csrfToken && <MediaDeletionRecovery csrfToken={csrfToken} />}
     </section>
   );
 }

@@ -101,6 +101,7 @@ export const mediaProcessingStatus = pgEnum("media_processing_status", [
   "READY",
   "FAILED",
 ]);
+export const mediaDeletionStatus = pgEnum("media_deletion_status", ["NONE", "REQUESTED", "FAILED"]);
 export const media = pgTable(
   "media",
   {
@@ -119,6 +120,14 @@ export const media = pgTable(
     isDecorative: boolean("is_decorative").notNull().default(false),
     processingStatus: mediaProcessingStatus("processing_status").notNull().default("PENDING"),
     processingError: text("processing_error"),
+    deletionStatus: mediaDeletionStatus("deletion_status").notNull().default("NONE"),
+    deletionRequestedAt: timestamp("deletion_requested_at", { withTimezone: true }),
+    deletionRequestedBy: uuid("deletion_requested_by").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    deletionAttempts: integer("deletion_attempts").notNull().default(0),
+    deletionLastAttemptAt: timestamp("deletion_last_attempt_at", { withTimezone: true }),
+    deletionErrorCode: varchar("deletion_error_code", { length: 40 }),
     categoryId: uuid("category_id").references(() => mediaCategories.id, { onDelete: "restrict" }),
     uploadedBy: uuid("uploaded_by").references(() => users.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -129,6 +138,22 @@ export const media = pgTable(
     index("media_uploaded_by_index").on(table.uploadedBy),
     index("media_created_at_index").on(table.createdAt),
     index("media_checksum_sha256_index").on(table.checksumSha256),
+    index("media_deletion_pending_index")
+      .on(table.deletionRequestedAt, table.id)
+      .where(sql`${table.deletionStatus} = 'REQUESTED'`),
+    check("media_deletion_attempts_check", sql`${table.deletionAttempts} BETWEEN 0 AND 3`),
+    check(
+      "media_deletion_state_check",
+      sql`(${table.deletionStatus} = 'NONE' AND ${table.deletionRequestedAt} IS NULL AND ${table.deletionRequestedBy} IS NULL AND ${table.deletionAttempts} = 0 AND ${table.deletionLastAttemptAt} IS NULL AND ${table.deletionErrorCode} IS NULL) OR (${table.deletionStatus} IN ('REQUESTED','FAILED') AND ${table.deletionRequestedAt} IS NOT NULL)`,
+    ),
+    check(
+      "media_deletion_attempt_time_check",
+      sql`(${table.deletionAttempts} = 0) = (${table.deletionLastAttemptAt} IS NULL)`,
+    ),
+    check(
+      "media_deletion_error_check",
+      sql`(${table.deletionStatus} != 'FAILED' OR ${table.deletionErrorCode} IS NOT NULL) AND (${table.deletionErrorCode} IS NULL OR ${table.deletionErrorCode} IN ('STORAGE_UNAVAILABLE','USAGE_CONFLICT','PROCESSING_CONFLICT','RETRY_EXHAUSTED'))`,
+    ),
     check("media_size_bytes_check", sql`${table.sizeBytes} >= 0`),
     check("media_checksum_sha256_check", sql`${table.checksumSha256} ~ '^[0-9a-f]{64}$'`),
     check("media_width_check", sql`${table.width} IS NULL OR ${table.width} > 0`),

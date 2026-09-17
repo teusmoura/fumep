@@ -5,6 +5,7 @@ import {
   proxyPdfUpload,
   proxyMediaSelection,
   proxyMediaCategory,
+  proxyMediaDeletion,
 } from "./upload-proxy";
 import { loadUploadContext } from "./upload-context";
 import { loadCategoryContext } from "./category-context";
@@ -14,6 +15,30 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 describe("server-only upload transport", () => {
+  it("uses fixed DELETE/retry endpoints, forwarded session/CSRF and rejects unsafe IDs", async () => {
+    const fetcher = vi
+      .fn()
+      .mockResolvedValue(Response.json({ status: "REQUESTED" }, { status: 202 }));
+    vi.stubGlobal("fetch", fetcher);
+    const id = crypto.randomUUID();
+    const request = new Request("http://localhost:3000/admin/media/delete/fixture", {
+      method: "DELETE",
+      headers: {
+        cookie: "fumep_session=fixture",
+        origin: "http://localhost:3000",
+        "x-csrf-token": "csrf",
+      },
+    });
+    expect((await proxyMediaDeletion(request, "../secret")).status).toBe(400);
+    expect(fetcher).not.toHaveBeenCalled();
+    expect((await proxyMediaDeletion(request, id)).status).toBe(202);
+    expect(fetcher.mock.calls[0][0].pathname).toBe(`/api/v1/media/${id}`);
+    expect(fetcher.mock.calls[0][1].method).toBe("DELETE");
+    expect(fetcher.mock.calls[0][1].headers.get("x-csrf-token")).toBe("csrf");
+    await proxyMediaDeletion(request, id, true);
+    expect(fetcher.mock.calls[1][0].pathname).toBe(`/api/v1/media/${id}/deletion/retry`);
+    expect(fetcher.mock.calls[1][1].method).toBe("POST");
+  });
   it("loads paginated library results through no-store API and rejects invalid queries before fetch", async () => {
     const fetcher = vi.fn();
     vi.stubGlobal("fetch", fetcher);

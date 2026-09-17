@@ -29,6 +29,7 @@ export async function processMediaJob(
     (id) => repository.findById(id),
     log,
     async (media) => {
+      if (media.deletionStatus !== "NONE") throw new UnrecoverableError("MEDIA_NO_LONGER_EXISTS");
       if (media.processingStatus === "READY") return dimensions(media);
       const started = await states.start(media.id);
       if (!started) {

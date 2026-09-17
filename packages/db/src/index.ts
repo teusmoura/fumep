@@ -8,6 +8,11 @@ export {
 export * from "./schema.js";
 export { MediaRepository } from "./media.repository.js";
 export { MediaDeletionGuard } from "./media-deletion.guard.js";
+export {
+  MediaDeletionRepository,
+  withMediaDeletionLock,
+  type DeletionCursor,
+} from "./media-deletion.repository.js";
 export { MediaUsageRepository, type MediaReference } from "./media-usage.repository.js";
 export { MediaVariantRepository } from "./media-variant.repository.js";
 export {

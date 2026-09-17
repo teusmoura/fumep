@@ -70,46 +70,45 @@ LOOP 4.12 — CONCLUÍDO
 LOOP 4.13 — CONCLUÍDO
 LOOP 4.14 — CONCLUÍDO
 LOOP 4.15 — CONCLUÍDO
-LOOP 4.16 — ATUAL
+LOOP 4.16 — CONCLUÍDO
+LOOP 4.17 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 4.16 — Bloqueio de exclusão
+### LOOP 4.17 — Logos institucionais via Media
 
-Estado: parcialmente implementado, com MEDIA-002 autorizada e contrato fechado em 2026-09-17. O 4.15 está concluído e commitado em `ab0f177`; guard interno e testes commitados em `f3914ea`. Exclusão física/endpoint/migration/job ainda não disponibilizados. Não avançar ao 4.17 enquanto o aceite completo não for satisfeito.
-
-Para retomar implementação: seguir Storage §55.1–55.5, Jobs §6.1, modelo lógico §8.2 e ampliação autorizada do plano 4.16. Estados NONE/REQUESTED/FAILED, intenção antes do enqueue, DELETE_MEDIA idempotente, três tentativas duráveis por ciclo, reconciliação no startup/a cada minuto e retry explícito ADMIN. Não reutilizar processing_status nem pressupor atomicidade PostgreSQL/Redis/MinIO. Os checks da entrega parcial passaram (278 testes, lint, typecheck, build, formatação e peers).
+Estado: pronto para execução após commit do 4.16. Lifecycle/exclusão recuperável MEDIA-002 implementados e checks verdes (300 testes). Revalidar commit/Git limpo antes de iniciar; não reutilizar mídia REQUESTED/FAILED.
 
 Objetivo:
 
 ```text
-Bloquear exclusão de mídia em uso, preservando seus arquivos/referências.
+FUMEP, ETMSL e CRAMAM selecionam logos pela Biblioteca sem duplicar arquivos.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop e documentos canônicos necessários; confirmar 4.15 commitado e Git limpo;
-- usar drizzle-data-model/nestjs-api/nextjs-frontend/security-access/testing-qa conforme escopo;
-- implementar bloqueio transacional/backend de exclusão de mídia referenciada, com autorização institucional/CSRF;
-- manter MediaUsage como fonte de integridade e preservar original/variantes em rejeição;
-- retornar mensagem amigável e informações de uso somente quando os respectivos owners forem autorizados;
-- implementar o lifecycle/recuperação MEDIA-002 conforme contratos canônicos agora autorizados, sem inventar outbox genérico/lixeira/restauração;
-- testar mídia em uso, escopo/CSRF/concorrência/falhas aplicáveis e documentação/auditoria;
+- reler AGENTS.md, execute-loop, plano/modelo lógico/Storage/Frontend e documentos necessários; confirmar 4.16 commitado e Git limpo;
+- usar skills de dados, API, frontend, mídia, segurança e testes conforme escopo;
+- adicionar Institution.logo_light_id/logo_dark_id como referências nullable a Media por migration aditiva;
+- permitir seleção pela Biblioteca sem novo upload/cópia, com autorização backend/CSRF e validação do tipo/estado/disponibilidade;
+- sincronizar MediaUsage de INSTITUTION/logo_light_id e logo_dark_id na mesma transação da instituição, preservando/removendo usos de forma idempotente;
+- resolver apresentação pública de logo claro/escuro com fallback quando logo dark ausente, sem vazar URL/credencial interna MinIO;
+- testar escopo, mídia inválida/indisponível, usos, fallback, migrations e acessibilidade aplicável;
 - checks, documentação, commit e Git limpo.
 
 Não implementar:
 
-- logos (4.17), Page Builder, novos consumidores ou biblioteca pública.
+- Page Builder (fase 5), novos consumidores de conteúdo ou biblioteca pública independente.
 
 Critério de aceite:
 
 ```text
-Mídia em uso não pode ser excluída; arquivos/referências preservados e testes/checks verdes.
+As três instituições selecionam logos via Media, sem duplicação; MediaUsage/segurança/fallback e checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 4.17 — Logos institucionais via Media
+LOOP 5.1 — BlockRegistry
 ```

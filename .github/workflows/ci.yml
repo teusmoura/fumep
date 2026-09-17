@@ -74,6 +74,25 @@ jobs:
       - name: Apply database migrations
         run: pnpm --filter @fumep/db db:migrate
 
+      - name: Provision isolated media deletion recovery fixture
+        working-directory: packages/db
+        run: |
+          node --input-type=module -e '
+            import postgres from "postgres";
+            import { spawnSync } from "node:child_process";
+            const original = process.env.DATABASE_URL;
+            if (!original) throw Error("DATABASE_URL required");
+            const client = postgres(original);
+            const name = "portal_fumep_loop_4_16_test";
+            const existing = await client`SELECT datname FROM pg_database WHERE datname=${name}`;
+            if (existing.length) throw Error("Refusing to overwrite existing fixture");
+            await client.unsafe("CREATE DATABASE portal_fumep_loop_4_16_test");
+            await client.end();
+            const url = new URL(original); url.pathname = "/" + name;
+            const result = spawnSync("pnpm", ["db:migrate"], { stdio: "inherit", env: { ...process.env, DATABASE_URL: url.toString() } });
+            if (result.status !== 0) process.exit(result.status ?? 1);
+          '
+
       - name: Test
         run: pnpm test
 

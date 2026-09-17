@@ -1,5 +1,5 @@
 import { Queue, Worker, type Processor, type DefaultJobOptions, type RedisOptions } from "bullmq";
-import { processMediaPayloadSchema } from "@fumep/validation";
+import { processMediaPayloadSchema, deleteMediaPayloadSchema } from "@fumep/validation";
 export { UnrecoverableError, type Job } from "bullmq";
 
 export const MEDIA_QUEUE_NAME = "media";
@@ -99,6 +99,25 @@ export class MediaQueue {
   async enqueue(mediaId: string): Promise<void> {
     const payload = processMediaPayloadSchema.parse({ mediaId });
     await this.queue().add("PROCESS_MEDIA", payload, { jobId: `process-media-${payload.mediaId}` });
+  }
+  async enqueueDeletion(mediaId: string): Promise<void> {
+    const payload = deleteMediaPayloadSchema.parse({ mediaId: mediaId.toLowerCase() });
+    await this.queue().add("DELETE_MEDIA", payload, { jobId: `delete-media-${payload.mediaId}` });
+  }
+  async deletionState(mediaId: string) {
+    const payload = deleteMediaPayloadSchema.parse({ mediaId: mediaId.toLowerCase() });
+    const job = await this.queue().getJob(`delete-media-${payload.mediaId}`);
+    return job ? await job.getState() : "missing";
+  }
+  async reconcileDeletion(mediaId: string) {
+    const payload = deleteMediaPayloadSchema.parse({ mediaId: mediaId.toLowerCase() });
+    const job = await this.queue().getJob(`delete-media-${payload.mediaId}`);
+    if (job) {
+      const state = await job.getState();
+      if (!["completed", "failed", "unknown"].includes(state)) return;
+      await job.remove();
+    }
+    await this.enqueueDeletion(payload.mediaId);
   }
 }
 

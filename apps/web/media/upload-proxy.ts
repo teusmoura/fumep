@@ -14,6 +14,16 @@ export function proxyMediaCategory(request: Request, id?: string): Promise<Respo
     return Promise.resolve(Response.json({ message: "Categoria inválida" }, { status: 400 }));
   return proxy(request, `/api/v1/media/categories${id ? `/${id}` : ""}`, 4096, request.method);
 }
+export function proxyMediaDeletion(request: Request, id: string, retry = false): Promise<Response> {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id))
+    return Promise.resolve(Response.json({ message: "Mídia inválida" }, { status: 400 }));
+  return proxy(
+    request,
+    `/api/v1/media/${id}${retry ? "/deletion/retry" : ""}`,
+    4096,
+    retry ? "POST" : "DELETE",
+  );
+}
 async function proxy(
   request: Request,
   endpoint: string,

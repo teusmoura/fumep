@@ -26,6 +26,7 @@ export class MediaProcessingRepository {
         and(
           eq(media.id, id),
           eq(media.type, "IMAGE"),
+          eq(media.deletionStatus, "NONE"),
           inArray(media.processingStatus, ["PENDING", "PROCESSING", "FAILED"]),
         ),
       )
@@ -41,6 +42,7 @@ export class MediaProcessingRepository {
           eq(media.id, id),
           eq(media.type, "IMAGE"),
           eq(media.processingStatus, "PROCESSING"),
+          eq(media.deletionStatus, "NONE"),
           gt(media.width, 0),
           gt(media.height, 0),
         ),
@@ -55,7 +57,12 @@ export class MediaProcessingRepository {
         .update(media)
         .set({ processingStatus: "FAILED", processingError: summary })
         .where(
-          and(eq(media.id, id), eq(media.type, "IMAGE"), eq(media.processingStatus, "PROCESSING")),
+          and(
+            eq(media.id, id),
+            eq(media.type, "IMAGE"),
+            eq(media.processingStatus, "PROCESSING"),
+            eq(media.deletionStatus, "NONE"),
+          ),
         )
         .returning();
       if (row)

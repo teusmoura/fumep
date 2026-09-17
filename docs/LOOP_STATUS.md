@@ -1,6 +1,18 @@
 # LOOP STATUS
 
-## LOOP 4.16 — Parcial, MEDIA-002 autorizada e contrato fechado
+## LOOP 4.16 — Concluído
+
+Entregue na retomada: migration aditiva 0018/lifecycle com constraints/índice/FK; MediaDeletionRepository/locks dedicados/reserva de tentativa persistida/cleanup/auditoria final atômicos no PostgreSQL; bloqueio transacional de usos/busca/duplicatas/seleção/processamento; DELETE 202 e retry ADMIN com sessão/CSRF/escopo/contratos Zod/OpenAPI; DELETE_MEDIA no Worker separado e reconciler startup/60s com cursor/locks/shutdown; confirmação acessível na biblioteca e recuperação explícita por UUID. Docs/MEDIA_DELETION.md e CI com provisionamento de banco de fixture isolado. Sem dependências novas, outbox genérico, JWT, lixeira/restauração ou logos antecipados.
+
+Checks finais aprovados: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` (300: 22 validation, 62 DB, 12 jobs, 3 storage, 118 API, 53 web, 30 worker), `pnpm build`, `pnpm peers check`, testes focados DB/web/API/Worker e `git diff --check`. Migration 0018 gerada/aplicada localmente; todas as migrations do zero em `portal_fumep_loop_4_16_test` + 62 testes DB. Recheck Worker com 30 testes após fortalecer quedas de processo filho em duas fronteiras (variante/original). Banco de fixture preservado; triggers temporárias de falha de auditoria removidas, chaves UUID limpas, recursos Redis exclusivos. Prettier workflow aprovado. Browser E2E/axe/QA visual/CI remota não executados; script test:e2e inexistente.
+
+Falhas resolvidas: ReservedSql sem options/begin de runtime exigidos pelo Drizzle, substituído por cliente dedicado max=1 sem reciclagem até unlock/end; tipos do mock fetch e formatação corrigidos. Injeção de desconexão do backend no mesmo processo expôs falha interna do driver e timeout; cenário de queda real passou a rodar em processo filho isolado, com saída esperada e verificação do estado/objetos/replay no processo pai. Isso valida recuperação após crash, não promete que toda queda de dependência seja tratada sem reiniciar o Worker. Nenhuma falha de check pendente. Logs ERROR de enqueue são fixtures esperadas de indisponibilidade.
+
+Aceite cumprido. architecture-guard manteve MEDIA-002 nos contratos autorizados; drizzle-data-model orientou durabilidade/constraints/concorrência; media-storage/jobs-worker orientaram idempotência/ordem/recuperação/limite persistido; security-access/nestjs-api mantiveram autorização/CSRF/projeções seguras; nextjs-frontend preservou foco/status/SSR; testing-qa cobriu PostgreSQL/Redis/MinIO reais e processos isolados. Commit: `feat(media): implement durable deletion and recovery lifecycle`. Próximo loop: 4.17.
+
+### Histórico da entrega parcial e autorização
+
+Retomada de implementação: estado inicial `c8284ec`, Git limpo. Escopo estrito: migration/lifecycle, bloqueio de seleção/usos/processamento, solicitação/retry REST autorizados, DELETE_MEDIA/recuperação separados, interface mínima de confirmação e testes/checks aplicáveis. Não antecipar 4.17.
 
 Estado inicial: 4.15 concluído em `ab0f177`, Git limpo.
 Escopo independente entregue antes da autorização: guard interno transacional com autorização fresca por categoria, MediaUsage, auditoria de bloqueio, proteção contra processamento/concurrência e testes. Exclusão física/endpoint/avanço dependiam da decisão MEDIA-002; sem novo estado/fila/soft delete silencioso.
