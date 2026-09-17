@@ -77,7 +77,9 @@ LOOP 4.16 — ATUAL
 
 ### LOOP 4.16 — Bloqueio de exclusão
 
-Estado: pronto para execução após commit do 4.15. MediaUsage persistido/FK RESTRICT e sincronização interna prontos; consolidar exclusão administrativa segura conforme Storage.
+Estado: parcialmente implementado e pausado por MEDIA-002 em docs/ISSUES_ARCHITECTURE.md. O 4.15 está concluído e commitado em `ab0f177`. Guard interno transacional e seus testes entregues; exclusão física/endpoint ainda não disponibilizados. Não avançar ao 4.17 enquanto o aceite completo não for satisfeito.
+
+Para retomar: obter decisão explícita sobre lifecycle durável de exclusão no PostgreSQL, job DELETE_MEDIA e recuperação/reconciliação de intenções persistidas; atualizar os contratos canônicos autorizados antes de implementar essa parte. Não reutilizar processing_status para exclusão nem pressupor atomicidade PostgreSQL/Redis/MinIO. Os checks da entrega parcial passaram (278 testes, lint, typecheck, build, formatação e peers).
 
 Objetivo:
 

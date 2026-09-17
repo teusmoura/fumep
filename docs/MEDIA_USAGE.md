@@ -10,4 +10,10 @@ Sincronização valida formatos/limites de metadados, normaliza UUID, deduplica 
 
 FK RESTRICT preserva mídia referenciada no PostgreSQL. A exclusão administrativa e seus erros/auditoria pertencem ao 4.16; logos e seus usages ao 4.17. O rastreador não apaga objetos MinIO ou metadados de Media.
 
+## Guard de exclusão — parte independente do 4.16
+
+`MediaDeletionGuard.withUnusedMedia` é uma seção crítica interna, não endpoint/capability "pode excluir" reutilizável. Mantém FOR UPDATE durante a operação do consumidor, reautoriza a categoria atual e bloqueia antes da operação quando há MediaUsage ou processamento em andamento. MEDIA_DELETE_BLOCKED registra somente motivo, sem dados de owners de outra instituição. Referências novas via synchronize aguardam o mesmo lock da mídia. Ausência/negação não executam operação.
+
+Não existe ainda endpoint ou remoção física de arquivos. MEDIA-002 registra a decisão necessária para lifecycle durável/recuperação entre PG e MinIO; a proteção de concorrência isolada não resolve queda após apagar arquivos. Não reutilizar processing_status para exclusão nem introduzir estado/job silenciosamente. A parte bloqueada mantém 4.16 atual.
+
 Testes PostgreSQL reais cobrem FK/checks/unicidade, referência inexistente/entrada inválida, repetição/IDs estáveis, substituição, isolamento de outro owner, remoção, concorrência e rollback da transação externa. Fixtures usam owners/mídias UUID exclusivos e limpeza restrita. Migration aditiva 0017 deve aplicar também do zero em banco de fixture limpo.

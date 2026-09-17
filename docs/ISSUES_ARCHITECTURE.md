@@ -4,7 +4,32 @@ Use este arquivo apenas quando a implementação encontrar uma contradição rea
 
 ## Abertos
 
-Nenhum.
+### MEDIA-002 — Estado durável e recuperação da exclusão física
+
+Classificação architecture-guard: **bloqueador parcial do loop 4.16**, decisão pendente.
+
+Evidências canônicas:
+- Storage §§52–54 proíbe exclusão com MediaUsage e define variantes → original → metadados → auditoria;
+- Storage §55 exige exclusão idempotente/resistente a falhas, explicita que PostgreSQL/MinIO não são uma única transação e admite DELETE_MEDIA posteriormente;
+- modelo lógico §8.2 não possui estado/marcador de exclusão; processing_status no especializado/implementação pertence ao processamento de imagem, não deve ser reutilizado silenciosamente para exclusão;
+- o plano 4.16 exige bloqueio de mídia em uso; não define lifecycle de exclusão/recuperação nem autoriza ampliar o modelo com tombstone/outbox/estado novo.
+
+Conflito de segurança/consistência:
+- remover arquivos primeiro e sofrer queda antes do commit PostgreSQL devolve o lock/rollback, mas deixa Media disponível (inclusive READY) sem original/variantes. Outro consumidor pode então registrar novo uso. Backup apenas em memória/compensação no catch não recupera uma queda do processo;
+- remover metadados primeiro viola a sequência do especializado e perde a fonte durável para reconciliar objetos restantes;
+- locks/FK resolvem concorrência enquanto o processo está vivo, não tornam a remoção física reversível depois de uma queda;
+- implementar recuperação durável exige uma alteração de modelo/escopo ainda não fechada. Não se trata da preferência entre uma função síncrona e uma fila.
+
+Parte independente permitida: guard interno mantém lock da Media durante a seção crítica, reautoriza a categoria persistida, bloqueia MediaUsage/PROCESSING, registra MEDIA_DELETE_BLOCKED transacionalmente e não expõe owners estrangeiros. Não disponibilizar exclusão física/endpoint nem avançar ao 4.17 antes da decisão.
+
+Recomendação para aprovação:
+- definir lifecycle de exclusão separado de processing_status, persistido no PostgreSQL antes de tocar objetos (por exemplo, deletion_requested_at/deletion_status, com contrato fechado);
+- bloquear seleção/publicação/novos usos enquanto a mídia estiver nesse lifecycle;
+- autorizar DELETE_MEDIA no Worker separado, payload restrito ao mediaId, remoção idempotente e retries limitados; PostgreSQL mantém a intenção/metadados até concluir limpeza/auditoria;
+- definir recuperação/reconciliação de intenções persistidas quando enqueue ou processo falhar, sem assumir atomicidade PG/Redis/MinIO;
+- revisar documentos especializados/modelo lógico e escopo 4.16 explicitamente, mantendo sem JWT, sem novo storage e sem outbox genérico inventado.
+
+Decisão necessária: autorizar e fechar o lifecycle/recuperação recomendado, ou fornecer alternativa durável compatível com as invariantes. Nenhuma dessas alterações foi implementada sem autorização.
 
 ## Resolvidos
 

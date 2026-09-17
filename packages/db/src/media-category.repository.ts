@@ -1,4 +1,4 @@
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import type { Database } from "./client.js";
 import { mediaCategories, type NewMediaCategory } from "./schema.js";
 
@@ -17,7 +17,7 @@ export class MediaCategoryRepository {
   async update(id: string, input: Pick<NewMediaCategory, "name" | "slug">) {
     const [row] = await this.database
       .update(mediaCategories)
-      .set({ name: input.name, slug: input.slug, updatedAt: new Date() })
+      .set({ name: input.name, slug: input.slug, updatedAt: sql`now()` })
       .where(eq(mediaCategories.id, id))
       .returning();
     return row;

@@ -1,5 +1,16 @@
 # LOOP STATUS
 
+## LOOP 4.16 — Parcial, pausado por MEDIA-002
+
+Estado inicial: 4.15 concluído em `ab0f177`, Git limpo.
+Escopo independente: guard interno transacional com autorização fresca por categoria, MediaUsage, auditoria de bloqueio, proteção contra processamento/concurrência e testes. Exclusão física/endpoint/avanço dependem de MEDIA-002; sem novo estado/fila/soft delete silencioso.
+
+Entregue: MediaDeletionGuard interno com lock FOR UPDATE, autorização sobre a categoria persistida, rejeição de mídia em uso/PROCESSING antes de qualquer operação e auditoria MEDIA_DELETE_BLOCKED transacional sem expor owners. A operação autorizada permanece dentro da transação/lock, não como preflight reutilizável. Testes PostgreSQL reais comprovam bloqueio, autorização, ausência e espera concorrente de MediaUsage pelo lock efetivo. Nenhum endpoint ou exclusão física foi disponibilizado.
+
+Checks aprovados: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` (278: 21 validation, 56 DB, 12 jobs, 3 storage, 117 API, 49 web, 20 worker), `pnpm build`, `pnpm peers check` e `git diff --check`. Falhas resolvidas: formatação do guard; teste intermitente de categorias por diferença entre relógios da aplicação/PostgreSQL, corrigido usando SQL now() também em updated_at, sem migration. Recheck completo verde. Browser E2E/axe/QA visual/CI remota não executados; script test:e2e inexistente.
+
+Aceite completo ainda pendente. architecture-guard exigiu pausa da exclusão física: uma queda após remover arquivos e antes do commit deixa Media selecionável sem arquivos; locks e compensação em memória não recuperam esse cenário. MEDIA-002 solicita autorização para lifecycle durável separado do processamento, DELETE_MEDIA no Worker e recuperação/reconciliação. CURRENT_LOOP permanece 4.16; 4.17 não iniciado. Commit parcial: `feat(media): guard deletion and document durable lifecycle blocker`.
+
 ## LOOP 4.15 — Concluído
 
 Estado inicial: 4.14 concluído em `2754173`, Git limpo.
