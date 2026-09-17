@@ -128,6 +128,176 @@ export type ContentBlockType = z.infer<typeof contentBlockTypeSchema>;
 export type ContentBlockBackground = z.infer<typeof contentBlockBackgroundSchema>;
 export type ContentBlockCommon = z.infer<typeof contentBlockCommonSchema>;
 
+export const TEXT_V1_LIMITS = Object.freeze({
+  titleCharacters: 200,
+  runCharacters: 5000,
+  documentCharacters: 100000,
+  nodes: 200,
+  inlineNodes: 100,
+  listItems: 100,
+  tableColumns: 12,
+  tableRows: 100,
+});
+const textPlainSchemaV1 = z
+  .string()
+  .max(TEXT_V1_LIMITS.runCharacters)
+  .refine(
+    (value) => !/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/.test(value),
+    "Unsupported control characters",
+  );
+export const textLinkUrlSchemaV1 = z
+  .string()
+  .min(1)
+  .max(2048)
+  .refine((value) => {
+    if (/[\x00-\x20\x7f\\]/.test(value)) return false;
+    if (value.startsWith("#")) return /^#[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
+    try {
+      const url = new URL(value, "https://portal.invalid");
+      if (value.startsWith("/"))
+        return !value.startsWith("//") && url.origin === "https://portal.invalid";
+      return (
+        /^https?:\/\//i.test(value) &&
+        ["http:", "https:"].includes(url.protocol) &&
+        !url.username &&
+        !url.password
+      );
+    } catch {
+      return false;
+    }
+  }, "Use HTTP(S), a same-origin root-relative path or a valid anchor");
+const textRunSchemaV1 = z
+  .object({
+    type: z.literal("text"),
+    text: textPlainSchemaV1,
+    marks: z
+      .array(z.enum(["bold", "italic"]))
+      .max(2)
+      .refine((marks) => new Set(marks).size === marks.length, "Duplicate text mark")
+      .optional(),
+  })
+  .strict();
+export const textInlineNodeSchemaV1 = z.discriminatedUnion("type", [
+  textRunSchemaV1,
+  z
+    .object({
+      type: z.literal("link"),
+      url: textLinkUrlSchemaV1,
+      children: z.array(textRunSchemaV1).min(1).max(TEXT_V1_LIMITS.inlineNodes),
+    })
+    .strict(),
+]);
+const textInlinesSchemaV1 = z.array(textInlineNodeSchemaV1).max(TEXT_V1_LIMITS.inlineNodes);
+const textListItemSchemaV1 = z.object({ children: textInlinesSchemaV1 }).strict();
+const textTableSchemaV1 = z
+  .object({
+    type: z.literal("table"),
+    caption: textPlainSchemaV1.max(300).optional(),
+    headers: z
+      .array(
+        textPlainSchemaV1
+          .max(200)
+          .refine((value) => value.trim().length > 0, "Header label required"),
+      )
+      .min(1)
+      .max(TEXT_V1_LIMITS.tableColumns),
+    rows: z
+      .array(z.array(textPlainSchemaV1).min(1).max(TEXT_V1_LIMITS.tableColumns))
+      .max(TEXT_V1_LIMITS.tableRows),
+  })
+  .strict()
+  .superRefine((table, context) => {
+    table.rows.forEach((row, index) => {
+      if (row.length !== table.headers.length)
+        context.addIssue({
+          code: "custom",
+          path: ["rows", index],
+          message: "Table row must match header column count",
+        });
+    });
+  });
+export const textContentNodeSchemaV1 = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("paragraph"), children: textInlinesSchemaV1 }).strict(),
+  z
+    .object({
+      type: z.literal("heading"),
+      level: z.union([z.literal(2), z.literal(3), z.literal(4)]),
+      children: textInlinesSchemaV1,
+    })
+    .strict(),
+  z.object({ type: z.literal("highlight"), children: textInlinesSchemaV1 }).strict(),
+  z
+    .object({
+      type: z.literal("orderedList"),
+      items: z.array(textListItemSchemaV1).min(1).max(TEXT_V1_LIMITS.listItems),
+    })
+    .strict(),
+  z
+    .object({
+      type: z.literal("bulletList"),
+      items: z.array(textListItemSchemaV1).min(1).max(TEXT_V1_LIMITS.listItems),
+    })
+    .strict(),
+  textTableSchemaV1,
+]);
+export type TextInlineNodeV1 = z.infer<typeof textInlineNodeSchemaV1>;
+export type TextContentNodeV1 = z.infer<typeof textContentNodeSchemaV1>;
+function textInlineCharactersV1(nodes: TextInlineNodeV1[]) {
+  return nodes.reduce(
+    (total, node) =>
+      total +
+      (node.type === "text"
+        ? node.text.length
+        : node.url.length + node.children.reduce((sum, child) => sum + child.text.length, 0)),
+    0,
+  );
+}
+export const textDocumentSchemaV1 = z
+  .object({
+    type: z.literal("doc"),
+    nodes: z.array(textContentNodeSchemaV1).max(TEXT_V1_LIMITS.nodes),
+  })
+  .strict()
+  .superRefine((document, context) => {
+    const characters = document.nodes.reduce((total, node) => {
+      if (node.type === "table")
+        return (
+          total +
+          (node.caption?.length ?? 0) +
+          node.headers.reduce((sum, cell) => sum + cell.length, 0) +
+          node.rows.reduce(
+            (sum, row) => sum + row.reduce((length, cell) => length + cell.length, 0),
+            0,
+          )
+        );
+      if (node.type === "orderedList" || node.type === "bulletList")
+        return (
+          total + node.items.reduce((sum, item) => sum + textInlineCharactersV1(item.children), 0)
+        );
+      return total + textInlineCharactersV1(node.children);
+    }, 0);
+    if (characters > TEXT_V1_LIMITS.documentCharacters)
+      context.addIssue({
+        code: "custom",
+        path: ["nodes"],
+        message: "Text document exceeds the character limit",
+      });
+  });
+export const textBlockDataSchemaV1 = z
+  .object({
+    title: textPlainSchemaV1.max(TEXT_V1_LIMITS.titleCharacters).optional(),
+    content: textDocumentSchemaV1,
+  })
+  .strict();
+export const textBlockSchemaV1 = contentBlockCommonSchema.safeExtend({
+  type: z.literal("TEXT"),
+  schemaVersion: z.literal(1),
+  data: textBlockDataSchemaV1,
+});
+export type TextDocumentV1 = z.infer<typeof textDocumentSchemaV1>;
+export type TextBlockDataV1 = z.infer<typeof textBlockDataSchemaV1>;
+export type TextBlockV1 = z.infer<typeof textBlockSchemaV1>;
+
 export const processMediaPayloadSchema = z.object({ mediaId: z.uuid() }).strict();
 export type ProcessMediaPayload = z.infer<typeof processMediaPayloadSchema>;
 export const mediaProcessingResponseSchema = z

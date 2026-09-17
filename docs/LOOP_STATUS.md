@@ -1,5 +1,15 @@
 # LOOP STATUS
 
+## LOOP 5.3 — Concluído
+
+Estado inicial: 5.2 concluído em `b61c1d9`, Git limpo. Escopo estrito: schemas Zod TEXT v1 com JSON estruturado para texto rico simples, título/estrutura/formatações canônicas e URLs seguras; composição type TEXT/schemaVersion 1 com contrato comum; testes, limites de segurança, documentação e checks. Sem HTML livre, registro incompleto, editor, renderer, endpoints, preview ou publicação.
+
+Entregue: schemas/tipos TEXT v1 de data/documento/nós/inline/URLs e envelope composto com contrato comum; título opcional, parágrafos, headings 2/3/4, destaque, listas ordenadas/não ordenadas, links, tabela simples retangular com headers, marcas bold/italic controladas. Conteúdo JSON de profundidade fixa/whitelist strict, sem HTML interpretado, atributos/CSS/iframe/blocos/links aninhados. HTTP(S) sem credenciais, paths root-relative e anchors seguros; protocolos/ofuscações/controles perigosos bloqueados. TEXT_V1_LIMITS documenta tamanho/quantidade e limite agregado incluindo URLs/listas/tabelas. Draft vazio estrutural válido não é aprovação de publicação; Registry segue vazio, sem placeholders. Docs/TEXT_BLOCK_V1.md registra contrato versionado e obrigação futura de validação backend/renderer escapado.
+
+Checks aprovados: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` final (334: 39 validation, 67 DB, 12 jobs, 3 storage, 122 API, 61 web, 30 Worker), `pnpm build`, `pnpm peers check`, `git diff --check` e validation focado (39). Recheck completo após fortalecer teste de limites agregados. Nenhuma falha de teste/build, migration, dependência ou interface nova. Acessibilidade de UI/rendering ainda pertence aos respectivos loops. Browser E2E/axe/CI remota não executados; script test:e2e inexistente.
+
+Aceite cumprido. page-builder/architecture-guard mantiveram JSONB versionado/blocos predefinidos, segurança por estrutura controlada sem antecipar editor/renderer/publicação; testing-qa cobriu recursos, URLs, limites e regressões. Commit: `feat(builder): define safe structured text block v1`. Próximo loop: 5.4.
+
 ## LOOP 5.2 — Concluído
 
 Estado inicial: 5.1 concluído em `35ad5d9`, Git limpo. Escopo: schema Zod comum id/type/position/isVisible/schemaVersion/background/anchor e backgroundMediaId exigido para fundo IMAGE pelo contrato especializado; catálogo de tipos canônicos como identificadores sem registrar blocos; contratos estritos sem CSS/grid/URL física, testes, checks e documentação. Sem schemas de data dos blocos, editor, renderer, persistência, preview ou publicação.

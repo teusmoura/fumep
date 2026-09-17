@@ -74,42 +74,44 @@ LOOP 4.16 — CONCLUÍDO
 LOOP 4.17 — CONCLUÍDO
 LOOP 5.1 — CONCLUÍDO
 LOOP 5.2 — CONCLUÍDO
-LOOP 5.3 — ATUAL
+LOOP 5.3 — CONCLUÍDO
+LOOP 5.4 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 5.3 — TEXT v1
+### LOOP 5.4 — TEXT editor
 
-Estado: pronto para execução após commit do 5.2. Schema comum canônico implementado e checks verdes (327 testes). Revalidar commit/Git limpo antes de iniciar.
+Estado: pronto para execução após commit do 5.3. Contrato TEXT v1 estruturado/seguro implementado e checks verdes (334 testes). Revalidar commit/Git limpo antes de iniciar.
 
 Objetivo:
 
 ```text
-Schema Zod versionado TEXT v1 com conteúdo rico simples e seguro, conforme contrato canônico.
+Editor visual TEXT usando o contrato v1, com feedback e edição controlada/acessível.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop, plano e PAGE_BUILDER_CONTENT_BLOCKS.md; confirmar 5.2 commitado e Git limpo;
-- usar page-builder, architecture-guard e testing-qa conforme escopo;
-- implementar somente schema TEXT v1, compondo o contrato comum e propriedades específicas controladas;
-- permitir as estruturas/formatações TEXT canônicas sem HTML/JavaScript/CSS/iframe livre, URLs inseguras ou outros blocos;
-- preservar versionamento e documentar o contrato; não registrar definição incompleta com editor/renderer placeholders;
+- reler AGENTS.md, execute-loop, plano e PAGE_BUILDER_CONTENT_BLOCKS.md/FRONTEND; confirmar 5.3 commitado e Git limpo;
+- usar page-builder, nextjs-frontend, architecture-guard e testing-qa conforme escopo;
+- implementar somente editor visual TEXT, consumindo os schemas/tipos/limites v1 existentes;
+- permitir edição controlada dos recursos TEXT, feedback de validação, teclado/foco e configuração institucional via tokens, sem HTML/CSS/grid livres;
+- manter componente sem persistência própria ou autoridade sobre proprietário; integração backend/Page Builder básico pertence aos loops posteriores;
+- não registrar definição incompleta sem renderer nem antecipar o renderer público;
 - testes, checks disponíveis, documentação, commit e Git limpo.
 
 Não implementar:
 
-- TEXT editor (5.4), TEXT renderer (5.5), outros blocos, endpoints/preview/publicação ou novos consumidores antecipados.
+- TEXT renderer público (5.5), outros blocos, Page Builder básico, endpoints/preview/publicação ou novos consumidores antecipados.
 
 Critério de aceite:
 
 ```text
-Schema Zod TEXT v1 seguro implementado, testado, documentado e checks verdes.
+Editor visual TEXT seguro e acessível implementado, testado, documentado e checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 5.4 — TEXT editor
+LOOP 5.5 — TEXT renderer
 ```
