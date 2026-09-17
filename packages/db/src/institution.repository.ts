@@ -2,6 +2,7 @@ import { asc, eq } from "drizzle-orm";
 
 import type { Database } from "./client.js";
 import { institutions, type Institution, type NewInstitution } from "./schema.js";
+import { MediaUsageRepository } from "./media-usage.repository.js";
 
 export type CreateInstitutionInput = Pick<NewInstitution, "name" | "slug"> &
   Partial<Pick<NewInstitution, "isActive">>;
@@ -51,11 +52,19 @@ export class InstitutionRepository {
   }
 
   async delete(id: string): Promise<boolean> {
-    const deleted = await this.database
-      .delete(institutions)
-      .where(eq(institutions.id, id))
-      .returning({ id: institutions.id });
-
-    return deleted.length === 1;
+    return this.database.transaction(async (tx) => {
+      const [owner] = await tx
+        .select({ id: institutions.id })
+        .from(institutions)
+        .where(eq(institutions.id, id))
+        .for("update");
+      if (!owner) return false;
+      await new MediaUsageRepository(tx).removeEntity("INSTITUTION", id);
+      const deleted = await tx
+        .delete(institutions)
+        .where(eq(institutions.id, id))
+        .returning({ id: institutions.id });
+      return deleted.length === 1;
+    });
   }
 }

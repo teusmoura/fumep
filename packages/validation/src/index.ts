@@ -198,6 +198,13 @@ export const institutionLogoConfigurationSchema = z
   })
   .strict();
 export type InstitutionLogoConfiguration = z.infer<typeof institutionLogoConfigurationSchema>;
+export const institutionLogoSelectionSchema = z.object({
+  id: z.uuid(),
+  name: z.string().min(1).max(150),
+  logoLightId: z.uuid().nullable(),
+  logoDarkId: z.uuid().nullable(),
+});
+export type InstitutionLogoSelection = z.infer<typeof institutionLogoSelectionSchema>;
 export const createInstitutionRequestSchema = z
   .object({
     name: z.string().trim().min(1).max(150),
@@ -238,11 +245,27 @@ export const institutionSlugSchema = z
   .min(1)
   .max(100)
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
-export const publicInstitutionThemeSchema = institutionThemeSchema.safeExtend({
-  id: z.uuid(),
-  slug: institutionSlugSchema,
-  appearanceDefault: appearanceDefaultSchema,
-});
+export const publicInstitutionThemeSchema = institutionThemeSchema
+  .safeExtend({
+    logoLightUrl: z
+      .string()
+      .regex(/^\/media\/institutions\/[a-z0-9]+(?:-[a-z0-9]+)*\/logo\/light$/)
+      .optional(),
+    logoDarkUrl: z
+      .string()
+      .regex(/^\/media\/institutions\/[a-z0-9]+(?:-[a-z0-9]+)*\/logo\/dark$/)
+      .optional(),
+    id: z.uuid(),
+    slug: institutionSlugSchema,
+    appearanceDefault: appearanceDefaultSchema,
+  })
+  .refine(
+    (value) =>
+      (!value.logoLightUrl ||
+        value.logoLightUrl === `/media/institutions/${value.slug}/logo/light`) &&
+      (!value.logoDarkUrl || value.logoDarkUrl === `/media/institutions/${value.slug}/logo/dark`),
+    { message: "Logo paths must belong to the theme institution" },
+  );
 export type PublicInstitutionTheme = z.infer<typeof publicInstitutionThemeSchema>;
 export const updateInstitutionSettingRequestSchema = z
   .object({

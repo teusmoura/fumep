@@ -71,44 +71,41 @@ LOOP 4.13 — CONCLUÍDO
 LOOP 4.14 — CONCLUÍDO
 LOOP 4.15 — CONCLUÍDO
 LOOP 4.16 — CONCLUÍDO
-LOOP 4.17 — ATUAL
+LOOP 4.17 — CONCLUÍDO
+LOOP 5.1 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 4.17 — Logos institucionais via Media
+### LOOP 5.1 — BlockRegistry
 
-Estado: pronto para execução após commit do 4.16. Lifecycle/exclusão recuperável MEDIA-002 implementados e checks verdes (300 testes). Revalidar commit/Git limpo antes de iniciar; não reutilizar mídia REQUESTED/FAILED.
+Estado: pronto para execução após commit do 4.17. Logos via Media implementados com autorização, usos transacionais, apresentação pública same-origin/fallback e checks verdes (318 testes). Revalidar commit/Git limpo antes de iniciar.
 
 Objetivo:
 
 ```text
-FUMEP, ETMSL e CRAMAM selecionam logos pela Biblioteca sem duplicar arquivos.
+Registry vazio e infraestrutura compartilhada para os blocos canônicos do Page Builder.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop, plano/modelo lógico/Storage/Frontend e documentos necessários; confirmar 4.16 commitado e Git limpo;
-- usar skills de dados, API, frontend, mídia, segurança e testes conforme escopo;
-- adicionar Institution.logo_light_id/logo_dark_id como referências nullable a Media por migration aditiva;
-- permitir seleção pela Biblioteca sem novo upload/cópia, com autorização backend/CSRF e validação do tipo/estado/disponibilidade;
-- sincronizar MediaUsage de INSTITUTION/logo_light_id e logo_dark_id na mesma transação da instituição, preservando/removendo usos de forma idempotente;
-- resolver apresentação pública de logo claro/escuro com fallback quando logo dark ausente, sem vazar URL/credencial interna MinIO;
-- testar escopo, mídia inválida/indisponível, usos, fallback, migrations e acessibilidade aplicável;
-- checks, documentação, commit e Git limpo.
+- reler AGENTS.md, execute-loop, plano e PAGE_BUILDER_CONTENT_BLOCKS.md; confirmar 4.17 commitado e Git limpo;
+- usar page-builder, architecture-guard e testing-qa conforme escopo;
+- implementar somente Registry vazio e sua infraestrutura, seguindo o contrato canônico;
+- testes, checks disponíveis, documentação, commit e Git limpo.
 
 Não implementar:
 
-- Page Builder (fase 5), novos consumidores de conteúdo ou biblioteca pública independente.
+- schema comum dos blocos (5.2), blocos concretos (5.3 em diante), editor/preview/publicação ou novos consumidores antecipados.
 
 Critério de aceite:
 
 ```text
-As três instituições selecionam logos via Media, sem duplicação; MediaUsage/segurança/fallback e checks verdes.
+Registry vazio e infraestrutura implementados, testados, documentados e checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 5.1 — BlockRegistry
+LOOP 5.2 — Schema comum dos blocos
 ```

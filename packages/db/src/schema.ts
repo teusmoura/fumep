@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  type AnyPgColumn,
   boolean,
   bigint,
   check,
@@ -22,6 +23,12 @@ export const institutions = pgTable("institutions", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: varchar("name", { length: 150 }).notNull(),
   slug: varchar("slug", { length: 100 }).notNull().unique(),
+  logoLightId: uuid("logo_light_id").references((): AnyPgColumn => media.id, {
+    onDelete: "restrict",
+  }),
+  logoDarkId: uuid("logo_dark_id").references((): AnyPgColumn => media.id, {
+    onDelete: "restrict",
+  }),
   primary: varchar("primary", { length: 7 }).notNull().default("#000000"),
   primaryForeground: varchar("primary_foreground", { length: 7 }).notNull().default("#ffffff"),
   accent: varchar("accent", { length: 7 }).notNull().default("#000000"),

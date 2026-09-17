@@ -14,6 +14,11 @@ export {
   type DeletionCursor,
 } from "./media-deletion.repository.js";
 export { MediaUsageRepository, type MediaReference } from "./media-usage.repository.js";
+export {
+  InstitutionLogoRepository,
+  InvalidInstitutionLogoError,
+  type InstitutionLogoInput,
+} from "./institution-logo.repository.js";
 export { MediaVariantRepository } from "./media-variant.repository.js";
 export {
   MediaProcessingRepository,

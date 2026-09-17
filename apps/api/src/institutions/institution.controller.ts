@@ -8,6 +8,8 @@ import {
   Param,
   Patch,
   Post,
+  Req,
+  Header,
   UseGuards,
 } from "@nestjs/common";
 import {
@@ -24,6 +26,7 @@ import {
   ApiParam,
   ApiTags,
   ApiUnauthorizedResponse,
+  ApiServiceUnavailableResponse,
 } from "@nestjs/swagger";
 import {
   createInstitutionRequestSchema,
@@ -31,6 +34,7 @@ import {
   institutionIdSchema,
   institutionThemeSchema,
   updateInstitutionSettingRequestSchema,
+  institutionLogoConfigurationSchema,
 } from "@fumep/validation";
 import { SessionGuard } from "../auth/session.guard.js";
 import { RoleGuard } from "../auth/role.guard.js";
@@ -39,11 +43,23 @@ import { CsrfGuard } from "../auth/csrf.guard.js";
 import { SESSION_COOKIE_NAME } from "../auth/session-cookie.js";
 import { InstitutionService } from "./institution.service.js";
 import { InstitutionSettingService } from "./institution-setting.service.js";
+import { InstitutionLogoService } from "./institution-logo.service.js";
+import type { AuthenticatedRequest } from "../auth/session.guard.js";
 
 const properties = {
   name: { type: "string" as const, minLength: 1, maxLength: 150 },
   slug: { type: "string" as const, maxLength: 100, pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
   isActive: { type: "boolean" as const },
+};
+const logoResponseSchema = {
+  type: "object" as const,
+  additionalProperties: false,
+  required: ["id", "logoLightId", "logoDarkId"],
+  properties: {
+    id: { type: "string" as const, format: "uuid" },
+    logoLightId: { type: "string" as const, format: "uuid", nullable: true },
+    logoDarkId: { type: "string" as const, format: "uuid", nullable: true },
+  },
 };
 @Controller("institutions")
 @ApiTags("institutions")
@@ -57,7 +73,57 @@ export class InstitutionController {
   constructor(
     private readonly institutions: InstitutionService,
     private readonly settings: InstitutionSettingService,
+    private readonly logos: InstitutionLogoService,
   ) {}
+
+  @Get(":id/logos")
+  @Header("Cache-Control", "no-store")
+  @ApiParam({ name: "id", format: "uuid" })
+  @ApiOkResponse({
+    description: "Selected library media IDs, nullable for each appearance",
+    schema: logoResponseSchema,
+  })
+  @ApiNotFoundResponse({ description: "Institution not found" })
+  async getLogos(@Param("id") id: string) {
+    const owner = await this.institutions.get(this.id(id));
+    return { id: owner.id, logoLightId: owner.logoLightId, logoDarkId: owner.logoDarkId };
+  }
+
+  @Patch(":id/logos")
+  @Header("Cache-Control", "no-store")
+  @ApiParam({ name: "id", format: "uuid" })
+  @ApiOperation({
+    summary: "Select existing ready library images as institutional logos; ADMIN only",
+  })
+  @ApiBody({
+    schema: {
+      type: "object",
+      additionalProperties: false,
+      minProperties: 1,
+      properties: {
+        logoLightId: { type: "string", format: "uuid", nullable: true },
+        logoDarkId: { type: "string", format: "uuid", nullable: true },
+      },
+    },
+  })
+  @ApiOkResponse({
+    description: "Logo IDs and MediaUsage committed atomically",
+    schema: logoResponseSchema,
+  })
+  @ApiServiceUnavailableResponse({
+    description: "Configuration unavailable; no partial writes committed",
+  })
+  @ApiNotFoundResponse({ description: "Institution not found" })
+  updateLogos(
+    @Param("id") id: string,
+    @Body() body: unknown,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    const parsed = institutionLogoConfigurationSchema.safeParse(body);
+    if (!parsed.success || !Object.keys(parsed.data).length)
+      throw new BadRequestException("Invalid logo selection");
+    return this.logos.update(this.id(id), parsed.data, request.auth.userId);
+  }
 
   @Patch(":id/theme")
   @ApiParam({ name: "id", format: "uuid" })

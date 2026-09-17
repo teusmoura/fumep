@@ -9,6 +9,11 @@ export function proxyPdfUpload(request: Request): Promise<Response> {
 export function proxyMediaSelection(request: Request): Promise<Response> {
   return proxy(request, "/api/v1/media/selection", 4096);
 }
+export function proxyInstitutionLogos(request: Request, id: string): Promise<Response> {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id))
+    return Promise.resolve(Response.json({ message: "Instituição inválida" }, { status: 400 }));
+  return proxy(request, `/api/v1/institutions/${id}/logos`, 4096, "PATCH");
+}
 export function proxyMediaCategory(request: Request, id?: string): Promise<Response> {
   if (id && !/^[0-9a-f-]{36}$/i.test(id))
     return Promise.resolve(Response.json({ message: "Categoria inválida" }, { status: 400 }));

@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common";
+import { InstitutionLogoService } from "./institution-logo.service.js";
 import { AuthModule } from "../auth/auth.module.js";
 import { InstitutionController } from "./institution.controller.js";
 import { INSTITUTION_REPOSITORY, InstitutionService } from "./institution.service.js";
@@ -13,6 +14,7 @@ import {
   imports: [AuthModule],
   controllers: [InstitutionController, PublicThemeController],
   providers: [
+    InstitutionLogoService,
     PublicThemeService,
     InstitutionSettingService,
     { provide: INSTITUTION_SETTING_REPOSITORY, useClass: LazyInstitutionSettingRepository },

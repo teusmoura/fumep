@@ -1,5 +1,17 @@
 # LOOP STATUS
 
+## LOOP 4.17 — Concluído
+
+Estado inicial: 4.16 concluído em `30ec18d`, Git limpo. Escopo: Institution.logo_light_id/logo_dark_id nullable via migration, seleção administrativa pela biblioteca sem duplicação, MediaUsage transacional/idempotente e remoção com owner, validação IMAGE READY/disponível, logo público same-origin/fallback escuro, interface/testes/checks/documentação. Sem Page Builder.
+
+Entregue: migration aditiva 0019/FKs RESTRICT; InstitutionLogoRepository com lock do proprietário/usos/mídias e validação IMAGE READY/NONE/MIME permitido, atualização/auditoria atômicas; remoção dos usos na transação de exclusão da instituição com rollback se dependências impedirem delete; GET/PATCH logos ADMIN/sessão/CSRF/contrato estrito/OpenAPI/projeção de IDs; seletor de logos nos resultados da Biblioteca sem cópia/upload; paths públicos seguros por instituição ativa e proxy Next same-origin, leitura limitada/sem credenciais/MIME permitido/no-store/nosniff; thumbnail WEBP quando existente, fallback original; SSR logo responsivo/clicável para home com variantes LIGHT/DARK/SYSTEM selecionadas por CSS e fallback dark ausente. Documentação em INSTITUTION_LOGOS.md. Não houve dependências novas, SVG editorial liberado, login frontend, seed de credenciais, header completo ou Page Builder antecipado.
+
+Checks aprovados: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` (318: 23 validation, 67 DB, 12 jobs, 3 storage, 122 API, 61 web, 30 Worker), `pnpm build`, `pnpm peers check` e `git diff --check`. Testes focados DB/API/web e recheck API após documentação OpenAPI. Todas as migrations em banco novo `portal_fumep_loop_4_17_test` + suíte DB final (67); migration aditiva aplicada também à fixture existente do Worker 4.16. Fixtures preservadas; registros/objetos de testes UUID limpos. Browser E2E/axe/QA visual/CI remota não executados; script test:e2e inexistente. Nenhum preview foi iniciado.
+
+Falhas resolvidas: import Drizzle indevido na API movido para repository DB; declaração OpenAPI corrigida; nome de variável do teste vedado pelo lint e inferência UUID do helper ajustados; fixture FAILED corrigida para incluir a data obrigatória do lifecycle e reposicionada para não mascarar o teste SVG. Rechecks verdes, nenhuma falha pendente.
+
+Aceite cumprido. Skills architecture-guard/security-access preservaram configuração ADMIN e entrega pública sem MinIO exposto; drizzle-data-model/media-storage garantiram FKs e MediaUsage transacional; nestjs-api/nextjs-frontend mantiveram contratos, SSR e foco; testing-qa verificou PostgreSQL/MinIO reais e testes web. Commit: `feat(media): configure institutional logos from library`. Próximo loop: 5.1.
+
 ## LOOP 4.16 — Concluído
 
 Entregue na retomada: migration aditiva 0018/lifecycle com constraints/índice/FK; MediaDeletionRepository/locks dedicados/reserva de tentativa persistida/cleanup/auditoria final atômicos no PostgreSQL; bloqueio transacional de usos/busca/duplicatas/seleção/processamento; DELETE 202 e retry ADMIN com sessão/CSRF/escopo/contratos Zod/OpenAPI; DELETE_MEDIA no Worker separado e reconciler startup/60s com cursor/locks/shutdown; confirmação acessível na biblioteca e recuperação explícita por UUID. Docs/MEDIA_DELETION.md e CI com provisionamento de banco de fixture isolado. Sem dependências novas, outbox genérico, JWT, lixeira/restauração ou logos antecipados.
