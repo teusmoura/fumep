@@ -1,5 +1,15 @@
 # LOOP STATUS
 
+## LOOP 5.13 — Concluído
+
+Estado inicial: 5.12 concluído em 957f7be, Git limpo. Escopo: exclusão do ContentBlock atual/usos CONTENT_BLOCK atômicos em repository interno condicionado ao owner resolvido, preservando outros usos/versões/Media; botão com confirmação local, callback validado/falha/concorrência/foco e testes reais PostgreSQL/UI/checks. Sem novos endpoints/salvamento amplo/Preview/publicação.
+
+Entregue: removeBuilderBlock valida lista/contexto/Registry e normaliza posições sem mutação. PageBuilder confirma/cancela, bloqueia ações concorrentes, mantém estado na falha e edits de outros editores por IDs estáveis, permite draft vazio e devolve foco ao status. ContentBlockRepository interno valida owner/referências, serializa pelo parent e remove usos CONTENT_BLOCK e linha em transação, preservando mídia física/consumidores/snapshots/usos históricos. PAGE_BUILDER_DELETE.md explicita autorização pelo caller e integração futura na fase 6, sem novos endpoints/migrations/dependências.
+
+Checks finais aprovados: pnpm format:check, pnpm lint, pnpm typecheck, pnpm test, pnpm build, pnpm peers check e git diff --check. Total 404 testes (52 validation, 71 DB, 12 jobs, 3 storage, 122 API, 114 web, 30 Worker). Testes focados web/DB e typecheck aprovados; axe semântico zero violações, sem contraste jsdom. Fixture inicial PostgreSQL com client.json falhou; primeira correção por inserts Drizzle resolveu. Formatação do teste corrigida e checks completos reexecutados. QA real local 390×844/1280×900 LIGHT/DARK: confirmação/cancelamento por teclado, foco solid, edição HERO retida após excluir TEXT, último bloco removido para draft vazio, sem overflow/console warnings. Fixture removido, viewport restaurado, aba fechada e servidor encerrado. test:e2e inexistente; sem CI remota, contraste global ou integração REST owner.
+
+Aceite cumprido. page-builder/architecture-guard delimitaram exclusão atual versus histórico; drizzle-data-model/media-storage mantiveram atomicidade/compartilhamento; nextjs-frontend/testing-qa e computer-use verificaram interação/A11y/regressões. Commit: feat(builder): delete blocks with atomic media usage cleanup. Próximo: 5.14.
+
 ## LOOP 5.12 — Concluído
 
 Estado inicial: 5.11 concluído em df5235d, Git limpo. Escopo: isVisible explícito com botão Ocultar/Exibir e indicação de oculto, editor mantido/Media.id preservado, snapshot validado/callback async/falha/concorrência, testes de renderers/teclado/foco/A11y/checks. Sem excluir/rotas/persistência própria/Preview/publicação.

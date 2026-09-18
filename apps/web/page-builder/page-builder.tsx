@@ -9,6 +9,7 @@ import {
   reorderBuilderBlocks,
   duplicateBuilderBlock,
   setBuilderBlockVisibility,
+  removeBuilderBlock,
   type BuilderBlock,
   type BuilderType,
 } from "./builder-state";
@@ -29,17 +30,24 @@ export function PageBuilder({
 }: PageBuilderProps) {
   const [blocks, setBlocks] = useState(() => parseBuilderBlocks(initialBlocks, context));
   const [candidate, setCandidate] = useState<BuilderBlock>();
+  const [deleting, setDeleting] = useState<string>();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [notice, setNotice] = useState(0);
   const applying = useRef(false);
   const dragged = useRef<string | undefined>(undefined);
   const instructionsId = useId();
+  const confirmationId = useId();
+  const confirmationButton = useRef<HTMLButtonElement>(null);
   const status = useRef<HTMLParagraphElement>(null);
   const available = availableLibraryImages(images);
   useEffect(() => {
     if (message) status.current?.focus();
   }, [message, blocks, candidate, notice]);
+  useEffect(() => {
+    if (deleting) confirmationButton.current?.focus();
+  }, [deleting]);
+  const locked = disabled || busy || Boolean(candidate) || Boolean(deleting);
   const notify = (text: string) => {
     setMessage(text);
     setNotice((value) => value + 1);
@@ -51,7 +59,7 @@ export function PageBuilder({
       </p>
     );
   function add(type: BuilderType) {
-    if (disabled || applying.current || candidate || !blocks) return;
+    if (disabled || applying.current || candidate || deleting || !blocks) return;
     const next = newBuilderBlock(type, context, blocks, crypto.randomUUID(), available[0]?.id);
     if (!next) {
       notify("Não foi possível iniciar o bloco. Verifique contexto e imagens disponíveis.");
@@ -61,7 +69,7 @@ export function PageBuilder({
     setMessage("Configure o novo bloco e aplique seu conteúdo para adicioná-lo ao draft.");
   }
   async function apply(block: BuilderBlock, data: unknown, adding: boolean) {
-    if (disabled || applying.current || !blocks) return;
+    if (disabled || applying.current || deleting || !blocks) return;
     const next = parseBuilderBlocks(
       adding
         ? [...blocks, { ...block, data }]
@@ -97,13 +105,13 @@ export function PageBuilder({
         initialValue={block.data}
         images={available}
         onApply={(data: unknown) => apply(block, data, adding)}
-        disabled={disabled || busy}
+        disabled={disabled || busy || Boolean(deleting)}
       />
     );
   }
   async function reorder(sourceId: string, targetIndex: number) {
     dragged.current = undefined;
-    if (disabled || applying.current || candidate || !blocks) return;
+    if (disabled || applying.current || candidate || deleting || !blocks) return;
     const next = reorderBuilderBlocks(blocks, context, sourceId, targetIndex);
     if (!next) return;
     applying.current = true;
@@ -123,7 +131,7 @@ export function PageBuilder({
   }
   async function duplicate(sourceId: string) {
     dragged.current = undefined;
-    if (disabled || applying.current || candidate || !blocks) return;
+    if (disabled || applying.current || candidate || deleting || !blocks) return;
     const next = duplicateBuilderBlock(blocks, context, sourceId, crypto.randomUUID());
     if (!next) {
       notify("Não foi possível duplicar. O draft original foi mantido.");
@@ -146,7 +154,7 @@ export function PageBuilder({
   }
   async function visibility(sourceId: string, visible: boolean) {
     dragged.current = undefined;
-    if (disabled || applying.current || candidate || !blocks) return;
+    if (disabled || applying.current || candidate || deleting || !blocks) return;
     const next = setBuilderBlockVisibility(blocks, context, sourceId, visible);
     if (!next) return;
     applying.current = true;
@@ -166,6 +174,41 @@ export function PageBuilder({
       setBusy(false);
     }
   }
+  function requestDelete(id: string) {
+    if (
+      disabled ||
+      applying.current ||
+      candidate ||
+      deleting ||
+      !blocks?.some((block) => block.id === id)
+    )
+      return;
+    dragged.current = undefined;
+    setDeleting(id);
+    setMessage("Confirme ou cancele a exclusão do bloco atual.");
+  }
+  async function confirmDelete() {
+    if (disabled || applying.current || candidate || !deleting || !blocks) return;
+    const next = removeBuilderBlock(blocks, context, deleting);
+    if (!next) return;
+    applying.current = true;
+    setBusy(true);
+    try {
+      await onApply(structuredClone(next));
+      setBlocks(next);
+      setDeleting(undefined);
+      notify(
+        "Bloco removido do draft. Mídias e snapshots históricos não foram excluídos. Draft não publicado.",
+      );
+    } catch {
+      notify(
+        "Não foi possível excluir. O bloco e suas alterações foram mantidos; tente novamente ou cancele.",
+      );
+    } finally {
+      applying.current = false;
+      setBusy(false);
+    }
+  }
   return (
     <section className="page-builder" aria-label="Page Builder básico" aria-busy={busy}>
       <h2>Blocos de conteúdo</h2>
@@ -177,12 +220,7 @@ export function PageBuilder({
           <button
             key={definition.type}
             type="button"
-            disabled={
-              disabled ||
-              busy ||
-              Boolean(candidate) ||
-              (definition.type === "IMAGE" && !available.length)
-            }
+            disabled={locked || (definition.type === "IMAGE" && !available.length)}
             onClick={() => add(definition.type as BuilderType)}
           >
             Adicionar {definition.type}
@@ -205,7 +243,7 @@ export function PageBuilder({
           <li
             key={block.id}
             onDragOver={(event) => {
-              if (dragged.current && !disabled && !applying.current && !candidate)
+              if (dragged.current && !disabled && !applying.current && !candidate && !deleting)
                 event.preventDefault();
             }}
             onDrop={(event) => {
@@ -221,15 +259,23 @@ export function PageBuilder({
               <button
                 type="button"
                 aria-label={`${block.isVisible ? "Ocultar" : "Exibir"} bloco ${index + 1} — ${block.type}`}
-                disabled={disabled || busy || Boolean(candidate)}
+                disabled={locked}
                 onClick={() => void visibility(block.id, !block.isVisible)}
               >
                 {block.isVisible ? "Ocultar" : "Exibir"}
               </button>
               <button
                 type="button"
+                aria-label={`Excluir bloco ${index + 1} — ${block.type}`}
+                disabled={locked}
+                onClick={() => requestDelete(block.id)}
+              >
+                Excluir
+              </button>
+              <button
+                type="button"
                 aria-label={`Duplicar bloco ${index + 1} — ${block.type}`}
-                disabled={disabled || busy || Boolean(candidate)}
+                disabled={locked}
                 onClick={() => void duplicate(block.id)}
               >
                 Duplicar
@@ -238,10 +284,10 @@ export function PageBuilder({
                 type="button"
                 aria-label={`Arrastar bloco ${index + 1} — ${block.type}`}
                 aria-describedby={instructionsId}
-                disabled={disabled || busy || Boolean(candidate) || blocks.length < 2}
-                draggable={!disabled && !busy && !candidate && blocks.length > 1}
+                disabled={locked || blocks.length < 2}
+                draggable={!locked && blocks.length > 1}
                 onDragStart={(event) => {
-                  if (disabled || applying.current || candidate) {
+                  if (disabled || applying.current || candidate || deleting) {
                     event.preventDefault();
                     return;
                   }
@@ -259,7 +305,7 @@ export function PageBuilder({
                 type="button"
                 aria-label={`Subir bloco ${index + 1} — ${block.type}`}
                 aria-describedby={instructionsId}
-                disabled={disabled || busy || Boolean(candidate) || index === 0}
+                disabled={locked || index === 0}
                 onClick={() => void reorder(block.id, index - 1)}
               >
                 Subir
@@ -268,12 +314,43 @@ export function PageBuilder({
                 type="button"
                 aria-label={`Descer bloco ${index + 1} — ${block.type}`}
                 aria-describedby={instructionsId}
-                disabled={disabled || busy || Boolean(candidate) || index === blocks.length - 1}
+                disabled={locked || index === blocks.length - 1}
                 onClick={() => void reorder(block.id, index + 1)}
               >
                 Descer
               </button>
             </div>
+            {deleting === block.id && (
+              <section aria-labelledby={`${confirmationId}-title`}>
+                <h4 id={`${confirmationId}-title`}>Confirmar exclusão do bloco {index + 1}</h4>
+                <p id={confirmationId}>
+                  Excluir remove este bloco do draft, inclusive alterações não aplicadas deste
+                  editor. Não apaga mídia física, usos de outros consumidores nem snapshots
+                  históricos.
+                </p>
+                <div className="page-builder-actions">
+                  <button
+                    ref={confirmationButton}
+                    aria-describedby={confirmationId}
+                    type="button"
+                    disabled={disabled || busy}
+                    onClick={() => void confirmDelete()}
+                  >
+                    Confirmar exclusão
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => {
+                      setDeleting(undefined);
+                      notify("Exclusão cancelada. Bloco e alterações mantidos.");
+                    }}
+                  >
+                    Cancelar exclusão
+                  </button>
+                </div>
+              </section>
+            )}
             {!block.isVisible && (
               <p>
                 Bloco oculto no conteúdo público; conteúdo e mídia permanecem no draft editável.

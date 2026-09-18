@@ -23,6 +23,66 @@ const image = {
   createdAt: "2026-09-17T12:00:00.000Z",
 };
 const roots: Root[] = [];
+it("requires cancellable confirmation, retains failed deletion and preserves other editor edits", async () => {
+  let resolve!: () => void;
+  const onApply = vi
+    .fn()
+    .mockRejectedValueOnce(new Error("offline"))
+    .mockImplementationOnce(
+      () =>
+        new Promise<void>((done) => {
+          resolve = done;
+        }),
+    );
+  const { main } = await mount(onApply, [image], initialReorderBlocks());
+  const field = main.querySelector<HTMLInputElement>(".hero-block-editor input")!;
+  await act(() => {
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(
+      field,
+      "Outro edit mantido",
+    );
+    field.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+  const remove = main.querySelector<HTMLButtonElement>(
+    'button[aria-label="Excluir bloco 1 — TEXT"]',
+  )!;
+  await act(() => remove.click());
+  expect(onApply).not.toHaveBeenCalled();
+  expect(document.activeElement?.textContent).toBe("Confirmar exclusão");
+  expect(
+    (await axe.run(main, { rules: { "color-contrast": { enabled: false } } })).violations,
+  ).toEqual([]);
+  await click(main, "Cancelar exclusão");
+  expect(onApply).not.toHaveBeenCalled();
+  expect(field.value).toBe("Outro edit mantido");
+  await act(() => remove.click());
+  await click(main, "Confirmar exclusão");
+  expect(main.textContent).toContain("Não foi possível excluir");
+  expect(main.querySelectorAll(".page-builder-blocks > li")).toHaveLength(2);
+  await click(main, "Confirmar exclusão");
+  await click(main, "Confirmar exclusão");
+  expect(onApply).toHaveBeenCalledTimes(2);
+  await act(async () => resolve());
+  expect(main.querySelectorAll(".page-builder-blocks > li")).toHaveLength(1);
+  expect(main.querySelector(".hero-block-editor input")).toBe(field);
+  expect(field.value).toBe("Outro edit mantido");
+  expect(
+    onApply.mock.calls[1]![0].map((b: { id: string; position: number }) => [b.id, b.position]),
+  ).toEqual([[other, 0]]);
+  expect(document.activeElement?.getAttribute("role")).toBe("status");
+  expect(main.textContent).not.toContain("Confirmar exclusão do bloco");
+});
+it("allows deleting the last draft block after confirmation without deleting media", async () => {
+  const text = newBuilderBlock("TEXT", "PAGE", [], id)!;
+  const { main, onApply } = await mount(vi.fn(), [image], [text]);
+  await act(() =>
+    main.querySelector<HTMLButtonElement>('button[aria-label="Excluir bloco 1 — TEXT"]')!.click(),
+  );
+  await click(main, "Confirmar exclusão");
+  expect(onApply).toHaveBeenCalledWith([]);
+  expect(main.textContent).toContain("Nenhum bloco adicionado");
+  expect(main.querySelectorAll(".page-builder-blocks > li")).toHaveLength(0);
+});
 it("hides/shows only after callback success, preserving local edits and handling failure/concurrency", async () => {
   let resolve!: () => void;
   const onApply = vi

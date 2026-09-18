@@ -1,4 +1,5 @@
 export { createDatabase, type Database } from "./client.js";
+export { ContentBlockRepository, type ContentBlockOwnerType } from "./content-block.repository.js";
 export { AuthUserRepository, type AuthUser } from "./auth-user.repository.js";
 export {
   InstitutionRepository,

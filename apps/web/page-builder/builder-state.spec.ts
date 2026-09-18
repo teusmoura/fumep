@@ -5,9 +5,21 @@ import {
   reorderBuilderBlocks,
   duplicateBuilderBlock,
   setBuilderBlockVisibility,
+  removeBuilderBlock,
 } from "./builder-state";
 const id = "11111111-1111-4111-8111-111111111111";
 const other = "22222222-2222-4222-8222-222222222222";
+it("removes only the selected supported block and reindexes without mutating other content", () => {
+  const text = newBuilderBlock("TEXT", "PAGE", [], id)!;
+  const image = newBuilderBlock("IMAGE", "PAGE", [text], other, id)!;
+  const input = [text, image];
+  expect(removeBuilderBlock(input, "PAGE", id)).toEqual([{ ...image, position: 0 }]);
+  expect(input.map((b) => b.position)).toEqual([0, 1]);
+  expect(removeBuilderBlock([text], "ARTICLE", id)).toEqual([]);
+  expect(removeBuilderBlock(input, "PAGE", "missing")).toBeUndefined();
+  const hero = newBuilderBlock("HERO", "PAGE", [], id)!;
+  expect(removeBuilderBlock([hero], "ARTICLE", id)).toBeUndefined();
+});
 it("changes only explicit visibility, retaining content/media and rejecting invalid/no-op changes", () => {
   const image = newBuilderBlock("IMAGE", "PAGE", [], id, other)!;
   const next = setBuilderBlockVisibility([image], "PAGE", id, false)!;
