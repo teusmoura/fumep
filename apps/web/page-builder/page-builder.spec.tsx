@@ -23,12 +23,76 @@ const image = {
   createdAt: "2026-09-17T12:00:00.000Z",
 };
 const roots: Root[] = [];
+const other = "22222222-2222-4222-8222-222222222222";
+function initialReorderBlocks() {
+  const text = newBuilderBlock("TEXT", "PAGE", [], id)!;
+  return [text, newBuilderBlock("HERO", "PAGE", [text], other)!];
+}
+it("moves via named buttons retaining unapplied editor data and accessible feedback", async () => {
+  const { main, onApply } = await mount(vi.fn(), [image], initialReorderBlocks());
+  const field = main.querySelector<HTMLInputElement>(".text-block-editor input")!;
+  await act(() => {
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(
+      field,
+      "Ainda não aplicado",
+    );
+    field.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+  expect(
+    main.querySelector<HTMLButtonElement>('button[aria-label="Subir bloco 1 — TEXT"]')!.disabled,
+  ).toBe(true);
+  await act(async () =>
+    main.querySelector<HTMLButtonElement>('button[aria-label="Descer bloco 1 — TEXT"]')!.click(),
+  );
+  expect(onApply.mock.calls[0]![0].map((b: { id: string }) => b.id)).toEqual([other, id]);
+  expect(main.querySelector(".text-block-editor input")).toBe(field);
+  expect(field.value).toBe("Ainda não aplicado");
+  expect(main.textContent).toContain("posição 2 de 2");
+  expect(document.activeElement?.getAttribute("role")).toBe("status");
+  expect(
+    (await axe.run(main, { rules: { "color-contrast": { enabled: false } } })).violations,
+  ).toEqual([]);
+});
+it("accepts only internal drag handles and retains order on failure or concurrent moves", async () => {
+  let resolve!: () => void;
+  const onApply = vi
+    .fn()
+    .mockRejectedValueOnce(new Error("offline"))
+    .mockImplementationOnce(
+      () =>
+        new Promise<void>((done) => {
+          resolve = done;
+        }),
+    );
+  const { main } = await mount(onApply, [image], initialReorderBlocks());
+  const items = main.querySelectorAll(".page-builder-blocks > li");
+  await act(() => items[1]!.dispatchEvent(new Event("drop", { bubbles: true, cancelable: true })));
+  expect(onApply).not.toHaveBeenCalled();
+  const handle = main.querySelector('button[aria-label="Arrastar bloco 1 — TEXT"]')!;
+  const start = new Event("dragstart", { bubbles: true, cancelable: true });
+  Object.defineProperty(start, "dataTransfer", { value: { effectAllowed: "", setData: vi.fn() } });
+  await act(() => handle.dispatchEvent(start));
+  await act(async () =>
+    items[1]!.dispatchEvent(new Event("drop", { bubbles: true, cancelable: true })),
+  );
+  expect(main.textContent).toContain("Ordem e alterações dos editores foram mantidas");
+  expect(main.querySelector(".page-builder-blocks > li h3")?.textContent).toContain("TEXT");
+  await act(() =>
+    main.querySelector<HTMLButtonElement>('button[aria-label="Descer bloco 1 — TEXT"]')!.click(),
+  );
+  await act(() =>
+    main.querySelector<HTMLButtonElement>('button[aria-label="Subir bloco 2 — HERO"]')!.click(),
+  );
+  expect(onApply).toHaveBeenCalledTimes(2);
+  await act(() => resolve());
+  expect(main.querySelector(".page-builder-blocks > li h3")?.textContent).toContain("HERO");
+});
 afterEach(async () => {
   for (const root of roots.splice(0)) await act(() => root.unmount());
   document.body.innerHTML = "";
   vi.unstubAllGlobals();
 });
-async function mount(onApply = vi.fn(), images: unknown[] = [image]) {
+async function mount(onApply = vi.fn(), images: unknown[] = [image], initialBlocks: unknown = []) {
   vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
   const main = document.createElement("main");
   document.body.append(main);
@@ -38,7 +102,12 @@ async function mount(onApply = vi.fn(), images: unknown[] = [image]) {
     root.render(
       <>
         <h1>Draft</h1>
-        <PageBuilder context="PAGE" initialBlocks={[]} images={images} onApply={onApply} />
+        <PageBuilder
+          context="PAGE"
+          initialBlocks={initialBlocks}
+          images={images}
+          onApply={onApply}
+        />
       </>,
     ),
   );

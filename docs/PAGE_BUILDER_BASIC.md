@@ -1,5 +1,7 @@
 # Page Builder básico — 5.9
 
+Incremento 5.10: reordenação disponível no mesmo componente, descrita em PAGE_BUILDER_REORDER.md. As exclusões abaixo descrevem o escopo original do 5.9.
+
 QA local em fixture removido: 390×844 e 1280×900, LIGHT/DARK; adição dos três blocos por teclado, callback cumulativo, foco no status após desmontar editor de adição, foco visível/botões 44px, sem overflow global nem erros/warnings no console. Não cobre owner/salvamento/publicação reais nem contraste global. Viewport restaurado, aba fechada e servidor temporário encerrado.
 
 PageBuilder é componente Client compartilhado, para draft PAGE/ARTICLE. Recebe initialBlocks desconhecidos, imagens da seleção disponível, context e onApply async. O caller deve remontar por proprietário/versão/contexto; fornece ThemeContext e seleção autorizada e resolve instituição pela rota. Não existe nova rota ou endpoint neste loop.

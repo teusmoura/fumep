@@ -1,5 +1,15 @@
 # LOOP STATUS
 
+## LOOP 5.10 — Concluído
+
+Estado inicial: 5.9 concluído em 2a89681, Git limpo. Escopo: drag-and-drop nativo por handle, botões subir/descer, positions consecutivas/IDs estáveis e schemas/contexto validados, callback async sem concorrência/falha retida, preservação de editores locais/teclado/foco/A11y/checks. Sem controles dos próximos loops, persistência própria ou novos endpoints.
+
+Entregue: reorderBuilderBlocks valida contratos/contexto/índices e preserva UUID/data/envelopes/Media.id, normalizando positions após movimento. PageBuilder tem handles HTML5 internos (drop externo ignorado), Subir/Descer nomeados/instruções/limites e callback clonado validado, ordem só muda após sucesso; falha mantém ordem/edits. IDs como keys preservam DOM/editores e conteúdo ainda não aplicado. Sem dependências novas, reorder de grid, endpoints ou persistência. PAGE_BUILDER_REORDER.md documenta contrato/limites.
+
+Checks aprovados: pnpm --filter @fumep/web test (106), pnpm --filter @fumep/web typecheck, pnpm format:check/lint/typecheck/test/build/peers check e git diff --check. Total 392 testes (52 validation, 67 DB, 12 jobs, 3 storage, 122 API, 106 web, 30 Worker), axe semântico zero violações (sem contraste jsdom). Sem falhas de teste/build. QA real local 1280×900/390×844 LIGHT/DARK: arrasto entre handles e subir/descer por teclado alteraram ordem/callback, foco status visível, botões 44px/limites, sem overflow global ou erros/warnings. Fixture compacto ocultou formulários apenas para gesto; testes validaram identidade DOM/edit retido. Fixture removido, viewport restaurado, aba fechada, servidor encerrado. test:e2e inexistente; sem CI remota/integração owner/contraste global.
+
+Aceite cumprido. page-builder/architecture-guard preservaram escopo/IDs/Media.id sem controles antecipados; nextjs-frontend/testing-qa e computer-use verificaram interação/gesto real/A11y/regressões. Commit: feat(builder): reorder blocks accessibly. Próximo: 5.11.
+
 ## LOOP 5.9 — Concluído
 
 Estado inicial: 5.8 concluído em 8060074, Git limpo. Escopo: Page Builder básico Client com adição TEXT/HERO/IMAGE e edição por componentes registrados, contexto PAGE/ARTICLE, IDs/positions únicos, validação antes do callback async de draft, estado retido em falha, controles acessíveis/tokens/testes/checks. Sem endpoints/persistência própria/Preview/publicação/reordenação/duplicação/ocultação/exclusão.

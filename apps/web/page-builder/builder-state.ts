@@ -2,6 +2,24 @@ import type { BlockContext, TextBlockV1, HeroBlockV1, ImageBlockV1 } from "@fume
 import { frontendBlockRegistry } from "./block-registry";
 export type BuilderBlock = TextBlockV1 | HeroBlockV1 | ImageBlockV1;
 export type BuilderType = BuilderBlock["type"];
+export function reorderBuilderBlocks(
+  blocks: readonly BuilderBlock[],
+  context: BlockContext,
+  sourceId: string,
+  targetIndex: number,
+): BuilderBlock[] | undefined {
+  const parsed = parseBuilderBlocks(blocks, context);
+  if (!parsed || !Number.isInteger(targetIndex) || targetIndex < 0 || targetIndex >= parsed.length)
+    return undefined;
+  const sourceIndex = parsed.findIndex((block) => block.id === sourceId);
+  if (sourceIndex < 0 || sourceIndex === targetIndex) return undefined;
+  const [source] = parsed.splice(sourceIndex, 1);
+  parsed.splice(targetIndex, 0, source!);
+  return parseBuilderBlocks(
+    parsed.map((block, position) => ({ ...block, position })),
+    context,
+  );
+}
 export function parseBuilderBlocks(
   value: unknown,
   context: BlockContext,
