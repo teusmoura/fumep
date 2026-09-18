@@ -4,9 +4,24 @@ import {
   parseBuilderBlocks,
   reorderBuilderBlocks,
   duplicateBuilderBlock,
+  setBuilderBlockVisibility,
 } from "./builder-state";
 const id = "11111111-1111-4111-8111-111111111111";
 const other = "22222222-2222-4222-8222-222222222222";
+it("changes only explicit visibility, retaining content/media and rejecting invalid/no-op changes", () => {
+  const image = newBuilderBlock("IMAGE", "PAGE", [], id, other)!;
+  const next = setBuilderBlockVisibility([image], "PAGE", id, false)!;
+  expect(next).toEqual([{ ...image, isVisible: false }]);
+  expect(image.isVisible).toBe(true);
+  expect(setBuilderBlockVisibility(next, "PAGE", id, true)).toEqual([image]);
+  expect(setBuilderBlockVisibility(next, "PAGE", id, false)).toBeUndefined();
+  expect(setBuilderBlockVisibility([image], "PAGE", "missing", false)).toBeUndefined();
+  expect(
+    setBuilderBlockVisibility([image], "PAGE", id, "false" as unknown as boolean),
+  ).toBeUndefined();
+  const hero = newBuilderBlock("HERO", "PAGE", [], id)!;
+  expect(setBuilderBlockVisibility([hero], "ARTICLE", id, false)).toBeUndefined();
+});
 it("duplicates data independently with a new ID/position, reuses media and clears anchor", () => {
   const image = newBuilderBlock("IMAGE", "PAGE", [], id, other)!;
   const source = {

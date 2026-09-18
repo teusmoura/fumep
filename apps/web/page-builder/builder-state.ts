@@ -2,6 +2,21 @@ import type { BlockContext, TextBlockV1, HeroBlockV1, ImageBlockV1 } from "@fume
 import { frontendBlockRegistry } from "./block-registry";
 export type BuilderBlock = TextBlockV1 | HeroBlockV1 | ImageBlockV1;
 export type BuilderType = BuilderBlock["type"];
+export function setBuilderBlockVisibility(
+  blocks: readonly BuilderBlock[],
+  context: BlockContext,
+  id: string,
+  visible: boolean,
+): BuilderBlock[] | undefined {
+  const parsed = parseBuilderBlocks(blocks, context);
+  const source = parsed?.find((block) => block.id === id);
+  if (!parsed || !source || typeof visible !== "boolean" || source.isVisible === visible)
+    return undefined;
+  return parseBuilderBlocks(
+    parsed.map((block) => (block.id === id ? { ...block, isVisible: visible } : block)),
+    context,
+  );
+}
 export function duplicateBuilderBlock(
   blocks: readonly BuilderBlock[],
   context: BlockContext,

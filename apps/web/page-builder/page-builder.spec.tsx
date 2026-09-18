@@ -23,6 +23,55 @@ const image = {
   createdAt: "2026-09-17T12:00:00.000Z",
 };
 const roots: Root[] = [];
+it("hides/shows only after callback success, preserving local edits and handling failure/concurrency", async () => {
+  let resolve!: () => void;
+  const onApply = vi
+    .fn()
+    .mockResolvedValue(undefined)
+    .mockRejectedValueOnce(new Error("offline"))
+    .mockRejectedValueOnce(new Error("offline"))
+    .mockImplementationOnce(
+      () =>
+        new Promise<void>((done) => {
+          resolve = done;
+        }),
+    );
+  const { main } = await mount(onApply, [image], initialReorderBlocks());
+  const field = main.querySelector<HTMLInputElement>(".text-block-editor input")!;
+  await act(() => {
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(
+      field,
+      "Edit mantido",
+    );
+    field.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+  const hide = main.querySelector<HTMLButtonElement>(
+    'button[aria-label="Ocultar bloco 1 — TEXT"]',
+  )!;
+  await act(async () => hide.click());
+  expect(main.textContent).toContain("Não foi possível alterar visibilidade");
+  expect(main.querySelector('button[aria-label="Exibir bloco 1 — TEXT"]')).toBeNull();
+  await act(() => field.focus());
+  await act(async () => hide.click());
+  expect(document.activeElement?.getAttribute("role")).toBe("status");
+  await act(() => hide.click());
+  await act(() => hide.click());
+  expect(onApply).toHaveBeenCalledTimes(3);
+  await act(async () => resolve());
+  const show = main.querySelector<HTMLButtonElement>('button[aria-label="Exibir bloco 1 — TEXT"]')!;
+  expect(show).not.toBeNull();
+  expect(onApply.mock.calls[2]![0][0].isVisible).toBe(false);
+  expect(main.querySelectorAll(".page-builder-blocks > li")).toHaveLength(2);
+  expect(main.querySelector(".text-block-editor input")).toBe(field);
+  expect(field.value).toBe("Edit mantido");
+  expect(document.activeElement?.getAttribute("role")).toBe("status");
+  expect(
+    (await axe.run(main, { rules: { "color-contrast": { enabled: false } } })).violations,
+  ).toEqual([]);
+  await act(async () => show.click());
+  expect(onApply.mock.calls[3]![0][0].isVisible).toBe(true);
+  expect(main.querySelector('button[aria-label="Ocultar bloco 1 — TEXT"]')).not.toBeNull();
+});
 it("duplicates only applied content retaining original local edits, failure and concurrency", async () => {
   let resolve!: () => void;
   const onApply = vi

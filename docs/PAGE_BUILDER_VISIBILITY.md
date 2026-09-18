@@ -1,0 +1,9 @@
+# Visibilidade — 5.12
+
+QA real local 390×844/1280×900 LIGHT/DARK em fixture removido: Ocultar/Exibir por teclado retirou/restaurou a saída do renderer TEXT existente, mantendo editor/edit não aplicado, nome correto da ação/aviso de oculto/foco status visível; sem overflow global/console warnings. Não é Preview integrado/produção nem certificação de contraste global. Viewport restaurado/aba fechada/servidor encerrado.
+
+PageBuilder oferece Ocultar/Exibir com ação/nome por bloco/posição. isVisible é boolean explícito, validado sem coerção; ocultar não exclui bloco, data ou referência Media.id. O editor continua montado/editável com aviso de oculto, para não perder edits ainda não aplicados. UUID/position/versionamento/fundo/anchor permanecem iguais. Renderers TEXT/HERO/IMAGE existentes já retornam null para isVisible false, sem criar renderer/Preview paralelo.
+
+setBuilderBlockVisibility valida toda lista/contexto pelo Registry, recusa source ausente/valor não boolean/incompatibilidade/no-op. Snapshot clonado emitido via onApply; só sucesso muda a lista local. Falha mantém visibilidade original/conteúdo/edits. Ref impede concorrência; disabled/adição pendente bloqueiam ação. Status focável/nome da ação e indicação textual atualizados, estilos 44px por tokens existentes.
+
+É draft local, não publicação nem autoridade. Caller/backend de salvamento futuro deve validar acesso do proprietário, dados/mídia/MediaUsage e executar transação. Mídia oculta continua referenciada/em uso; não removê-la da sincronização de MediaUsage por estar invisível. Sem endpoints/dependências novas/exclusão/Preview/publicação antecipados. Testes cobrem contrato sem mutação, referências, contexto/boolean/no-op e falha/concorrência/identidade do editor/axe semântico (sem contraste jsdom); regressões dos renderers permanecem na suíte. test:e2e ainda inexistente.

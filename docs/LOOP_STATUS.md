@@ -1,5 +1,15 @@
 # LOOP STATUS
 
+## LOOP 5.12 — Concluído
+
+Estado inicial: 5.11 concluído em df5235d, Git limpo. Escopo: isVisible explícito com botão Ocultar/Exibir e indicação de oculto, editor mantido/Media.id preservado, snapshot validado/callback async/falha/concorrência, testes de renderers/teclado/foco/A11y/checks. Sem excluir/rotas/persistência própria/Preview/publicação.
+
+Entregue: setBuilderBlockVisibility valida contexto/Registry/lista/boolean explícito e muda só isVisible, preservando dados/UUID/posição/mídia/versão/fundo/anchor. PageBuilder Ocultar/Exibir nomeado, aviso oculto com editor mantido, callback clonado async sem concorrência/lista muda só no sucesso/falha retém estado. Notificação revisada para devolver foco mesmo em falha repetida com mensagem idêntica. Renderers existentes continuam recusando blocos ocultos. PAGE_BUILDER_VISIBILITY.md documenta mídia ainda em uso e contrato do caller/fase 6. Sem novos endpoints/dependências.
+
+Checks aprovados: pnpm --filter @fumep/web test (111) inicial/final, pnpm --filter @fumep/web typecheck, pnpm format:check/lint/typecheck/test/build/peers check e git diff --check. Suíte completa 397 testes (52 validation, 67 DB, 12 jobs, 3 storage, 122 API, 111 web, 30 Worker); recheck format/lint/typecheck integral após melhoria de foco/QA/remoção fixture. axe semântico zero violações sem contraste jsdom. Sem falhas de compilação/teste. QA real 390×844/1280×900 LIGHT/DARK: Ocultar/Exibir por teclado remove/restaura saída do renderer TEXT mantendo editor/edit não aplicado, aviso/ação/foco status visível, sem overflow/console warnings. Fixture removido/viewport restaurado/aba fechada/servidor encerrado e netstat sem listener 3100. test:e2e inexistente; sem CI remota/contraste global/integração owner real.
+
+Aceite cumprido. page-builder/architecture-guard mantiveram conteúdo/mídia referenciados ao ocultar; nextjs-frontend/testing-qa e computer-use verificaram interação/renderer/falha repetida/A11y/regressões. Commit: feat(builder): control draft block visibility. Próximo: 5.13.
+
 ## LOOP 5.11 — Concluído
 
 Estado inicial: 5.10 concluído em 802650e, Git limpo. Escopo: duplicação do conteúdo aplicado com novo UUID/posição final, deep clone/versionamento/contexto preservado, Media.id reutilizado/anchor limpo para unicidade, callback/falha/concorrência, botão acessível/teclado/foco/testes/checks. Sem persistência/rotas/controles de loops futuros.

@@ -83,44 +83,46 @@ LOOP 5.8 — CONCLUÍDO
 LOOP 5.9 — CONCLUÍDO
 LOOP 5.10 — CONCLUÍDO
 LOOP 5.11 — CONCLUÍDO
-LOOP 5.12 — ATUAL
+LOOP 5.12 — CONCLUÍDO
+LOOP 5.13 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 5.12 — Ocultar/exibir
+### LOOP 5.13 — Excluir bloco
 
-Estado: pronto após commit do 5.11. Duplicação concluída, checks verdes (395 testes). Revalidar commit e Git limpo.
+Estado: pronto após commit do 5.12. Visibilidade concluída, checks verdes (397 testes). Revalidar commit e Git limpo.
 
 Objetivo:
 
 ```text
-Ocultar/exibir blocos preservando conteúdo e referências, com isVisible explícito.
+Excluir bloco atual e atualizar MediaUsage sem apagar mídia ou snapshots históricos.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.11 commitado e Git limpo;
+- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.12 commitado e Git limpo;
 - usar page-builder, nextjs-frontend, architecture-guard e testing-qa conforme escopo;
-- controlar isVisible explícito pelo contrato atual, sem excluir bloco/data/referências de mídia;
-- blocos ocultos permanecem editáveis no builder e não são renderizados pelos renderers existentes;
-- callback validado/async sem concorrência, falha sem alterar visibilidade/perder edits, controle por teclado/foco/status;
+- inspecionar repository ContentBlock e MediaUsage existentes; remover usos do bloco e bloco de modo atômico, com testes de rollback/compartilhamento e snapshots preservados;
+- usar drizzle-data-model/media-storage e demais skills correspondentes se houver alterações de repositories;
+- controle de exclusão no builder com confirmação local/callback validado async, falha sem remover/perder edits, foco/status/teclado;
+- preservar mídia física/usos de outros consumidores e versões antigas; não inventar API de persistência da fase 6;
 - manter contrato de caller explícito, sem criar publicação, Preview ou gateways antecipados;
 - controles acessíveis/teclado/foco, estados inválidos retidos, tokens e responsividade;
 - testes, checks disponíveis, documentação, commit e Git limpo.
 
 Não implementar:
 
-- exclusão (5.13), anchors/backgrounds UI ou outros blocos/Preview/publicação antecipados.
+- anchors (5.14), backgrounds UI (5.15), outros blocos/Preview/publicação/salvamento amplo antecipados.
 
 Critério de aceite:
 
 ```text
-Ocultar/exibir altera somente isVisible, mantendo bloco/dados/mídia/edit local e respeitando renderers/contratos; testes/documentação/checks verdes.
+Exclusão do bloco atual com MediaUsage consistente/atômico, mídia compartilhada e snapshots preservados, controle acessível, testes/documentação/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 5.13 — Excluir bloco
+LOOP 5.14 — Anchors
 ```

@@ -8,6 +8,7 @@ import {
   parseBuilderBlocks,
   reorderBuilderBlocks,
   duplicateBuilderBlock,
+  setBuilderBlockVisibility,
   type BuilderBlock,
   type BuilderType,
 } from "./builder-state";
@@ -30,6 +31,7 @@ export function PageBuilder({
   const [candidate, setCandidate] = useState<BuilderBlock>();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [notice, setNotice] = useState(0);
   const applying = useRef(false);
   const dragged = useRef<string | undefined>(undefined);
   const instructionsId = useId();
@@ -37,9 +39,10 @@ export function PageBuilder({
   const available = availableLibraryImages(images);
   useEffect(() => {
     if (message) status.current?.focus();
-  }, [message, blocks, candidate]);
+  }, [message, blocks, candidate, notice]);
   const notify = (text: string) => {
     setMessage(text);
+    setNotice((value) => value + 1);
   };
   if (!blocks)
     return (
@@ -141,6 +144,28 @@ export function PageBuilder({
       setBusy(false);
     }
   }
+  async function visibility(sourceId: string, visible: boolean) {
+    dragged.current = undefined;
+    if (disabled || applying.current || candidate || !blocks) return;
+    const next = setBuilderBlockVisibility(blocks, context, sourceId, visible);
+    if (!next) return;
+    applying.current = true;
+    setBusy(true);
+    try {
+      await onApply(structuredClone(next));
+      setBlocks(next);
+      notify(
+        visible
+          ? "Bloco marcado para exibição. Draft não publicado."
+          : "Bloco oculto do conteúdo público. Permanece editável no draft não publicado.",
+      );
+    } catch {
+      notify("Não foi possível alterar visibilidade. O draft e suas alterações foram mantidos.");
+    } finally {
+      applying.current = false;
+      setBusy(false);
+    }
+  }
   return (
     <section className="page-builder" aria-label="Page Builder básico" aria-busy={busy}>
       <h2>Blocos de conteúdo</h2>
@@ -195,6 +220,14 @@ export function PageBuilder({
             <div className="page-builder-actions" aria-label={`Ações do bloco ${index + 1}`}>
               <button
                 type="button"
+                aria-label={`${block.isVisible ? "Ocultar" : "Exibir"} bloco ${index + 1} — ${block.type}`}
+                disabled={disabled || busy || Boolean(candidate)}
+                onClick={() => void visibility(block.id, !block.isVisible)}
+              >
+                {block.isVisible ? "Ocultar" : "Exibir"}
+              </button>
+              <button
+                type="button"
                 aria-label={`Duplicar bloco ${index + 1} — ${block.type}`}
                 disabled={disabled || busy || Boolean(candidate)}
                 onClick={() => void duplicate(block.id)}
@@ -241,6 +274,11 @@ export function PageBuilder({
                 Descer
               </button>
             </div>
+            {!block.isVisible && (
+              <p>
+                Bloco oculto no conteúdo público; conteúdo e mídia permanecem no draft editável.
+              </p>
+            )}
             {editor(block, false)}
           </li>
         ))}
