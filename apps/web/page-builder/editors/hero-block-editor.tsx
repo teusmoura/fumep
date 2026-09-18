@@ -12,6 +12,7 @@ export interface HeroBlockEditorProps {
   images?: readonly unknown[];
   onApply: (value: HeroBlockDataV1) => void | Promise<void>;
   disabled?: boolean;
+  ariaLabel?: string;
 }
 // Remount by owner/block/version key. No fetching, persistence or authorization.
 export function HeroBlockEditor({
@@ -19,6 +20,7 @@ export function HeroBlockEditor({
   images = [],
   onApply,
   disabled = false,
+  ariaLabel,
 }: HeroBlockEditorProps) {
   const id = useId();
   const status = useRef<HTMLParagraphElement>(null);
@@ -69,7 +71,7 @@ export function HeroBlockEditor({
     }
   }
   return (
-    <form className="hero-block-editor" aria-label="Editor HERO v1" onSubmit={apply}>
+    <form className="hero-block-editor" aria-label={ariaLabel ?? "Editor HERO v1"} onSubmit={apply}>
       <fieldset disabled={disabled || busy}>
         <legend>HERO — somente imagem</legend>
         <label htmlFor={`${id}-title`}>Título obrigatório</label>

@@ -2,6 +2,21 @@ import type { BlockContext, TextBlockV1, HeroBlockV1, ImageBlockV1 } from "@fume
 import { frontendBlockRegistry } from "./block-registry";
 export type BuilderBlock = TextBlockV1 | HeroBlockV1 | ImageBlockV1;
 export type BuilderType = BuilderBlock["type"];
+export function duplicateBuilderBlock(
+  blocks: readonly BuilderBlock[],
+  context: BlockContext,
+  sourceId: string,
+  newId: string,
+): BuilderBlock[] | undefined {
+  const parsed = parseBuilderBlocks(blocks, context);
+  const source = parsed?.find((block) => block.id === sourceId);
+  if (!parsed || !source || parsed.some((block) => block.id === newId)) return undefined;
+  const position = Math.max(...parsed.map((block) => block.position)) + 1;
+  return parseBuilderBlocks(
+    [...parsed, { ...structuredClone(source), id: newId, position, anchor: undefined }],
+    context,
+  );
+}
 export function reorderBuilderBlocks(
   blocks: readonly BuilderBlock[],
   context: BlockContext,

@@ -1,7 +1,56 @@
 import { expect, it } from "vitest";
-import { newBuilderBlock, parseBuilderBlocks, reorderBuilderBlocks } from "./builder-state";
+import {
+  newBuilderBlock,
+  parseBuilderBlocks,
+  reorderBuilderBlocks,
+  duplicateBuilderBlock,
+} from "./builder-state";
 const id = "11111111-1111-4111-8111-111111111111";
 const other = "22222222-2222-4222-8222-222222222222";
+it("duplicates data independently with a new ID/position, reuses media and clears anchor", () => {
+  const image = newBuilderBlock("IMAGE", "PAGE", [], id, other)!;
+  const source = {
+    ...image,
+    anchor: "foto",
+    background: "IMAGE" as const,
+    backgroundMediaId: other,
+    isVisible: false,
+  };
+  const next = duplicateBuilderBlock([source], "PAGE", id, other)!;
+  expect(next[0]).toEqual(source);
+  expect(next[1]).toMatchObject({
+    id: other,
+    type: "IMAGE",
+    position: 1,
+    isVisible: false,
+    schemaVersion: 1,
+    background: "IMAGE",
+    backgroundMediaId: other,
+    data: { imageId: other, decorative: false },
+  });
+  expect(next[1]!.anchor).toBeUndefined();
+  expect(next[1]!.data).not.toBe(source.data);
+  expect(next[0]!.data).not.toBe(next[1]!.data);
+  expect(source.anchor).toBe("foto");
+});
+it("rejects unknown source, duplicate/malformed ID, unsupported context/version and overflow", () => {
+  const hero = newBuilderBlock("HERO", "PAGE", [], id)!;
+  for (const newId of [id, "bad"])
+    expect(duplicateBuilderBlock([hero], "PAGE", id, newId)).toBeUndefined();
+  expect(duplicateBuilderBlock([hero], "PAGE", "missing", other)).toBeUndefined();
+  expect(duplicateBuilderBlock([hero], "ARTICLE", id, other)).toBeUndefined();
+  expect(
+    duplicateBuilderBlock([{ ...hero, position: 2147483647 }], "PAGE", id, other),
+  ).toBeUndefined();
+  expect(
+    duplicateBuilderBlock(
+      [{ ...hero, schemaVersion: 2 } as unknown as typeof hero],
+      "PAGE",
+      id,
+      other,
+    ),
+  ).toBeUndefined();
+});
 it("reorders positions preserving IDs/data and rejecting invalid moves", () => {
   const text = newBuilderBlock("TEXT", "PAGE", [], id)!;
   const hero = newBuilderBlock("HERO", "PAGE", [text], other)!;

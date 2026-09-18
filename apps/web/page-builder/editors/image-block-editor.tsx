@@ -12,6 +12,7 @@ export interface ImageBlockEditorProps {
   images?: readonly unknown[];
   onApply: (value: ImageBlockDataV1) => void | Promise<void>;
   disabled?: boolean;
+  ariaLabel?: string;
 }
 // Caller remounts with owner/block/version key and persists/authorizes elsewhere.
 export function ImageBlockEditor({
@@ -19,6 +20,7 @@ export function ImageBlockEditor({
   images = [],
   onApply,
   disabled = false,
+  ariaLabel,
 }: ImageBlockEditorProps) {
   const id = useId();
   const status = useRef<HTMLParagraphElement>(null);
@@ -69,7 +71,11 @@ export function ImageBlockEditor({
     }
   }
   return (
-    <form className="image-block-editor" aria-label="Editor IMAGE v1" onSubmit={apply}>
+    <form
+      className="image-block-editor"
+      aria-label={ariaLabel ?? "Editor IMAGE v1"}
+      onSubmit={apply}
+    >
       <fieldset disabled={disabled || busy}>
         <legend>IMAGE — Biblioteca de Mídia</legend>
         <label htmlFor={`${id}-image`}>Imagem obrigatória da Biblioteca de Mídia</label>

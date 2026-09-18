@@ -1,0 +1,9 @@
+# Duplicação — 5.11
+
+QA real local em fixture removido: 390×844/1280×900 LIGHT/DARK, duplicação e repetição por teclado, original manteve edição não aplicada/cópia recebeu título aplicado, formulários com nomes distintos, foco/status visível/botões 44px, sem overflow global/warnings no console. Viewport restaurado/aba fechada/servidor temporário encerrado. Não valida owner/salvamento/publicação reais ou contraste global.
+
+Duplicar no PageBuilder copia somente o conteúdo já aplicado ao draft, conforme instrução visível. Gera novo UUID no evento, nova position final (maior existente + 1), mesmo type/schemaVersion e cópia profunda de data/envelope, preservando visibilidade/background/Media.id. Anchor é removido da cópia para não duplicar identificador único; não existe UI de anchors neste loop. Não copia arquivo nem dispara processamento/MediaUsage sem proprietário persistido.
+
+duplicateBuilderBlock valida lista inteira/contexto pelo Registry exato; recusa source ausente, ID inválido/duplicado, schemas incompatíveis ou overflow. onApply recebe snapshot clonado/validado; lista local muda só após sucesso. Falha/concorrência/desabilitado/adição pendente não alteram original; keys estáveis preservam edits locais ainda não aplicados, que não são silenciosamente incluídos na cópia. Botão nomeado por bloco/posição, teclado/foco/status e estilos 44px por tokens existentes. Editores recebem ariaLabel contextual para distinguir formulários do mesmo tipo por posição, preservando nomes padrão no uso isolado.
+
+O caller de salvamento futuro deve revalidar autorizações/disponibilidade/MediaUsage/transação do owner; controles visuais não concedem acesso. Sem endpoint/publicação/Preview/ocultação/exclusão/novos tipos ou dependências. Testes cobrem clone sem aliasing/Media.id/anchor/ID/contexto/limites e interação com falha/concorrência/edits/axe semântico, sem contraste jsdom ou certificação de integração real.

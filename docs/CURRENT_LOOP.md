@@ -82,45 +82,45 @@ LOOP 5.7 — CONCLUÍDO
 LOOP 5.8 — CONCLUÍDO
 LOOP 5.9 — CONCLUÍDO
 LOOP 5.10 — CONCLUÍDO
-LOOP 5.11 — ATUAL
+LOOP 5.11 — CONCLUÍDO
+LOOP 5.12 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 5.11 — Duplicar bloco
+### LOOP 5.12 — Ocultar/exibir
 
-Estado: pronto após commit do 5.10. Reordenação concluída, checks verdes (392 testes). Revalidar commit e Git limpo.
+Estado: pronto após commit do 5.11. Duplicação concluída, checks verdes (395 testes). Revalidar commit e Git limpo.
 
 Objetivo:
 
 ```text
-Duplicar bloco de draft com novo UUID, sem copiar mídia física.
+Ocultar/exibir blocos preservando conteúdo e referências, com isVisible explícito.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.10 commitado e Git limpo;
+- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.11 commitado e Git limpo;
 - usar page-builder, nextjs-frontend, architecture-guard e testing-qa conforme escopo;
-- duplicar somente blocos completos/versões/contextos suportados, gerar novo UUID e position consistente;
-- clonar data sem aliasing, preservar referências Media.id sem duplicar arquivos;
-- manter anchors únicos: consultar regra canônica de duplicação/limpar anchor da cópia quando necessário, sem UI de anchors antecipada;
-- callback validado/async sem concorrência, falha sem alteração/perda do draft original, controle por teclado/foco/status;
+- controlar isVisible explícito pelo contrato atual, sem excluir bloco/data/referências de mídia;
+- blocos ocultos permanecem editáveis no builder e não são renderizados pelos renderers existentes;
+- callback validado/async sem concorrência, falha sem alterar visibilidade/perder edits, controle por teclado/foco/status;
 - manter contrato de caller explícito, sem criar publicação, Preview ou gateways antecipados;
 - controles acessíveis/teclado/foco, estados inválidos retidos, tokens e responsividade;
 - testes, checks disponíveis, documentação, commit e Git limpo.
 
 Não implementar:
 
-- ocultação (5.12), exclusão (5.13), anchors/backgrounds UI ou outros blocos/Preview/publicação antecipados.
+- exclusão (5.13), anchors/backgrounds UI ou outros blocos/Preview/publicação antecipados.
 
 Critério de aceite:
 
 ```text
-Duplicação cria bloco independente com novo ID, conteúdo clonado e referências de mídia mantidas, sem conflitos de posição/anchor; testes/documentação/checks verdes.
+Ocultar/exibir altera somente isVisible, mantendo bloco/dados/mídia/edit local e respeitando renderers/contratos; testes/documentação/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 5.12 — Ocultar/exibir
+LOOP 5.13 — Excluir bloco
 ```

@@ -23,6 +23,49 @@ const image = {
   createdAt: "2026-09-17T12:00:00.000Z",
 };
 const roots: Root[] = [];
+it("duplicates only applied content retaining original local edits, failure and concurrency", async () => {
+  let resolve!: () => void;
+  const onApply = vi
+    .fn()
+    .mockRejectedValueOnce(new Error("offline"))
+    .mockImplementationOnce(
+      () =>
+        new Promise<void>((done) => {
+          resolve = done;
+        }),
+    );
+  const { main } = await mount(onApply, [image], initialReorderBlocks());
+  const field = main.querySelector<HTMLInputElement>(".text-block-editor input")!;
+  await act(() => {
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(
+      field,
+      "Edits retidos",
+    );
+    field.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+  const button = main.querySelector<HTMLButtonElement>(
+    'button[aria-label="Duplicar bloco 1 — TEXT"]',
+  )!;
+  await act(async () => button.click());
+  expect(main.querySelectorAll(".page-builder-blocks > li")).toHaveLength(2);
+  expect(field.value).toBe("Edits retidos");
+  expect(main.textContent).toContain("Não foi possível duplicar");
+  await act(() => button.click());
+  await act(() => button.click());
+  expect(onApply).toHaveBeenCalledTimes(2);
+  const snapshot = onApply.mock.calls[1]![0];
+  expect(snapshot).toHaveLength(3);
+  expect(snapshot[2].id).not.toBe(id);
+  expect(snapshot[2].data.title).toBeUndefined();
+  await act(async () => resolve());
+  expect(main.querySelectorAll(".page-builder-blocks > li")).toHaveLength(3);
+  expect(main.querySelector(".text-block-editor input")).toBe(field);
+  expect(field.value).toBe("Edits retidos");
+  expect(document.activeElement?.getAttribute("role")).toBe("status");
+  expect(
+    (await axe.run(main, { rules: { "color-contrast": { enabled: false } } })).violations,
+  ).toEqual([]);
+});
 const other = "22222222-2222-4222-8222-222222222222";
 function initialReorderBlocks() {
   const text = newBuilderBlock("TEXT", "PAGE", [], id)!;

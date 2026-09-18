@@ -20,10 +20,16 @@ export interface TextBlockEditorProps {
   initialValue: unknown;
   onApply: (value: TextBlockDataV1) => void | Promise<void>;
   disabled?: boolean;
+  ariaLabel?: string;
 }
 // Local draft only. Caller must remount with a block/version key when changing
 // owners, authorize on the backend, and persist through its own REST workflow.
-export function TextBlockEditor({ initialValue, onApply, disabled = false }: TextBlockEditorProps) {
+export function TextBlockEditor({
+  initialValue,
+  onApply,
+  disabled = false,
+  ariaLabel,
+}: TextBlockEditorProps) {
   const id = useId();
   const status = useRef<HTMLParagraphElement>(null);
   const applying = useRef(false);
@@ -73,7 +79,7 @@ export function TextBlockEditor({ initialValue, onApply, disabled = false }: Tex
   return (
     <form
       className="text-block-editor"
-      aria-label="Editor visual TEXT"
+      aria-label={ariaLabel ?? "Editor visual TEXT"}
       aria-describedby={`${id}-help`}
       onSubmit={apply}
     >

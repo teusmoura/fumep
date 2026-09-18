@@ -1,5 +1,15 @@
 # LOOP STATUS
 
+## LOOP 5.11 — Concluído
+
+Estado inicial: 5.10 concluído em 802650e, Git limpo. Escopo: duplicação do conteúdo aplicado com novo UUID/posição final, deep clone/versionamento/contexto preservado, Media.id reutilizado/anchor limpo para unicidade, callback/falha/concorrência, botão acessível/teclado/foco/testes/checks. Sem persistência/rotas/controles de loops futuros.
+
+Entregue: duplicateBuilderBlock valida Registry/contexto/lista, novo UUID/position final, deep clone de data/envelope, mesmas referências Media.id/visibilidade/fundo/versão e anchor limpo para unicidade. PageBuilder duplica conteúdo aplicado explicitamente informado, callback clonado async sem concorrência/falha altera original; keys mantêm edits não aplicados. Botão nomeado por bloco, status focável e nomes distintos dos formulários mediante ariaLabel contextual (defaults standalone preservados). PAGE_BUILDER_DUPLICATE.md documenta contrato/caller/limites, sem endpoints/dependências novas/MediaUsage sem owner persistido.
+
+Checks aprovados: pnpm --filter @fumep/web test (109), pnpm --filter @fumep/web typecheck final, pnpm format:check/lint/typecheck/test/build/peers check e git diff --check finais. Total 395 testes (52 validation, 67 DB, 12 jobs, 3 storage, 122 API, 109 web, 30 Worker). axe detectou landmarks TEXT duplicados, primeira correção ariaLabel contextual resolveu; typecheck detectou cast de fixture de versão inválida, primeira correção por unknown resolveu, suíte completa reexecutada. Sem falhas/warnings React pendentes. axe semântico zero violações, sem contraste jsdom. QA real local 390×844/1280×900 LIGHT/DARK: duplicação/repetição por teclado, original manteve edit não aplicado/cópia conteúdo aplicado, formulários nomeados por posição, foco/status/botões 44px, sem overflow/console warnings. Fixture removido/viewport restaurado/aba fechada/servidor encerrado. test:e2e inexistente, sem CI remota/contraste global/integração owner real.
+
+Aceite cumprido. page-builder/architecture-guard preservaram Media.id/contratos/anchor único; nextjs-frontend/testing-qa e computer-use verificaram interação/A11y/falhas/regressões. Commit: feat(builder): duplicate draft blocks safely. Próximo: 5.12.
+
 ## LOOP 5.10 — Concluído
 
 Estado inicial: 5.9 concluído em 2a89681, Git limpo. Escopo: drag-and-drop nativo por handle, botões subir/descer, positions consecutivas/IDs estáveis e schemas/contexto validados, callback async sem concorrência/falha retida, preservação de editores locais/teclado/foco/A11y/checks. Sem controles dos próximos loops, persistência própria ou novos endpoints.

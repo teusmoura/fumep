@@ -7,6 +7,7 @@ import {
   newBuilderBlock,
   parseBuilderBlocks,
   reorderBuilderBlocks,
+  duplicateBuilderBlock,
   type BuilderBlock,
   type BuilderType,
 } from "./builder-state";
@@ -89,6 +90,7 @@ export function PageBuilder({
     const Editor = definition.editor;
     return (
       <Editor
+        ariaLabel={`Editor ${adding ? "novo bloco" : `do bloco ${(blocks?.findIndex((item) => item.id === block.id) ?? -1) + 1}`} — ${block.type}`}
         initialValue={block.data}
         images={available}
         onApply={(data: unknown) => apply(block, data, adding)}
@@ -111,6 +113,29 @@ export function PageBuilder({
       );
     } catch {
       notify("Não foi possível reordenar. Ordem e alterações dos editores foram mantidas.");
+    } finally {
+      applying.current = false;
+      setBusy(false);
+    }
+  }
+  async function duplicate(sourceId: string) {
+    dragged.current = undefined;
+    if (disabled || applying.current || candidate || !blocks) return;
+    const next = duplicateBuilderBlock(blocks, context, sourceId, crypto.randomUUID());
+    if (!next) {
+      notify("Não foi possível duplicar. O draft original foi mantido.");
+      return;
+    }
+    applying.current = true;
+    setBusy(true);
+    try {
+      await onApply(structuredClone(next));
+      setBlocks(next);
+      notify(
+        `Bloco duplicado na posição ${next.length}, com novo ID e sem anchor. Draft não publicado.`,
+      );
+    } catch {
+      notify("Não foi possível duplicar. O draft e suas alterações continuam preservados.");
     } finally {
       applying.current = false;
       setBusy(false);
@@ -146,8 +171,11 @@ export function PageBuilder({
       <p id={instructionsId}>
         Arraste o handle até outro bloco ou use Subir/Descer. A ordem só muda após aplicação
         bem-sucedida do draft. Edições ainda não aplicadas permanecem nos respectivos editores.
+        Duplicar copia somente o conteúdo aplicado, mantendo as referências de mídia e removendo o
+        anchor da cópia.
       </p>
       <ol className="page-builder-blocks">
+        {/* Stable IDs preserve unapplied editor state after list operations. */}
         {blocks.map((block, index) => (
           <li
             key={block.id}
@@ -164,7 +192,15 @@ export function PageBuilder({
             <h3>
               Bloco {index + 1} — {block.type}
             </h3>
-            <div className="page-builder-actions" aria-label={`Reordenar bloco ${index + 1}`}>
+            <div className="page-builder-actions" aria-label={`Ações do bloco ${index + 1}`}>
+              <button
+                type="button"
+                aria-label={`Duplicar bloco ${index + 1} — ${block.type}`}
+                disabled={disabled || busy || Boolean(candidate)}
+                onClick={() => void duplicate(block.id)}
+              >
+                Duplicar
+              </button>
               <button
                 type="button"
                 aria-label={`Arrastar bloco ${index + 1} — ${block.type}`}
