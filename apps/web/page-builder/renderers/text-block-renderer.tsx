@@ -1,4 +1,5 @@
 import { Fragment, type ReactNode } from "react";
+import { BlockBackground } from "./block-background";
 import {
   textBlockSchemaV1,
   type TextContentNodeV1,
@@ -7,6 +8,8 @@ import {
 
 export interface TextBlockRendererProps {
   block: unknown;
+  backgroundImage?: unknown;
+  theme?: unknown;
 }
 function textRun(node: Extract<TextInlineNodeV1, { type: "text" }>): ReactNode {
   let content: ReactNode = node.text;
@@ -87,16 +90,18 @@ function contentNode(node: TextContentNodeV1): ReactNode {
 }
 // No hooks, fetching or HTML interpretation: one implementation for public SSR
 // and a future authorized Preview. This component does not authorize publication.
-export function TextBlockRenderer({ block }: TextBlockRendererProps) {
+export function TextBlockRenderer({ block, backgroundImage, theme }: TextBlockRendererProps) {
   const parsed = textBlockSchemaV1.safeParse(block);
   if (!parsed.success || !parsed.data.isVisible) return null;
   const { data } = parsed.data;
   return (
-    <div className="text-block" id={parsed.data.anchor ?? undefined}>
-      {data.title?.trim() && <h2>{data.title}</h2>}
-      {data.content.nodes.map((node, index) => (
-        <Fragment key={index}>{contentNode(node)}</Fragment>
-      ))}
-    </div>
+    <BlockBackground block={parsed.data} backgroundImage={backgroundImage} theme={theme}>
+      <div className="text-block" id={parsed.data.anchor ?? undefined}>
+        {data.title?.trim() && <h2>{data.title}</h2>}
+        {data.content.nodes.map((node, index) => (
+          <Fragment key={index}>{contentNode(node)}</Fragment>
+        ))}
+      </div>
+    </BlockBackground>
   );
 }

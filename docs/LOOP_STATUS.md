@@ -1,5 +1,15 @@
 # LOOP STATUS
 
+## LOOP 5.15 — Concluído
+
+Estado inicial: 5.14 concluído em 909d600, Git limpo. Escopo: backgrounds DEFAULT/LIGHT/INSTITUTION/IMAGE controlados, imagem pronta da Biblioteca, callback validado/falha retida, wrapper SSR compartilhado com tema/descriptor resolvidos pelo caller e contraste por painel/tokens, testes/checks/documentação. Sem CSS livre, endpoints ou persistência antecipada.
+
+Entregue: setBuilderBlockBackground valida modo/owner draft/Registry e seleção pronta para IMAGE, limpa backgroundMediaId ao trocar para fundo sem imagem. BackgroundEditor nomeado com labels/select/fieldset/44px/status/foco e callback clonado async/ref/busy, falha retém escolhas. BlockBackground SSR comum a TEXT/HERO/IMAGE: DEFAULT tokens, LIGHT par claro fixo, INSTITUTION exige tema público validado com contraste, IMAGE exige descriptor fresco compatível/READY/NONE e painel opaco legível/decorativo. Sem CSS/URL livres, endpoints/migrations/dependências. PAGE_BUILDER_BACKGROUNDS.md documenta contrato do caller e MediaUsage/transação futura.
+
+Checks aprovados: pnpm --filter @fumep/web test (119 regressão inicial, 124 finais), pnpm --filter @fumep/web typecheck; pnpm format:check/lint/typecheck/test/build/peers check e git diff --check. Suíte completa 414 testes (52 validation, 71 DB, 12 jobs, 3 storage, 122 API, 124 web, 30 Worker). axe semântico zero violações, pares fixos/tema testados >=4.5:1; sem falhas de teste/compilação. QA real 390×844/1280×900 LIGHT/DARK: aplicação por teclado LIGHT/INSTITUTION/IMAGE/DEFAULT, pares computados corretos, imagem PNG carregada/decorativa e painel opaco, padrão escuro/remove imagem, foco solid/sem overflow/warnings. Fixtures removidos/viewport restaurado/aba fechada/servidor encerrado. Sem test:e2e, CI remota, contraste global ou integração REST owner.
+
+Aceite cumprido. page-builder/architecture-guard/media-storage delimitaram modos/descriptor/MediaUsage sem persistência antecipada; nextjs-frontend/testing-qa/computer-use verificaram SSR/interação/legibilidade/A11y/regressões. Commit: feat(builder): add controlled block backgrounds. Próximo: 5.16.
+
 ## LOOP 5.14 — Concluído
 
 Estado inicial: 5.13 concluído em 153b072, Git limpo. Escopo: anchor opcional como slug validado/único por owner inclusive ocultos, controle acessível async com falha retida, IDs nos renderers existentes, testes/checks/documentação. Sem backgrounds UI, novos endpoints ou persistência antecipada.

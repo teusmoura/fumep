@@ -1,7 +1,33 @@
 import type { BlockContext, TextBlockV1, HeroBlockV1, ImageBlockV1 } from "@fumep/validation";
 import { frontendBlockRegistry } from "./block-registry";
+import { availableLibraryImages } from "./available-library-images";
+import type { ContentBlockBackground } from "@fumep/validation";
 export type BuilderBlock = TextBlockV1 | HeroBlockV1 | ImageBlockV1;
 export type BuilderType = BuilderBlock["type"];
+export function setBuilderBlockBackground(
+  blocks: readonly BuilderBlock[],
+  context: BlockContext,
+  id: string,
+  background: ContentBlockBackground,
+  imageId?: string,
+  images: readonly unknown[] = [],
+): BuilderBlock[] | undefined {
+  const parsed = parseBuilderBlocks(blocks, context);
+  if (!parsed || !parsed.some((block) => block.id === id)) return undefined;
+  if (
+    background === "IMAGE" &&
+    !availableLibraryImages(images).some((image) => image.id === imageId)
+  )
+    return undefined;
+  return parseBuilderBlocks(
+    parsed.map((block) =>
+      block.id === id
+        ? { ...block, background, backgroundMediaId: background === "IMAGE" ? imageId : null }
+        : block,
+    ),
+    context,
+  );
+}
 export function setBuilderBlockAnchor(
   blocks: readonly BuilderBlock[],
   context: BlockContext,

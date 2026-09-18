@@ -1,10 +1,18 @@
 import Image from "next/image";
+import { BlockBackground } from "./block-background";
 import { imageBlockSchemaV1, imageResolvedImageSchemaV1 } from "@fumep/validation";
 export interface ImageBlockRendererProps {
   block: unknown;
   image?: unknown;
+  backgroundImage?: unknown;
+  theme?: unknown;
 }
-export function ImageBlockRenderer({ block, image }: ImageBlockRendererProps) {
+export function ImageBlockRenderer({
+  block,
+  image,
+  backgroundImage,
+  theme,
+}: ImageBlockRendererProps) {
   const parsed = imageBlockSchemaV1.safeParse(block);
   const resolved = imageResolvedImageSchemaV1.safeParse(image);
   if (
@@ -28,15 +36,17 @@ export function ImageBlockRenderer({ block, image }: ImageBlockRendererProps) {
     />
   );
   return (
-    <figure className="image-block" id={parsed.data.anchor ?? undefined}>
-      {data.link ? (
-        <a href={data.link} aria-label={data.decorative ? data.caption?.trim() : undefined}>
-          {picture}
-        </a>
-      ) : (
-        picture
-      )}
-      {data.caption?.trim() && <figcaption>{data.caption}</figcaption>}
-    </figure>
+    <BlockBackground block={parsed.data} backgroundImage={backgroundImage} theme={theme}>
+      <figure className="image-block" id={parsed.data.anchor ?? undefined}>
+        {data.link ? (
+          <a href={data.link} aria-label={data.decorative ? data.caption?.trim() : undefined}>
+            {picture}
+          </a>
+        ) : (
+          picture
+        )}
+        {data.caption?.trim() && <figcaption>{data.caption}</figcaption>}
+      </figure>
+    </BlockBackground>
   );
 }

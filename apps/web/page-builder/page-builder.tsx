@@ -4,6 +4,8 @@ import type { BlockContext } from "@fumep/validation";
 import { frontendBlockRegistry } from "./block-registry";
 import { availableLibraryImages } from "./available-library-images";
 import { AnchorEditor } from "./anchor-editor";
+import { BackgroundEditor } from "./background-editor";
+import type { ContentBlockBackground } from "@fumep/validation";
 import {
   newBuilderBlock,
   parseBuilderBlocks,
@@ -12,6 +14,7 @@ import {
   setBuilderBlockVisibility,
   removeBuilderBlock,
   setBuilderBlockAnchor,
+  setBuilderBlockBackground,
   type BuilderBlock,
   type BuilderType,
 } from "./builder-state";
@@ -209,6 +212,22 @@ export function PageBuilder({
       setBusy(false);
     }
   }
+  async function background(id: string, mode: ContentBlockBackground, imageId?: string) {
+    if (disabled || applying.current || candidate || deleting || !blocks)
+      throw new Error("Builder locked");
+    const next = setBuilderBlockBackground(blocks, context, id, mode, imageId, available);
+    if (!next) throw new Error("Invalid background");
+    applying.current = true;
+    setBusy(true);
+    try {
+      await onApply(structuredClone(next));
+      setBlocks(next);
+      notify("Fundo aplicado ao draft não publicado.");
+    } finally {
+      applying.current = false;
+      setBusy(false);
+    }
+  }
   async function confirmDelete() {
     if (disabled || applying.current || candidate || !deleting || !blocks) return;
     const next = removeBuilderBlock(blocks, context, deleting);
@@ -379,6 +398,14 @@ export function PageBuilder({
               </p>
             )}
             {editor(block, false)}
+            <BackgroundEditor
+              initialBackground={block.background}
+              initialImageId={block.backgroundMediaId}
+              images={available}
+              position={index + 1}
+              disabled={locked}
+              onApply={(mode, imageId) => background(block.id, mode, imageId)}
+            />
             <AnchorEditor
               initialAnchor={block.anchor}
               position={index + 1}

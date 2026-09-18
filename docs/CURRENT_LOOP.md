@@ -86,28 +86,30 @@ LOOP 5.11 — CONCLUÍDO
 LOOP 5.12 — CONCLUÍDO
 LOOP 5.13 — CONCLUÍDO
 LOOP 5.14 — CONCLUÍDO
-LOOP 5.15 — ATUAL
+LOOP 5.15 — CONCLUÍDO
+LOOP 5.16 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 5.15 — Backgrounds
+### LOOP 5.16 — IMAGE_TEXT
 
-Estado: pronto após commit do 5.14. Anchors concluídos, checks verdes (409 testes). Revalidar commit e Git limpo.
+Estado: pronto após commit do 5.15. Backgrounds concluídos, checks verdes (414 testes). Revalidar commit e Git limpo.
 
 Objetivo:
 
 ```text
-Configurar backgrounds controlados DEFAULT/LIGHT/INSTITUTION/IMAGE, usando mídia da Biblioteca para IMAGE.
+Implementar IMAGE_TEXT completo com variantes controladas IMAGE_LEFT/IMAGE_RIGHT.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.14 commitado e Git limpo;
+- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.15 commitado e Git limpo;
 - usar page-builder, nextjs-frontend, architecture-guard e testing-qa conforme escopo;
-- inspecionar contrato Zod/backgroundMediaId e regras canônicas de contraste/media, sem CSS livre;
-- controle acessível DEFAULT/LIGHT/INSTITUTION/IMAGE no builder, seleção de imagem pronta da Biblioteca e snapshot validado async/falha retida;
-- renderização compartilhada compatível com tokens/tema/dark mode e descriptor de mídia resolvido pelo caller, sem novos gateways/Preview/publicação antecipados;
+- schema Zod por versão para IMAGE_TEXT, contratos controlados IMAGE_LEFT/IMAGE_RIGHT e campos previstos no especializado, sem HTML/CSS livres;
+- editor acessível com seleção de imagem pronta da Biblioteca e texto rico seguro reutilizando contratos existentes, callback async/falha retida;
+- renderer SSR responsivo reutilizando texto/imagem/background seguros e descriptor/tema resolvidos pelo caller, sem novos gateways/Preview/publicação antecipados;
+- registrar definição completa em Registry/contextos permitidos e integrar criação no builder, sem antecipar CARDS;
 - preservar contrato de MediaUsage do owner/backend futuro sem criar persistência antecipada;
 - manter contrato de caller explícito, sem criar publicação, Preview ou gateways antecipados;
 - controles acessíveis/teclado/foco, estados inválidos retidos, tokens e responsividade;
@@ -115,16 +117,16 @@ Implementar:
 
 Não implementar:
 
-- IMAGE_TEXT (5.16), outros blocos/Preview/publicação/salvamento amplo antecipados.
+- CARDS (5.17), outros blocos/Preview/publicação/salvamento amplo antecipados.
 
 Critério de aceite:
 
 ```text
-Backgrounds controlados com validação de imagem/contraste aplicável, controles e renderers acessíveis, testes/documentação/checks verdes.
+IMAGE_TEXT com schema/editor/renderer/Registry, variantes controladas, mídia e texto seguros, responsividade/A11y, testes/documentação/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 5.16 — IMAGE_TEXT
+LOOP 5.17 — CARDS
 ```

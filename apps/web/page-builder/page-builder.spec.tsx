@@ -23,6 +23,48 @@ const image = {
   createdAt: "2026-09-17T12:00:00.000Z",
 };
 const roots: Root[] = [];
+it("validates image backgrounds, retains failure/retry and clears references when switching mode", async () => {
+  const onApply = vi.fn().mockRejectedValueOnce(new Error("offline"));
+  const { main } = await mount(onApply, [image], initialReorderBlocks());
+  const form = main.querySelector<HTMLFormElement>('form[aria-label="Fundo do bloco 1"]')!;
+  const mode = form.querySelector<HTMLSelectElement>("select")!;
+  await act(() => {
+    mode.value = "IMAGE";
+    mode.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+  const submit = async () => {
+    await act(async () => {
+      form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+    });
+  };
+  await submit();
+  expect(onApply).not.toHaveBeenCalled();
+  const selection = form.querySelectorAll<HTMLSelectElement>("select")[1]!;
+  await act(() => {
+    selection.value = id;
+    selection.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+  await submit();
+  expect(form.textContent).toContain("escolhas foram mantidas");
+  expect(selection.value).toBe(id);
+  await submit();
+  expect(onApply.mock.calls[1]![0][0]).toMatchObject({
+    background: "IMAGE",
+    backgroundMediaId: id,
+  });
+  await act(() => {
+    mode.value = "LIGHT";
+    mode.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+  await submit();
+  expect(onApply.mock.calls[2]![0][0]).toMatchObject({
+    background: "LIGHT",
+    backgroundMediaId: null,
+  });
+  expect(
+    (await axe.run(main, { rules: { "color-contrast": { enabled: false } } })).violations,
+  ).toEqual([]);
+});
 it("retains invalid/duplicate/failed anchors, preserves editors and applies/removes only on success", async () => {
   let resolve!: () => void;
   const onApply = vi

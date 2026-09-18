@@ -7,9 +7,43 @@ import {
   setBuilderBlockVisibility,
   removeBuilderBlock,
   setBuilderBlockAnchor,
+  setBuilderBlockBackground,
 } from "./builder-state";
 const id = "11111111-1111-4111-8111-111111111111";
 const other = "22222222-2222-4222-8222-222222222222";
+it("sets controlled backgrounds only and clears unused image references", () => {
+  const text = newBuilderBlock("TEXT", "PAGE", [], id)!;
+  for (const background of ["DEFAULT", "LIGHT", "INSTITUTION"] as const)
+    expect(setBuilderBlockBackground([text], "ARTICLE", id, background)).toEqual([
+      { ...text, background, backgroundMediaId: null },
+    ]);
+  expect(setBuilderBlockBackground([text], "PAGE", id, "IMAGE", other)).toBeUndefined();
+  expect(setBuilderBlockBackground([text], "PAGE", id, "RED" as "LIGHT")).toBeUndefined();
+  const library = {
+    id: other,
+    type: "IMAGE",
+    originalFilename: "fixture.png",
+    mimeType: "image/png",
+    sizeBytes: 1,
+    categoryId: null,
+    categoryName: null,
+    processingStatus: "READY",
+    altText: null,
+    caption: null,
+    width: 1,
+    height: 1,
+    createdAt: "2026-09-18T12:00:00.000Z",
+  };
+  const next = setBuilderBlockBackground([text], "PAGE", id, "IMAGE", other, [library])!;
+  expect(next).toEqual([{ ...text, background: "IMAGE", backgroundMediaId: other }]);
+  expect(setBuilderBlockBackground(next, "PAGE", id, "LIGHT")![0]!.backgroundMediaId).toBeNull();
+  expect(text.backgroundMediaId).toBeUndefined();
+  expect(
+    setBuilderBlockBackground([text], "PAGE", id, "IMAGE", other, [
+      { ...library, processingStatus: "PENDING" },
+    ]),
+  ).toBeUndefined();
+});
 it("validates optional slugs and uniqueness across the owner including hidden blocks", () => {
   const text = newBuilderBlock("TEXT", "PAGE", [], id)!;
   const hero = {

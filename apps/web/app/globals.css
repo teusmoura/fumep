@@ -355,7 +355,8 @@ main {
   margin-block: 1.5rem;
   min-width: 0;
 }
-.block-anchor-editor input {
+.block-anchor-editor input,
+.block-background-editor select {
   box-sizing: border-box;
   display: block;
   width: 100%;
@@ -367,9 +368,51 @@ main {
   border: 1px solid currentColor;
   padding: 0.5rem;
 }
-.block-anchor-editor input:focus-visible {
+.block-anchor-editor input:focus-visible,
+.block-background-editor select:focus-visible {
   outline: 3px solid var(--color-text);
   outline-offset: 3px;
+}
+.block-background-editor fieldset {
+  min-width: 0;
+  border: 1px solid currentColor;
+  padding: 1rem;
+}
+.block-background {
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  max-width: 100%;
+  color: var(--color-text, #1f2937);
+  background: var(--color-background, #ffffff);
+}
+.block-background:not([data-background="DEFAULT"]) {
+  padding: 1.5rem;
+}
+.block-background[data-background="LIGHT"] {
+  --color-background: #f3f4f6;
+  --color-text: #1f2937;
+  color-scheme: light;
+}
+.block-background[data-background="IMAGE"] {
+  --color-background: #111827;
+  --color-text: #f9fafb;
+  color-scheme: dark;
+}
+.block-background-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+}
+.block-background-content {
+  min-width: 0;
+}
+.block-background[data-background="IMAGE"] > .block-background-content {
+  background: var(--color-background);
+  padding: 1rem;
 }
 .institution-theme[data-appearance="DARK"] .institution-logo-light {
   display: none;
