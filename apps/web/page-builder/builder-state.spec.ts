@@ -6,9 +6,37 @@ import {
   duplicateBuilderBlock,
   setBuilderBlockVisibility,
   removeBuilderBlock,
+  setBuilderBlockAnchor,
 } from "./builder-state";
 const id = "11111111-1111-4111-8111-111111111111";
 const other = "22222222-2222-4222-8222-222222222222";
+it("validates optional slugs and uniqueness across the owner including hidden blocks", () => {
+  const text = newBuilderBlock("TEXT", "PAGE", [], id)!;
+  const hero = {
+    ...newBuilderBlock("HERO", "PAGE", [text], other)!,
+    anchor: "documentos",
+    isVisible: false,
+  };
+  const input = [text, hero];
+  const next = setBuilderBlockAnchor(input, "PAGE", id, "cursos-tecnicos")!;
+  expect(next).toEqual([{ ...text, anchor: "cursos-tecnicos" }, hero]);
+  expect(text.anchor).toBeUndefined();
+  expect(setBuilderBlockAnchor(next, "PAGE", id, "")).toEqual([{ ...text, anchor: null }, hero]);
+  for (const value of [
+    "documentos",
+    "Com espaço",
+    "ação",
+    "a--b",
+    "#link",
+    "<script>",
+    "a".repeat(101),
+  ])
+    expect(setBuilderBlockAnchor(input, "PAGE", id, value)).toBeUndefined();
+  expect(parseBuilderBlocks([{ ...text, anchor: "documentos" }, hero], "PAGE")).toBeUndefined();
+  expect(setBuilderBlockAnchor(input, "PAGE", "missing", "ok")).toBeUndefined();
+  expect(setBuilderBlockAnchor(input, "ARTICLE", id, "ok")).toBeUndefined();
+  expect(setBuilderBlockAnchor([text], "ARTICLE", id, "123")![0]!.anchor).toBe("123");
+});
 it("removes only the selected supported block and reindexes without mutating other content", () => {
   const text = newBuilderBlock("TEXT", "PAGE", [], id)!;
   const image = newBuilderBlock("IMAGE", "PAGE", [text], other, id)!;

@@ -28,7 +28,7 @@ export function ImageBlockRenderer({ block, image }: ImageBlockRendererProps) {
     />
   );
   return (
-    <figure className="image-block">
+    <figure className="image-block" id={parsed.data.anchor ?? undefined}>
       {data.link ? (
         <a href={data.link} aria-label={data.decorative ? data.caption?.trim() : undefined}>
           {picture}

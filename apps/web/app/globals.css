@@ -355,6 +355,22 @@ main {
   margin-block: 1.5rem;
   min-width: 0;
 }
+.block-anchor-editor input {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  max-width: 30rem;
+  min-height: 44px;
+  font: inherit;
+  color: inherit;
+  background: var(--color-background);
+  border: 1px solid currentColor;
+  padding: 0.5rem;
+}
+.block-anchor-editor input:focus-visible {
+  outline: 3px solid var(--color-text);
+  outline-offset: 3px;
+}
 .institution-theme[data-appearance="DARK"] .institution-logo-light {
   display: none;
 }

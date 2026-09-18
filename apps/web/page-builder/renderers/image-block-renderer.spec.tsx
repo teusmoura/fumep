@@ -28,6 +28,11 @@ const image = () => ({
 });
 const render = (value: unknown = block(), descriptor: unknown = image()) =>
   renderToStaticMarkup(<ImageBlockRenderer block={value} image={descriptor} />);
+it("exposes validated anchors without rendering hidden or invalid images", () => {
+  expect(render({ ...block(), anchor: "foto" })).toContain('id="foto"');
+  expect(render({ ...block(), anchor: "<script>" })).toBe("");
+  expect(render({ ...block(), anchor: "foto", isVisible: false })).toBe("");
+});
 it("renders a semantic figure with contextual alt preferred over valid fallback and escaped caption", () => {
   const html = render();
   expect(html).toContain("<figure");

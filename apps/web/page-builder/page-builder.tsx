@@ -3,6 +3,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import type { BlockContext } from "@fumep/validation";
 import { frontendBlockRegistry } from "./block-registry";
 import { availableLibraryImages } from "./available-library-images";
+import { AnchorEditor } from "./anchor-editor";
 import {
   newBuilderBlock,
   parseBuilderBlocks,
@@ -10,6 +11,7 @@ import {
   duplicateBuilderBlock,
   setBuilderBlockVisibility,
   removeBuilderBlock,
+  setBuilderBlockAnchor,
   type BuilderBlock,
   type BuilderType,
 } from "./builder-state";
@@ -187,6 +189,26 @@ export function PageBuilder({
     setDeleting(id);
     setMessage("Confirme ou cancele a exclusão do bloco atual.");
   }
+  async function anchor(id: string, value: string) {
+    if (disabled || applying.current || candidate || deleting || !blocks)
+      throw new Error("Builder locked");
+    const next = setBuilderBlockAnchor(blocks, context, id, value);
+    if (!next) throw new Error("Invalid or duplicate anchor");
+    applying.current = true;
+    setBusy(true);
+    try {
+      await onApply(structuredClone(next));
+      setBlocks(next);
+      notify(
+        value
+          ? "Anchor aplicado ao draft não publicado."
+          : "Anchor removido do draft não publicado.",
+      );
+    } finally {
+      applying.current = false;
+      setBusy(false);
+    }
+  }
   async function confirmDelete() {
     if (disabled || applying.current || candidate || !deleting || !blocks) return;
     const next = removeBuilderBlock(blocks, context, deleting);
@@ -357,6 +379,12 @@ export function PageBuilder({
               </p>
             )}
             {editor(block, false)}
+            <AnchorEditor
+              initialAnchor={block.anchor}
+              position={index + 1}
+              disabled={locked}
+              onApply={(value) => anchor(block.id, value)}
+            />
           </li>
         ))}
       </ol>

@@ -2,6 +2,22 @@ import type { BlockContext, TextBlockV1, HeroBlockV1, ImageBlockV1 } from "@fume
 import { frontendBlockRegistry } from "./block-registry";
 export type BuilderBlock = TextBlockV1 | HeroBlockV1 | ImageBlockV1;
 export type BuilderType = BuilderBlock["type"];
+export function setBuilderBlockAnchor(
+  blocks: readonly BuilderBlock[],
+  context: BlockContext,
+  id: string,
+  anchor: string,
+): BuilderBlock[] | undefined {
+  const parsed = parseBuilderBlocks(blocks, context);
+  if (!parsed || typeof anchor !== "string" || !parsed.some((block) => block.id === id))
+    return undefined;
+  return parseBuilderBlocks(
+    parsed.map((block) =>
+      block.id === id ? { ...block, anchor: anchor === "" ? null : anchor } : block,
+    ),
+    context,
+  );
+}
 export function removeBuilderBlock(
   blocks: readonly BuilderBlock[],
   context: BlockContext,
@@ -70,6 +86,7 @@ export function parseBuilderBlocks(
   const result: BuilderBlock[] = [];
   const ids = new Set<string>();
   const positions = new Set<number>();
+  const anchors = new Set<string>();
   for (const input of value) {
     if (!input || typeof input !== "object") return undefined;
     const raw = input as Record<string, unknown>;
@@ -79,6 +96,10 @@ export function parseBuilderBlocks(
     if (!parsed?.success) return undefined;
     const block = parsed.data as BuilderBlock;
     if (ids.has(block.id) || positions.has(block.position)) return undefined;
+    if (block.anchor) {
+      if (anchors.has(block.anchor)) return undefined;
+      anchors.add(block.anchor);
+    }
     ids.add(block.id);
     positions.add(block.position);
     result.push(block);

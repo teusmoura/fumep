@@ -11,7 +11,7 @@ export function HeroBlockRenderer({ block, image }: HeroBlockRendererProps) {
   const resolved = heroResolvedImageSchemaV1.safeParse(image);
   if (data.imageId && (!resolved.success || resolved.data.id !== data.imageId)) return null;
   return (
-    <div className="hero-block">
+    <div className="hero-block" id={parsed.data.anchor ?? undefined}>
       <div className="hero-block-content">
         <h2>{data.title}</h2>
         {data.description && <p>{data.description}</p>}

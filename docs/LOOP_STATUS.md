@@ -1,5 +1,15 @@
 # LOOP STATUS
 
+## LOOP 5.14 — Concluído
+
+Estado inicial: 5.13 concluído em 153b072, Git limpo. Escopo: anchor opcional como slug validado/único por owner inclusive ocultos, controle acessível async com falha retida, IDs nos renderers existentes, testes/checks/documentação. Sem backgrounds UI, novos endpoints ou persistência antecipada.
+
+Entregue: setBuilderBlockAnchor aplica/remove apenas anchor (vazio → null), usando contrato comum de slug; parseBuilderBlocks recusa duplicatas inclusive em ocultos. AnchorEditor nomeado/label/help/foco/44px preserva valor na falha, com callback clonado async/ref/busy e editores estáveis. Renderers TEXT/HERO/IMAGE expõem id validado só em blocos visíveis. Constraint owner_anchor existente já testada no banco, sem migrations/endpoints/dependências. PAGE_BUILDER_ANCHORS.md documenta limites e responsabilidade do caller/backend na fase 6.
+
+Checks aprovados: pnpm --filter @fumep/web test (118 inicial; 119 finais com teste TEXT), pnpm --filter @fumep/web typecheck; pnpm format:check/lint/typecheck/test/build/peers check e git diff --check. Suíte completa 409 testes (52 validation, 71 DB, 12 jobs, 3 storage, 122 API, 119 web, 30 Worker). axe semântico zero violações, sem contraste jsdom; sem falhas de teste/compilação. QA navegador 390×844 LIGHT /1280×900 DARK: duplicata oculta rejeitada com campo retido/foco status, aplicação/remoção por teclado com id gerado/removido, input 44px/foco solid, sem overflow/console warnings. Fixture removido, viewport restaurado/aba fechada/servidor encerrado. Sem test:e2e, CI remota, contraste global ou persistência REST owner real.
+
+Aceite cumprido. page-builder/architecture-guard mantiveram unicidade/envelope/escopo; nextjs-frontend/testing-qa e computer-use verificaram contrato/interação/A11y/regressões. Commit: feat(builder): configure unique block anchors. Próximo: 5.15.
+
 ## LOOP 5.13 — Concluído
 
 Estado inicial: 5.12 concluído em 957f7be, Git limpo. Escopo: exclusão do ContentBlock atual/usos CONTENT_BLOCK atômicos em repository interno condicionado ao owner resolvido, preservando outros usos/versões/Media; botão com confirmação local, callback validado/falha/concorrência/foco e testes reais PostgreSQL/UI/checks. Sem novos endpoints/salvamento amplo/Preview/publicação.

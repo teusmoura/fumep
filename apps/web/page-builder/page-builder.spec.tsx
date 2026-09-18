@@ -23,6 +23,59 @@ const image = {
   createdAt: "2026-09-17T12:00:00.000Z",
 };
 const roots: Root[] = [];
+it("retains invalid/duplicate/failed anchors, preserves editors and applies/removes only on success", async () => {
+  let resolve!: () => void;
+  const onApply = vi
+    .fn()
+    .mockRejectedValueOnce(new Error("offline"))
+    .mockImplementationOnce(
+      () =>
+        new Promise<void>((done) => {
+          resolve = done;
+        }),
+    );
+  const initial = initialReorderBlocks().map((block, index) =>
+    index === 1 ? { ...block, anchor: "reservado", isVisible: false } : block,
+  );
+  const { main } = await mount(onApply, [image], initial);
+  const form = main.querySelector<HTMLFormElement>('form[aria-label="Anchor do bloco 1"]')!;
+  const input = form.querySelector<HTMLInputElement>("input")!;
+  const content = main.querySelector(".hero-block-editor input");
+  async function change(value: string) {
+    await act(() => {
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(input, value);
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+  }
+  async function submit() {
+    await act(async () => {
+      form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+    });
+  }
+  for (const value of ["inválido", "reservado"]) {
+    await change(value);
+    await submit();
+    expect(input.value).toBe(value);
+    expect(form.textContent).toContain("Seu valor foi mantido");
+  }
+  expect(onApply).not.toHaveBeenCalled();
+  await change("documentos");
+  await submit();
+  expect(form.textContent).toContain("Seu valor foi mantido");
+  await submit();
+  await submit();
+  expect(onApply).toHaveBeenCalledTimes(2);
+  await act(async () => resolve());
+  expect(onApply.mock.calls[1]![0][0].anchor).toBe("documentos");
+  expect(main.querySelector(".hero-block-editor input")).toBe(content);
+  expect(document.activeElement?.getAttribute("role")).toBe("status");
+  await change("");
+  await submit();
+  expect(onApply.mock.calls[2]![0][0].anchor).toBeNull();
+  expect(
+    (await axe.run(main, { rules: { "color-contrast": { enabled: false } } })).violations,
+  ).toEqual([]);
+});
 it("requires cancellable confirmation, retains failed deletion and preserves other editor edits", async () => {
   let resolve!: () => void;
   const onApply = vi

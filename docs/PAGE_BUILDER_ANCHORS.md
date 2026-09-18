@@ -1,0 +1,9 @@
+# Anchors — 5.14
+
+Anchor é opcional no envelope do bloco: slug ASCII minúsculo com números/hífens entre palavras e até 100 caracteres, sem #. Não há normalização silenciosa; conteúdo inválido permanece no campo para correção. Campo vazio aplicado remove a referência (null). parseBuilderBlocks verifica unicidade de anchors presentes em todo o owner, inclusive blocos ocultos, além dos schemas/contexto/IDs/posições existentes. Duplicação continua removendo anchor da cópia.
+
+Controle local nomeado por posição, label/help associados, input e submit nativos/44px/tokens/foco e feedback de erro. Callback recebe snapshot validado/clonado; só sucesso atualiza draft, falha mantém campo/conteúdo; ref e busy impedem aplicações concorrentes. IDs estáveis mantêm outros editores. Caller deve remontar por owner/version/contexto e validar/autorizar o conjunto completo no backend na fase 6. Unicidade persistida já existe em content_blocks_owner_anchor_unique (owner_type, owner_id, anchor); não há novo endpoint, migration ou salvamento amplo.
+
+Renderers TEXT/HERO/IMAGE existentes expõem id somente após validar envelope e visibilidade/disponibilidade do conteúdo. Composição do owner futuro deve validar conjunto completo e não atribuir IDs de layout conflitantes: renderers isolados não provam unicidade de página. Sem Preview/publicação antecipados. Testes verificam slugs/remoção/unicidade oculta, callback/falha/retry/concurrency, editores estáveis e axe semântico; contraste jsdom não é certificação visual. test:e2e ainda inexistente.
+
+QA local descartável: 390×844 LIGHT e 1280×900 DARK, duplicata de bloco oculto rejeitada/campo retido, aplicação e remoção por teclado com id do renderer verificado, foco status visível, input 44px e sem overflow/console warnings. Fixture removido, viewport restaurado, aba fechada/servidor encerrado. Não prova persistência ou Preview real.

@@ -85,44 +85,46 @@ LOOP 5.10 — CONCLUÍDO
 LOOP 5.11 — CONCLUÍDO
 LOOP 5.12 — CONCLUÍDO
 LOOP 5.13 — CONCLUÍDO
-LOOP 5.14 — ATUAL
+LOOP 5.14 — CONCLUÍDO
+LOOP 5.15 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 5.14 — Anchors
+### LOOP 5.15 — Backgrounds
 
-Estado: pronto após commit do 5.13. Exclusão concluída, checks verdes (404 testes). Revalidar commit e Git limpo.
+Estado: pronto após commit do 5.14. Anchors concluídos, checks verdes (409 testes). Revalidar commit e Git limpo.
 
 Objetivo:
 
 ```text
-Configurar anchors opcionais como slug válido, únicos dentro do owner.
+Configurar backgrounds controlados DEFAULT/LIGHT/INSTITUTION/IMAGE, usando mídia da Biblioteca para IMAGE.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.13 commitado e Git limpo;
+- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.14 commitado e Git limpo;
 - usar page-builder, nextjs-frontend, architecture-guard e testing-qa conforme escopo;
-- inspecionar schema Zod comum/constraint de unicidade existente e validar anchors como slug opcional/único no conjunto do owner, inclusive ocultos;
-- controle acessível no builder para aplicar/remover anchor, com snapshot validado async, falha sem perder edits e foco/status/teclado;
-- renderers existentes devem expor id somente para anchor válido de bloco visível; sem publicação/Preview/persistência antecipados;
+- inspecionar contrato Zod/backgroundMediaId e regras canônicas de contraste/media, sem CSS livre;
+- controle acessível DEFAULT/LIGHT/INSTITUTION/IMAGE no builder, seleção de imagem pronta da Biblioteca e snapshot validado async/falha retida;
+- renderização compartilhada compatível com tokens/tema/dark mode e descriptor de mídia resolvido pelo caller, sem novos gateways/Preview/publicação antecipados;
+- preservar contrato de MediaUsage do owner/backend futuro sem criar persistência antecipada;
 - manter contrato de caller explícito, sem criar publicação, Preview ou gateways antecipados;
 - controles acessíveis/teclado/foco, estados inválidos retidos, tokens e responsividade;
 - testes, checks disponíveis, documentação, commit e Git limpo.
 
 Não implementar:
 
-- backgrounds UI (5.15), outros blocos/Preview/publicação/salvamento amplo antecipados.
+- IMAGE_TEXT (5.16), outros blocos/Preview/publicação/salvamento amplo antecipados.
 
 Critério de aceite:
 
 ```text
-Anchors como slug válido e únicos por owner, controle acessível e renderers compatíveis, testes/documentação/checks verdes.
+Backgrounds controlados com validação de imagem/contraste aplicável, controles e renderers acessíveis, testes/documentação/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 5.15 — Backgrounds
+LOOP 5.16 — IMAGE_TEXT
 ```

@@ -7,6 +7,16 @@ import { TextBlockRenderer } from "./text-block-renderer";
 import { frontendBlockRegistry } from "../block-registry";
 import { TextBlockEditor } from "../editors/text-block-editor";
 const run = (text: string) => ({ type: "text" as const, text });
+it("renders optional valid anchor IDs only for visible validated TEXT", () => {
+  expect(
+    renderToStaticMarkup(<TextBlockRenderer block={{ ...block(), anchor: "documentos" }} />),
+  ).toContain('id="documentos"');
+  for (const value of [
+    { ...block(), anchor: "#bad" },
+    { ...block(), anchor: "documentos", isVisible: false },
+  ])
+    expect(renderToStaticMarkup(<TextBlockRenderer block={value} />)).toBe("");
+});
 function block(): TextBlockV1 {
   return {
     id: "11111111-1111-4111-8111-111111111111",

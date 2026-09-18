@@ -34,6 +34,12 @@ const image = () => ({
 });
 const render = (value: unknown = block(), descriptor: unknown = image()) =>
   renderToStaticMarkup(<HeroBlockRenderer block={value} image={descriptor} />);
+it("exposes a valid anchor only on visible valid hero blocks", () => {
+  expect(render({ ...block(), anchor: "destaque" })).toContain('id="destaque"');
+  expect(render({ ...block(), anchor: "bad anchor" })).toBe("");
+  expect(render({ ...block(), anchor: "destaque", isVisible: false })).toBe("");
+  expect(render({ ...block(), anchor: null })).not.toContain('id="');
+});
 it("renders image-only SSR with contextual alt, safe CTA and explicit decorative alt", () => {
   const html = render();
   expect(html).toContain("<h2>ETMSL</h2>");

@@ -92,7 +92,7 @@ export function TextBlockRenderer({ block }: TextBlockRendererProps) {
   if (!parsed.success || !parsed.data.isVisible) return null;
   const { data } = parsed.data;
   return (
-    <div className="text-block">
+    <div className="text-block" id={parsed.data.anchor ?? undefined}>
       {data.title?.trim() && <h2>{data.title}</h2>}
       {data.content.nodes.map((node, index) => (
         <Fragment key={index}>{contentNode(node)}</Fragment>
