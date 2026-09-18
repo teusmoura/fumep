@@ -161,22 +161,25 @@ main {
   text-decoration: underline;
 }
 .hero-block-cta:focus-visible,
+.image-block a:focus-visible,
+.image-block-editor :is(input, select, textarea, button):focus-visible,
 .hero-block-editor :is(input, select, textarea, button):focus-visible {
   outline: 3px solid var(--color-text, currentColor);
   outline-offset: 3px;
 }
-.hero-block-editor {
+.hero-block-editor,
+.image-block-editor {
   max-width: 50rem;
   min-width: 0;
 }
-.hero-block-editor fieldset {
+:is(.hero-block-editor, .image-block-editor) fieldset {
   display: grid;
   gap: 0.5rem;
   padding: 1rem;
   min-width: 0;
   border: 1px solid currentColor;
 }
-.hero-block-editor :is(input:not([type="checkbox"]), select, textarea) {
+:is(.hero-block-editor, .image-block-editor) :is(input:not([type="checkbox"]), select, textarea) {
   display: block;
   width: 100%;
   min-width: 0;
@@ -184,13 +187,13 @@ main {
   min-height: 2.75rem;
   padding: 0.5rem;
 }
-.hero-block-editor button {
+:is(.hero-block-editor, .image-block-editor) button {
   font: inherit;
   min-height: 2.75rem;
   padding: 0.5rem;
   justify-self: start;
 }
-.hero-block-editor p {
+:is(.hero-block-editor, .image-block-editor) p {
   margin-block: 0.5rem;
 }
 @media (min-width: 1024px) {
@@ -199,6 +202,28 @@ main {
   }
 }
 
+.image-block {
+  margin: 1.5rem 0;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.image-block-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+.image-block a {
+  display: block;
+  color: inherit;
+}
+.image-block figcaption {
+  max-width: 75ch;
+  margin-block: 0.5rem;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
 .text-block {
   max-width: 75ch;
   margin-inline: auto;

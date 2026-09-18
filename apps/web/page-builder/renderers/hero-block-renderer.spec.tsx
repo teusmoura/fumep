@@ -99,7 +99,7 @@ it("registers complete HERO only for PAGE with exact version and existing TEXT u
   expect(definition.zodSchema.safeParse(block()).success).toBe(true);
   expect(frontendBlockRegistry.get("HERO", 1, "ARTICLE")).toBeUndefined();
   expect(frontendBlockRegistry.get("HERO", 2)).toBeUndefined();
-  expect(frontendBlockRegistry.list("ARTICLE").map((item) => item.type)).toEqual(["TEXT"]);
+  expect(frontendBlockRegistry.list("ARTICLE").map((item) => item.type)).toEqual(["TEXT", "IMAGE"]);
 });
 it("has no semantic axe violations for informative/decorative image and CTA (no contrast/layout)", async () => {
   for (const alt of ["Fachada da escola", ""]) {

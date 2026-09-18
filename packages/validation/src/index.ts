@@ -374,6 +374,42 @@ export const heroResolvedImageSchemaV1 = z
   .strict();
 export type HeroResolvedImageV1 = z.infer<typeof heroResolvedImageSchemaV1>;
 
+export const IMAGE_V1_LIMITS = Object.freeze({ altCharacters: 300, captionCharacters: 500 });
+export const imageBlockDataSchemaV1 = z
+  .object({
+    imageId: z.uuid(),
+    alt: textPlainSchemaV1.max(IMAGE_V1_LIMITS.altCharacters).optional(),
+    caption: textPlainSchemaV1.max(IMAGE_V1_LIMITS.captionCharacters).optional(),
+    link: textLinkUrlSchemaV1.optional(),
+    decorative: z.boolean(),
+  })
+  .strict()
+  .superRefine((data, context) => {
+    if (data.decorative && data.alt !== undefined && data.alt !== "")
+      context.addIssue({
+        code: "custom",
+        path: ["alt"],
+        message: "Decorative image must not carry informative alt",
+      });
+    if (data.decorative && data.link && !data.caption?.trim())
+      context.addIssue({
+        code: "custom",
+        path: ["caption"],
+        message: "Linked decorative image requires an accessible caption label",
+      });
+  });
+export const imageBlockSchemaV1 = contentBlockCommonSchema.safeExtend({
+  type: z.literal("IMAGE"),
+  schemaVersion: z.literal(1),
+  data: imageBlockDataSchemaV1,
+});
+export const imageResolvedImageSchemaV1 = heroResolvedImageSchemaV1.safeExtend({
+  altText: textPlainSchemaV1.max(IMAGE_V1_LIMITS.altCharacters).nullable().optional(),
+});
+export type ImageBlockDataV1 = z.infer<typeof imageBlockDataSchemaV1>;
+export type ImageBlockV1 = z.infer<typeof imageBlockSchemaV1>;
+export type ImageResolvedImageV1 = z.infer<typeof imageResolvedImageSchemaV1>;
+
 export const processMediaPayloadSchema = z.object({ mediaId: z.uuid() }).strict();
 export type ProcessMediaPayload = z.infer<typeof processMediaPayloadSchema>;
 export const mediaProcessingResponseSchema = z

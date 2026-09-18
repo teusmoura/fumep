@@ -6,6 +6,8 @@ O catálogo UI central é `frontendBlockRegistry` em `apps/web/page-builder/bloc
 
 ## Entrega original do 5.1
 
+Após 5.8, IMAGE v1 completo está disponível em PAGE/ARTICLE, com alt contextual ou fallback válido, decoração explícita e caption. ARTICLE contém TEXT/IMAGE; HERO permanece exclusivo de PAGE. O catálogo não resolve acesso nem disponibilidade de mídia.
+
 Após 5.7, o catálogo operacional também inclui HERO v1 completo apenas para PAGE; ARTICLE continua limitado ao TEXT já implementado. A imagem resolvida do renderer é metadado de transporte separado do JSONB, fornecido pelo caller e não obtido pelo registry.
 
 Loop 5.1 entrega somente infraestrutura: `blockRegistry` de produção vazio, `BlockDefinition`, `BlockContext`, `BlockRegistry` e `createBlockRegistry`, compartilhados em @fumep/validation. Nenhum bloco concreto, schema comum, editor, renderer de conteúdo ou endpoint foi implementado.

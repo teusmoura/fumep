@@ -79,44 +79,44 @@ LOOP 5.4 — CONCLUÍDO
 LOOP 5.5 — CONCLUÍDO
 LOOP 5.6 — CONCLUÍDO
 LOOP 5.7 — CONCLUÍDO
-LOOP 5.8 — ATUAL
+LOOP 5.8 — CONCLUÍDO
+LOOP 5.9 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 5.8 — IMAGE v1
+### LOOP 5.9 — Page Builder básico
 
-Estado: pronto para execução após commit do 5.7. TEXT/HERO completos, checks verdes (366 testes). Revalidar commit/Git limpo antes de iniciar.
+Estado: pronto após commit do 5.8. TEXT/HERO/IMAGE completos, checks verdes (383 testes). Revalidar commit e Git limpo.
 
 Objetivo:
 
 ```text
-Bloco IMAGE v1 com Media.id, alt contextual/fallback válido e caption.
+Adicionar TEXT, HERO e IMAGE no Page Builder básico.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.7 commitado e Git limpo;
+- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.8 commitado e Git limpo;
 - usar page-builder, nextjs-frontend, architecture-guard e testing-qa conforme escopo;
-- contrato IMAGE v1/envelope comum com imageId obrigatório, alt/caption/link/decorative controlados, sem URL física/HTML/CSS livres;
-- editor visual e renderer SSR com imagem disponível resolvida pelo caller, alt contextual ou fallback válido para imagem informativa, decoração explícita e caption escapada;
-- usar apenas URLs de mídia do domínio do portal; não criar gateway/endpoints ou lookup de proprietário antecipados;
-- definição IMAGE completa no Registry frontend PAGE/ARTICLE, sem outros blocos;
-- controles acessíveis, feedback/foco, responsividade/tokens, testes de mídia/alt/caption/links;
+- compor apenas as definições completas existentes do Registry e seus editores para adição de TEXT/HERO/IMAGE;
+- IDs únicos/position cumulativa, drafts estruturais e contexto autorizado pelo contrato (HERO apenas PAGE), referências Media.id;
+- manter contrato de caller explícito, sem criar publicação, Preview ou gateways antecipados;
+- controles acessíveis/teclado/foco, estados inválidos retidos, tokens e responsividade;
 - testes, checks disponíveis, documentação, commit e Git limpo.
 
 Não implementar:
 
-- Page Builder básico (5.9), outros blocos, endpoints/preview/publicação ou novos consumidores antecipados.
+- reordenação (5.10), duplicação (5.11), ocultação (5.12), exclusão (5.13), anchors/backgrounds UI ou outros blocos/Preview/publicação antecipados.
 
 Critério de aceite:
 
 ```text
-IMAGE v1 com schema/editor/renderer/registro completo, Media.id/alt/caption seguros/acessíveis, testes/documentação e checks verdes.
+Page Builder básico adiciona TEXT/HERO/IMAGE respeitando contexto, contratos existentes e acessibilidade, com testes/documentação/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 5.9 — Page Builder básico
+LOOP 5.10 — Reordenar blocos
 ```

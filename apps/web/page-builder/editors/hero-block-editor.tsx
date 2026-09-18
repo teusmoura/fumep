@@ -3,10 +3,10 @@ import { useId, useRef, useState, type FormEvent } from "react";
 import {
   HERO_V1_LIMITS,
   heroBlockDataSchemaV1,
-  mediaLibraryResponseSchema,
   textLinkUrlSchemaV1,
   type HeroBlockDataV1,
 } from "@fumep/validation";
+import { availableLibraryImages } from "../available-library-images";
 export interface HeroBlockEditorProps {
   initialValue: unknown;
   images?: readonly unknown[];
@@ -30,17 +30,7 @@ export function HeroBlockEditor({
   const [decorative, setDecorative] = useState(() => draft?.imageAlt === "");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
-  const available = images
-    .flatMap((value) => {
-      const parsed = mediaLibraryResponseSchema.shape.items.element.safeParse(value);
-      return parsed.success &&
-        parsed.data.type === "IMAGE" &&
-        parsed.data.processingStatus === "READY" &&
-        ["image/png", "image/jpeg", "image/webp", "image/avif"].includes(parsed.data.mimeType)
-        ? [parsed.data]
-        : [];
-    })
-    .filter((image, index, all) => all.findIndex((item) => item.id === image.id) === index);
+  const available = availableLibraryImages(images);
   if (!draft)
     return (
       <p role="alert">O conteúdo inicial HERO v1 é inválido. Seus dados não foram substituídos.</p>

@@ -1,5 +1,15 @@
 # LOOP STATUS
 
+## LOOP 5.8 — Concluído
+
+Estado inicial: 5.7 concluído em `ec8f2b5`, Git limpo. Escopo: IMAGE v1 schema/envelope, imageId obrigatório/alt/caption/link/decorative, editor Client sem persistência e renderer SSR com descriptor disponível/alt contextual ou fallback válido; registro completo PAGE/ARTICLE, testes/A11y/checks. Sem owner/endpoints/Preview/publicação ou outros blocos.
+
+Entregue: contrato IMAGE strict/versionado e descriptor separado do JSONB, editor com seleção validada/alt contextual ou fallback seguro/decoração explícita/caption/link, callback validado async sem concorrência e recuperação de falha. Renderer SSR figure/figcaption/Next.Image, UUID correspondente e disponibilidade declarada no descriptor, alt contextual preferencial, fallback válido ou falha fechada; decoração com link exige caption como nome acessível. Texto escapado, links seguros, estilos responsivos por tokens e registro PAGE/ARTICLE. Helper de imagens disponíveis compartilhado com HERO, sem autoridade backend, endpoint ou persistência antecipados. IMAGE_BLOCK_V1.md/BLOCK_REGISTRY.md atualizados.
+
+Checks aprovados: validation focado (52), web focado (97), pnpm format:check/lint/typecheck/test/build/peers check e git diff --check. Suíte completa: 383 testes (52 validation, 67 DB, 12 jobs, 3 storage, 122 API, 97 web, 30 Worker); axe-core semântico zero violações, contraste desativado em jsdom. QA local 390×844/1280×900 LIGHT/DARK: imagem sintética carregada, fallback/alt contextual, caption literal, link perigoso bloqueado, decoração/link nomeado, teclado/status/foco visível, controles 44px e sem overflow global/erros no console. Fixture removido, viewport restaurado, aba fechada e servidor encerrado (porta 3100 sem listener). A primeira tentativa de iniciar servidor encontrou a porta ocupada pelo fixture anterior; reutilização e encerramento resolveram. Nenhuma falha pendente. test:e2e inexistente; não certifica integração real/contraste global/CI remota.
+
+Aceite cumprido. page-builder/architecture-guard preservaram referências Media.id e escopo isolado; nextjs-frontend/testing-qa verificaram SSR, interação, acessibilidade e regressões. computer-use orientou QA no navegador disponível. Commit: feat(builder): add image block v1. Próximo loop: 5.9.
+
 ## LOOP 5.7 — Concluído
 
 Estado inicial: 5.6 concluído em `7f9ab6f`, Git limpo. Escopo: editor HERO Client controlado, seleção de imagens READY disponíveis fornecidas pelo caller, escolha informativa/decorativa explícita e CTA seguro; renderer SSR com descriptor de imagem resolvido pelo caller/URL same-origin do portal, definição completa PAGE no Registry, testes e checks. Sem rede/persistência própria, endpoints, Preview/publicação, lookup autorizado ou outros blocos.
