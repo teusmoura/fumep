@@ -324,6 +324,37 @@ main {
   border-inline-start: 0.25rem solid currentColor;
   padding-inline-start: 1rem;
 }
+.page-builder {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.page-builder-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-block: 1rem;
+}
+.page-builder-actions button {
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  color: inherit;
+  background: var(--color-background);
+  border: 1px solid currentColor;
+}
+.page-builder-actions button:focus-visible,
+.page-builder [role="status"]:focus-visible {
+  outline: 3px solid var(--color-text);
+  outline-offset: 3px;
+}
+.page-builder-blocks {
+  padding-inline-start: 1.5rem;
+}
+.page-builder-blocks > li {
+  margin-block: 1.5rem;
+  min-width: 0;
+}
 .institution-theme[data-appearance="DARK"] .institution-logo-light {
   display: none;
 }

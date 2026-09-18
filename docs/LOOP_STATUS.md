@@ -1,5 +1,15 @@
 # LOOP STATUS
 
+## LOOP 5.9 — Concluído
+
+Estado inicial: 5.8 concluído em 8060074, Git limpo. Escopo: Page Builder básico Client com adição TEXT/HERO/IMAGE e edição por componentes registrados, contexto PAGE/ARTICLE, IDs/positions únicos, validação antes do callback async de draft, estado retido em falha, controles acessíveis/tokens/testes/checks. Sem endpoints/persistência própria/Preview/publicação/reordenação/duplicação/ocultação/exclusão.
+
+Entregue: PageBuilder Client compartilhado, Registry exato para validação/contexto/editor, snapshots clonados e IDs/positions cumulativos/únicos. Adição configurada por editor existente, lista local só muda após sucesso do callback; falha mantém conteúdo e bloqueio concorrente. IMAGE depende de seleção disponível e alt válido/decoração explícita; HERO só PAGE. Sem salvamento/autoridade backend/rota antecipados; fase 6.1 implementa salvamento. PAGE_BUILDER_BASIC.md documenta montagem/caller/defaults de draft e limites.
+
+Checks aprovados: pnpm --filter @fumep/web test (103), pnpm --filter @fumep/web typecheck, pnpm format:check/lint/typecheck/test/build/peers check e git diff --check. Total 389 testes (52 validation, 67 DB, 12 jobs, 3 storage, 122 API, 103 web, 30 Worker). Primeiro teste detectou chave inicial TEXT incorreta, corrigida de document para content; rodada seguinte detectou foco perdido ao desmontar adição, corrigido com foco após commit React. Terceira rodada verde, sem warnings/falha pendente. axe-core zero violações semânticas (sem contraste jsdom). QA real local LIGHT/DARK 390×844/1280×900 confirmou adição por teclado/callback/foco no status, foco visível/botões 44px/sem overflow/console limpo. Fixture removido, viewport restaurado, aba fechada/servidor encerrado. Sem test:e2e/CI remota/contraste global/integração owner real.
+
+Aceite cumprido. execute-loop/page-builder/architecture-guard mantiveram escopo de draft sem controles futuros; nextjs-frontend/testing-qa e computer-use verificaram interação/SSR/A11y/regressões e foco. Commit: feat(builder): add basic page builder. Próximo: 5.10.
+
 ## LOOP 5.8 — Concluído
 
 Estado inicial: 5.7 concluído em `ec8f2b5`, Git limpo. Escopo: IMAGE v1 schema/envelope, imageId obrigatório/alt/caption/link/decorative, editor Client sem persistência e renderer SSR com descriptor disponível/alt contextual ou fallback válido; registro completo PAGE/ARTICLE, testes/A11y/checks. Sem owner/endpoints/Preview/publicação ou outros blocos.

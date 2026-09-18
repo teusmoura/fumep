@@ -80,43 +80,45 @@ LOOP 5.5 — CONCLUÍDO
 LOOP 5.6 — CONCLUÍDO
 LOOP 5.7 — CONCLUÍDO
 LOOP 5.8 — CONCLUÍDO
-LOOP 5.9 — ATUAL
+LOOP 5.9 — CONCLUÍDO
+LOOP 5.10 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 5.9 — Page Builder básico
+### LOOP 5.10 — Reordenação
 
-Estado: pronto após commit do 5.8. TEXT/HERO/IMAGE completos, checks verdes (383 testes). Revalidar commit e Git limpo.
+Estado: pronto após commit do 5.9. Page Builder básico completo, checks verdes (389 testes). Revalidar commit e Git limpo.
 
 Objetivo:
 
 ```text
-Adicionar TEXT, HERO e IMAGE no Page Builder básico.
+Reordenar blocos por drag-and-drop e alternativa acessível subir/descer.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.8 commitado e Git limpo;
+- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.9 commitado e Git limpo;
 - usar page-builder, nextjs-frontend, architecture-guard e testing-qa conforme escopo;
-- compor apenas as definições completas existentes do Registry e seus editores para adição de TEXT/HERO/IMAGE;
-- IDs únicos/position cumulativa, drafts estruturais e contexto autorizado pelo contrato (HERO apenas PAGE), referências Media.id;
+- acrescentar drag-and-drop de blocos com IDs estáveis e atualização validada de position;
+- fornecer botões subir/descer acessíveis por teclado, limites/inibição durante callback e feedback/foco;
+- preservar conteúdo, referências Media.id, envelopes e drafts locais dos editores ao trocar ordem;
 - manter contrato de caller explícito, sem criar publicação, Preview ou gateways antecipados;
 - controles acessíveis/teclado/foco, estados inválidos retidos, tokens e responsividade;
 - testes, checks disponíveis, documentação, commit e Git limpo.
 
 Não implementar:
 
-- reordenação (5.10), duplicação (5.11), ocultação (5.12), exclusão (5.13), anchors/backgrounds UI ou outros blocos/Preview/publicação antecipados.
+- duplicação (5.11), ocultação (5.12), exclusão (5.13), anchors/backgrounds UI ou outros blocos/Preview/publicação antecipados.
 
 Critério de aceite:
 
 ```text
-Page Builder básico adiciona TEXT/HERO/IMAGE respeitando contexto, contratos existentes e acessibilidade, com testes/documentação/checks verdes.
+Drag-and-drop e subir/descer acessíveis reordenam o draft, mantendo conteúdo/IDs e positions consistentes; testes/documentação/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 5.10 — Reordenar blocos
+LOOP 5.11 — Duplicar bloco
 ```
