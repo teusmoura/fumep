@@ -88,46 +88,47 @@ LOOP 5.13 — CONCLUÍDO
 LOOP 5.14 — CONCLUÍDO
 LOOP 5.15 — CONCLUÍDO
 LOOP 5.16 — CONCLUÍDO
-LOOP 5.17 — ATUAL
+LOOP 5.17 — CONCLUÍDO
+LOOP 5.18 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 5.17 — CARDS
+### LOOP 5.18 — QUICK_LINKS
 
-Estado: pronto após commit do 5.16. IMAGE_TEXT concluído, checks verdes (423 testes). Revalidar commit e Git limpo.
+Estado: pronto após commit do 5.17. CARDS concluído, checks verdes (434 testes). Revalidar commit e Git limpo.
 
 Objetivo:
 
 ```text
-Implementar CARDS completo, somente com imagem e limite máximo de 12 cards.
+Implementar QUICK_LINKS completo com ícones opcionais controlados pelo sistema.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.16 commitado e Git limpo;
+- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.17 commitado e Git limpo;
 - usar page-builder, nextjs-frontend, architecture-guard e testing-qa conforme escopo;
-- schema Zod por versão para CARDS e itens imageId/title/description?/url?, somente imagem, sem ícone alternativo e máximo de 12 itens;
-- editor acessível para adicionar/editar/remover/reordenar cards com imagens prontas da Biblioteca, alt contextual/fallback aplicável e URLs seguras, callback async/falha retida;
-- renderer SSR responsivo com três colunas no desktop e adaptação automática, reutilizando imagem/background seguros e descriptors/tema resolvidos pelo caller;
-- registrar definição completa em Registry/contextos permitidos e integrar criação no builder, sem antecipar QUICK_LINKS;
-- preservar contrato de MediaUsage do owner/backend futuro sem criar persistência antecipada;
+- schema Zod por versão para QUICK_LINKS com title? e items label/url/icon?, URLs seguras e limites documentados/aplicáveis;
+- definir catálogo fechado de ícones do sistema e representação acessível/decorativa, sem SVG ou nomes arbitrários fornecidos pelo Editor;
+- editor acessível para adicionar/editar/remover/reordenar links e escolher apenas ícones controlados, callback async/falha retida;
+- renderer SSR responsivo com links nomeados, foco/contraste e BlockBackground/tema resolvidos pelo caller;
+- registrar definição completa em Registry/contextos permitidos e integrar criação no builder, sem antecipar CTA;
 - manter contrato de caller explícito, sem criar publicação, Preview ou gateways antecipados;
 - controles acessíveis/teclado/foco, estados inválidos retidos, tokens e responsividade;
 - testes, checks disponíveis, documentação, commit e Git limpo.
 
 Não implementar:
 
-- QUICK_LINKS (5.18), ícones alternativos, outros blocos/Preview/publicação/salvamento amplo antecipados.
+- CTA (5.19), SVG/HTML livre, biblioteca externa ou ícones arbitrários fornecidos pelo Editor, outros blocos/Preview/publicação/salvamento amplo antecipados.
 
 Critério de aceite:
 
 ```text
-CARDS com schema/editor/renderer/Registry, somente imagem, até 12 itens, mídia/texto/URLs seguros, responsividade/A11y, testes/documentação/checks verdes.
+QUICK_LINKS disponível no Registry, Editor e Renderer, com URLs/ícones controlados, teclado/foco/contraste, testes/documentação/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 5.18 — QUICK_LINKS
+LOOP 5.19 — CTA
 ```

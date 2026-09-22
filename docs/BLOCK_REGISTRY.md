@@ -1,5 +1,7 @@
 # BlockRegistry
 
+Após 5.17, CARDS v1 completo está registrado somente em PAGE, conforme o subconjunto canônico de ARTICLE. O bloco aceita de 1 a 12 itens exclusivamente com imagem, sem ícones, e usa editor de coleção/renderer SSR responsivo. Catálogo frontend: TEXT, HERO (PAGE), IMAGE, IMAGE_TEXT e CARDS (PAGE).
+
 Após 5.16, IMAGE_TEXT v1 completo está registrado em PAGE/ARTICLE (schema compartilhado, editor composto, renderer SSR), com IMAGE_LEFT/IMAGE_RIGHT. Catálogo frontend: TEXT, HERO (PAGE), IMAGE e IMAGE_TEXT; infraestrutura compartilhada continua vazia e agnóstica de UI.
 
 ## Catálogo operacional após 5.5

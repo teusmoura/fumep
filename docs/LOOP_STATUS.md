@@ -1,5 +1,17 @@
 # LOOP STATUS
 
+## LOOP 5.17 — Concluído
+
+Estado inicial: 5.16 concluído em caa6a45, Git limpo. Escopo: CARDS V1 PAGE-only, itens imageId/title/description?/url?, somente imagens READY com alt válido da Biblioteca, máximo 12, editor de coleção acessível, renderer SSR em grid responsivo de três colunas desktop, Registry/builder/testes/checks/documentação. Sem QUICK_LINKS, ícones, Preview/publicação/persistência antecipados.
+
+Entregue: schemas strict/versionados para coleção de 1 a 12 cards e campos canônicos seguros, sem ícone/HTML/CSS/layout livre. Editor Client adiciona, edita, remove e reordena itens por controles nativos, usa somente projeções IMAGE READY com alt padrão válido, valida URL e aplica snapshot conjunto por callback async/ref/busy com falha retida. Renderer SSR PAGE-only valida todo o envelope e descriptors READY/NONE/caminhos públicos, falha fechado se qualquer imagem/alt faltar, escapa texto e compõe links opcionais dentro de BlockBackground. Registry/PageBuilder criam CARDS só com mídia disponível; ARTICLE permanece no subconjunto canônico sem CARDS. MediaUsage futuro para imageIds distintos/background documentado, sem endpoint/migration/persistência antecipada.
+
+Checks aprovados: pnpm format:check, pnpm lint, pnpm typecheck, pnpm test, pnpm build e git diff --check; inspeção de dependências com pnpm ls --depth 0. Suíte completa 434 testes (58 validation, 71 DB, 12 jobs, 3 storage, 122 API, 138 web, 30 Worker), além das rodadas focadas validation/web e typecheck. axe-core semântico zero violações; sem falhas de teste/compilação pendentes.
+
+QA real 390×844, 700×900 e 1280×900 LIGHT/DARK: 1/2/3 colunas, adicionar/reordenar/editar/aplicar quatro cards, imagens carregadas com alt, HTML literal escapado, controles >=44px, foco solid, zero overflow e console limpo. A primeira abertura encontrou listener Next temporário remanescente; o PID foi confirmado pelo comando do repositório, encerrado de forma restrita e a segunda tentativa passou. Fixture removido, viewport restaurado, aba fechada, servidor encerrado e porta 3100 livre. test:e2e inexistente; sem CI remota, contraste global ou integração REST owner real.
+
+Aceite cumprido. execute-loop/page-builder/architecture-guard/media-storage mantiveram PAGE-only, schema/Registry/Media.id e escopo sem persistência; nextjs-frontend/testing-qa/computer-use verificaram coleção, SSR, responsividade, interação, segurança e A11y. Commit: feat(builder): add cards block v1. Próximo: 5.18.
+
 ## LOOP 5.16 — Concluído
 
 Estado inicial: 5.15 concluído em afd24b0, Git limpo. Escopo: IMAGE_TEXT V1 campos canônicos/title/text AST/imageId/imageAlt/imagePosition/button, IMAGE_LEFT/IMAGE_RIGHT, editor composto com aplicação conjunta, renderer SSR responsivo/Registry PAGE/ARTICLE/builder, mídia e texto seguros/testes/checks/documentação. Sem CARDS/Preview/publicação/persistência antecipados.

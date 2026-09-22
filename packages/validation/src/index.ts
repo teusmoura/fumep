@@ -368,6 +368,31 @@ export const imageTextBlockSchemaV1 = contentBlockCommonSchema.safeExtend({
 export type ImageTextBlockDataV1 = z.infer<typeof imageTextBlockDataSchemaV1>;
 export type ImageTextBlockV1 = z.infer<typeof imageTextBlockSchemaV1>;
 
+export const CARDS_V1_LIMITS = Object.freeze({
+  items: 12,
+  titleCharacters: HERO_V1_LIMITS.titleCharacters,
+  descriptionCharacters: HERO_V1_LIMITS.descriptionCharacters,
+});
+export const cardsBlockItemSchemaV1 = z
+  .object({
+    imageId: z.uuid(),
+    title: heroBlockDataSchemaV1.shape.title,
+    description: heroBlockDataSchemaV1.shape.description,
+    url: textLinkUrlSchemaV1.optional(),
+  })
+  .strict();
+export const cardsBlockDataSchemaV1 = z
+  .object({ items: z.array(cardsBlockItemSchemaV1).min(1).max(CARDS_V1_LIMITS.items) })
+  .strict();
+export const cardsBlockSchemaV1 = contentBlockCommonSchema.safeExtend({
+  type: z.literal("CARDS"),
+  schemaVersion: z.literal(1),
+  data: cardsBlockDataSchemaV1,
+});
+export type CardsBlockItemV1 = z.infer<typeof cardsBlockItemSchemaV1>;
+export type CardsBlockDataV1 = z.infer<typeof cardsBlockDataSchemaV1>;
+export type CardsBlockV1 = z.infer<typeof cardsBlockSchemaV1>;
+
 // Resolved transport metadata, never persisted as HERO JSONB or used as backend
 // authorization. Caller must resolve a fresh, authorized library image.
 export const heroResolvedImageSchemaV1 = z

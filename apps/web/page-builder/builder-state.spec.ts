@@ -178,6 +178,11 @@ it("adds only complete versioned blocks in their allowed context with cumulative
     decorative: false,
   });
   expect(newBuilderBlock("IMAGE", "PAGE", [], id)).toBeUndefined();
+  expect(newBuilderBlock("CARDS", "PAGE", [], id, other)?.data).toEqual({
+    items: [{ imageId: other, title: "Novo card" }],
+  });
+  expect(newBuilderBlock("CARDS", "PAGE", [], id)).toBeUndefined();
+  expect(newBuilderBlock("CARDS", "ARTICLE", [], id, other)).toBeUndefined();
 });
 it("refuses duplicate IDs/positions, unsupported schemas, invalid context/data and position overflow without mutating input", () => {
   const text = newBuilderBlock("TEXT", "PAGE", [], id)!;

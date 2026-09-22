@@ -262,7 +262,8 @@ export function PageBuilder({
             key={definition.type}
             type="button"
             disabled={
-              locked || (["IMAGE", "IMAGE_TEXT"].includes(definition.type) && !available.length)
+              locked ||
+              (["IMAGE", "IMAGE_TEXT", "CARDS"].includes(definition.type) && !available.length)
             }
             onClick={() => add(definition.type as BuilderType)}
           >
@@ -271,7 +272,10 @@ export function PageBuilder({
         ))}
       </div>
       {!available.length && (
-        <p>Para adicionar IMAGE, selecione uma imagem disponível da Biblioteca de Mídia.</p>
+        <p>
+          Para adicionar IMAGE, IMAGE_TEXT ou CARDS, selecione uma imagem disponível da Biblioteca
+          de Mídia.
+        </p>
       )}
       {!blocks.length && <p>Nenhum bloco adicionado ao draft.</p>}
       <p id={instructionsId}>

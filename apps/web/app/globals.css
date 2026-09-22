@@ -150,12 +150,114 @@ main {
 .image-text-image {
   min-width: 0;
 }
+.cards-block {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.cards-block > li,
+.cards-block-card,
+.cards-block-content {
+  min-width: 0;
+}
+.cards-block-card {
+  display: block;
+  height: 100%;
+  overflow: hidden;
+  color: inherit;
+  background: var(--color-background, #ffffff);
+  border: 1px solid currentColor;
+  border-radius: 0.5rem;
+  text-decoration: none;
+}
+.cards-block-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+}
+.cards-block-content {
+  display: block;
+  padding: 1rem;
+}
+.cards-block-title,
+.cards-block-description {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.cards-block-title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+.cards-block-description {
+  margin-block-start: 0.5rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+.cards-block a.cards-block-card {
+  text-decoration: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.2em;
+}
+.cards-block a.cards-block-card:focus-visible,
+.cards-block-editor :is(input, select, textarea, button):focus-visible {
+  outline: 3px solid var(--color-text, currentColor);
+  outline-offset: 3px;
+}
+.cards-block-editor,
+.cards-block-editor fieldset {
+  min-width: 0;
+}
+.cards-block-editor > fieldset,
+.cards-block-editor li > fieldset {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 1px solid currentColor;
+}
+.cards-editor-items {
+  display: grid;
+  gap: 1rem;
+  padding-inline-start: 1.5rem;
+}
+.cards-block-editor :is(input:not([type="checkbox"]), select, textarea) {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0.5rem;
+  font: inherit;
+}
+.cards-block-editor button {
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  font: inherit;
+}
+.cards-editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+@media (min-width: 640px) {
+  .cards-block {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 @media (min-width: 1024px) {
   .image-text-block {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
   .image-text-block[data-position="IMAGE_RIGHT"] > .image-text-image {
     order: 2;
+  }
+  .cards-block {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 .hero-block-content {

@@ -4,11 +4,13 @@ import type {
   HeroBlockV1,
   ImageBlockV1,
   ImageTextBlockV1,
+  CardsBlockV1,
 } from "@fumep/validation";
 import { frontendBlockRegistry } from "./block-registry";
 import { availableLibraryImages } from "./available-library-images";
 import type { ContentBlockBackground } from "@fumep/validation";
-export type BuilderBlock = TextBlockV1 | HeroBlockV1 | ImageBlockV1 | ImageTextBlockV1;
+export type BuilderBlock =
+  TextBlockV1 | HeroBlockV1 | ImageBlockV1 | ImageTextBlockV1 | CardsBlockV1;
 export type BuilderType = BuilderBlock["type"];
 export function setBuilderBlockBackground(
   blocks: readonly BuilderBlock[],
@@ -154,7 +156,9 @@ export function newBuilderBlock(
         ? { title: "Novo destaque" }
         : type === "IMAGE_TEXT"
           ? { imageId, imagePosition: "IMAGE_LEFT", text: { type: "doc", nodes: [] } }
-          : { imageId, decorative: false };
+          : type === "CARDS"
+            ? { items: [{ imageId, title: "Novo card" }] }
+            : { imageId, decorative: false };
   return parseBuilderBlocks(
     [
       ...blocks,

@@ -4,7 +4,10 @@ import {
   heroBlockSchemaV1,
   imageBlockSchemaV1,
   imageTextBlockSchemaV1,
+  cardsBlockSchemaV1,
 } from "@fumep/validation";
+import { CardsBlockEditor } from "./editors/cards-block-editor";
+import { CardsBlockRenderer } from "./renderers/cards-block-renderer";
 import { ImageBlockEditor } from "./editors/image-block-editor";
 import { ImageTextBlockEditor } from "./editors/image-text-block-editor";
 import { ImageTextBlockRenderer } from "./renderers/image-text-block-renderer";
@@ -20,11 +23,13 @@ export const frontendBlockRegistry = createBlockRegistry<
   | typeof TextBlockRenderer
   | typeof HeroBlockRenderer
   | typeof ImageBlockRenderer
-  | typeof ImageTextBlockRenderer,
+  | typeof ImageTextBlockRenderer
+  | typeof CardsBlockRenderer,
   | typeof TextBlockEditor
   | typeof HeroBlockEditor
   | typeof ImageBlockEditor
   | typeof ImageTextBlockEditor
+  | typeof CardsBlockEditor
 >([
   {
     type: "TEXT",
@@ -61,5 +66,14 @@ export const frontendBlockRegistry = createBlockRegistry<
     editor: ImageTextBlockEditor,
     label: "Imagem e texto",
     allowedContexts: ["PAGE", "ARTICLE"],
+  },
+  {
+    type: "CARDS",
+    schemaVersion: 1,
+    zodSchema: cardsBlockSchemaV1,
+    renderer: CardsBlockRenderer,
+    editor: CardsBlockEditor,
+    label: "Cards com imagem",
+    allowedContexts: ["PAGE"],
   },
 ]);
