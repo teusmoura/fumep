@@ -1,5 +1,17 @@
 # LOOP STATUS
 
+## LOOP 5.16 — Concluído
+
+Estado inicial: 5.15 concluído em afd24b0, Git limpo. Escopo: IMAGE_TEXT V1 campos canônicos/title/text AST/imageId/imageAlt/imagePosition/button, IMAGE_LEFT/IMAGE_RIGHT, editor composto com aplicação conjunta, renderer SSR responsivo/Registry PAGE/ARTICLE/builder, mídia e texto seguros/testes/checks/documentação. Sem CARDS/Preview/publicação/persistência antecipados.
+
+Entregue: schemas strict/versionados para IMAGE_TEXT e dados controlados; editor único compõe AST TEXT, imagem READY da Biblioteca, alt contextual/fallback ou decoração explícita, layout e CTA seguro com aplicação atômica do draft/callback async/falha retida. Renderer SSR reutiliza TEXT, IMAGE e BlockBackground validados, descriptor fresco correspondente, anchor somente externo e grid responsivo com ordem DOM estável. Registry completo PAGE/ARTICLE e PageBuilder criam IMAGE_TEXT apenas com imagem disponível. Contrato futuro de MediaUsage CONTENT_BLOCK/documentado, sem endpoints, migrations, Preview, publicação ou persistência antecipados.
+
+Checks finais aprovados: pnpm format:check, pnpm lint, pnpm typecheck, pnpm test, pnpm build, pnpm ls --depth 0 e git diff --check. Suíte completa 423 testes (55 validation, 71 DB, 12 jobs, 3 storage, 122 API, 130 web, 30 Worker); testes focados de validation/web e typecheck web também aprovados. Primeira execução integral encontrou PostgreSQL desligado; Docker Desktop foi localizado, PostgreSQL/Redis/MinIO ficaram healthy e a repetição integral passou. axe-core semântico zero violações; sem falhas de teste/compilação pendentes.
+
+QA real 390×844 e 1280×900 LIGHT/DARK: imagem PNG READY carregada com alt fallback, CTA seguro, uma/duas colunas, IMAGE_LEFT/IMAGE_RIGHT com ordem visual correta, HTML literal escapado, aplicação conjunta/status, sem overflow ou warnings/errors no console. Fixture removido, viewport restaurado, aba fechada, servidor encerrado e porta 3100 livre. test:e2e inexistente; sem CI remota, contraste global ou integração REST owner real.
+
+Aceite cumprido. execute-loop/page-builder/architecture-guard/media-storage mantiveram contratos de mídia/versionamento/escopo; nextjs-frontend/testing-qa/computer-use verificaram composição, SSR, interação, responsividade, segurança e regressões. Commit: feat(builder): add image text block v1. Próximo: 5.17.
+
 ## LOOP 5.15 — Concluído
 
 Estado inicial: 5.14 concluído em 909d600, Git limpo. Escopo: backgrounds DEFAULT/LIGHT/INSTITUTION/IMAGE controlados, imagem pronta da Biblioteca, callback validado/falha retida, wrapper SSR compartilhado com tema/descriptor resolvidos pelo caller e contraste por painel/tokens, testes/checks/documentação. Sem CSS livre, endpoints ou persistência antecipada.

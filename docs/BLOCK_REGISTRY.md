@@ -1,5 +1,7 @@
 # BlockRegistry
 
+Após 5.16, IMAGE_TEXT v1 completo está registrado em PAGE/ARTICLE (schema compartilhado, editor composto, renderer SSR), com IMAGE_LEFT/IMAGE_RIGHT. Catálogo frontend: TEXT, HERO (PAGE), IMAGE e IMAGE_TEXT; infraestrutura compartilhada continua vazia e agnóstica de UI.
+
 ## Catálogo operacional após 5.5
 
 O catálogo UI central é `frontendBlockRegistry` em `apps/web/page-builder/block-registry.ts`. Ele compõe somente definições completas e inclui TEXT v1 com schema compartilhado, editor Client e renderer SSR, nos contextos PAGE/ARTICLE. Lookup continua exato e sem fallback de versão. Outros blocos serão acrescentados somente em seus loops; o 5.30 verifica o catálogo completo. A instância vazia compartilhada abaixo permanece infraestrutura agnóstica de UI, não catálogo operacional da API. Nenhum backend deve importar o registry frontend para carregar contratos Zod.

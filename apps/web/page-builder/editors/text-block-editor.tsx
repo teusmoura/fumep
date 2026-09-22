@@ -1,5 +1,5 @@
 "use client";
-import { useId, useReducer, useRef, useState, type FormEvent } from "react";
+import { useId, useReducer, useRef, useState, type FormEvent, type ReactNode } from "react";
 import {
   TEXT_V1_LIMITS,
   textBlockDataSchemaV1,
@@ -21,6 +21,9 @@ export interface TextBlockEditorProps {
   onApply: (value: TextBlockDataV1) => void | Promise<void>;
   disabled?: boolean;
   ariaLabel?: string;
+  children?: ReactNode;
+  applyLabel?: string;
+  appliedMessage?: string;
 }
 // Local draft only. Caller must remount with a block/version key when changing
 // owners, authorize on the backend, and persist through its own REST workflow.
@@ -29,6 +32,9 @@ export function TextBlockEditor({
   onApply,
   disabled = false,
   ariaLabel,
+  children,
+  applyLabel,
+  appliedMessage,
 }: TextBlockEditorProps) {
   const id = useId();
   const status = useRef<HTMLParagraphElement>(null);
@@ -68,7 +74,10 @@ export function TextBlockEditor({
     setBusy(true);
     try {
       await onApply(parsed.data);
-      notify("Texto aplicado ao bloco em edição. Isso não publica nem salva a página no servidor.");
+      notify(
+        appliedMessage ??
+          "Texto aplicado ao bloco em edição. Isso não publica nem salva a página no servidor.",
+      );
     } catch {
       notify("Não foi possível aplicar o texto. Suas alterações continuam no editor.");
     } finally {
@@ -89,6 +98,7 @@ export function TextBlockEditor({
       </p>
       <fieldset disabled={disabled || busy}>
         <legend>Conteúdo TEXT v1</legend>
+        {children}
         <label htmlFor={`${id}-title`}>Título do bloco (opcional)</label>
         <input
           id={`${id}-title`}
@@ -198,7 +208,13 @@ export function TextBlockEditor({
             texto.
           </p>
         )}
-        <button type="submit">{busy ? "Aplicando texto…" : "Aplicar texto ao bloco"}</button>
+        <button type="submit">
+          {busy
+            ? applyLabel
+              ? "Aplicando…"
+              : "Aplicando texto…"
+            : (applyLabel ?? "Aplicar texto ao bloco")}
+        </button>
       </fieldset>
       <p role="status" ref={status} tabIndex={-1}>
         {message}

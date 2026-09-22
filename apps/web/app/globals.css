@@ -139,6 +139,25 @@ main {
   gap: 1.5rem;
   overflow-wrap: anywhere;
 }
+.image-text-block {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.image-text-content,
+.image-text-image {
+  min-width: 0;
+}
+@media (min-width: 1024px) {
+  .image-text-block {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .image-text-block[data-position="IMAGE_RIGHT"] > .image-text-image {
+    order: 2;
+  }
+}
 .hero-block-content {
   min-width: 0;
   max-width: 75ch;

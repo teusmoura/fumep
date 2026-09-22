@@ -87,29 +87,30 @@ LOOP 5.12 — CONCLUÍDO
 LOOP 5.13 — CONCLUÍDO
 LOOP 5.14 — CONCLUÍDO
 LOOP 5.15 — CONCLUÍDO
-LOOP 5.16 — ATUAL
+LOOP 5.16 — CONCLUÍDO
+LOOP 5.17 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 5.16 — IMAGE_TEXT
+### LOOP 5.17 — CARDS
 
-Estado: pronto após commit do 5.15. Backgrounds concluídos, checks verdes (414 testes). Revalidar commit e Git limpo.
+Estado: pronto após commit do 5.16. IMAGE_TEXT concluído, checks verdes (423 testes). Revalidar commit e Git limpo.
 
 Objetivo:
 
 ```text
-Implementar IMAGE_TEXT completo com variantes controladas IMAGE_LEFT/IMAGE_RIGHT.
+Implementar CARDS completo, somente com imagem e limite máximo de 12 cards.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.15 commitado e Git limpo;
+- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.16 commitado e Git limpo;
 - usar page-builder, nextjs-frontend, architecture-guard e testing-qa conforme escopo;
-- schema Zod por versão para IMAGE_TEXT, contratos controlados IMAGE_LEFT/IMAGE_RIGHT e campos previstos no especializado, sem HTML/CSS livres;
-- editor acessível com seleção de imagem pronta da Biblioteca e texto rico seguro reutilizando contratos existentes, callback async/falha retida;
-- renderer SSR responsivo reutilizando texto/imagem/background seguros e descriptor/tema resolvidos pelo caller, sem novos gateways/Preview/publicação antecipados;
-- registrar definição completa em Registry/contextos permitidos e integrar criação no builder, sem antecipar CARDS;
+- schema Zod por versão para CARDS e itens imageId/title/description?/url?, somente imagem, sem ícone alternativo e máximo de 12 itens;
+- editor acessível para adicionar/editar/remover/reordenar cards com imagens prontas da Biblioteca, alt contextual/fallback aplicável e URLs seguras, callback async/falha retida;
+- renderer SSR responsivo com três colunas no desktop e adaptação automática, reutilizando imagem/background seguros e descriptors/tema resolvidos pelo caller;
+- registrar definição completa em Registry/contextos permitidos e integrar criação no builder, sem antecipar QUICK_LINKS;
 - preservar contrato de MediaUsage do owner/backend futuro sem criar persistência antecipada;
 - manter contrato de caller explícito, sem criar publicação, Preview ou gateways antecipados;
 - controles acessíveis/teclado/foco, estados inválidos retidos, tokens e responsividade;
@@ -117,16 +118,16 @@ Implementar:
 
 Não implementar:
 
-- CARDS (5.17), outros blocos/Preview/publicação/salvamento amplo antecipados.
+- QUICK_LINKS (5.18), ícones alternativos, outros blocos/Preview/publicação/salvamento amplo antecipados.
 
 Critério de aceite:
 
 ```text
-IMAGE_TEXT com schema/editor/renderer/Registry, variantes controladas, mídia e texto seguros, responsividade/A11y, testes/documentação/checks verdes.
+CARDS com schema/editor/renderer/Registry, somente imagem, até 12 itens, mídia/texto/URLs seguros, responsividade/A11y, testes/documentação/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 5.17 — CARDS
+LOOP 5.18 — QUICK_LINKS
 ```

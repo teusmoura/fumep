@@ -23,6 +23,17 @@ const image = {
   createdAt: "2026-09-17T12:00:00.000Z",
 };
 const roots: Root[] = [];
+it("adds IMAGE_TEXT through its composite editor using an available image and applies the full draft", async () => {
+  const { main, onApply } = await mount();
+  await click(main, "Adicionar IMAGE_TEXT");
+  await apply(main);
+  expect(onApply).toHaveBeenCalledTimes(1);
+  expect(onApply.mock.calls[0]![0][0]).toMatchObject({
+    type: "IMAGE_TEXT",
+    data: { imageId: id, imagePosition: "IMAGE_LEFT", text: { type: "doc", nodes: [] } },
+  });
+  expect(main.querySelector('section[aria-label="Novo bloco"]')).toBeNull();
+});
 it("validates image backgrounds, retains failure/retry and clears references when switching mode", async () => {
   const onApply = vi.fn().mockRejectedValueOnce(new Error("offline"));
   const { main } = await mount(onApply, [image], initialReorderBlocks());

@@ -261,7 +261,9 @@ export function PageBuilder({
           <button
             key={definition.type}
             type="button"
-            disabled={locked || (definition.type === "IMAGE" && !available.length)}
+            disabled={
+              locked || (["IMAGE", "IMAGE_TEXT"].includes(definition.type) && !available.length)
+            }
             onClick={() => add(definition.type as BuilderType)}
           >
             Adicionar {definition.type}
