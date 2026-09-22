@@ -5,12 +5,13 @@ import type {
   ImageBlockV1,
   ImageTextBlockV1,
   CardsBlockV1,
+  QuickLinksBlockV1,
 } from "@fumep/validation";
 import { frontendBlockRegistry } from "./block-registry";
 import { availableLibraryImages } from "./available-library-images";
 import type { ContentBlockBackground } from "@fumep/validation";
 export type BuilderBlock =
-  TextBlockV1 | HeroBlockV1 | ImageBlockV1 | ImageTextBlockV1 | CardsBlockV1;
+  TextBlockV1 | HeroBlockV1 | ImageBlockV1 | ImageTextBlockV1 | CardsBlockV1 | QuickLinksBlockV1;
 export type BuilderType = BuilderBlock["type"];
 export function setBuilderBlockBackground(
   blocks: readonly BuilderBlock[],
@@ -158,7 +159,9 @@ export function newBuilderBlock(
           ? { imageId, imagePosition: "IMAGE_LEFT", text: { type: "doc", nodes: [] } }
           : type === "CARDS"
             ? { items: [{ imageId, title: "Novo card" }] }
-            : { imageId, decorative: false };
+            : type === "QUICK_LINKS"
+              ? { items: [{ label: "Novo link", url: "/" }] }
+              : { imageId, decorative: false };
   return parseBuilderBlocks(
     [
       ...blocks,

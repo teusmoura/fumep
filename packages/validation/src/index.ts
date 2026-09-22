@@ -393,6 +393,42 @@ export type CardsBlockItemV1 = z.infer<typeof cardsBlockItemSchemaV1>;
 export type CardsBlockDataV1 = z.infer<typeof cardsBlockDataSchemaV1>;
 export type CardsBlockV1 = z.infer<typeof cardsBlockSchemaV1>;
 
+export const QUICK_LINK_ICON_VALUES = [
+  "ARROW_RIGHT",
+  "EXTERNAL_LINK",
+  "DOWNLOAD",
+  "DOCUMENT",
+  "CALENDAR",
+  "LOCATION",
+] as const;
+export const QUICK_LINKS_V1_LIMITS = Object.freeze({
+  titleCharacters: HERO_V1_LIMITS.titleCharacters,
+  labelCharacters: HERO_V1_LIMITS.buttonLabelCharacters,
+});
+export const quickLinkIconSchemaV1 = z.enum(QUICK_LINK_ICON_VALUES);
+export const quickLinkItemSchemaV1 = z
+  .object({
+    label: heroLabelSchemaV1.max(QUICK_LINKS_V1_LIMITS.labelCharacters),
+    url: textLinkUrlSchemaV1,
+    icon: quickLinkIconSchemaV1.optional(),
+  })
+  .strict();
+export const quickLinksBlockDataSchemaV1 = z
+  .object({
+    title: heroBlockDataSchemaV1.shape.title.optional(),
+    items: z.array(quickLinkItemSchemaV1).min(1),
+  })
+  .strict();
+export const quickLinksBlockSchemaV1 = contentBlockCommonSchema.safeExtend({
+  type: z.literal("QUICK_LINKS"),
+  schemaVersion: z.literal(1),
+  data: quickLinksBlockDataSchemaV1,
+});
+export type QuickLinkIconV1 = z.infer<typeof quickLinkIconSchemaV1>;
+export type QuickLinkItemV1 = z.infer<typeof quickLinkItemSchemaV1>;
+export type QuickLinksBlockDataV1 = z.infer<typeof quickLinksBlockDataSchemaV1>;
+export type QuickLinksBlockV1 = z.infer<typeof quickLinksBlockSchemaV1>;
+
 // Resolved transport metadata, never persisted as HERO JSONB or used as backend
 // authorization. Caller must resolve a fresh, authorized library image.
 export const heroResolvedImageSchemaV1 = z

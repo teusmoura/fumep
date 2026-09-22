@@ -1,5 +1,17 @@
 # LOOP STATUS
 
+## LOOP 5.18 — Concluído
+
+Estado inicial: 5.17 concluído em f16d7c4, Git limpo. Escopo: QUICK_LINKS V1 PAGE-only com title? e itens label/url/icon?, URLs seguras, catálogo fechado de ícones decorativos do sistema, editor de coleção acessível, renderer SSR responsivo/BlockBackground, Registry/builder/testes/checks/documentação. Sem CTA, SVG/HTML/ícones externos ou arbitrários, Preview/publicação/persistência antecipados.
+
+Entregue: schemas strict/versionados para coleção não vazia, título/rótulos limitados e URLs seguras; como o cânone não fixa máximo de itens, nenhum limite arbitrário foi criado. Catálogo fechado com seis enums associa apenas SVGs internos decorativos, sem aceitar markup, URL, biblioteca ou nome livre do Editor. Editor Client adiciona, edita, remove e reordena links, seleciona somente ícones permitidos e aplica snapshot por callback async/ref/busy com falha retida. Renderer SSR valida envelope/visibilidade, escapa texto, nomeia a navegação com ou sem título e compõe links acessíveis dentro de BlockBackground. Registry/PageBuilder criam QUICK_LINKS somente em PAGE; ARTICLE preserva seu subconjunto canônico. Sem endpoints, migrations, Preview, publicação ou persistência antecipada.
+
+Checks aprovados: pnpm format:check, pnpm lint, pnpm typecheck, pnpm test, pnpm build e git diff --check; inspeção de dependências com pnpm ls --depth 0. Suíte completa 445 testes (61 validation, 71 DB, 12 jobs, 3 storage, 122 API, 146 web, 30 Worker), além das rodadas focadas validation/web e typecheck web. axe-core semântico zero violações; sem falhas de teste/compilação pendentes.
+
+QA real 390×844, 700×900 e 1280×900 LIGHT/DARK: 1/2/3 colunas, adicionar/reordenar/editar/aplicar quatro links, URLs corretas, HTML literal escapado, ícones internos decorativos, controles >=44px, foco solid, zero overflow e console limpo. Fixture removida, viewport restaurado, aba fechada, servidor encerrado e porta 3100 livre. test:e2e inexistente; sem CI remota, contraste global ou integração REST owner real.
+
+Aceite cumprido. execute-loop/page-builder/architecture-guard mantiveram PAGE-only, contratos e catálogo fechado sem persistência; nextjs-frontend/testing-qa/computer-use verificaram coleção, SSR, responsividade, interação, segurança e A11y. Commit: feat(builder): add quick links block v1. Próximo: 5.19.
+
 ## LOOP 5.17 — Concluído
 
 Estado inicial: 5.16 concluído em caa6a45, Git limpo. Escopo: CARDS V1 PAGE-only, itens imageId/title/description?/url?, somente imagens READY com alt válido da Biblioteca, máximo 12, editor de coleção acessível, renderer SSR em grid responsivo de três colunas desktop, Registry/builder/testes/checks/documentação. Sem QUICK_LINKS, ícones, Preview/publicação/persistência antecipados.

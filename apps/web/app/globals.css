@@ -244,8 +244,86 @@ main {
   flex-wrap: wrap;
   gap: 0.75rem;
 }
+.quick-links-block h2 {
+  margin-block: 0 1rem;
+}
+.quick-links-block ul {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.quick-links-block li,
+.quick-links-block a {
+  min-width: 0;
+}
+.quick-links-block a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 44px;
+  padding: 0.75rem 1rem;
+  overflow-wrap: anywhere;
+  color: inherit;
+  background: var(--color-background, #ffffff);
+  border: 1px solid currentColor;
+  border-radius: 0.375rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.quick-link-icon {
+  flex: 0 0 1.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.quick-links-block a:focus-visible,
+.quick-links-block-editor :is(input, select, button):focus-visible {
+  outline: 3px solid var(--color-text, currentColor);
+  outline-offset: 3px;
+}
+.quick-links-block-editor,
+.quick-links-block-editor fieldset {
+  min-width: 0;
+}
+.quick-links-block-editor > fieldset,
+.quick-links-block-editor li > fieldset {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 1px solid currentColor;
+}
+.quick-links-editor-items {
+  display: grid;
+  gap: 1rem;
+  padding-inline-start: 1.5rem;
+}
+.quick-links-block-editor :is(input, select) {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0.5rem;
+  font: inherit;
+}
+.quick-links-block-editor button {
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  font: inherit;
+}
+.quick-links-editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
 @media (min-width: 640px) {
   .cards-block {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .quick-links-block ul {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -257,6 +335,9 @@ main {
     order: 2;
   }
   .cards-block {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .quick-links-block ul {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

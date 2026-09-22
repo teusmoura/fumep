@@ -125,7 +125,7 @@ it("keeps supported URL kinds in the same tab and does not create empty public l
   expect(html).not.toContain('href="/"');
 });
 it("registers only the complete TEXT version for PAGE/ARTICLE without polluting API infrastructure", () => {
-  expect(frontendBlockRegistry.list()).toHaveLength(5);
+  expect(frontendBlockRegistry.list()).toHaveLength(6);
   const definition = frontendBlockRegistry.get("TEXT", 1, "PAGE")!;
   expect(definition.renderer).toBe(TextBlockRenderer);
   expect(definition.editor).toBe(TextBlockEditor);

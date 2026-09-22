@@ -183,6 +183,10 @@ it("adds only complete versioned blocks in their allowed context with cumulative
   });
   expect(newBuilderBlock("CARDS", "PAGE", [], id)).toBeUndefined();
   expect(newBuilderBlock("CARDS", "ARTICLE", [], id, other)).toBeUndefined();
+  expect(newBuilderBlock("QUICK_LINKS", "PAGE", [], id)?.data).toEqual({
+    items: [{ label: "Novo link", url: "/" }],
+  });
+  expect(newBuilderBlock("QUICK_LINKS", "ARTICLE", [], id)).toBeUndefined();
 });
 it("refuses duplicate IDs/positions, unsupported schemas, invalid context/data and position overflow without mutating input", () => {
   const text = newBuilderBlock("TEXT", "PAGE", [], id)!;

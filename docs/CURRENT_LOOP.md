@@ -89,46 +89,46 @@ LOOP 5.14 — CONCLUÍDO
 LOOP 5.15 — CONCLUÍDO
 LOOP 5.16 — CONCLUÍDO
 LOOP 5.17 — CONCLUÍDO
-LOOP 5.18 — ATUAL
+LOOP 5.18 — CONCLUÍDO
+LOOP 5.19 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 5.18 — QUICK_LINKS
+### LOOP 5.19 — CTA
 
-Estado: pronto após commit do 5.17. CARDS concluído, checks verdes (434 testes). Revalidar commit e Git limpo.
+Estado: pronto após commit do 5.18. QUICK_LINKS concluído, checks verdes (445 testes). Revalidar commit e Git limpo.
 
 Objetivo:
 
 ```text
-Implementar QUICK_LINKS completo com ícones opcionais controlados pelo sistema.
+Implementar CTA completo com title, text?, buttonLabel e buttonUrl.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.17 commitado e Git limpo;
+- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.18 commitado e Git limpo;
 - usar page-builder, nextjs-frontend, architecture-guard e testing-qa conforme escopo;
-- schema Zod por versão para QUICK_LINKS com title? e items label/url/icon?, URLs seguras e limites documentados/aplicáveis;
-- definir catálogo fechado de ícones do sistema e representação acessível/decorativa, sem SVG ou nomes arbitrários fornecidos pelo Editor;
-- editor acessível para adicionar/editar/remover/reordenar links e escolher apenas ícones controlados, callback async/falha retida;
-- renderer SSR responsivo com links nomeados, foco/contraste e BlockBackground/tema resolvidos pelo caller;
-- registrar definição completa em Registry/contextos permitidos e integrar criação no builder, sem antecipar CTA;
+- schema Zod por versão para CTA com title obrigatório, text?, buttonLabel e buttonUrl segura, com limites coerentes/documentados;
+- editor acessível para editar o conteúdo e aplicar snapshot conjunto por callback async, mantendo campos na falha;
+- renderer SSR responsivo com heading, texto e link nomeado, foco/contraste e BlockBackground/tema resolvidos pelo caller;
+- registrar definição completa em Registry/contextos canônicos PAGE/ARTICLE e integrar criação no builder, sem antecipar SPACER;
 - manter contrato de caller explícito, sem criar publicação, Preview ou gateways antecipados;
 - controles acessíveis/teclado/foco, estados inválidos retidos, tokens e responsividade;
 - testes, checks disponíveis, documentação, commit e Git limpo.
 
 Não implementar:
 
-- CTA (5.19), SVG/HTML livre, biblioteca externa ou ícones arbitrários fornecidos pelo Editor, outros blocos/Preview/publicação/salvamento amplo antecipados.
+- SPACER (5.20), HTML/CSS livre, múltiplos botões, imagens, outros blocos/Preview/publicação/salvamento amplo antecipados.
 
 Critério de aceite:
 
 ```text
-QUICK_LINKS disponível no Registry, Editor e Renderer, com URLs/ícones controlados, teclado/foco/contraste, testes/documentação/checks verdes.
+CTA disponível no Registry, Editor e Renderer em PAGE/ARTICLE, com URL segura, teclado/foco/contraste, testes/documentação/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 5.19 — CTA
+LOOP 5.20 — SPACER
 ```

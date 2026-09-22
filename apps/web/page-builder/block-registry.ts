@@ -5,9 +5,12 @@ import {
   imageBlockSchemaV1,
   imageTextBlockSchemaV1,
   cardsBlockSchemaV1,
+  quickLinksBlockSchemaV1,
 } from "@fumep/validation";
 import { CardsBlockEditor } from "./editors/cards-block-editor";
 import { CardsBlockRenderer } from "./renderers/cards-block-renderer";
+import { QuickLinksBlockEditor } from "./editors/quick-links-block-editor";
+import { QuickLinksBlockRenderer } from "./renderers/quick-links-block-renderer";
 import { ImageBlockEditor } from "./editors/image-block-editor";
 import { ImageTextBlockEditor } from "./editors/image-text-block-editor";
 import { ImageTextBlockRenderer } from "./renderers/image-text-block-renderer";
@@ -24,12 +27,14 @@ export const frontendBlockRegistry = createBlockRegistry<
   | typeof HeroBlockRenderer
   | typeof ImageBlockRenderer
   | typeof ImageTextBlockRenderer
-  | typeof CardsBlockRenderer,
+  | typeof CardsBlockRenderer
+  | typeof QuickLinksBlockRenderer,
   | typeof TextBlockEditor
   | typeof HeroBlockEditor
   | typeof ImageBlockEditor
   | typeof ImageTextBlockEditor
   | typeof CardsBlockEditor
+  | typeof QuickLinksBlockEditor
 >([
   {
     type: "TEXT",
@@ -74,6 +79,15 @@ export const frontendBlockRegistry = createBlockRegistry<
     renderer: CardsBlockRenderer,
     editor: CardsBlockEditor,
     label: "Cards com imagem",
+    allowedContexts: ["PAGE"],
+  },
+  {
+    type: "QUICK_LINKS",
+    schemaVersion: 1,
+    zodSchema: quickLinksBlockSchemaV1,
+    renderer: QuickLinksBlockRenderer,
+    editor: QuickLinksBlockEditor,
+    label: "Links rápidos",
     allowedContexts: ["PAGE"],
   },
 ]);

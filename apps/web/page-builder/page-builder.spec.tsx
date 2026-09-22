@@ -45,6 +45,16 @@ it("adds PAGE-only CARDS with one available image through its collection editor"
   });
   expect(main.querySelector('section[aria-label="Novo bloco"]')).toBeNull();
 });
+it("adds PAGE-only QUICK_LINKS without requiring media", async () => {
+  const { main, onApply } = await mount(vi.fn(), [], []);
+  await click(main, "Adicionar QUICK_LINKS");
+  await apply(main);
+  expect(onApply).toHaveBeenCalledTimes(1);
+  expect(onApply.mock.calls[0]![0][0]).toMatchObject({
+    type: "QUICK_LINKS",
+    data: { items: [{ label: "Novo link", url: "/" }] },
+  });
+});
 it("validates image backgrounds, retains failure/retry and clears references when switching mode", async () => {
   const onApply = vi.fn().mockRejectedValueOnce(new Error("offline"));
   const { main } = await mount(onApply, [image], initialReorderBlocks());
@@ -405,6 +415,7 @@ it("rejects invalid initial blocks and enforces ARTICLE and missing media in the
   );
   expect(html).not.toContain("Adicionar HERO");
   expect(html).not.toContain("Adicionar CARDS");
+  expect(html).not.toContain("Adicionar QUICK_LINKS");
   expect(html).toContain("Adicionar TEXT");
   expect(html).toContain("Adicionar IMAGE");
   expect(html).toContain("disabled");
