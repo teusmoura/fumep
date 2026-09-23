@@ -6,12 +6,19 @@ import type {
   ImageTextBlockV1,
   CardsBlockV1,
   QuickLinksBlockV1,
+  CtaBlockV1,
 } from "@fumep/validation";
 import { frontendBlockRegistry } from "./block-registry";
 import { availableLibraryImages } from "./available-library-images";
 import type { ContentBlockBackground } from "@fumep/validation";
 export type BuilderBlock =
-  TextBlockV1 | HeroBlockV1 | ImageBlockV1 | ImageTextBlockV1 | CardsBlockV1 | QuickLinksBlockV1;
+  | TextBlockV1
+  | HeroBlockV1
+  | ImageBlockV1
+  | ImageTextBlockV1
+  | CardsBlockV1
+  | QuickLinksBlockV1
+  | CtaBlockV1;
 export type BuilderType = BuilderBlock["type"];
 export function setBuilderBlockBackground(
   blocks: readonly BuilderBlock[],
@@ -161,7 +168,9 @@ export function newBuilderBlock(
             ? { items: [{ imageId, title: "Novo card" }] }
             : type === "QUICK_LINKS"
               ? { items: [{ label: "Novo link", url: "/" }] }
-              : { imageId, decorative: false };
+              : type === "CTA"
+                ? { title: "Nova chamada", buttonLabel: "Saiba mais", buttonUrl: "/" }
+                : { imageId, decorative: false };
   return parseBuilderBlocks(
     [
       ...blocks,

@@ -1,5 +1,17 @@
 # LOOP STATUS
 
+## LOOP 5.19 — Concluído
+
+Estado inicial: 5.18 concluído em e0739a7, Git limpo. Escopo: CTA V1 com title, text?, buttonLabel e buttonUrl, schema strict/versionado, editor Client, renderer SSR com BlockBackground, Registry/builder PAGE/ARTICLE, testes, checks e documentação. Sem SPACER, HTML/CSS livre, mídia, Preview/publicação ou persistência antecipados.
+
+Entregue: contrato Zod strict com limites reutilizados do HERO e URL segura compartilhada, editor Client acessível de aplicação conjunta com snapshot clonado, falha retida e concorrência bloqueada, renderer SSR com heading/texto/link nomeado dentro de BlockBackground, tokens/foco/área mínima, Registry e criação em PAGE/ARTICLE. Sem endpoint, migration ou dependência nova. A primeira rodada web identificou expectativa antiga de tipos ARTICLE; corrigida, rodada focada repetida e aprovada.
+
+Checks aprovados: pnpm format:check, pnpm lint, pnpm typecheck, pnpm test, pnpm build, pnpm ls --depth 0 e git diff --check. Suíte completa 455 testes (63 validation, 71 DB, 12 jobs, 3 storage, 122 API, 154 web, 30 Worker); validação/web focados e typecheck web também aprovados. axe-core semântico zero violações; sem falhas pendentes.
+
+QA real 390×844 e 1280×900 LIGHT/DARK: aplicação de título/URL, HTML literal escapado, link seguro, controles de 44 px, foco sólido, zero overflow e console limpo. Fixture removida, viewport restaurado, aba fechada, servidor encerrado e porta 3100 sem listener. test:e2e inexistente; sem CI remota, contraste global ou integração REST owner real.
+
+Aceite cumprido. execute-loop/page-builder/architecture-guard mantiveram campos/contextos canônicos e escopo; nextjs-frontend/testing-qa/computer-use verificaram SSR, interação, segurança, responsividade e A11y. Commit: feat(builder): add CTA block v1. Próximo: 5.20.
+
 ## LOOP 5.18 — Concluído
 
 Estado inicial: 5.17 concluído em f16d7c4, Git limpo. Escopo: QUICK_LINKS V1 PAGE-only com title? e itens label/url/icon?, URLs seguras, catálogo fechado de ícones decorativos do sistema, editor de coleção acessível, renderer SSR responsivo/BlockBackground, Registry/builder/testes/checks/documentação. Sem CTA, SVG/HTML/ícones externos ou arbitrários, Preview/publicação/persistência antecipados.

@@ -55,6 +55,16 @@ it("adds PAGE-only QUICK_LINKS without requiring media", async () => {
     data: { items: [{ label: "Novo link", url: "/" }] },
   });
 });
+it("adds CTA in ARTICLE without requiring media", async () => {
+  const { main, onApply } = await mount(vi.fn(), [], [], "ARTICLE");
+  await click(main, "Adicionar CTA");
+  await apply(main);
+  expect(onApply).toHaveBeenCalledTimes(1);
+  expect(onApply.mock.calls[0]![0][0]).toMatchObject({
+    type: "CTA",
+    data: { title: "Nova chamada", buttonLabel: "Saiba mais", buttonUrl: "/" },
+  });
+});
 it("validates image backgrounds, retains failure/retry and clears references when switching mode", async () => {
   const onApply = vi.fn().mockRejectedValueOnce(new Error("offline"));
   const { main } = await mount(onApply, [image], initialReorderBlocks());
@@ -371,7 +381,12 @@ afterEach(async () => {
   document.body.innerHTML = "";
   vi.unstubAllGlobals();
 });
-async function mount(onApply = vi.fn(), images: unknown[] = [image], initialBlocks: unknown = []) {
+async function mount(
+  onApply = vi.fn(),
+  images: unknown[] = [image],
+  initialBlocks: unknown = [],
+  context: "PAGE" | "ARTICLE" = "PAGE",
+) {
   vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
   const main = document.createElement("main");
   document.body.append(main);
@@ -382,7 +397,7 @@ async function mount(onApply = vi.fn(), images: unknown[] = [image], initialBloc
       <>
         <h1>Draft</h1>
         <PageBuilder
-          context="PAGE"
+          context={context}
           initialBlocks={initialBlocks}
           images={images}
           onApply={onApply}
@@ -418,6 +433,7 @@ it("rejects invalid initial blocks and enforces ARTICLE and missing media in the
   expect(html).not.toContain("Adicionar QUICK_LINKS");
   expect(html).toContain("Adicionar TEXT");
   expect(html).toContain("Adicionar IMAGE");
+  expect(html).toContain("Adicionar CTA");
   expect(html).toContain("disabled");
 });
 it("adds TEXT/HERO/IMAGE through their validated editors without altering the initial data", async () => {

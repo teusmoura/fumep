@@ -429,6 +429,27 @@ export type QuickLinkItemV1 = z.infer<typeof quickLinkItemSchemaV1>;
 export type QuickLinksBlockDataV1 = z.infer<typeof quickLinksBlockDataSchemaV1>;
 export type QuickLinksBlockV1 = z.infer<typeof quickLinksBlockSchemaV1>;
 
+export const CTA_V1_LIMITS = Object.freeze({
+  titleCharacters: HERO_V1_LIMITS.titleCharacters,
+  textCharacters: HERO_V1_LIMITS.descriptionCharacters,
+  buttonLabelCharacters: HERO_V1_LIMITS.buttonLabelCharacters,
+});
+export const ctaBlockDataSchemaV1 = z
+  .object({
+    title: heroBlockDataSchemaV1.shape.title,
+    text: textPlainSchemaV1.max(CTA_V1_LIMITS.textCharacters).optional(),
+    buttonLabel: heroLabelSchemaV1.max(CTA_V1_LIMITS.buttonLabelCharacters),
+    buttonUrl: textLinkUrlSchemaV1,
+  })
+  .strict();
+export const ctaBlockSchemaV1 = contentBlockCommonSchema.safeExtend({
+  type: z.literal("CTA"),
+  schemaVersion: z.literal(1),
+  data: ctaBlockDataSchemaV1,
+});
+export type CtaBlockDataV1 = z.infer<typeof ctaBlockDataSchemaV1>;
+export type CtaBlockV1 = z.infer<typeof ctaBlockSchemaV1>;
+
 // Resolved transport metadata, never persisted as HERO JSONB or used as backend
 // authorization. Caller must resolve a fresh, authorized library image.
 export const heroResolvedImageSchemaV1 = z

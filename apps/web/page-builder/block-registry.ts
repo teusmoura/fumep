@@ -6,7 +6,10 @@ import {
   imageTextBlockSchemaV1,
   cardsBlockSchemaV1,
   quickLinksBlockSchemaV1,
+  ctaBlockSchemaV1,
 } from "@fumep/validation";
+import { CtaBlockEditor } from "./editors/cta-block-editor";
+import { CtaBlockRenderer } from "./renderers/cta-block-renderer";
 import { CardsBlockEditor } from "./editors/cards-block-editor";
 import { CardsBlockRenderer } from "./renderers/cards-block-renderer";
 import { QuickLinksBlockEditor } from "./editors/quick-links-block-editor";
@@ -28,13 +31,15 @@ export const frontendBlockRegistry = createBlockRegistry<
   | typeof ImageBlockRenderer
   | typeof ImageTextBlockRenderer
   | typeof CardsBlockRenderer
-  | typeof QuickLinksBlockRenderer,
+  | typeof QuickLinksBlockRenderer
+  | typeof CtaBlockRenderer,
   | typeof TextBlockEditor
   | typeof HeroBlockEditor
   | typeof ImageBlockEditor
   | typeof ImageTextBlockEditor
   | typeof CardsBlockEditor
   | typeof QuickLinksBlockEditor
+  | typeof CtaBlockEditor
 >([
   {
     type: "TEXT",
@@ -89,5 +94,14 @@ export const frontendBlockRegistry = createBlockRegistry<
     editor: QuickLinksBlockEditor,
     label: "Links rápidos",
     allowedContexts: ["PAGE"],
+  },
+  {
+    type: "CTA",
+    schemaVersion: 1,
+    zodSchema: ctaBlockSchemaV1,
+    renderer: CtaBlockRenderer,
+    editor: CtaBlockEditor,
+    label: "Chamada para ação",
+    allowedContexts: ["PAGE", "ARTICLE"],
   },
 ]);

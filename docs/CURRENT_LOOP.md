@@ -90,45 +90,46 @@ LOOP 5.15 — CONCLUÍDO
 LOOP 5.16 — CONCLUÍDO
 LOOP 5.17 — CONCLUÍDO
 LOOP 5.18 — CONCLUÍDO
-LOOP 5.19 — ATUAL
+LOOP 5.19 — CONCLUÍDO
+LOOP 5.20 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 5.19 — CTA
+### LOOP 5.20 — SPACER
 
-Estado: pronto após commit do 5.18. QUICK_LINKS concluído, checks verdes (445 testes). Revalidar commit e Git limpo.
+Estado: pronto após commit do 5.19. CTA concluído, checks verdes (455 testes). Revalidar commit e Git limpo.
 
 Objetivo:
 
 ```text
-Implementar CTA completo com title, text?, buttonLabel e buttonUrl.
+Implementar SPACER completo com valores controlados SMALL, MEDIUM e LARGE.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.18 commitado e Git limpo;
+- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.19 commitado e Git limpo;
 - usar page-builder, nextjs-frontend, architecture-guard e testing-qa conforme escopo;
-- schema Zod por versão para CTA com title obrigatório, text?, buttonLabel e buttonUrl segura, com limites coerentes/documentados;
-- editor acessível para editar o conteúdo e aplicar snapshot conjunto por callback async, mantendo campos na falha;
-- renderer SSR responsivo com heading, texto e link nomeado, foco/contraste e BlockBackground/tema resolvidos pelo caller;
-- registrar definição completa em Registry/contextos canônicos PAGE/ARTICLE e integrar criação no builder, sem antecipar SPACER;
+- schema Zod por versão para SPACER com enum SMALL/MEDIUM/LARGE e sem pixels livres;
+- editor acessível para escolher somente os valores canônicos, callback async com falha retida;
+- renderer SSR com espaço definido pelo Design System, sem conteúdo editorial, e BlockBackground/tema resolvidos pelo caller;
+- registrar definição completa em Registry/contextos canônicos e integrar criação no builder, sem antecipar FAQ;
 - manter contrato de caller explícito, sem criar publicação, Preview ou gateways antecipados;
-- controles acessíveis/teclado/foco, estados inválidos retidos, tokens e responsividade;
+- controles acessíveis/teclado/foco, tokens e responsividade;
 - testes, checks disponíveis, documentação, commit e Git limpo.
 
 Não implementar:
 
-- SPACER (5.20), HTML/CSS livre, múltiplos botões, imagens, outros blocos/Preview/publicação/salvamento amplo antecipados.
+- FAQ (5.21), pixels/CSS livre, conteúdo/mídia, outros blocos/Preview/publicação/salvamento amplo antecipados.
 
 Critério de aceite:
 
 ```text
-CTA disponível no Registry, Editor e Renderer em PAGE/ARTICLE, com URL segura, teclado/foco/contraste, testes/documentação/checks verdes.
+SPACER disponível no Registry, Editor e Renderer, limitado a SMALL/MEDIUM/LARGE, com teclado/foco, testes/documentação/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 5.20 — SPACER
+LOOP 5.21 — FAQ
 ```

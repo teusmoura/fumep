@@ -187,6 +187,12 @@ it("adds only complete versioned blocks in their allowed context with cumulative
     items: [{ label: "Novo link", url: "/" }],
   });
   expect(newBuilderBlock("QUICK_LINKS", "ARTICLE", [], id)).toBeUndefined();
+  for (const context of ["PAGE", "ARTICLE"] as const)
+    expect(newBuilderBlock("CTA", context, [], id)?.data).toEqual({
+      title: "Nova chamada",
+      buttonLabel: "Saiba mais",
+      buttonUrl: "/",
+    });
 });
 it("refuses duplicate IDs/positions, unsupported schemas, invalid context/data and position overflow without mutating input", () => {
   const text = newBuilderBlock("TEXT", "PAGE", [], id)!;
