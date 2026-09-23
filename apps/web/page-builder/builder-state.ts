@@ -7,6 +7,7 @@ import type {
   CardsBlockV1,
   QuickLinksBlockV1,
   CtaBlockV1,
+  SpacerBlockV1,
 } from "@fumep/validation";
 import { frontendBlockRegistry } from "./block-registry";
 import { availableLibraryImages } from "./available-library-images";
@@ -18,7 +19,8 @@ export type BuilderBlock =
   | ImageTextBlockV1
   | CardsBlockV1
   | QuickLinksBlockV1
-  | CtaBlockV1;
+  | CtaBlockV1
+  | SpacerBlockV1;
 export type BuilderType = BuilderBlock["type"];
 export function setBuilderBlockBackground(
   blocks: readonly BuilderBlock[],
@@ -170,7 +172,9 @@ export function newBuilderBlock(
               ? { items: [{ label: "Novo link", url: "/" }] }
               : type === "CTA"
                 ? { title: "Nova chamada", buttonLabel: "Saiba mais", buttonUrl: "/" }
-                : { imageId, decorative: false };
+                : type === "SPACER"
+                  ? { size: "MEDIUM" }
+                  : { imageId, decorative: false };
   return parseBuilderBlocks(
     [
       ...blocks,

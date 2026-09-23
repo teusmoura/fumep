@@ -1,5 +1,7 @@
 # BlockRegistry
 
+Após 5.20, SPACER v1 completo está registrado somente em PAGE com data.size SMALL/MEDIUM/LARGE; alturas são fixas no Design System, sem pixels/CSS editoriais. Catálogo frontend: TEXT, HERO (PAGE), IMAGE, IMAGE_TEXT, CARDS (PAGE), QUICK_LINKS (PAGE), CTA e SPACER (PAGE).
+
 Após 5.19, CTA v1 completo está registrado em PAGE e ARTICLE, com title, text?, buttonLabel e buttonUrl segura. Editor Client e renderer SSR compartilham schema estrito, sem HTML/CSS/mídia ou mais de um botão. Catálogo frontend: TEXT, HERO (PAGE), IMAGE, IMAGE_TEXT, CARDS (PAGE), QUICK_LINKS (PAGE) e CTA.
 
 Após 5.18, QUICK_LINKS v1 completo está registrado somente em PAGE, com title opcional, coleção não vazia de label/URL segura e ícone opcional restrito ao catálogo fechado do sistema. Editor e renderer não aceitam SVG/HTML/biblioteca externa ou nomes arbitrários. Catálogo frontend: TEXT, HERO (PAGE), IMAGE, IMAGE_TEXT, CARDS (PAGE) e QUICK_LINKS (PAGE).

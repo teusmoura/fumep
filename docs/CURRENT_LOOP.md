@@ -91,45 +91,46 @@ LOOP 5.16 — CONCLUÍDO
 LOOP 5.17 — CONCLUÍDO
 LOOP 5.18 — CONCLUÍDO
 LOOP 5.19 — CONCLUÍDO
-LOOP 5.20 — ATUAL
+LOOP 5.20 — CONCLUÍDO
+LOOP 5.21 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 5.20 — SPACER
+### LOOP 5.21 — FAQ
 
-Estado: pronto após commit do 5.19. CTA concluído, checks verdes (455 testes). Revalidar commit e Git limpo.
+Estado: pronto após commit do 5.20. SPACER concluído, checks verdes (464 testes). Revalidar commit e Git limpo.
 
 Objetivo:
 
 ```text
-Implementar SPACER completo com valores controlados SMALL, MEDIUM e LARGE.
+Implementar FAQ completo com título opcional e até 30 pares de pergunta/resposta.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.19 commitado e Git limpo;
+- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.20 commitado e Git limpo;
 - usar page-builder, nextjs-frontend, architecture-guard e testing-qa conforme escopo;
-- schema Zod por versão para SPACER com enum SMALL/MEDIUM/LARGE e sem pixels livres;
-- editor acessível para escolher somente os valores canônicos, callback async com falha retida;
-- renderer SSR com espaço definido pelo Design System, sem conteúdo editorial, e BlockBackground/tema resolvidos pelo caller;
-- registrar definição completa em Registry/contextos canônicos e integrar criação no builder, sem antecipar FAQ;
+- schema Zod por versão para FAQ com title? e items question/answer, limite canônico de 30 e campos textuais seguros;
+- editor acessível para adicionar/editar/remover/reordenar perguntas e respostas, callback async com falha retida;
+- renderer SSR responsivo e acessível para pergunta/resposta, com BlockBackground/tema resolvidos pelo caller;
+- registrar definição completa em Registry/contextos canônicos e integrar criação no builder, sem antecipar TABS;
 - manter contrato de caller explícito, sem criar publicação, Preview ou gateways antecipados;
-- controles acessíveis/teclado/foco, tokens e responsividade;
+- controles acessíveis/teclado/foco, tokens, responsividade e tema;
 - testes, checks disponíveis, documentação, commit e Git limpo.
 
 Não implementar:
 
-- FAQ (5.21), pixels/CSS livre, conteúdo/mídia, outros blocos/Preview/publicação/salvamento amplo antecipados.
+- TABS (5.22), HTML/CSS livre, blocos aninhados, outros blocos/Preview/publicação/salvamento amplo antecipados.
 
 Critério de aceite:
 
 ```text
-SPACER disponível no Registry, Editor e Renderer, limitado a SMALL/MEDIUM/LARGE, com teclado/foco, testes/documentação/checks verdes.
+FAQ disponível no Registry, Editor e Renderer, com até 30 itens, teclado/foco/contraste, testes/documentação/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 5.21 — FAQ
+LOOP 5.22 — TABS
 ```

@@ -65,6 +65,12 @@ it("adds CTA in ARTICLE without requiring media", async () => {
     data: { title: "Nova chamada", buttonLabel: "Saiba mais", buttonUrl: "/" },
   });
 });
+it("adds PAGE-only SPACER without requiring media", async () => {
+  const { main, onApply } = await mount(vi.fn(), [], []);
+  await click(main, "Adicionar SPACER");
+  await apply(main);
+  expect(onApply.mock.calls[0]![0][0]).toMatchObject({ type: "SPACER", data: { size: "MEDIUM" } });
+});
 it("validates image backgrounds, retains failure/retry and clears references when switching mode", async () => {
   const onApply = vi.fn().mockRejectedValueOnce(new Error("offline"));
   const { main } = await mount(onApply, [image], initialReorderBlocks());
@@ -431,6 +437,7 @@ it("rejects invalid initial blocks and enforces ARTICLE and missing media in the
   expect(html).not.toContain("Adicionar HERO");
   expect(html).not.toContain("Adicionar CARDS");
   expect(html).not.toContain("Adicionar QUICK_LINKS");
+  expect(html).not.toContain("Adicionar SPACER");
   expect(html).toContain("Adicionar TEXT");
   expect(html).toContain("Adicionar IMAGE");
   expect(html).toContain("Adicionar CTA");

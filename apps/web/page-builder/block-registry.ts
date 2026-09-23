@@ -7,7 +7,10 @@ import {
   cardsBlockSchemaV1,
   quickLinksBlockSchemaV1,
   ctaBlockSchemaV1,
+  spacerBlockSchemaV1,
 } from "@fumep/validation";
+import { SpacerBlockEditor } from "./editors/spacer-block-editor";
+import { SpacerBlockRenderer } from "./renderers/spacer-block-renderer";
 import { CtaBlockEditor } from "./editors/cta-block-editor";
 import { CtaBlockRenderer } from "./renderers/cta-block-renderer";
 import { CardsBlockEditor } from "./editors/cards-block-editor";
@@ -32,7 +35,8 @@ export const frontendBlockRegistry = createBlockRegistry<
   | typeof ImageTextBlockRenderer
   | typeof CardsBlockRenderer
   | typeof QuickLinksBlockRenderer
-  | typeof CtaBlockRenderer,
+  | typeof CtaBlockRenderer
+  | typeof SpacerBlockRenderer,
   | typeof TextBlockEditor
   | typeof HeroBlockEditor
   | typeof ImageBlockEditor
@@ -40,6 +44,7 @@ export const frontendBlockRegistry = createBlockRegistry<
   | typeof CardsBlockEditor
   | typeof QuickLinksBlockEditor
   | typeof CtaBlockEditor
+  | typeof SpacerBlockEditor
 >([
   {
     type: "TEXT",
@@ -103,5 +108,14 @@ export const frontendBlockRegistry = createBlockRegistry<
     editor: CtaBlockEditor,
     label: "Chamada para ação",
     allowedContexts: ["PAGE", "ARTICLE"],
+  },
+  {
+    type: "SPACER",
+    schemaVersion: 1,
+    zodSchema: spacerBlockSchemaV1,
+    renderer: SpacerBlockRenderer,
+    editor: SpacerBlockEditor,
+    label: "Espaçamento",
+    allowedContexts: ["PAGE"],
   },
 ]);

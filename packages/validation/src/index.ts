@@ -450,6 +450,16 @@ export const ctaBlockSchemaV1 = contentBlockCommonSchema.safeExtend({
 export type CtaBlockDataV1 = z.infer<typeof ctaBlockDataSchemaV1>;
 export type CtaBlockV1 = z.infer<typeof ctaBlockSchemaV1>;
 
+export const SPACER_SIZE_VALUES = ["SMALL", "MEDIUM", "LARGE"] as const;
+export const spacerBlockDataSchemaV1 = z.object({ size: z.enum(SPACER_SIZE_VALUES) }).strict();
+export const spacerBlockSchemaV1 = contentBlockCommonSchema.safeExtend({
+  type: z.literal("SPACER"),
+  schemaVersion: z.literal(1),
+  data: spacerBlockDataSchemaV1,
+});
+export type SpacerBlockDataV1 = z.infer<typeof spacerBlockDataSchemaV1>;
+export type SpacerBlockV1 = z.infer<typeof spacerBlockSchemaV1>;
+
 // Resolved transport metadata, never persisted as HERO JSONB or used as backend
 // authorization. Caller must resolve a fresh, authorized library image.
 export const heroResolvedImageSchemaV1 = z

@@ -1,5 +1,17 @@
 # LOOP STATUS
 
+## LOOP 5.20 — Concluído
+
+Estado inicial: 5.19 concluído em 0a9b65f, Git limpo. Escopo: SPACER V1 PAGE-only com enum SMALL/MEDIUM/LARGE, editor acessível, renderer SSR decorativo com altura fixa no Design System, Registry/builder/testes/checks/documentação. Sem pixels/CSS livres, ARTICLE, FAQ, Preview/publicação/persistência antecipados.
+
+Entregue: schema strict/versionado com apenas três enums, editor Client de escolha nativa e callback async/ref/busy com falha retida, renderer SSR decorativo/aria-hidden que falha fechado, alturas fixas no CSS (1/2/4rem), BlockBackground e integração Registry/PageBuilder somente em PAGE. Sem endpoint, migration, dependência ou conteúdo indexável adicional.
+
+Checks aprovados: pnpm format:check, pnpm lint, pnpm typecheck, pnpm test, pnpm build, pnpm ls --depth 0 e git diff --check. Suíte completa 464 testes (65 validation, 71 DB, 12 jobs, 3 storage, 122 API, 161 web, 30 Worker); validation/web focados e typecheck web aprovados. axe-core semântico zero violações; sem falhas pendentes.
+
+QA real 390×844 e 1280×900 LIGHT/DARK: MEDIUM 32 px, LARGE 64 px, seletor/aplicação, controles de 44 px, foco sólido, zero overflow e console limpo. Fixture removida, viewport restaurado, aba fechada, servidor encerrado e porta 3100 sem listener. test:e2e inexistente; sem CI remota ou integração REST owner real.
+
+Aceite cumprido. execute-loop/page-builder/architecture-guard mantiveram PAGE-only e espaçamento controlado; nextjs-frontend/testing-qa/computer-use verificaram SSR, interação, responsividade e A11y. Commit: feat(builder): add controlled spacer block v1. Próximo: 5.21.
+
 ## LOOP 5.19 — Concluído
 
 Estado inicial: 5.18 concluído em e0739a7, Git limpo. Escopo: CTA V1 com title, text?, buttonLabel e buttonUrl, schema strict/versionado, editor Client, renderer SSR com BlockBackground, Registry/builder PAGE/ARTICLE, testes, checks e documentação. Sem SPACER, HTML/CSS livre, mídia, Preview/publicação ou persistência antecipados.

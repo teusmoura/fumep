@@ -379,6 +379,44 @@ main {
   font: inherit;
   justify-self: start;
 }
+.spacer-block {
+  width: 100%;
+  min-width: 0;
+}
+.spacer-block[data-size="SMALL"] {
+  height: 1rem;
+}
+.spacer-block[data-size="MEDIUM"] {
+  height: 2rem;
+}
+.spacer-block[data-size="LARGE"] {
+  height: 4rem;
+}
+.spacer-block-editor {
+  max-width: 40rem;
+  min-width: 0;
+}
+.spacer-block-editor fieldset {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid currentColor;
+}
+.spacer-block-editor :is(select, button) {
+  min-height: 44px;
+  padding: 0.5rem;
+  font: inherit;
+}
+.spacer-block-editor select {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+}
+.spacer-block-editor :is(select, button):focus-visible {
+  outline: 3px solid var(--color-text, currentColor);
+  outline-offset: 3px;
+}
 @media (min-width: 640px) {
   .cards-block {
     grid-template-columns: repeat(2, minmax(0, 1fr));
