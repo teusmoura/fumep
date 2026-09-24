@@ -793,6 +793,98 @@ main {
   outline: 3px solid var(--color-text, currentColor);
   outline-offset: 3px;
 }
+.carousel-block {
+  min-width: 0;
+  max-width: 100%;
+}
+.carousel-block-slide {
+  margin: 0;
+  min-width: 0;
+}
+.carousel-block-slide[hidden] {
+  display: none;
+}
+.carousel-block-slide img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 36rem;
+  object-fit: contain;
+}
+.carousel-block-slide figcaption {
+  padding: 0.75rem;
+  text-align: center;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.carousel-block-controls,
+.carousel-block-selectors {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.carousel-block-controls {
+  margin-top: 0.75rem;
+}
+.carousel-block-controls p {
+  margin: 0;
+  padding: 0.5rem;
+}
+.carousel-block-controls button,
+.carousel-block-editor button {
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  color: inherit;
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: 0.375rem;
+  font: inherit;
+  cursor: pointer;
+}
+.carousel-block-selectors {
+  width: 100%;
+}
+.carousel-block-selectors button[aria-current="true"] {
+  font-weight: 700;
+  text-decoration: underline;
+}
+.carousel-block :is(button, a):focus-visible,
+.carousel-block-editor :is(select, input, textarea, button):focus-visible {
+  outline: 3px solid var(--color-text, currentColor);
+  outline-offset: 3px;
+}
+.carousel-block-editor {
+  min-width: 0;
+  max-width: 50rem;
+}
+.carousel-block-editor fieldset {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid currentColor;
+}
+.carousel-editor-items {
+  display: grid;
+  gap: 1rem;
+  padding-inline-start: 1.5rem;
+}
+.carousel-block-editor :is(select, input:not([type="checkbox"]), textarea) {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0.5rem;
+  font: inherit;
+}
+.carousel-editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
 @media (min-width: 640px) {
   .cards-block {
     grid-template-columns: repeat(2, minmax(0, 1fr));

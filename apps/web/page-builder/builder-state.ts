@@ -13,6 +13,7 @@ import type {
   TableBlockV1,
   TimelineBlockV1,
   StatisticsBlockV1,
+  CarouselBlockV1,
 } from "@fumep/validation";
 import { frontendBlockRegistry } from "./block-registry";
 import { availableLibraryImages } from "./available-library-images";
@@ -30,7 +31,8 @@ export type BuilderBlock =
   | TabsBlockV1
   | TableBlockV1
   | TimelineBlockV1
-  | StatisticsBlockV1;
+  | StatisticsBlockV1
+  | CarouselBlockV1;
 export type BuilderType = BuilderBlock["type"];
 export function setBuilderBlockBackground(
   blocks: readonly BuilderBlock[],
@@ -166,6 +168,7 @@ export function newBuilderBlock(
   blocks: readonly BuilderBlock[],
   id: string,
   imageId?: string,
+  imageAlt?: string,
 ): BuilderBlock | undefined {
   if (!frontendBlockRegistry.get(type, 1, context)) return undefined;
   const position = blocks.length ? Math.max(...blocks.map((block) => block.position)) + 1 : 0;
@@ -209,7 +212,9 @@ export function newBuilderBlock(
                           ? { items: [{ title: "Novo marco", description: "Nova descrição" }] }
                           : type === "STATISTICS"
                             ? { items: [{ value: "0", label: "Novo indicador" }] }
-                            : { imageId, decorative: false };
+                            : type === "CAROUSEL"
+                              ? { items: [{ imageId, alt: imageAlt ?? "" }] }
+                              : { imageId, decorative: false };
   return parseBuilderBlocks(
     [
       ...blocks,

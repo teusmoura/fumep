@@ -116,6 +116,15 @@ it("adds PAGE-only STATISTICS without requiring media", async () => {
     data: { items: [{ value: "0", label: "Novo indicador" }] },
   });
 });
+it("adds CAROUSEL in ARTICLE from an available image with contextual alt", async () => {
+  const { main, onApply } = await mount(vi.fn(), [image], [], "ARTICLE");
+  await click(main, "Adicionar CAROUSEL");
+  await apply(main);
+  expect(onApply.mock.calls[0]![0][0]).toMatchObject({
+    type: "CAROUSEL",
+    data: { items: [{ imageId: id, alt: "Fachada" }] },
+  });
+});
 it("validates image backgrounds, retains failure/retry and clears references when switching mode", async () => {
   const onApply = vi.fn().mockRejectedValueOnce(new Error("offline"));
   const { main } = await mount(onApply, [image], initialReorderBlocks());

@@ -65,7 +65,14 @@ export function PageBuilder({
     );
   function add(type: BuilderType) {
     if (disabled || applying.current || candidate || deleting || !blocks) return;
-    const next = newBuilderBlock(type, context, blocks, crypto.randomUUID(), available[0]?.id);
+    const next = newBuilderBlock(
+      type,
+      context,
+      blocks,
+      crypto.randomUUID(),
+      available[0]?.id,
+      available[0]?.altText?.trim() || "",
+    );
     if (!next) {
       notify("Não foi possível iniciar o bloco. Verifique contexto e imagens disponíveis.");
       return;
@@ -263,7 +270,8 @@ export function PageBuilder({
             type="button"
             disabled={
               locked ||
-              (["IMAGE", "IMAGE_TEXT", "CARDS"].includes(definition.type) && !available.length)
+              (["IMAGE", "IMAGE_TEXT", "CARDS", "CAROUSEL"].includes(definition.type) &&
+                !available.length)
             }
             onClick={() => add(definition.type as BuilderType)}
           >
@@ -273,8 +281,8 @@ export function PageBuilder({
       </div>
       {!available.length && (
         <p>
-          Para adicionar IMAGE, IMAGE_TEXT ou CARDS, selecione uma imagem disponível da Biblioteca
-          de Mídia.
+          Para adicionar IMAGE, IMAGE_TEXT, CARDS ou CAROUSEL, selecione uma imagem disponível da
+          Biblioteca de Mídia.
         </p>
       )}
       {!blocks.length && <p>Nenhum bloco adicionado ao draft.</p>}

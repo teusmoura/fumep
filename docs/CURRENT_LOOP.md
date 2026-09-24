@@ -97,45 +97,46 @@ LOOP 5.22 — CONCLUÍDO
 LOOP 5.23 — CONCLUÍDO
 LOOP 5.24 — CONCLUÍDO
 LOOP 5.25 — CONCLUÍDO
-LOOP 5.26 — ATUAL
+LOOP 5.26 — CONCLUÍDO
+LOOP 5.27 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 5.26 — CAROUSEL
+### LOOP 5.27 — MAP
 
-Estado: pronto após commit do 5.25. STATISTICS concluído, checks verdes (510 testes). Revalidar commit e Git limpo. O plano canônico nomeia 5.26 CAROUSEL e 5.27 MAP.
+Estado: pronto após commit do 5.26. CAROUSEL concluído, checks verdes (520 testes). Revalidar commit e Git limpo.
 
 Objetivo:
 
 ```text
-Implementar CAROUSEL com até 10 imagens e controles acessíveis.
+Implementar MAP com campos estruturados, sem HTML de mapa arbitrário.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.25 commitado e Git limpo;
+- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.26 commitado e Git limpo;
 - usar page-builder, nextjs-frontend, architecture-guard e testing-qa conforme escopo;
-- schema Zod por versão para CAROUSEL com items[] de imageId, alt, caption?, url?, limite canônico de 10 e referência à Media Library;
-- editor acessível de coleção para adicionar/editar/remover/reordenar slides, callback async com falha retida;
-- renderer SSR com camada Client apenas para interação de controles acessíveis, imagem responsiva e BlockBackground/tema resolvidos pelo caller;
-- registrar definição completa em Registry/contextos canônicos e integrar criação no builder, sem antecipar MAP;
+- schema Zod por versão para MAP com title?, latitude, longitude, address e zoom? controlados;
+- editor acessível dos campos estruturados, callback async com falha retida;
+- renderer responsivo e acessível sem HTML/iframe arbitrário, com BlockBackground/tema resolvidos pelo caller;
+- registrar definição completa em Registry/contextos canônicos e integrar criação no builder, sem antecipar VIDEO;
 - manter contrato de caller explícito, sem criar publicação, Preview ou gateways antecipados;
 - controles acessíveis/teclado/foco, tokens, responsividade e tema;
 - testes, checks disponíveis, documentação, commit e Git limpo.
 
 Não implementar:
 
-- MAP (5.27), autoplay obrigatório, HTML/CSS livre, outros blocos/Preview/publicação/salvamento amplo antecipados.
+- VIDEO (5.28), HTML/iframe arbitrário, outros blocos/Preview/publicação/salvamento amplo antecipados.
 
 Critério de aceite:
 
 ```text
-CAROUSEL disponível no Registry, Editor e Renderer com até 10 imagens, controles acessíveis e responsivos, testes/documentação/checks verdes.
+MAP disponível no Registry, Editor e Renderer com campos estruturados e apresentação acessível/responsiva, testes/documentação/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 5.27 — MAP
+LOOP 5.28 — VIDEO
 ```

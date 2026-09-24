@@ -645,6 +645,33 @@ export type StatisticItemV1 = z.infer<typeof statisticItemSchemaV1>;
 export type StatisticsBlockDataV1 = z.infer<typeof statisticsBlockDataSchemaV1>;
 export type StatisticsBlockV1 = z.infer<typeof statisticsBlockSchemaV1>;
 
+export const CAROUSEL_V1_LIMITS = Object.freeze({
+  items: 10,
+  altCharacters: 300,
+  captionCharacters: 500,
+});
+export const carouselItemSchemaV1 = z
+  .object({
+    imageId: z.uuid(),
+    // Empty alt is an incomplete draft; editor/application and renderer require
+    // contextual alt before the slide can be used.
+    alt: textPlainSchemaV1.max(CAROUSEL_V1_LIMITS.altCharacters),
+    caption: textPlainSchemaV1.max(CAROUSEL_V1_LIMITS.captionCharacters).optional(),
+    url: textLinkUrlSchemaV1.optional(),
+  })
+  .strict();
+export const carouselBlockDataSchemaV1 = z
+  .object({ items: z.array(carouselItemSchemaV1).min(1).max(CAROUSEL_V1_LIMITS.items) })
+  .strict();
+export const carouselBlockSchemaV1 = contentBlockCommonSchema.safeExtend({
+  type: z.literal("CAROUSEL"),
+  schemaVersion: z.literal(1),
+  data: carouselBlockDataSchemaV1,
+});
+export type CarouselItemV1 = z.infer<typeof carouselItemSchemaV1>;
+export type CarouselBlockDataV1 = z.infer<typeof carouselBlockDataSchemaV1>;
+export type CarouselBlockV1 = z.infer<typeof carouselBlockSchemaV1>;
+
 // Resolved transport metadata, never persisted as HERO JSONB or used as backend
 // authorization. Caller must resolve a fresh, authorized library image.
 export const heroResolvedImageSchemaV1 = z

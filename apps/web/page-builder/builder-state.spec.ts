@@ -224,6 +224,12 @@ it("adds only complete versioned blocks in their allowed context with cumulative
     items: [{ value: "0", label: "Novo indicador" }],
   });
   expect(newBuilderBlock("STATISTICS", "ARTICLE", [], id)).toBeUndefined();
+  for (const context of ["PAGE", "ARTICLE"] as const) {
+    expect(newBuilderBlock("CAROUSEL", context, [], id, other)?.data).toEqual({
+      items: [{ imageId: other, alt: "" }],
+    });
+    expect(newBuilderBlock("CAROUSEL", context, [], id)).toBeUndefined();
+  }
 });
 it("refuses duplicate IDs/positions, unsupported schemas, invalid context/data and position overflow without mutating input", () => {
   const text = newBuilderBlock("TEXT", "PAGE", [], id)!;

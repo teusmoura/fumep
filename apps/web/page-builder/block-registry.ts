@@ -13,7 +13,10 @@ import {
   tableBlockSchemaV1,
   timelineBlockSchemaV1,
   statisticsBlockSchemaV1,
+  carouselBlockSchemaV1,
 } from "@fumep/validation";
+import { CarouselBlockEditor } from "./editors/carousel-block-editor";
+import { CarouselBlockRenderer } from "./renderers/carousel-block-renderer";
 import { StatisticsBlockEditor } from "./editors/statistics-block-editor";
 import { StatisticsBlockRenderer } from "./renderers/statistics-block-renderer";
 import { TimelineBlockEditor } from "./editors/timeline-block-editor";
@@ -56,7 +59,8 @@ export const frontendBlockRegistry = createBlockRegistry<
   | typeof TabsBlockRenderer
   | typeof TableBlockRenderer
   | typeof TimelineBlockRenderer
-  | typeof StatisticsBlockRenderer,
+  | typeof StatisticsBlockRenderer
+  | typeof CarouselBlockRenderer,
   | typeof TextBlockEditor
   | typeof HeroBlockEditor
   | typeof ImageBlockEditor
@@ -70,6 +74,7 @@ export const frontendBlockRegistry = createBlockRegistry<
   | typeof TableBlockEditor
   | typeof TimelineBlockEditor
   | typeof StatisticsBlockEditor
+  | typeof CarouselBlockEditor
 >([
   {
     type: "TEXT",
@@ -187,5 +192,14 @@ export const frontendBlockRegistry = createBlockRegistry<
     editor: StatisticsBlockEditor,
     label: "Indicadores",
     allowedContexts: ["PAGE"],
+  },
+  {
+    type: "CAROUSEL",
+    schemaVersion: 1,
+    zodSchema: carouselBlockSchemaV1,
+    renderer: CarouselBlockRenderer,
+    editor: CarouselBlockEditor,
+    label: "Carrossel",
+    allowedContexts: ["PAGE", "ARTICLE"],
   },
 ]);

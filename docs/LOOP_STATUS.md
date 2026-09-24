@@ -1,5 +1,17 @@
 # LOOP STATUS
 
+## LOOP 5.26 — Concluído
+
+Estado inicial: 5.25 concluído em 7e26c15, Git limpo. Escopo: CAROUSEL V1 PAGE/ARTICLE com até 10 slides imageId/alt/caption?/url?, seleção de imagem pronta da Biblioteca, renderer SSR + interação Client sem autoplay, controles acessíveis, Registry/builder/testes/checks/documentação. Sem MAP, HTML/CSS livre, URL física em JSONB, Preview/publicação/persistência antecipados.
+
+Entregue: schema Zod strict/versionado com 1–10 slides, UUID de mídia, alt/legenda e URL segura; editor Client para selecionar imagens READY, adicionar/editar/remover/reordenar slides, validar alt/URL e reter falha async; renderer SSR com projeções de mídia pública validadas e falha fechada se qualquer imagem/alt faltar, interação Client por botões, seleção direta e ArrowLeft/Right/Home/End, sem autoplay. Registry/PageBuilder permitem CAROUSEL em PAGE e ARTICLE. Sem endpoint, migration ou dependência nova; MediaUsage/publicação permanecem responsabilidade de loops/callers próprios.
+
+Checks aprovados: pnpm format:check, pnpm lint, pnpm typecheck, pnpm test, pnpm build, pnpm ls --depth 0 e git diff --check. Suíte completa 520 testes (77 validation, 71 DB, 12 jobs, 3 storage, 122 API, 205 web, 30 Worker); typecheck e testes focados validation/web também aprovados. axe-core sem violações semânticas no editor/renderer (contraste desabilitado no jsdom).
+
+QA real em 390×844 e 1280×900: imagens locais temporárias carregadas, um slide visível por vez, seleção por botões/teclado, anúncio de posição, legenda HTML literal, controles >=44 px e zero overflow; adicionar/reordenar/aplicar terceiro slide. Fixtures de rota/imagem removidas, viewport restaurado, aba fechada, servidor encerrado e porta 3100 sem listener. test:e2e inexistente; sem CI remota ou integração REST owner real.
+
+Aceite cumprido. execute-loop/page-builder/architecture-guard mantiveram limite 10 e contextos canônicos; media-storage impediu URL física do MinIO e preservou referência por ID; nextjs-frontend/testing-qa/computer-use verificaram SSR, interação, responsividade, segurança básica e A11y. Commit: feat(builder): add carousel block v1. Próximo: 5.27 MAP.
+
 ## LOOP 5.25 — Concluído
 
 Estado inicial: 5.24 concluído em edf7fb4, Git limpo. Escopo: STATISTICS V1 PAGE-only com até 12 itens value/label/description?, editor/renderer semânticos, Registry/builder/testes/checks/documentação. Sem CAROUSEL, MAP, animação obrigatória, HTML/CSS livre, Preview/publicação/persistência antecipados. Correção documental pendente ao encerrar: o plano canônico nomeia 5.26 CAROUSEL e 5.27 MAP, divergindo do próximo loop indicado por engano em CURRENT_LOOP.
