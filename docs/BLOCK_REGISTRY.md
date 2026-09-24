@@ -1,5 +1,7 @@
 # BlockRegistry
 
+Após 5.23, TABLE v1 completo está registrado em PAGE e ARTICLE com legenda opcional, cabeçalhos e linhas retangulares de texto puro, editor de matriz e renderer SSR semântico com rolagem horizontal local. Catálogo frontend: TEXT, HERO (PAGE), IMAGE, IMAGE_TEXT, CARDS (PAGE), QUICK_LINKS (PAGE), CTA, SPACER (PAGE), FAQ (PAGE), TABS (PAGE) e TABLE.
+
 Após 5.22, TABS v1 completo está registrado somente em PAGE com 1 a 8 abas, labels e conteúdo AST de parágrafos simples, marcações/links controlados e navegação ARIA por teclado. Catálogo frontend: TEXT, HERO (PAGE), IMAGE, IMAGE_TEXT, CARDS (PAGE), QUICK_LINKS (PAGE), CTA, SPACER (PAGE), FAQ (PAGE) e TABS (PAGE).
 
 Após 5.21, FAQ v1 completo está registrado somente em PAGE com title opcional, 1 a 30 pares question/answer de texto simples e renderer SSR em details/summary nativos. Catálogo frontend: TEXT, HERO (PAGE), IMAGE, IMAGE_TEXT, CARDS (PAGE), QUICK_LINKS (PAGE), CTA, SPACER (PAGE) e FAQ (PAGE).

@@ -94,45 +94,46 @@ LOOP 5.19 — CONCLUÍDO
 LOOP 5.20 — CONCLUÍDO
 LOOP 5.21 — CONCLUÍDO
 LOOP 5.22 — CONCLUÍDO
-LOOP 5.23 — ATUAL
+LOOP 5.23 — CONCLUÍDO
+LOOP 5.24 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 5.23 — TABLE
+### LOOP 5.24 — TIMELINE
 
-Estado: pronto após commit do 5.22. TABS concluído, checks verdes (483 testes). Revalidar commit e Git limpo.
+Estado: pronto após commit do 5.23. TABLE concluído, checks verdes (490 testes). Revalidar commit e Git limpo.
 
 Objetivo:
 
 ```text
-Implementar TABLE como tabela estruturada, sem HTML arbitrário.
+Implementar TIMELINE estruturado com itens cronológicos controlados.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.22 commitado e Git limpo;
+- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.23 commitado e Git limpo;
 - usar page-builder, nextjs-frontend, architecture-guard e testing-qa conforme escopo;
-- schema Zod por versão para TABLE com caption?, headers[] e rows[][], formato estruturado e limites defensivos;
-- editor acessível para legenda, cabeçalhos, linhas e células, callback async com falha retida;
-- renderer SSR com tabela semântica, cabeçalhos associados, rolagem horizontal responsiva e BlockBackground/tema resolvidos pelo caller;
-- registrar definição completa em Registry/contextos canônicos e integrar criação no builder, sem antecipar TIMELINE;
+- schema Zod por versão para TIMELINE com title? e items[] de date?, title, description, limites defensivos e texto controlado;
+- editor acessível de coleção para adicionar/editar/remover/reordenar itens, callback async com falha retida;
+- renderer SSR semântico/responsivo com BlockBackground/tema resolvidos pelo caller;
+- registrar definição completa em Registry/contextos canônicos e integrar criação no builder, sem antecipar STATISTICS;
 - manter contrato de caller explícito, sem criar publicação, Preview ou gateways antecipados;
 - controles acessíveis/teclado/foco, tokens, responsividade e tema;
 - testes, checks disponíveis, documentação, commit e Git limpo.
 
 Não implementar:
 
-- TIMELINE (5.24), HTML/CSS livre, células ricas arbitrárias, outros blocos/Preview/publicação/salvamento amplo antecipados.
+- STATISTICS (5.25), HTML/CSS livre, outros blocos/Preview/publicação/salvamento amplo antecipados.
 
 Critério de aceite:
 
 ```text
-TABLE disponível no Registry, Editor e Renderer como tabela estruturada acessível e responsiva, com testes/documentação/checks verdes.
+TIMELINE disponível no Registry, Editor e Renderer como sequência estruturada acessível e responsiva, com testes/documentação/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 5.24 — TIMELINE
+LOOP 5.25 — STATISTICS
 ```

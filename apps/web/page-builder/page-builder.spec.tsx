@@ -89,6 +89,15 @@ it("adds PAGE-only TABS without requiring media", async () => {
     data: { tabs: [{ label: "Nova aba" }] },
   });
 });
+it("adds TABLE in ARTICLE without requiring media", async () => {
+  const { main, onApply } = await mount(vi.fn(), [], [], "ARTICLE");
+  await click(main, "Adicionar TABLE");
+  await apply(main);
+  expect(onApply.mock.calls[0]![0][0]).toMatchObject({
+    type: "TABLE",
+    data: { headers: ["Coluna 1"], rows: [[""]] },
+  });
+});
 it("validates image backgrounds, retains failure/retry and clears references when switching mode", async () => {
   const onApply = vi.fn().mockRejectedValueOnce(new Error("offline"));
   const { main } = await mount(onApply, [image], initialReorderBlocks());

@@ -10,6 +10,7 @@ import type {
   SpacerBlockV1,
   FaqBlockV1,
   TabsBlockV1,
+  TableBlockV1,
 } from "@fumep/validation";
 import { frontendBlockRegistry } from "./block-registry";
 import { availableLibraryImages } from "./available-library-images";
@@ -24,7 +25,8 @@ export type BuilderBlock =
   | CtaBlockV1
   | SpacerBlockV1
   | FaqBlockV1
-  | TabsBlockV1;
+  | TabsBlockV1
+  | TableBlockV1;
 export type BuilderType = BuilderBlock["type"];
 export function setBuilderBlockBackground(
   blocks: readonly BuilderBlock[],
@@ -197,7 +199,9 @@ export function newBuilderBlock(
                             },
                           ],
                         }
-                      : { imageId, decorative: false };
+                      : type === "TABLE"
+                        ? { headers: ["Coluna 1"], rows: [[""]] }
+                        : { imageId, decorative: false };
   return parseBuilderBlocks(
     [
       ...blocks,

@@ -545,6 +545,52 @@ export type TabItemV1 = z.infer<typeof tabItemSchemaV1>;
 export type TabsBlockDataV1 = z.infer<typeof tabsBlockDataSchemaV1>;
 export type TabsBlockV1 = z.infer<typeof tabsBlockSchemaV1>;
 
+// TABLE is a standalone structured block. These bounds match the simple TEXT
+// table and prevent unbounded JSONB/editor/SSR payloads.
+export const TABLE_V1_LIMITS = Object.freeze({
+  columns: TEXT_V1_LIMITS.tableColumns,
+  rows: TEXT_V1_LIMITS.tableRows,
+  captionCharacters: 300,
+  headerCharacters: 200,
+  cellCharacters: TEXT_V1_LIMITS.runCharacters,
+});
+export const tableBlockDataSchemaV1 = z
+  .object({
+    caption: textPlainSchemaV1.max(TABLE_V1_LIMITS.captionCharacters).optional(),
+    headers: z
+      .array(
+        textPlainSchemaV1
+          .max(TABLE_V1_LIMITS.headerCharacters)
+          .refine((value) => value.trim().length > 0, "Header label required"),
+      )
+      .min(1)
+      .max(TABLE_V1_LIMITS.columns),
+    rows: z
+      .array(
+        z.array(textPlainSchemaV1.max(TABLE_V1_LIMITS.cellCharacters)).max(TABLE_V1_LIMITS.columns),
+      )
+      .min(1)
+      .max(TABLE_V1_LIMITS.rows),
+  })
+  .strict()
+  .superRefine((table, context) => {
+    table.rows.forEach((row, index) => {
+      if (row.length !== table.headers.length)
+        context.addIssue({
+          code: "custom",
+          path: ["rows", index],
+          message: "Table row must match header column count",
+        });
+    });
+  });
+export const tableBlockSchemaV1 = contentBlockCommonSchema.safeExtend({
+  type: z.literal("TABLE"),
+  schemaVersion: z.literal(1),
+  data: tableBlockDataSchemaV1,
+});
+export type TableBlockDataV1 = z.infer<typeof tableBlockDataSchemaV1>;
+export type TableBlockV1 = z.infer<typeof tableBlockSchemaV1>;
+
 // Resolved transport metadata, never persisted as HERO JSONB or used as backend
 // authorization. Caller must resolve a fresh, authorized library image.
 export const heroResolvedImageSchemaV1 = z

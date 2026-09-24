@@ -211,6 +211,11 @@ it("adds only complete versioned blocks in their allowed context with cumulative
     ],
   });
   expect(newBuilderBlock("TABS", "ARTICLE", [], id)).toBeUndefined();
+  for (const context of ["PAGE", "ARTICLE"] as const)
+    expect(newBuilderBlock("TABLE", context, [], id)?.data).toEqual({
+      headers: ["Coluna 1"],
+      rows: [[""]],
+    });
 });
 it("refuses duplicate IDs/positions, unsupported schemas, invalid context/data and position overflow without mutating input", () => {
   const text = newBuilderBlock("TEXT", "PAGE", [], id)!;

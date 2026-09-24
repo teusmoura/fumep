@@ -580,6 +580,79 @@ main {
   flex-wrap: wrap;
   gap: 0.75rem;
 }
+.table-block-scroll,
+.table-editor-scroll {
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+}
+.table-block-scroll:focus-visible,
+.table-editor-scroll:focus-visible,
+.table-block-editor :is(input, button):focus-visible {
+  outline: 3px solid var(--color-text, currentColor);
+  outline-offset: 3px;
+}
+.table-block,
+.table-editor-scroll table {
+  width: 100%;
+  border-collapse: collapse;
+  font: inherit;
+}
+.table-block {
+  width: max-content;
+  min-width: 100%;
+}
+.table-block :is(th, td) {
+  min-width: 9rem;
+}
+.table-block caption {
+  padding: 0.75rem;
+  text-align: start;
+  font-weight: 700;
+}
+.table-block :is(th, td),
+.table-editor-scroll :is(th, td) {
+  padding: 0.75rem;
+  border: 1px solid currentColor;
+  text-align: start;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.table-block th {
+  background: var(--color-surface, transparent);
+  font-weight: 700;
+}
+.table-block-editor {
+  min-width: 0;
+  max-width: 75rem;
+}
+.table-block-editor fieldset {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid currentColor;
+}
+.table-block-editor input {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-width: 8rem;
+  min-height: 44px;
+  padding: 0.5rem;
+  font: inherit;
+}
+.table-block-editor button {
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  font: inherit;
+}
+.table-editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
 @media (min-width: 640px) {
   .cards-block {
     grid-template-columns: repeat(2, minmax(0, 1fr));

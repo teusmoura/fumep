@@ -1,5 +1,17 @@
 # LOOP STATUS
 
+## LOOP 5.23 — Concluído
+
+Estado inicial: 5.22 concluído em c7d0112, Git limpo. Escopo: TABLE V1 estruturada (caption?, headers[], rows[][]), editor/renderer semânticos e responsivos, Registry/builder em PAGE e ARTICLE, testes, checks e documentação. Limites defensivos de quantidade/tamanho serão contratos V1 locais; sem HTML/CSS livre, células ricas, TIMELINE ou persistência/publicação antecipada.
+
+Entregue: schema Zod strict/versionado com 1–12 colunas, 1–100 linhas retangulares, texto puro e limites de caracteres; editor Client de cabeçalhos, células e linhas com aplicação async, validação e falha retida; renderer SSR em table/caption/thead/th scope=col/tbody com texto escapado e rolagem local alcançável por teclado. Registry/PageBuilder permitem TABLE em PAGE e ARTICLE. Sem endpoint, migration ou dependência nova. A inspeção móvel revelou quebra excessiva das palavras; ajuste de largura mínima por coluna corrigiu o problema sem overflow da página.
+
+Checks aprovados após o ajuste final: pnpm format:check, pnpm lint, pnpm typecheck, pnpm test, pnpm build, pnpm ls --depth 0 e git diff --check. Suíte completa 490 testes (71 validation, 71 DB, 12 jobs, 3 storage, 122 API, 183 web, 30 Worker); typecheck e suíte web focada também aprovados. A primeira rodada detectou expectativa antiga do catálogo ARTICLE e extensão ausente de import de teste; ambas corrigidas e verificadas novamente.
+
+QA real em 390×844 e 1280×900: seis colunas com rolagem horizontal local, documento sem overflow, HTML literal escapado, controles >=44 px, inclusão/aplicação de linha e coluna; axe-core sem violações semânticas no renderer/editor (contraste desabilitado no jsdom). A fixture temporária foi removida, viewport restaurado, aba fechada e servidor encerrado. Erros iniciais da fixture de QA foram corrigidos antes das verificações; logs históricos permaneciam no tab até fechamento. test:e2e inexistente; sem CI remota ou integração REST owner real.
+
+Aceite cumprido. execute-loop/page-builder/architecture-guard mantiveram TABLE estruturada e contextos canônicos; nextjs-frontend/testing-qa/computer-use verificaram SSR, editor, responsividade, segurança básica e A11y. Commit: feat(builder): add structured table block v1. Próximo: 5.24.
+
 ## LOOP 5.22 — Concluído
 
 Estado inicial: 5.21 concluído em 485e832, Git limpo. Escopo: TABS V1 PAGE-only com até 8 abas label/content, conteúdo textual rico simples limitado a parágrafos e trechos seguros TEXT (negrito/itálico/links), editor de coleção, renderer com ARIA/teclado, Registry/builder/testes/checks/documentação. Sem ARTICLE, TABLE, blocos aninhados, HTML/CSS livre, Preview/publicação/persistência antecipados.

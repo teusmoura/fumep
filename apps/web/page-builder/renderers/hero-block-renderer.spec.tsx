@@ -110,6 +110,7 @@ it("registers complete HERO only for PAGE with exact version and existing TEXT u
     "IMAGE",
     "IMAGE_TEXT",
     "CTA",
+    "TABLE",
   ]);
 });
 it("has no semantic axe violations for informative/decorative image and CTA (no contrast/layout)", async () => {

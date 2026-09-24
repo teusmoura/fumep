@@ -10,7 +10,10 @@ import {
   spacerBlockSchemaV1,
   faqBlockSchemaV1,
   tabsBlockSchemaV1,
+  tableBlockSchemaV1,
 } from "@fumep/validation";
+import { TableBlockEditor } from "./editors/table-block-editor";
+import { TableBlockRenderer } from "./renderers/table-block-renderer";
 import { TabsBlockEditor } from "./editors/tabs-block-editor";
 import { TabsBlockRenderer } from "./renderers/tabs-block-renderer";
 import { FaqBlockEditor } from "./editors/faq-block-editor";
@@ -44,7 +47,8 @@ export const frontendBlockRegistry = createBlockRegistry<
   | typeof CtaBlockRenderer
   | typeof SpacerBlockRenderer
   | typeof FaqBlockRenderer
-  | typeof TabsBlockRenderer,
+  | typeof TabsBlockRenderer
+  | typeof TableBlockRenderer,
   | typeof TextBlockEditor
   | typeof HeroBlockEditor
   | typeof ImageBlockEditor
@@ -55,6 +59,7 @@ export const frontendBlockRegistry = createBlockRegistry<
   | typeof SpacerBlockEditor
   | typeof FaqBlockEditor
   | typeof TabsBlockEditor
+  | typeof TableBlockEditor
 >([
   {
     type: "TEXT",
@@ -145,5 +150,14 @@ export const frontendBlockRegistry = createBlockRegistry<
     editor: TabsBlockEditor,
     label: "Abas",
     allowedContexts: ["PAGE"],
+  },
+  {
+    type: "TABLE",
+    schemaVersion: 1,
+    zodSchema: tableBlockSchemaV1,
+    renderer: TableBlockRenderer,
+    editor: TableBlockEditor,
+    label: "Tabela",
+    allowedContexts: ["PAGE", "ARTICLE"],
   },
 ]);
