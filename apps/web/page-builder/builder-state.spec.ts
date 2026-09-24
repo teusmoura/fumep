@@ -220,6 +220,10 @@ it("adds only complete versioned blocks in their allowed context with cumulative
     items: [{ title: "Novo marco", description: "Nova descrição" }],
   });
   expect(newBuilderBlock("TIMELINE", "ARTICLE", [], id)).toBeUndefined();
+  expect(newBuilderBlock("STATISTICS", "PAGE", [], id)?.data).toEqual({
+    items: [{ value: "0", label: "Novo indicador" }],
+  });
+  expect(newBuilderBlock("STATISTICS", "ARTICLE", [], id)).toBeUndefined();
 });
 it("refuses duplicate IDs/positions, unsupported schemas, invalid context/data and position overflow without mutating input", () => {
   const text = newBuilderBlock("TEXT", "PAGE", [], id)!;

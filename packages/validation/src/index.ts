@@ -620,6 +620,31 @@ export type TimelineItemV1 = z.infer<typeof timelineItemSchemaV1>;
 export type TimelineBlockDataV1 = z.infer<typeof timelineBlockDataSchemaV1>;
 export type TimelineBlockV1 = z.infer<typeof timelineBlockSchemaV1>;
 
+export const STATISTICS_V1_LIMITS = Object.freeze({
+  items: 12,
+  valueCharacters: 120,
+  labelCharacters: HERO_V1_LIMITS.titleCharacters,
+  descriptionCharacters: HERO_V1_LIMITS.descriptionCharacters,
+});
+export const statisticItemSchemaV1 = z
+  .object({
+    value: heroLabelSchemaV1.max(STATISTICS_V1_LIMITS.valueCharacters),
+    label: heroLabelSchemaV1.max(STATISTICS_V1_LIMITS.labelCharacters),
+    description: heroLabelSchemaV1.max(STATISTICS_V1_LIMITS.descriptionCharacters).optional(),
+  })
+  .strict();
+export const statisticsBlockDataSchemaV1 = z
+  .object({ items: z.array(statisticItemSchemaV1).min(1).max(STATISTICS_V1_LIMITS.items) })
+  .strict();
+export const statisticsBlockSchemaV1 = contentBlockCommonSchema.safeExtend({
+  type: z.literal("STATISTICS"),
+  schemaVersion: z.literal(1),
+  data: statisticsBlockDataSchemaV1,
+});
+export type StatisticItemV1 = z.infer<typeof statisticItemSchemaV1>;
+export type StatisticsBlockDataV1 = z.infer<typeof statisticsBlockDataSchemaV1>;
+export type StatisticsBlockV1 = z.infer<typeof statisticsBlockSchemaV1>;
+
 // Resolved transport metadata, never persisted as HERO JSONB or used as backend
 // authorization. Caller must resolve a fresh, authorized library image.
 export const heroResolvedImageSchemaV1 = z

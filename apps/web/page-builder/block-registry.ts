@@ -12,7 +12,10 @@ import {
   tabsBlockSchemaV1,
   tableBlockSchemaV1,
   timelineBlockSchemaV1,
+  statisticsBlockSchemaV1,
 } from "@fumep/validation";
+import { StatisticsBlockEditor } from "./editors/statistics-block-editor";
+import { StatisticsBlockRenderer } from "./renderers/statistics-block-renderer";
 import { TimelineBlockEditor } from "./editors/timeline-block-editor";
 import { TimelineBlockRenderer } from "./renderers/timeline-block-renderer";
 import { TableBlockEditor } from "./editors/table-block-editor";
@@ -52,7 +55,8 @@ export const frontendBlockRegistry = createBlockRegistry<
   | typeof FaqBlockRenderer
   | typeof TabsBlockRenderer
   | typeof TableBlockRenderer
-  | typeof TimelineBlockRenderer,
+  | typeof TimelineBlockRenderer
+  | typeof StatisticsBlockRenderer,
   | typeof TextBlockEditor
   | typeof HeroBlockEditor
   | typeof ImageBlockEditor
@@ -65,6 +69,7 @@ export const frontendBlockRegistry = createBlockRegistry<
   | typeof TabsBlockEditor
   | typeof TableBlockEditor
   | typeof TimelineBlockEditor
+  | typeof StatisticsBlockEditor
 >([
   {
     type: "TEXT",
@@ -172,6 +177,15 @@ export const frontendBlockRegistry = createBlockRegistry<
     renderer: TimelineBlockRenderer,
     editor: TimelineBlockEditor,
     label: "Linha do tempo",
+    allowedContexts: ["PAGE"],
+  },
+  {
+    type: "STATISTICS",
+    schemaVersion: 1,
+    zodSchema: statisticsBlockSchemaV1,
+    renderer: StatisticsBlockRenderer,
+    editor: StatisticsBlockEditor,
+    label: "Indicadores",
     allowedContexts: ["PAGE"],
   },
 ]);

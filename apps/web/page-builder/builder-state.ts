@@ -12,6 +12,7 @@ import type {
   TabsBlockV1,
   TableBlockV1,
   TimelineBlockV1,
+  StatisticsBlockV1,
 } from "@fumep/validation";
 import { frontendBlockRegistry } from "./block-registry";
 import { availableLibraryImages } from "./available-library-images";
@@ -28,7 +29,8 @@ export type BuilderBlock =
   | FaqBlockV1
   | TabsBlockV1
   | TableBlockV1
-  | TimelineBlockV1;
+  | TimelineBlockV1
+  | StatisticsBlockV1;
 export type BuilderType = BuilderBlock["type"];
 export function setBuilderBlockBackground(
   blocks: readonly BuilderBlock[],
@@ -205,7 +207,9 @@ export function newBuilderBlock(
                         ? { headers: ["Coluna 1"], rows: [[""]] }
                         : type === "TIMELINE"
                           ? { items: [{ title: "Novo marco", description: "Nova descrição" }] }
-                          : { imageId, decorative: false };
+                          : type === "STATISTICS"
+                            ? { items: [{ value: "0", label: "Novo indicador" }] }
+                            : { imageId, decorative: false };
   return parseBuilderBlocks(
     [
       ...blocks,

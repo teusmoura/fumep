@@ -96,28 +96,29 @@ LOOP 5.21 — CONCLUÍDO
 LOOP 5.22 — CONCLUÍDO
 LOOP 5.23 — CONCLUÍDO
 LOOP 5.24 — CONCLUÍDO
-LOOP 5.25 — ATUAL
+LOOP 5.25 — CONCLUÍDO
+LOOP 5.26 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 5.25 — STATISTICS
+### LOOP 5.26 — CAROUSEL
 
-Estado: pronto após commit do 5.24. TIMELINE concluído, checks verdes (501 testes). Revalidar commit e Git limpo.
+Estado: pronto após commit do 5.25. STATISTICS concluído, checks verdes (510 testes). Revalidar commit e Git limpo. O plano canônico nomeia 5.26 CAROUSEL e 5.27 MAP.
 
 Objetivo:
 
 ```text
-Implementar STATISTICS estruturado com até 12 indicadores.
+Implementar CAROUSEL com até 10 imagens e controles acessíveis.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.24 commitado e Git limpo;
+- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.25 commitado e Git limpo;
 - usar page-builder, nextjs-frontend, architecture-guard e testing-qa conforme escopo;
-- schema Zod por versão para STATISTICS com items[] de value, label, description?, limite canônico de 12 e texto controlado;
-- editor acessível de coleção para adicionar/editar/remover/reordenar indicadores, callback async com falha retida;
-- renderer SSR semântico/responsivo sem animação obrigatória, com BlockBackground/tema resolvidos pelo caller;
+- schema Zod por versão para CAROUSEL com items[] de imageId, alt, caption?, url?, limite canônico de 10 e referência à Media Library;
+- editor acessível de coleção para adicionar/editar/remover/reordenar slides, callback async com falha retida;
+- renderer SSR com camada Client apenas para interação de controles acessíveis, imagem responsiva e BlockBackground/tema resolvidos pelo caller;
 - registrar definição completa em Registry/contextos canônicos e integrar criação no builder, sem antecipar MAP;
 - manter contrato de caller explícito, sem criar publicação, Preview ou gateways antecipados;
 - controles acessíveis/teclado/foco, tokens, responsividade e tema;
@@ -125,16 +126,16 @@ Implementar:
 
 Não implementar:
 
-- MAP (5.26), HTML/CSS livre, animação de contagem obrigatória, outros blocos/Preview/publicação/salvamento amplo antecipados.
+- MAP (5.27), autoplay obrigatório, HTML/CSS livre, outros blocos/Preview/publicação/salvamento amplo antecipados.
 
 Critério de aceite:
 
 ```text
-STATISTICS disponível no Registry, Editor e Renderer com até 12 indicadores acessíveis e responsivos, testes/documentação/checks verdes.
+CAROUSEL disponível no Registry, Editor e Renderer com até 10 imagens, controles acessíveis e responsivos, testes/documentação/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 5.26 — MAP
+LOOP 5.27 — MAP
 ```

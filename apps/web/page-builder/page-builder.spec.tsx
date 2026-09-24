@@ -107,6 +107,15 @@ it("adds PAGE-only TIMELINE without requiring media", async () => {
     data: { items: [{ title: "Novo marco", description: "Nova descrição" }] },
   });
 });
+it("adds PAGE-only STATISTICS without requiring media", async () => {
+  const { main, onApply } = await mount(vi.fn(), [], []);
+  await click(main, "Adicionar STATISTICS");
+  await apply(main);
+  expect(onApply.mock.calls[0]![0][0]).toMatchObject({
+    type: "STATISTICS",
+    data: { items: [{ value: "0", label: "Novo indicador" }] },
+  });
+});
 it("validates image backgrounds, retains failure/retry and clears references when switching mode", async () => {
   const onApply = vi.fn().mockRejectedValueOnce(new Error("offline"));
   const { main } = await mount(onApply, [image], initialReorderBlocks());
