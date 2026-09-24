@@ -1,5 +1,7 @@
 # BlockRegistry
 
+Após 5.24, TIMELINE v1 completo está registrado somente em PAGE com title opcional, itens date?/title/description, editor de coleção e renderer SSR em lista ordenada. Catálogo frontend: TEXT, HERO (PAGE), IMAGE, IMAGE_TEXT, CARDS (PAGE), QUICK_LINKS (PAGE), CTA, SPACER (PAGE), FAQ (PAGE), TABS (PAGE), TABLE e TIMELINE (PAGE).
+
 Após 5.23, TABLE v1 completo está registrado em PAGE e ARTICLE com legenda opcional, cabeçalhos e linhas retangulares de texto puro, editor de matriz e renderer SSR semântico com rolagem horizontal local. Catálogo frontend: TEXT, HERO (PAGE), IMAGE, IMAGE_TEXT, CARDS (PAGE), QUICK_LINKS (PAGE), CTA, SPACER (PAGE), FAQ (PAGE), TABS (PAGE) e TABLE.
 
 Após 5.22, TABS v1 completo está registrado somente em PAGE com 1 a 8 abas, labels e conteúdo AST de parágrafos simples, marcações/links controlados e navegação ARIA por teclado. Catálogo frontend: TEXT, HERO (PAGE), IMAGE, IMAGE_TEXT, CARDS (PAGE), QUICK_LINKS (PAGE), CTA, SPACER (PAGE), FAQ (PAGE) e TABS (PAGE).

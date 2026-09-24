@@ -11,6 +11,7 @@ import type {
   FaqBlockV1,
   TabsBlockV1,
   TableBlockV1,
+  TimelineBlockV1,
 } from "@fumep/validation";
 import { frontendBlockRegistry } from "./block-registry";
 import { availableLibraryImages } from "./available-library-images";
@@ -26,7 +27,8 @@ export type BuilderBlock =
   | SpacerBlockV1
   | FaqBlockV1
   | TabsBlockV1
-  | TableBlockV1;
+  | TableBlockV1
+  | TimelineBlockV1;
 export type BuilderType = BuilderBlock["type"];
 export function setBuilderBlockBackground(
   blocks: readonly BuilderBlock[],
@@ -201,7 +203,9 @@ export function newBuilderBlock(
                         }
                       : type === "TABLE"
                         ? { headers: ["Coluna 1"], rows: [[""]] }
-                        : { imageId, decorative: false };
+                        : type === "TIMELINE"
+                          ? { items: [{ title: "Novo marco", description: "Nova descrição" }] }
+                          : { imageId, decorative: false };
   return parseBuilderBlocks(
     [
       ...blocks,

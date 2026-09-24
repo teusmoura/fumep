@@ -216,6 +216,10 @@ it("adds only complete versioned blocks in their allowed context with cumulative
       headers: ["Coluna 1"],
       rows: [[""]],
     });
+  expect(newBuilderBlock("TIMELINE", "PAGE", [], id)?.data).toEqual({
+    items: [{ title: "Novo marco", description: "Nova descrição" }],
+  });
+  expect(newBuilderBlock("TIMELINE", "ARTICLE", [], id)).toBeUndefined();
 });
 it("refuses duplicate IDs/positions, unsupported schemas, invalid context/data and position overflow without mutating input", () => {
   const text = newBuilderBlock("TEXT", "PAGE", [], id)!;

@@ -1,5 +1,17 @@
 # LOOP STATUS
 
+## LOOP 5.24 — Concluído
+
+Estado inicial: 5.23 concluído em be4a4b7, Git limpo. Escopo: TIMELINE V1 PAGE-only com title? e items[] de date?, title, description em texto simples, limite defensivo de itens, editor/renderer semânticos, Registry/builder/testes/checks/documentação. Sem STATISTICS, HTML/CSS livre, Preview/publicação/persistência antecipados.
+
+Entregue: schema strict/versionado com 1–30 marcos e campos textuais controlados; editor Client para adicionar/editar/remover/reordenar marcos, aplicação async isolada e falha retida; renderer SSR em section nomeada, h2 opcional e lista ordenada com h3/descrição, fundo/tema compartilhados. Registry/PageBuilder permitem TIMELINE somente em PAGE. Sem endpoint, migration ou dependência nova.
+
+Checks aprovados: pnpm format:check, pnpm lint, pnpm typecheck, pnpm test, pnpm build, pnpm ls --depth 0 e git diff --check. Suíte completa 501 testes (73 validation, 71 DB, 12 jobs, 3 storage, 122 API, 190 web, 30 Worker); typecheck e testes focados validation/web também aprovados. axe-core sem violações semânticas no editor/renderer (contraste desabilitado no jsdom).
+
+QA real em 390×844 e 1280×900: lista ordenada, texto HTML literal escapado, controles >=44 px, zero overflow, adicionar/reordenar/aplicar três marcos. Fixture removida, viewport restaurado, aba fechada, servidor encerrado e porta 3100 sem listener. test:e2e inexistente; sem CI remota ou integração REST owner real.
+
+Aceite cumprido. execute-loop/page-builder/architecture-guard mantiveram PAGE-only, texto controlado e escopo; nextjs-frontend/testing-qa/computer-use verificaram SSR, editor, responsividade, segurança básica e A11y. Commit: feat(builder): add timeline block v1. Próximo: 5.25.
+
 ## LOOP 5.23 — Concluído
 
 Estado inicial: 5.22 concluído em c7d0112, Git limpo. Escopo: TABLE V1 estruturada (caption?, headers[], rows[][]), editor/renderer semânticos e responsivos, Registry/builder em PAGE e ARTICLE, testes, checks e documentação. Limites defensivos de quantidade/tamanho serão contratos V1 locais; sem HTML/CSS livre, células ricas, TIMELINE ou persistência/publicação antecipada.

@@ -95,45 +95,46 @@ LOOP 5.20 — CONCLUÍDO
 LOOP 5.21 — CONCLUÍDO
 LOOP 5.22 — CONCLUÍDO
 LOOP 5.23 — CONCLUÍDO
-LOOP 5.24 — ATUAL
+LOOP 5.24 — CONCLUÍDO
+LOOP 5.25 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 5.24 — TIMELINE
+### LOOP 5.25 — STATISTICS
 
-Estado: pronto após commit do 5.23. TABLE concluído, checks verdes (490 testes). Revalidar commit e Git limpo.
+Estado: pronto após commit do 5.24. TIMELINE concluído, checks verdes (501 testes). Revalidar commit e Git limpo.
 
 Objetivo:
 
 ```text
-Implementar TIMELINE estruturado com itens cronológicos controlados.
+Implementar STATISTICS estruturado com até 12 indicadores.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.23 commitado e Git limpo;
+- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.24 commitado e Git limpo;
 - usar page-builder, nextjs-frontend, architecture-guard e testing-qa conforme escopo;
-- schema Zod por versão para TIMELINE com title? e items[] de date?, title, description, limites defensivos e texto controlado;
-- editor acessível de coleção para adicionar/editar/remover/reordenar itens, callback async com falha retida;
-- renderer SSR semântico/responsivo com BlockBackground/tema resolvidos pelo caller;
-- registrar definição completa em Registry/contextos canônicos e integrar criação no builder, sem antecipar STATISTICS;
+- schema Zod por versão para STATISTICS com items[] de value, label, description?, limite canônico de 12 e texto controlado;
+- editor acessível de coleção para adicionar/editar/remover/reordenar indicadores, callback async com falha retida;
+- renderer SSR semântico/responsivo sem animação obrigatória, com BlockBackground/tema resolvidos pelo caller;
+- registrar definição completa em Registry/contextos canônicos e integrar criação no builder, sem antecipar MAP;
 - manter contrato de caller explícito, sem criar publicação, Preview ou gateways antecipados;
 - controles acessíveis/teclado/foco, tokens, responsividade e tema;
 - testes, checks disponíveis, documentação, commit e Git limpo.
 
 Não implementar:
 
-- STATISTICS (5.25), HTML/CSS livre, outros blocos/Preview/publicação/salvamento amplo antecipados.
+- MAP (5.26), HTML/CSS livre, animação de contagem obrigatória, outros blocos/Preview/publicação/salvamento amplo antecipados.
 
 Critério de aceite:
 
 ```text
-TIMELINE disponível no Registry, Editor e Renderer como sequência estruturada acessível e responsiva, com testes/documentação/checks verdes.
+STATISTICS disponível no Registry, Editor e Renderer com até 12 indicadores acessíveis e responsivos, testes/documentação/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 5.25 — STATISTICS
+LOOP 5.26 — MAP
 ```

@@ -591,6 +591,35 @@ export const tableBlockSchemaV1 = contentBlockCommonSchema.safeExtend({
 export type TableBlockDataV1 = z.infer<typeof tableBlockDataSchemaV1>;
 export type TableBlockV1 = z.infer<typeof tableBlockSchemaV1>;
 
+export const TIMELINE_V1_LIMITS = Object.freeze({
+  items: 30,
+  titleCharacters: HERO_V1_LIMITS.titleCharacters,
+  dateCharacters: 120,
+  itemTitleCharacters: HERO_V1_LIMITS.titleCharacters,
+  descriptionCharacters: HERO_V1_LIMITS.descriptionCharacters,
+});
+export const timelineItemSchemaV1 = z
+  .object({
+    date: heroLabelSchemaV1.max(TIMELINE_V1_LIMITS.dateCharacters).optional(),
+    title: heroLabelSchemaV1.max(TIMELINE_V1_LIMITS.itemTitleCharacters),
+    description: heroLabelSchemaV1.max(TIMELINE_V1_LIMITS.descriptionCharacters),
+  })
+  .strict();
+export const timelineBlockDataSchemaV1 = z
+  .object({
+    title: heroBlockDataSchemaV1.shape.title.optional(),
+    items: z.array(timelineItemSchemaV1).min(1).max(TIMELINE_V1_LIMITS.items),
+  })
+  .strict();
+export const timelineBlockSchemaV1 = contentBlockCommonSchema.safeExtend({
+  type: z.literal("TIMELINE"),
+  schemaVersion: z.literal(1),
+  data: timelineBlockDataSchemaV1,
+});
+export type TimelineItemV1 = z.infer<typeof timelineItemSchemaV1>;
+export type TimelineBlockDataV1 = z.infer<typeof timelineBlockDataSchemaV1>;
+export type TimelineBlockV1 = z.infer<typeof timelineBlockSchemaV1>;
+
 // Resolved transport metadata, never persisted as HERO JSONB or used as backend
 // authorization. Caller must resolve a fresh, authorized library image.
 export const heroResolvedImageSchemaV1 = z
