@@ -487,6 +487,64 @@ export type FaqItemV1 = z.infer<typeof faqItemSchemaV1>;
 export type FaqBlockDataV1 = z.infer<typeof faqBlockDataSchemaV1>;
 export type FaqBlockV1 = z.infer<typeof faqBlockSchemaV1>;
 
+export const TABS_V1_LIMITS = Object.freeze({
+  tabs: 8,
+  labelCharacters: HERO_V1_LIMITS.buttonLabelCharacters,
+  paragraphs: 20,
+  contentCharacters: 10000,
+});
+export const tabContentSchemaV1 = z
+  .object({
+    type: z.literal("doc"),
+    nodes: z
+      .array(z.object({ type: z.literal("paragraph"), children: textInlinesSchemaV1 }).strict())
+      .min(1)
+      .max(TABS_V1_LIMITS.paragraphs),
+  })
+  .strict()
+  .superRefine((document, context) => {
+    const length = document.nodes.reduce(
+      (total, node) => total + textInlineCharactersV1(node.children),
+      0,
+    );
+    if (length > TABS_V1_LIMITS.contentCharacters)
+      context.addIssue({
+        code: "custom",
+        path: ["nodes"],
+        message: "Tab content exceeds the character limit",
+      });
+    if (
+      !document.nodes.some((node) =>
+        node.children.some((child) =>
+          child.type === "text" ? child.text.trim() : child.children.some((run) => run.text.trim()),
+        ),
+      )
+    )
+      context.addIssue({
+        code: "custom",
+        path: ["nodes"],
+        message: "Non-blank tab content required",
+      });
+  });
+export const tabItemSchemaV1 = z
+  .object({
+    label: heroLabelSchemaV1.max(TABS_V1_LIMITS.labelCharacters),
+    content: tabContentSchemaV1,
+  })
+  .strict();
+export const tabsBlockDataSchemaV1 = z
+  .object({ tabs: z.array(tabItemSchemaV1).min(1).max(TABS_V1_LIMITS.tabs) })
+  .strict();
+export const tabsBlockSchemaV1 = contentBlockCommonSchema.safeExtend({
+  type: z.literal("TABS"),
+  schemaVersion: z.literal(1),
+  data: tabsBlockDataSchemaV1,
+});
+export type TabContentV1 = z.infer<typeof tabContentSchemaV1>;
+export type TabItemV1 = z.infer<typeof tabItemSchemaV1>;
+export type TabsBlockDataV1 = z.infer<typeof tabsBlockDataSchemaV1>;
+export type TabsBlockV1 = z.infer<typeof tabsBlockSchemaV1>;
+
 // Resolved transport metadata, never persisted as HERO JSONB or used as backend
 // authorization. Caller must resolve a fresh, authorized library image.
 export const heroResolvedImageSchemaV1 = z

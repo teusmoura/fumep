@@ -1,5 +1,7 @@
 # BlockRegistry
 
+Após 5.22, TABS v1 completo está registrado somente em PAGE com 1 a 8 abas, labels e conteúdo AST de parágrafos simples, marcações/links controlados e navegação ARIA por teclado. Catálogo frontend: TEXT, HERO (PAGE), IMAGE, IMAGE_TEXT, CARDS (PAGE), QUICK_LINKS (PAGE), CTA, SPACER (PAGE), FAQ (PAGE) e TABS (PAGE).
+
 Após 5.21, FAQ v1 completo está registrado somente em PAGE com title opcional, 1 a 30 pares question/answer de texto simples e renderer SSR em details/summary nativos. Catálogo frontend: TEXT, HERO (PAGE), IMAGE, IMAGE_TEXT, CARDS (PAGE), QUICK_LINKS (PAGE), CTA, SPACER (PAGE) e FAQ (PAGE).
 
 Após 5.20, SPACER v1 completo está registrado somente em PAGE com data.size SMALL/MEDIUM/LARGE; alturas são fixas no Design System, sem pixels/CSS editoriais. Catálogo frontend: TEXT, HERO (PAGE), IMAGE, IMAGE_TEXT, CARDS (PAGE), QUICK_LINKS (PAGE), CTA e SPACER (PAGE).

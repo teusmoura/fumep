@@ -9,7 +9,10 @@ import {
   ctaBlockSchemaV1,
   spacerBlockSchemaV1,
   faqBlockSchemaV1,
+  tabsBlockSchemaV1,
 } from "@fumep/validation";
+import { TabsBlockEditor } from "./editors/tabs-block-editor";
+import { TabsBlockRenderer } from "./renderers/tabs-block-renderer";
 import { FaqBlockEditor } from "./editors/faq-block-editor";
 import { FaqBlockRenderer } from "./renderers/faq-block-renderer";
 import { SpacerBlockEditor } from "./editors/spacer-block-editor";
@@ -40,7 +43,8 @@ export const frontendBlockRegistry = createBlockRegistry<
   | typeof QuickLinksBlockRenderer
   | typeof CtaBlockRenderer
   | typeof SpacerBlockRenderer
-  | typeof FaqBlockRenderer,
+  | typeof FaqBlockRenderer
+  | typeof TabsBlockRenderer,
   | typeof TextBlockEditor
   | typeof HeroBlockEditor
   | typeof ImageBlockEditor
@@ -50,6 +54,7 @@ export const frontendBlockRegistry = createBlockRegistry<
   | typeof CtaBlockEditor
   | typeof SpacerBlockEditor
   | typeof FaqBlockEditor
+  | typeof TabsBlockEditor
 >([
   {
     type: "TEXT",
@@ -130,6 +135,15 @@ export const frontendBlockRegistry = createBlockRegistry<
     renderer: FaqBlockRenderer,
     editor: FaqBlockEditor,
     label: "Perguntas frequentes",
+    allowedContexts: ["PAGE"],
+  },
+  {
+    type: "TABS",
+    schemaVersion: 1,
+    zodSchema: tabsBlockSchemaV1,
+    renderer: TabsBlockRenderer,
+    editor: TabsBlockEditor,
+    label: "Abas",
     allowedContexts: ["PAGE"],
   },
 ]);

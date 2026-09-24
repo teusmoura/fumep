@@ -9,6 +9,7 @@ import type {
   CtaBlockV1,
   SpacerBlockV1,
   FaqBlockV1,
+  TabsBlockV1,
 } from "@fumep/validation";
 import { frontendBlockRegistry } from "./block-registry";
 import { availableLibraryImages } from "./available-library-images";
@@ -22,7 +23,8 @@ export type BuilderBlock =
   | QuickLinksBlockV1
   | CtaBlockV1
   | SpacerBlockV1
-  | FaqBlockV1;
+  | FaqBlockV1
+  | TabsBlockV1;
 export type BuilderType = BuilderBlock["type"];
 export function setBuilderBlockBackground(
   blocks: readonly BuilderBlock[],
@@ -178,7 +180,24 @@ export function newBuilderBlock(
                   ? { size: "MEDIUM" }
                   : type === "FAQ"
                     ? { items: [{ question: "Nova pergunta", answer: "Nova resposta" }] }
-                    : { imageId, decorative: false };
+                    : type === "TABS"
+                      ? {
+                          tabs: [
+                            {
+                              label: "Nova aba",
+                              content: {
+                                type: "doc",
+                                nodes: [
+                                  {
+                                    type: "paragraph",
+                                    children: [{ type: "text", text: "Novo conteúdo" }],
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        }
+                      : { imageId, decorative: false };
   return parseBuilderBlocks(
     [
       ...blocks,

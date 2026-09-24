@@ -93,45 +93,46 @@ LOOP 5.18 — CONCLUÍDO
 LOOP 5.19 — CONCLUÍDO
 LOOP 5.20 — CONCLUÍDO
 LOOP 5.21 — CONCLUÍDO
-LOOP 5.22 — ATUAL
+LOOP 5.22 — CONCLUÍDO
+LOOP 5.23 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 5.22 — TABS
+### LOOP 5.23 — TABLE
 
-Estado: pronto após commit do 5.21. FAQ concluído, checks verdes (474 testes). Revalidar commit e Git limpo.
+Estado: pronto após commit do 5.22. TABS concluído, checks verdes (483 testes). Revalidar commit e Git limpo.
 
 Objetivo:
 
 ```text
-Implementar TABS completo com até 8 abas e conteúdo textual rico simples.
+Implementar TABLE como tabela estruturada, sem HTML arbitrário.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.21 commitado e Git limpo;
+- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.22 commitado e Git limpo;
 - usar page-builder, nextjs-frontend, architecture-guard e testing-qa conforme escopo;
-- schema Zod por versão para TABS com tabs label/content, limite canônico de 8 e texto rico simples controlado;
-- editor acessível para adicionar/editar/remover/reordenar abas e conteúdo, callback async com falha retida;
-- renderer SSR com semântica/teclado de abas, foco/contraste e BlockBackground/tema resolvidos pelo caller;
-- registrar definição completa em Registry/contextos canônicos e integrar criação no builder, sem antecipar TABLE;
+- schema Zod por versão para TABLE com caption?, headers[] e rows[][], formato estruturado e limites defensivos;
+- editor acessível para legenda, cabeçalhos, linhas e células, callback async com falha retida;
+- renderer SSR com tabela semântica, cabeçalhos associados, rolagem horizontal responsiva e BlockBackground/tema resolvidos pelo caller;
+- registrar definição completa em Registry/contextos canônicos e integrar criação no builder, sem antecipar TIMELINE;
 - manter contrato de caller explícito, sem criar publicação, Preview ou gateways antecipados;
 - controles acessíveis/teclado/foco, tokens, responsividade e tema;
 - testes, checks disponíveis, documentação, commit e Git limpo.
 
 Não implementar:
 
-- TABLE (5.23), HTML/CSS livre, blocos aninhados, outros blocos/Preview/publicação/salvamento amplo antecipados.
+- TIMELINE (5.24), HTML/CSS livre, células ricas arbitrárias, outros blocos/Preview/publicação/salvamento amplo antecipados.
 
 Critério de aceite:
 
 ```text
-TABS disponível no Registry, Editor e Renderer, com até 8 abas, conteúdo simples controlado, teclado/foco/contraste, testes/documentação/checks verdes.
+TABLE disponível no Registry, Editor e Renderer como tabela estruturada acessível e responsiva, com testes/documentação/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 5.23 — TABLE
+LOOP 5.24 — TIMELINE
 ```

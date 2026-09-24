@@ -199,6 +199,18 @@ it("adds only complete versioned blocks in their allowed context with cumulative
     items: [{ question: "Nova pergunta", answer: "Nova resposta" }],
   });
   expect(newBuilderBlock("FAQ", "ARTICLE", [], id)).toBeUndefined();
+  expect(newBuilderBlock("TABS", "PAGE", [], id)?.data).toEqual({
+    tabs: [
+      {
+        label: "Nova aba",
+        content: {
+          type: "doc",
+          nodes: [{ type: "paragraph", children: [{ type: "text", text: "Novo conteúdo" }] }],
+        },
+      },
+    ],
+  });
+  expect(newBuilderBlock("TABS", "ARTICLE", [], id)).toBeUndefined();
 });
 it("refuses duplicate IDs/positions, unsupported schemas, invalid context/data and position overflow without mutating input", () => {
   const text = newBuilderBlock("TEXT", "PAGE", [], id)!;

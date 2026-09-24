@@ -1,5 +1,17 @@
 # LOOP STATUS
 
+## LOOP 5.22 — Concluído
+
+Estado inicial: 5.21 concluído em 485e832, Git limpo. Escopo: TABS V1 PAGE-only com até 8 abas label/content, conteúdo textual rico simples limitado a parágrafos e trechos seguros TEXT (negrito/itálico/links), editor de coleção, renderer com ARIA/teclado, Registry/builder/testes/checks/documentação. Sem ARTICLE, TABLE, blocos aninhados, HTML/CSS livre, Preview/publicação/persistência antecipados.
+
+Entregue: schema Zod strict/versionado com 1 a 8 abas e conteúdo controlado, editor Client para adicionar/editar/remover/reordenar abas e parágrafos com validação e falha retida, renderer com semântica tablist/tab/tabpanel, navegação ArrowLeft/Right/Home/End e foco gerenciado. Registry e builder restringem TABS a PAGE. Sem endpoint, migration ou dependência nova.
+
+Checks aprovados: pnpm format:check, pnpm lint, pnpm typecheck, pnpm test, pnpm build, pnpm ls --depth 0 e git diff --check. Suíte completa 483 testes (69 validation, 71 DB, 12 jobs, 3 storage, 122 API, 176 web, 30 Worker); testes focados e typecheck web aprovados.
+
+QA real 390×844 e 1280×900 LIGHT/DARK: seleção inicial, painel inativo oculto, ArrowRight/Home/End e foco, edição/reordenação/aplicação de três abas, HTML literal escapado, controles interativos >=44 px, zero overflow e console limpo. Fixture removida, viewport restaurado, aba fechada, servidor encerrado e porta 3100 sem listener. test:e2e inexistente; sem CI remota ou integração REST owner real.
+
+Aceite cumprido. execute-loop/page-builder/architecture-guard mantiveram PAGE-only, limite 8 e conteúdo controlado; nextjs-frontend/testing-qa verificaram SSR, interação, responsividade, segurança e A11y. Commit: feat(builder): add tabs block v1. Próximo: 5.23.
+
 ## LOOP 5.21 — Concluído
 
 Estado inicial: 5.20 concluído em 8c5f69a, Git limpo. Escopo: FAQ V1 PAGE-only com title?, até 30 pares question/answer de texto simples, editor acessível de coleção, renderer SSR em accordion nativo details/summary, Registry/builder/testes/checks/documentação. Sem ARTICLE, TABS, HTML/CSS livre, Preview/publicação/persistência antecipados.

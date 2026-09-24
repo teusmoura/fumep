@@ -1,0 +1,11 @@
+# TABS V1 — 5.22
+
+Contrato canônico/versionado: `data.tabs` contém de 1 a 8 itens strict `{label, content}`. O rótulo é texto não branco de até 120 caracteres. `content` é AST textual simples `{type:"doc",nodes:[...]}` com 1 a 20 parágrafos e até 10.000 caracteres por aba; cada parágrafo usa os trechos seguros já definidos em TEXT (texto, negrito, itálico e links de URL validada). Ao menos um trecho textual não branco é exigido. Tabelas, headings internos, listas, blocos aninhados, HTML e CSS livres são rejeitados. TABS pertence somente a PAGE, pois não integra o subconjunto canônico de ARTICLE.
+
+O editor Client adiciona, edita, remove e reordena até oito abas por controles nativos. Reutiliza o editor de trechos TEXT para parágrafos e links sem `contentEditable` ou HTML. Aplicar valida a coleção inteira e envia snapshot clonado por callback async/ref/busy; falha conserva campos e ordem. O caller remonta por owner/bloco/versão e continua responsável por autorização e persistência.
+
+O renderer valida envelope, versão, visibilidade e conteúdo antes de renderizar; conteúdo inválido falha fechado. A casca pública usa BlockBackground e SSR inicial; uma ilha Client pequena gerencia seleção e foco. `tablist`, `tab`, `tabpanel`, `aria-selected`, `aria-controls`, `aria-labelledby` e `tabIndex` implementam a semântica. Setas esquerda/direita, Home e End ativam a aba e movem foco; somente a aba selecionada permanece na sequência Tab. React escapa o conteúdo e renderiza apenas tags controladas. O Design System usa tokens, wrapping, foco visível e alvo de 44 px.
+
+Este loop não cria endpoints, migrations, mídia, Preview, publicação, busca, cache ou persistência. A futura indexação considera labels e texto dos trechos conforme a regra de publicação.
+
+Vitest cobre limites, AST simples e URLs, editor/ordem/falha/concorrência, renderer fail-closed, Registry/contexto, teclado/ARIA e axe semântico. `test:e2e` ainda não existe; axe em jsdom não certifica contraste global. QA real em 390/1.280 px LIGHT/DARK validou ArrowRight/Home/End, foco e painel visível, texto literal escapado, aplicação após adicionar/reordenar, controles de 44 px (sem contar checkboxes nativos), ausência de overflow e console limpo. A fixture temporária foi removida.
