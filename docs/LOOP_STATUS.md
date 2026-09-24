@@ -1,5 +1,17 @@
 # LOOP STATUS
 
+## LOOP 5.21 — Concluído
+
+Estado inicial: 5.20 concluído em 8c5f69a, Git limpo. Escopo: FAQ V1 PAGE-only com title?, até 30 pares question/answer de texto simples, editor acessível de coleção, renderer SSR em accordion nativo details/summary, Registry/builder/testes/checks/documentação. Sem ARTICLE, TABS, HTML/CSS livre, Preview/publicação/persistência antecipados.
+
+Entregue: schema strict/versionado para 1 a 30 itens textuais, editor Client de coleção com adicionar/editar/remover/reordenar, validação conjunta e callback async/ref/busy com falha retida; renderer SSR em details/summary nativos com estado aberto/fechado acessível, texto escapado e BlockBackground. Registry/PageBuilder permitem FAQ somente em PAGE. Sem endpoint, migration, dependência ou persistência antecipada.
+
+Checks aprovados: pnpm format:check, pnpm lint, pnpm typecheck, pnpm test, pnpm build, pnpm ls --depth 0 e git diff --check. Suíte completa 474 testes (67 validation, 71 DB, 12 jobs, 3 storage, 122 API, 169 web, 30 Worker); validation/web focados e typecheck web aprovados. axe-core semântico zero violações; sem falhas pendentes.
+
+QA real 390×844 e 1280×900 LIGHT/DARK: expansão por Enter, foco sólido em summary, adicionar/reordenar/aplicar três perguntas, texto HTML literal escapado, controles >=44 px, zero overflow e console limpo. Fixture removida, viewport restaurado, aba fechada, servidor encerrado e porta 3100 sem listener. test:e2e inexistente; sem CI remota, contraste global ou integração REST owner real.
+
+Aceite cumprido. execute-loop/page-builder/architecture-guard mantiveram PAGE-only e limite 30; nextjs-frontend/testing-qa/computer-use verificaram acordeão, SSR, interação, responsividade, segurança e A11y. Commit: feat(builder): add FAQ block v1. Próximo: 5.22.
+
 ## LOOP 5.20 — Concluído
 
 Estado inicial: 5.19 concluído em 0a9b65f, Git limpo. Escopo: SPACER V1 PAGE-only com enum SMALL/MEDIUM/LARGE, editor acessível, renderer SSR decorativo com altura fixa no Design System, Registry/builder/testes/checks/documentação. Sem pixels/CSS livres, ARTICLE, FAQ, Preview/publicação/persistência antecipados.

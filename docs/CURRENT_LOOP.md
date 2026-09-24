@@ -92,45 +92,46 @@ LOOP 5.17 — CONCLUÍDO
 LOOP 5.18 — CONCLUÍDO
 LOOP 5.19 — CONCLUÍDO
 LOOP 5.20 — CONCLUÍDO
-LOOP 5.21 — ATUAL
+LOOP 5.21 — CONCLUÍDO
+LOOP 5.22 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 5.21 — FAQ
+### LOOP 5.22 — TABS
 
-Estado: pronto após commit do 5.20. SPACER concluído, checks verdes (464 testes). Revalidar commit e Git limpo.
+Estado: pronto após commit do 5.21. FAQ concluído, checks verdes (474 testes). Revalidar commit e Git limpo.
 
 Objetivo:
 
 ```text
-Implementar FAQ completo com título opcional e até 30 pares de pergunta/resposta.
+Implementar TABS completo com até 8 abas e conteúdo textual rico simples.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.20 commitado e Git limpo;
+- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.21 commitado e Git limpo;
 - usar page-builder, nextjs-frontend, architecture-guard e testing-qa conforme escopo;
-- schema Zod por versão para FAQ com title? e items question/answer, limite canônico de 30 e campos textuais seguros;
-- editor acessível para adicionar/editar/remover/reordenar perguntas e respostas, callback async com falha retida;
-- renderer SSR responsivo e acessível para pergunta/resposta, com BlockBackground/tema resolvidos pelo caller;
-- registrar definição completa em Registry/contextos canônicos e integrar criação no builder, sem antecipar TABS;
+- schema Zod por versão para TABS com tabs label/content, limite canônico de 8 e texto rico simples controlado;
+- editor acessível para adicionar/editar/remover/reordenar abas e conteúdo, callback async com falha retida;
+- renderer SSR com semântica/teclado de abas, foco/contraste e BlockBackground/tema resolvidos pelo caller;
+- registrar definição completa em Registry/contextos canônicos e integrar criação no builder, sem antecipar TABLE;
 - manter contrato de caller explícito, sem criar publicação, Preview ou gateways antecipados;
 - controles acessíveis/teclado/foco, tokens, responsividade e tema;
 - testes, checks disponíveis, documentação, commit e Git limpo.
 
 Não implementar:
 
-- TABS (5.22), HTML/CSS livre, blocos aninhados, outros blocos/Preview/publicação/salvamento amplo antecipados.
+- TABLE (5.23), HTML/CSS livre, blocos aninhados, outros blocos/Preview/publicação/salvamento amplo antecipados.
 
 Critério de aceite:
 
 ```text
-FAQ disponível no Registry, Editor e Renderer, com até 30 itens, teclado/foco/contraste, testes/documentação/checks verdes.
+TABS disponível no Registry, Editor e Renderer, com até 8 abas, conteúdo simples controlado, teclado/foco/contraste, testes/documentação/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 5.22 — TABS
+LOOP 5.23 — TABLE
 ```

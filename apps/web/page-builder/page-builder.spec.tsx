@@ -71,6 +71,15 @@ it("adds PAGE-only SPACER without requiring media", async () => {
   await apply(main);
   expect(onApply.mock.calls[0]![0][0]).toMatchObject({ type: "SPACER", data: { size: "MEDIUM" } });
 });
+it("adds PAGE-only FAQ without requiring media", async () => {
+  const { main, onApply } = await mount(vi.fn(), [], []);
+  await click(main, "Adicionar FAQ");
+  await apply(main);
+  expect(onApply.mock.calls[0]![0][0]).toMatchObject({
+    type: "FAQ",
+    data: { items: [{ question: "Nova pergunta", answer: "Nova resposta" }] },
+  });
+});
 it("validates image backgrounds, retains failure/retry and clears references when switching mode", async () => {
   const onApply = vi.fn().mockRejectedValueOnce(new Error("offline"));
   const { main } = await mount(onApply, [image], initialReorderBlocks());
@@ -438,6 +447,7 @@ it("rejects invalid initial blocks and enforces ARTICLE and missing media in the
   expect(html).not.toContain("Adicionar CARDS");
   expect(html).not.toContain("Adicionar QUICK_LINKS");
   expect(html).not.toContain("Adicionar SPACER");
+  expect(html).not.toContain("Adicionar FAQ");
   expect(html).toContain("Adicionar TEXT");
   expect(html).toContain("Adicionar IMAGE");
   expect(html).toContain("Adicionar CTA");

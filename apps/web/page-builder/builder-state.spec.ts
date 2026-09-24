@@ -195,6 +195,10 @@ it("adds only complete versioned blocks in their allowed context with cumulative
     });
   expect(newBuilderBlock("SPACER", "PAGE", [], id)?.data).toEqual({ size: "MEDIUM" });
   expect(newBuilderBlock("SPACER", "ARTICLE", [], id)).toBeUndefined();
+  expect(newBuilderBlock("FAQ", "PAGE", [], id)?.data).toEqual({
+    items: [{ question: "Nova pergunta", answer: "Nova resposta" }],
+  });
+  expect(newBuilderBlock("FAQ", "ARTICLE", [], id)).toBeUndefined();
 });
 it("refuses duplicate IDs/positions, unsupported schemas, invalid context/data and position overflow without mutating input", () => {
   const text = newBuilderBlock("TEXT", "PAGE", [], id)!;

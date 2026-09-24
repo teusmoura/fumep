@@ -460,6 +460,33 @@ export const spacerBlockSchemaV1 = contentBlockCommonSchema.safeExtend({
 export type SpacerBlockDataV1 = z.infer<typeof spacerBlockDataSchemaV1>;
 export type SpacerBlockV1 = z.infer<typeof spacerBlockSchemaV1>;
 
+export const FAQ_V1_LIMITS = Object.freeze({
+  items: 30,
+  titleCharacters: HERO_V1_LIMITS.titleCharacters,
+  questionCharacters: HERO_V1_LIMITS.titleCharacters,
+  answerCharacters: HERO_V1_LIMITS.descriptionCharacters,
+});
+export const faqItemSchemaV1 = z
+  .object({
+    question: heroLabelSchemaV1.max(FAQ_V1_LIMITS.questionCharacters),
+    answer: heroLabelSchemaV1.max(FAQ_V1_LIMITS.answerCharacters),
+  })
+  .strict();
+export const faqBlockDataSchemaV1 = z
+  .object({
+    title: heroBlockDataSchemaV1.shape.title.optional(),
+    items: z.array(faqItemSchemaV1).min(1).max(FAQ_V1_LIMITS.items),
+  })
+  .strict();
+export const faqBlockSchemaV1 = contentBlockCommonSchema.safeExtend({
+  type: z.literal("FAQ"),
+  schemaVersion: z.literal(1),
+  data: faqBlockDataSchemaV1,
+});
+export type FaqItemV1 = z.infer<typeof faqItemSchemaV1>;
+export type FaqBlockDataV1 = z.infer<typeof faqBlockDataSchemaV1>;
+export type FaqBlockV1 = z.infer<typeof faqBlockSchemaV1>;
+
 // Resolved transport metadata, never persisted as HERO JSONB or used as backend
 // authorization. Caller must resolve a fresh, authorized library image.
 export const heroResolvedImageSchemaV1 = z

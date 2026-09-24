@@ -8,6 +8,7 @@ import type {
   QuickLinksBlockV1,
   CtaBlockV1,
   SpacerBlockV1,
+  FaqBlockV1,
 } from "@fumep/validation";
 import { frontendBlockRegistry } from "./block-registry";
 import { availableLibraryImages } from "./available-library-images";
@@ -20,7 +21,8 @@ export type BuilderBlock =
   | CardsBlockV1
   | QuickLinksBlockV1
   | CtaBlockV1
-  | SpacerBlockV1;
+  | SpacerBlockV1
+  | FaqBlockV1;
 export type BuilderType = BuilderBlock["type"];
 export function setBuilderBlockBackground(
   blocks: readonly BuilderBlock[],
@@ -174,7 +176,9 @@ export function newBuilderBlock(
                 ? { title: "Nova chamada", buttonLabel: "Saiba mais", buttonUrl: "/" }
                 : type === "SPACER"
                   ? { size: "MEDIUM" }
-                  : { imageId, decorative: false };
+                  : type === "FAQ"
+                    ? { items: [{ question: "Nova pergunta", answer: "Nova resposta" }] }
+                    : { imageId, decorative: false };
   return parseBuilderBlocks(
     [
       ...blocks,

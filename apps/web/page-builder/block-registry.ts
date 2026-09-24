@@ -8,7 +8,10 @@ import {
   quickLinksBlockSchemaV1,
   ctaBlockSchemaV1,
   spacerBlockSchemaV1,
+  faqBlockSchemaV1,
 } from "@fumep/validation";
+import { FaqBlockEditor } from "./editors/faq-block-editor";
+import { FaqBlockRenderer } from "./renderers/faq-block-renderer";
 import { SpacerBlockEditor } from "./editors/spacer-block-editor";
 import { SpacerBlockRenderer } from "./renderers/spacer-block-renderer";
 import { CtaBlockEditor } from "./editors/cta-block-editor";
@@ -36,7 +39,8 @@ export const frontendBlockRegistry = createBlockRegistry<
   | typeof CardsBlockRenderer
   | typeof QuickLinksBlockRenderer
   | typeof CtaBlockRenderer
-  | typeof SpacerBlockRenderer,
+  | typeof SpacerBlockRenderer
+  | typeof FaqBlockRenderer,
   | typeof TextBlockEditor
   | typeof HeroBlockEditor
   | typeof ImageBlockEditor
@@ -45,6 +49,7 @@ export const frontendBlockRegistry = createBlockRegistry<
   | typeof QuickLinksBlockEditor
   | typeof CtaBlockEditor
   | typeof SpacerBlockEditor
+  | typeof FaqBlockEditor
 >([
   {
     type: "TEXT",
@@ -116,6 +121,15 @@ export const frontendBlockRegistry = createBlockRegistry<
     renderer: SpacerBlockRenderer,
     editor: SpacerBlockEditor,
     label: "Espaçamento",
+    allowedContexts: ["PAGE"],
+  },
+  {
+    type: "FAQ",
+    schemaVersion: 1,
+    zodSchema: faqBlockSchemaV1,
+    renderer: FaqBlockRenderer,
+    editor: FaqBlockEditor,
+    label: "Perguntas frequentes",
     allowedContexts: ["PAGE"],
   },
 ]);
