@@ -4,6 +4,14 @@
 
 Por decisão explícita do responsável, os loops técnicos NestJS/Next.js foram interrompidos após 5.30 (`bc5a96e`). O trabalho não commitado do 5.31 (schema PageTemplate, migration, testes e documentação) foi preservado no stash `b1bba349ce433efb2f4a9b1cb86739a3d004fca8`; não há aceite nem commit do 5.31. A pilha-alvo e a precedência estão em `docs/architecture/MIGRACAO_FASTAPI_NUXT_CANONICA.md`. Funcionalidades serão migradas individualmente antes da integração.
 
+### MIG 3.1 — Sessão Redis e cookie — concluído
+
+Entregue: `RedisSessionStore` com token opaco de 32 bytes, `SET NX EX`, prefixo isolado da pilha legada, leitura/renovação atômica `WATCH/MULTI/EXEC`, limite de inatividade de 30 minutos, limite absoluto de 8 horas, invalidação e descarte de dados corrompidos. Cookie `fumep_session` HttpOnly, SameSite=Lax, Path=/, Secure em produção. Sem login, autorização de rotas ou integração com Nuxt. Contrato/teste local descritos em `docs/REDIS_SESSION_MIGRATION.md`.
+
+Checks aprovados: `python -m pip check`, `python -m compileall -q app`, `python -m pytest -q` (16 testes aprovados + 1 integração opcional ignorada sem URL), suíte completa com `FUMEP_REDIS_TEST_URL` apontando somente para Redis loopback DB 15 (17 aprovados), `pnpm format:check` e `git diff --check`. Teste real usou prefixo de teste exclusivo e removeu somente sua própria sessão. API pública MIG 2 permaneceu verde. Warning transitivo Starlette/TestClient sobre httpx persiste sem falha. Checks JS completos não repetidos porque nenhum código JS mudou.
+
+Aceite MIG 3.1 cumprido. Próximo: MIG 3.2 — política de senha Argon2id e contrato de credenciais, ainda sem endpoint/login real.
+
 ### MIG 2 — API FastAPI básica isolada — concluído
 
 Entregue: aplicativo `apps/backend` em FastAPI/Python com `GET /api/v1/health`, `GET /api/v1/public/institutions/{slug}/theme`, modelos Pydantic `extra=forbid`, OpenAPI/Swagger e fixtures determinísticas para FUMEP, ETMSL e CRAMAM. Tema retorna apenas campos públicos, `Cache-Control: no-store` e `X-FUMEP-Data-Source: fixture`; 404 não revela dados internos. Sem consumo pelo Nuxt, persistência, Redis ou autenticação. Dependências Python fixadas em `requirements-lock.txt`; README contém comandos WSL/Windows e URLs de teste.

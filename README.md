@@ -46,3 +46,5 @@ py -3.12 -m venv .venv
 ```
 
 Abra a [documentação interativa](http://127.0.0.1:8002/docs), o [health](http://127.0.0.1:8002/api/v1/health) ou o [tema ETMSL](http://127.0.0.1:8002/api/v1/public/institutions/etmsl/theme). As respostas de tema usam fixtures sinalizadas pelo cabeçalho `X-FUMEP-Data-Source: fixture`; ainda não leem o banco, nem são consumidas pelo Nuxt. O backend legado pode ocupar a porta 8000, por isso esta demonstração usa 8002.
+
+A primitiva de sessão Redis da migração é testável isoladamente; ainda não oferece login no navegador. Consulte `docs/REDIS_SESSION_MIGRATION.md` para contrato, limites e teste opcional contra Redis local.
