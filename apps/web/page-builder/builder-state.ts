@@ -14,6 +14,7 @@ import type {
   TimelineBlockV1,
   StatisticsBlockV1,
   CarouselBlockV1,
+  MapBlockV1,
 } from "@fumep/validation";
 import { frontendBlockRegistry } from "./block-registry";
 import { availableLibraryImages } from "./available-library-images";
@@ -32,7 +33,8 @@ export type BuilderBlock =
   | TableBlockV1
   | TimelineBlockV1
   | StatisticsBlockV1
-  | CarouselBlockV1;
+  | CarouselBlockV1
+  | MapBlockV1;
 export type BuilderType = BuilderBlock["type"];
 export function setBuilderBlockBackground(
   blocks: readonly BuilderBlock[],
@@ -214,7 +216,9 @@ export function newBuilderBlock(
                             ? { items: [{ value: "0", label: "Novo indicador" }] }
                             : type === "CAROUSEL"
                               ? { items: [{ imageId, alt: imageAlt ?? "" }] }
-                              : { imageId, decorative: false };
+                              : type === "MAP"
+                                ? { latitude: 0, longitude: 0, address: "Novo endereço" }
+                                : { imageId, decorative: false };
   return parseBuilderBlocks(
     [
       ...blocks,

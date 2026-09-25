@@ -672,6 +672,24 @@ export type CarouselItemV1 = z.infer<typeof carouselItemSchemaV1>;
 export type CarouselBlockDataV1 = z.infer<typeof carouselBlockDataSchemaV1>;
 export type CarouselBlockV1 = z.infer<typeof carouselBlockSchemaV1>;
 
+export const MAP_V1_LIMITS = Object.freeze({ titleCharacters: 200, addressCharacters: 500 });
+export const mapBlockDataSchemaV1 = z
+  .object({
+    title: heroLabelSchemaV1.max(MAP_V1_LIMITS.titleCharacters).optional(),
+    latitude: z.number().finite().min(-90).max(90),
+    longitude: z.number().finite().min(-180).max(180),
+    address: heroLabelSchemaV1.max(MAP_V1_LIMITS.addressCharacters),
+    zoom: z.number().int().min(1).max(19).optional(),
+  })
+  .strict();
+export const mapBlockSchemaV1 = contentBlockCommonSchema.safeExtend({
+  type: z.literal("MAP"),
+  schemaVersion: z.literal(1),
+  data: mapBlockDataSchemaV1,
+});
+export type MapBlockDataV1 = z.infer<typeof mapBlockDataSchemaV1>;
+export type MapBlockV1 = z.infer<typeof mapBlockSchemaV1>;
+
 // Resolved transport metadata, never persisted as HERO JSONB or used as backend
 // authorization. Caller must resolve a fresh, authorized library image.
 export const heroResolvedImageSchemaV1 = z

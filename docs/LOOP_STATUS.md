@@ -1,5 +1,17 @@
 # LOOP STATUS
 
+## LOOP 5.27 — Concluído
+
+Estado inicial: 5.26 concluído em 9915a27, Git limpo. Escopo: MAP V1 PAGE-only com title?, latitude, longitude, address e zoom? estruturados; editor, renderer responsivo/acessível, Registry/builder, testes e documentação. Sem HTML/iframe arbitrário, carregamento externo automático, VIDEO ou persistência/publicação antecipada.
+
+Entregue: schema Zod strict/versionado com coordenadas finitas e limites, endereço obrigatório e zoom opcional; editor Client acessível com aplicação async e draft preservado em falha; renderer SSR de localização com endereço/coordenadas escapados e link OpenStreetMap calculado sem iframe ou requisição externa automática. Registry/PageBuilder permitem MAP somente em PAGE. Sem endpoint, migration ou dependência nova. Provedor não está fixado no plano; a URL externa não é persistida, e o vínculo pode ser trocado sem migração.
+
+Checks aprovados: pnpm format:check, pnpm lint, pnpm typecheck, pnpm test, pnpm build, pnpm ls --depth 0 e git diff --check. Suíte completa 527 testes (79 validation, 71 DB, 12 jobs, 3 storage, 122 API, 210 web, 30 Worker). O teste focado inicial encontrou contagem antiga de Registry (14), corrigida para 15; a suíte completa passou. axe-core sem violações semânticas no editor/renderer (contraste desabilitado no jsdom). test:e2e inexistente.
+
+QA real em 390×844 e 1280×900: sem overflow horizontal, endereço HTML literal escapado, sem iframe, link com alvo >=44 px, edição/aplicação do título confirmada. Tentativa inicial do servidor local teve EPERM no arquivo gerado next-env.d.ts; reexecução autorizada fora do sandbox resolveu. Erro de composição da fixture Server/Client foi corrigido e validado. Fixtures removidas, viewport restaurado, aba de QA fechada e servidor encerrado; uma aba da tentativa inicial permaneceu inacessível por política de URL do navegador, sem efeito no repositório.
+
+Aceite cumprido. execute-loop/page-builder/architecture-guard mantiveram dados estruturados, PAGE-only e escopo; nextjs-frontend/testing-qa/computer-use verificaram SSR, editor, responsividade, segurança básica e A11y. Commit: feat(builder): add structured map block v1. Próximo: 5.28 VIDEO.
+
 ## LOOP 5.26 — Concluído
 
 Estado inicial: 5.25 concluído em 7e26c15, Git limpo. Escopo: CAROUSEL V1 PAGE/ARTICLE com até 10 slides imageId/alt/caption?/url?, seleção de imagem pronta da Biblioteca, renderer SSR + interação Client sem autoplay, controles acessíveis, Registry/builder/testes/checks/documentação. Sem MAP, HTML/CSS livre, URL física em JSONB, Preview/publicação/persistência antecipados.

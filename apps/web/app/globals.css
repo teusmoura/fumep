@@ -885,6 +885,66 @@ main {
   flex-wrap: wrap;
   gap: 0.75rem;
 }
+.map-block {
+  min-width: 0;
+  max-width: 100%;
+}
+.map-block-location {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid currentColor;
+  border-radius: 0.375rem;
+  overflow-wrap: anywhere;
+}
+.map-block-pin {
+  flex: none;
+  font-size: 2rem;
+  line-height: 1;
+}
+.map-block-address {
+  font-weight: 700;
+  white-space: pre-wrap;
+}
+.map-block-coordinates {
+  font-size: 0.875rem;
+}
+.map-block a {
+  display: inline-block;
+  min-height: 44px;
+  padding-block: 0.6rem;
+}
+.map-block a:focus-visible,
+.map-block-editor :is(input, textarea, button):focus-visible {
+  outline: 3px solid var(--color-text, currentColor);
+  outline-offset: 3px;
+}
+.map-block-editor {
+  min-width: 0;
+  max-width: 50rem;
+}
+.map-block-editor fieldset {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid currentColor;
+}
+.map-block-editor :is(input, textarea) {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0.5rem;
+  font: inherit;
+}
+.map-block-editor button {
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  font: inherit;
+}
 @media (min-width: 640px) {
   .cards-block {
     grid-template-columns: repeat(2, minmax(0, 1fr));

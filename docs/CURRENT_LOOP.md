@@ -98,45 +98,46 @@ LOOP 5.23 — CONCLUÍDO
 LOOP 5.24 — CONCLUÍDO
 LOOP 5.25 — CONCLUÍDO
 LOOP 5.26 — CONCLUÍDO
-LOOP 5.27 — ATUAL
+LOOP 5.27 — CONCLUÍDO
+LOOP 5.28 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 5.27 — MAP
+### LOOP 5.28 — VIDEO
 
-Estado: pronto após commit do 5.26. CAROUSEL concluído, checks verdes (520 testes). Revalidar commit e Git limpo.
+Estado: pronto após commit do 5.27. MAP concluído, checks verdes (527 testes). Revalidar commit e Git limpo.
 
 Objetivo:
 
 ```text
-Implementar MAP com campos estruturados, sem HTML de mapa arbitrário.
+Implementar VIDEO com YouTube/Vimeo apenas e campos estruturados.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.26 commitado e Git limpo;
+- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.27 commitado e Git limpo;
 - usar page-builder, nextjs-frontend, architecture-guard e testing-qa conforme escopo;
-- schema Zod por versão para MAP com title?, latitude, longitude, address e zoom? controlados;
+- schema Zod por versão para VIDEO com title?, provider YouTube/Vimeo e videoId controlados;
 - editor acessível dos campos estruturados, callback async com falha retida;
-- renderer responsivo e acessível sem HTML/iframe arbitrário, com BlockBackground/tema resolvidos pelo caller;
-- registrar definição completa em Registry/contextos canônicos e integrar criação no builder, sem antecipar VIDEO;
+- renderer responsivo e acessível sem embed/HTML arbitrário, com BlockBackground/tema resolvidos pelo caller;
+- registrar definição completa em Registry/contextos canônicos e integrar criação no builder, sem antecipar DOCUMENT;
 - manter contrato de caller explícito, sem criar publicação, Preview ou gateways antecipados;
 - controles acessíveis/teclado/foco, tokens, responsividade e tema;
 - testes, checks disponíveis, documentação, commit e Git limpo.
 
 Não implementar:
 
-- VIDEO (5.28), HTML/iframe arbitrário, outros blocos/Preview/publicação/salvamento amplo antecipados.
+- DOCUMENT (5.29), provedores além de YouTube/Vimeo, HTML/iframe arbitrário, outros blocos/Preview/publicação/salvamento amplo antecipados.
 
 Critério de aceite:
 
 ```text
-MAP disponível no Registry, Editor e Renderer com campos estruturados e apresentação acessível/responsiva, testes/documentação/checks verdes.
+VIDEO disponível no Registry, Editor e Renderer com campos estruturados e apresentação acessível/responsiva, testes/documentação/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 5.28 — VIDEO
+LOOP 5.29 — DOCUMENT
 ```
