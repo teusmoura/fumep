@@ -4,6 +4,8 @@
 
 Este manifesto define o conjunto oficial de referência para implementar a V1 do Portal FUMEP.
 
+**Emenda de 2026-09-25:** a pilha de implementação abaixo foi substituída pela decisão explícita em `MIGRACAO_FASTAPI_NUXT_CANONICA.md`. Os contratos de domínio e segurança continuam válidos. A migração é funcional e incremental; consultar `docs/CURRENT_LOOP.md` para a fatia ativa.
+
 ## 2. ARQUIVOS CANÔNICOS
 
 1. `MODELO_DE_DADOS_LOGICO_V1_PORTAL_FUMEP_CANONICO.md`
@@ -23,6 +25,8 @@ Este manifesto define o conjunto oficial de referência para implementar a V1 do
 15. `AUDITORIA_COMPLETA_ARQUITETURA_V1_PORTAL_FUMEP.md`
 
 ## 3. DECISÕES ESTRUTURAIS FINAIS
+
+O bloco abaixo registra a decisão original e não governa código novo durante a migração. A pilha aprovada é Nuxt/Vue + FastAPI/Python, PostgreSQL, Redis, MinIO, Matomo, Nginx, Docker Compose e GitHub Actions; os substitutos de Drizzle, BullMQ e Sharp são fechados por funcionalidade conforme o documento de migração.
 
 ```text
 Next.js
@@ -70,6 +74,8 @@ Arquitetura_Tecnica_V1_Busca_Portal_FUMEP(1).md
 Cópias idênticas com `(1)` também não pertencem ao pacote canônico.
 
 ## 6. PRECEDÊNCIA
+
+Para escolhas técnicas afetadas pela migração, `MIGRACAO_FASTAPI_NUXT_CANONICA.md` tem precedência sobre a lista histórica abaixo.
 
 ```text
 documento especializado canônico

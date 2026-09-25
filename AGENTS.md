@@ -10,13 +10,15 @@ O projeto deve ser implementado em **loops pequenos, verificáveis e cumulativos
 
 Antes de implementar qualquer mudança arquitetural, consulte:
 
-1. `docs/architecture/MANIFESTO_CANONICO_V1.md`
-2. `docs/architecture/PLANO_IMPLEMENTACAO_V1_LOOPS_CANONICO.md`
-3. o documento especializado correspondente em `docs/architecture/`
+1. `docs/architecture/MIGRACAO_FASTAPI_NUXT_CANONICA.md` para a pilha aprovada em 2026-09-25;
+2. `docs/architecture/MANIFESTO_CANONICO_V1.md`;
+3. o documento especializado correspondente e o modelo lógico em `docs/architecture/` para regras funcionais.
 
 Em caso de conflito:
 
 ```text
+decisão de migração FastAPI + Nuxt (somente escolhas de stack)
+↓
 documento especializado canônico
 ↓
 Plano de Implementação canônico
@@ -28,32 +30,34 @@ Modelo de Domínio
 
 Não use documentos históricos ou versões antigas fora de `docs/architecture/`.
 
-## Arquitetura obrigatória V1
+## Arquitetura-alvo V1 (migração aprovada)
 
 ```text
-Frontend: Next.js
-Backend: NestJS
-Linguagem: TypeScript
+Frontend: Nuxt + Vue (SSR público)
+Backend: FastAPI + Python
+Linguagem de componentes/contratos frontend: TypeScript
 API: REST
-Validação: Zod
+Validação backend: Pydantic
 OpenAPI: obrigatório
 Banco: PostgreSQL
-ORM: Drizzle ORM
+ORM/migrations Python: decidir antes de alterar dados existentes
 Sessões: Redis
 JWT: proibido
-Filas: BullMQ
-Worker: apps/worker separado
+Filas: decidir adaptador Python por funcionalidade
+Worker: separado
 Storage: MinIO
-Imagens: Sharp
+Imagens: decidir adaptador Python por funcionalidade
 Analytics: Matomo
 Reverse proxy: Nginx
 Orquestração: Docker Compose
 CI/CD: GitHub Actions
 E2E: Playwright
-Unitários: Vitest
-API tests: Supertest
+Unitários: pytest e testes Vue/Nuxt
+API tests: pytest/TestClient
 Acessibilidade automatizada: axe-core
 ```
+
+O código NestJS/Next.js/Drizzle/BullMQ/Sharp é legado temporário para comparação. Não removê-lo antes de paridade testada. Implementar funcionalidades isoladas primeiro; a integração entre as novas partes é uma fase posterior. Fixtures de demonstração não são persistência real.
 
 ## Regra central de execução
 
@@ -84,7 +88,7 @@ Se perceber que o loop exige mudar uma decisão arquitetural:
 
 ## Checks
 
-Quando existirem no projeto:
+Quando existirem no projeto, executar os checks aplicáveis à fatia nova e os checks legados afetados:
 
 ```bash
 pnpm lint
@@ -172,6 +176,8 @@ commit
 ## Skills do projeto
 
 Skills repo-localizadas ficam em `.agents/skills/`.
+
+As skills `nestjs-api`, `drizzle-data-model` e `nextjs-frontend` descrevem a pilha legada e não governam o código novo da migração. Use `architecture-guard` e `execute-loop` para preservar escopo/decisões; escolha testes e referências adequados à funcionalidade nova.
 
 Use-as quando a tarefa corresponder ao seu escopo:
 

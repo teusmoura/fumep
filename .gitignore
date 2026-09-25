@@ -5,6 +5,10 @@ node_modules/
 !.env.example
 dist/
 .next/
+.nuxt/
+.output/
+.venv/
+__pycache__/
 coverage/
 *.log
 *.tsbuildinfo

@@ -1,142 +1,19 @@
-# CURRENT LOOP
+# CURRENT LOOP — migração FastAPI + Nuxt
 
 ## Estado
 
-```text
-LOOP 0.1 — CONCLUÍDO
-LOOP 0.2 — CONCLUÍDO
-LOOP 0.3 — CONCLUÍDO
-LOOP 0.4 — CONCLUÍDO
-LOOP 0.5 — CONCLUÍDO
-LOOP 0.6 — CONCLUÍDO
-LOOP 0.7 — CONCLUÍDO
-LOOP 0.8 — CONCLUÍDO
-LOOP 0.9 — CONCLUÍDO
-LOOP 0.10 — CONCLUÍDO
-LOOP 0.11 — CONCLUÍDO
-LOOP 0.12 — CONCLUÍDO
-LOOP 0.13 — CONCLUÍDO
-LOOP 0.14 — CONCLUÍDO
-LOOP 0.15 — CONCLUÍDO
-LOOP 0.16 — CONCLUÍDO
-LOOP 0.17 — CONCLUÍDO
-LOOP 1.1 — CONCLUÍDO
-LOOP 1.2 — CONCLUÍDO
-LOOP 1.3 — CONCLUÍDO
-LOOP 1.4 — CONCLUÍDO
-LOOP 1.5 — CONCLUÍDO
-LOOP 1.6 — CONCLUÍDO
-LOOP 1.7 — CONCLUÍDO
-LOOP 1.8 — CONCLUÍDO
-LOOP 1.9 — CONCLUÍDO
-LOOP 1.10 — CONCLUÍDO
-LOOP 2.1 — CONCLUÍDO
-LOOP 2.2 — CONCLUÍDO
-LOOP 2.3 — CONCLUÍDO
-LOOP 2.4 — CONCLUÍDO
-LOOP 2.5 — CONCLUÍDO
-LOOP 2.6 — CONCLUÍDO
-LOOP 2.7 — CONCLUÍDO
-LOOP 2.8 — CONCLUÍDO
-LOOP 2.9 — CONCLUÍDO
-LOOP 2.10 — CONCLUÍDO
-LOOP 2.11 — CONCLUÍDO
-LOOP 2.12 — CONCLUÍDO
-LOOP 2.13 — CONCLUÍDO
-LOOP 2.14 — CONCLUÍDO
-LOOP 2.15 — CONCLUÍDO
-LOOP 2.16 — CONCLUÍDO
-LOOP 3.1 — CONCLUÍDO
-LOOP 3.2 — CONCLUÍDO
-LOOP 3.3 — CONCLUÍDO
-LOOP 3.4 — CONCLUÍDO
-LOOP 3.5 — CONCLUÍDO
-LOOP 3.6 — CONCLUÍDO
-LOOP 3.7 — CONCLUÍDO
-LOOP 3.8 — CONCLUÍDO
-LOOP 3.9 — CONCLUÍDO
-LOOP 4.1 — CONCLUÍDO
-LOOP 4.2 — CONCLUÍDO
-LOOP 4.3 — CONCLUÍDO
-LOOP 4.4 — CONCLUÍDO
-LOOP 4.5 — CONCLUÍDO
-LOOP 4.6 — CONCLUÍDO
-LOOP 4.7 — CONCLUÍDO
-LOOP 4.8 — CONCLUÍDO
-LOOP 4.9 — CONCLUÍDO
-LOOP 4.10 — CONCLUÍDO
-LOOP 4.11 — CONCLUÍDO
-LOOP 4.12 — CONCLUÍDO
-LOOP 4.13 — CONCLUÍDO
-LOOP 4.14 — CONCLUÍDO
-LOOP 4.15 — CONCLUÍDO
-LOOP 4.16 — CONCLUÍDO
-LOOP 4.17 — CONCLUÍDO
-LOOP 5.1 — CONCLUÍDO
-LOOP 5.2 — CONCLUÍDO
-LOOP 5.3 — CONCLUÍDO
-LOOP 5.4 — CONCLUÍDO
-LOOP 5.5 — CONCLUÍDO
-LOOP 5.6 — CONCLUÍDO
-LOOP 5.7 — CONCLUÍDO
-LOOP 5.8 — CONCLUÍDO
-LOOP 5.9 — CONCLUÍDO
-LOOP 5.10 — CONCLUÍDO
-LOOP 5.11 — CONCLUÍDO
-LOOP 5.12 — CONCLUÍDO
-LOOP 5.13 — CONCLUÍDO
-LOOP 5.14 — CONCLUÍDO
-LOOP 5.15 — CONCLUÍDO
-LOOP 5.16 — CONCLUÍDO
-LOOP 5.17 — CONCLUÍDO
-LOOP 5.18 — CONCLUÍDO
-LOOP 5.19 — CONCLUÍDO
-LOOP 5.20 — CONCLUÍDO
-LOOP 5.21 — CONCLUÍDO
-LOOP 5.22 — CONCLUÍDO
-LOOP 5.23 — CONCLUÍDO
-LOOP 5.24 — CONCLUÍDO
-LOOP 5.25 — CONCLUÍDO
-LOOP 5.26 — CONCLUÍDO
-LOOP 5.27 — CONCLUÍDO
-LOOP 5.28 — CONCLUÍDO
-LOOP 5.29 — CONCLUÍDO
-LOOP 5.30 — CONCLUÍDO
-LOOP 5.31 — ATUAL
-```
+- Pilha NestJS/Next.js: loops até 5.30 concluídos; loop 5.31 interrompido sem commit e preservado no stash `b1bba349ce433efb2f4a9b1cb86739a3d004fca8` criado em 2026-09-25.
+- Migração aprovada pelo responsável: FastAPI + Nuxt, preservando PostgreSQL, Redis e MinIO.
+- Estratégia: aceitar cada funcionalidade isolada antes da integração entre as novas partes.
+- MIG 1 — Páginas institucionais Nuxt: concluído, checks verdes (549 testes).
+- **MIG 2 — API FastAPI básica isolada: próximo após commit de MIG 1.**
 
-## Loop atual
+## MIG 2 — API FastAPI básica isolada
 
-### LOOP 5.31 — PageTemplate schema
+Criar um aplicativo FastAPI independente com health e projeção pública institucional (`fumep`, `etmsl`, `cramam`), modelos Pydantic/OpenAPI e testes pytest/TestClient. Usar dados locais explicitamente provisórios; não conectar Nuxt, PostgreSQL, Redis ou MinIO neste loop. Não antecipar autenticação nem CRUD.
 
-Estado: pronto após commit do 5.30. Registry operacional auditado, checks verdes (544 testes). Revalidar commit e Git limpo.
-
-Objetivo:
-
-```text
-Criar schema de PageTemplate com blocks_snapshot e escopo institucional opcional.
-```
-
-Implementar:
-
-- reler AGENTS.md, execute-loop, plano, modelo lógico e documento especializado; confirmar 5.30 commitado e Git limpo;
-- usar drizzle-data-model, page-builder, architecture-guard e testing-qa conforme escopo;
-- criar tabela page_templates com blocks_snapshot e escopo institucional opcional conforme contratos canônicos;
-- adicionar constraints, índices, migration e testes de schema aplicáveis, sem CRUD ou criação de página antecipados;
-- testes, checks disponíveis, documentação, commit e Git limpo.
-
-Não implementar:
-
-- CRUD administrativo (5.32), criar página a partir de template (5.33), Preview/publicação/salvamento amplo antecipados.
-
-Critério de aceite:
-
-```text
-Template global ou institucional pode ser persistido no schema, com testes/documentação/checks verdes.
-```
+Aceite: health responde sem vazar detalhes internos; projeção retorna somente campos públicos e 404 para instituição desconhecida; OpenAPI contém os contratos; testes Python e checks aplicáveis passam. Atualizar status e commitar somente após aceite.
 
 ## Próximo loop
 
-```text
-LOOP 5.32 — CRUD de PageTemplate
-```
+**MIG 3 — Autenticação e autorização isoladas.** Consultar `docs/architecture/MIGRACAO_FASTAPI_NUXT_CANONICA.md`.

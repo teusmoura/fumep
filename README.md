@@ -1,37 +1,24 @@
-# Portal FUMEP — Codex Starter Workspace
+# Portal FUMEP
 
-Workspace preparado para implementação incremental da V1 do Portal FUMEP com Codex.
+Migração funcional em andamento para Nuxt/Vue e FastAPI. A implementação antiga em Next.js/NestJS permanece no repositório para comparação; não foi conectada ao novo aplicativo.
 
-## Para começar
+## Testar agora no navegador
 
-1. Extraia o ZIP.
-2. Abra a pasta `portal-fumep` no Codex.
-3. Leia `START_CODEX.md`.
-4. Peça ao Codex para executar o loop atual.
+Na raiz do projeto:
 
-## Estado
-
-```text
-LOOP 0.1 — concluído
-LOOP 0.2 — atual
+```bash
+pnpm install --frozen-lockfile --config.confirmModulesPurge=false
+pnpm --filter @fumep/portal dev
 ```
 
-## Arquivos de controle
+Abra [http://localhost:3002/](http://localhost:3002/), [ETMSL](http://localhost:3002/etmsl) ou [CRAMAM](http://localhost:3002/cramam). É possível alternar entre instituições e testar a aparência Sistema/Claro/Escuro. A tela indica “Demonstração local”: não há login, dados persistidos ou integração FastAPI nessa etapa.
 
-- `AGENTS.md` — regras globais do agente.
-- `.agents/skills/` — skills específicas do projeto.
-- `docs/CURRENT_LOOP.md` — única fonte do loop ativo.
-- `docs/LOOP_STATUS.md` — evidências e progresso.
-- `docs/architecture/` — arquitetura canônica.
-- `docs/CODEX_WORKFLOW.md` — modo recomendado de uso.
-- `START_CODEX.md` — prompt inicial.
+Checks desta funcionalidade:
 
-## Regra principal
-
-Não peça ao Codex para implementar o portal inteiro. Peça:
-
-```text
-Execute o loop atual.
+```bash
+pnpm --filter @fumep/portal test
+pnpm --filter @fumep/portal typecheck
+pnpm --filter @fumep/portal build
 ```
 
-O repositório fornece o restante do contexto.
+Consulte `docs/CURRENT_LOOP.md` para a fatia ativa e `docs/architecture/MIGRACAO_FASTAPI_NUXT_CANONICA.md` para a arquitetura e sequência da migração. O trabalho não commitado do antigo loop 5.31 foi preservado em stash recuperável; não foi descartado.

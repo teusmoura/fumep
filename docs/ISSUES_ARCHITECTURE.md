@@ -4,9 +4,13 @@ Use este arquivo apenas quando a implementação encontrar uma contradição rea
 
 ## Abertos
 
-Nenhum bloqueio arquitetural aberto. A implementação e o aceite do 4.16 continuam pendentes.
+Nenhum bloqueio arquitetural aberto. A migração aprovada segue decisões por funcionalidade; a antiga sequência de loops foi interrompida após 5.30.
 
 ## Resolvidos
+
+### STACK-001 — Substituição da pilha V1 por FastAPI + Nuxt
+
+Em 2026-09-25, o responsável interrompeu o loop 5.31 e autorizou explicitamente FastAPI no backend, Nuxt/Vue com SSR no frontend, preservando PostgreSQL, Redis e MinIO. Pediu implementação de cada funcionalidade antes da integração. A mudança conflita com a pilha histórica NestJS/Next.js/Drizzle/BullMQ/Sharp, por isso foi registrada e fechada como decisão arquitetural explícita, não como refatoração silenciosa. A precedência, invariantes preservados e etapas constam em `docs/architecture/MIGRACAO_FASTAPI_NUXT_CANONICA.md`. O trabalho não commitado do 5.31 foi preservado em stash recuperável. Escolhas de adaptadores Python de ORM/fila/imagem permanecem por definir antes da respectiva funcionalidade; não são autorização para alterar dados ou filas existentes prematuramente.
 
 ### MEDIA-002 — Estado durável e recuperação da exclusão física
 

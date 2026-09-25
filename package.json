@@ -5,8 +5,8 @@
   "packageManager": "pnpm@11.19.0",
   "scripts": {
     "build": "pnpm --recursive --if-present run build",
-    "format": "prettier --write \"apps/**/*.{ts,tsx,json,css}\" \"packages/**/*.{ts,tsx,json}\" \"*.{json,yaml,yml,mjs}\"",
-    "format:check": "prettier --check \"apps/**/*.{ts,tsx,json,css}\" \"packages/**/*.{ts,tsx,json}\" \"*.{json,yaml,yml,mjs}\"",
+    "format": "prettier --write \"apps/**/*.{ts,tsx,vue,json,css}\" \"packages/**/*.{ts,tsx,json}\" \"*.{json,yaml,yml,mjs}\"",
+    "format:check": "prettier --check \"apps/**/*.{ts,tsx,vue,json,css}\" \"packages/**/*.{ts,tsx,json}\" \"*.{json,yaml,yml,mjs}\"",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "pnpm --recursive --if-present run test",

@@ -1,5 +1,17 @@
 # LOOP STATUS
 
+## Migração FastAPI + Nuxt — 2026-09-25
+
+Por decisão explícita do responsável, os loops técnicos NestJS/Next.js foram interrompidos após 5.30 (`bc5a96e`). O trabalho não commitado do 5.31 (schema PageTemplate, migration, testes e documentação) foi preservado no stash `b1bba349ce433efb2f4a9b1cb86739a3d004fca8`; não há aceite nem commit do 5.31. A pilha-alvo e a precedência estão em `docs/architecture/MIGRACAO_FASTAPI_NUXT_CANONICA.md`. Funcionalidades serão migradas individualmente antes da integração.
+
+### MIG 1 — Páginas institucionais Nuxt — concluído
+
+Entregue: aplicativo Nuxt/Vue SSR separado em `apps/portal` com `/`, `/etmsl` e `/cramam`, identidade/cor local distinta, navegação institucional, título/meta por instituição, preferência Sistema/Claro/Escuro em cookie apenas visual, skip link, landmarks/labels e aviso explícito de demonstração sem persistência. Rota institucional desconhecida retorna 404. Sem FastAPI, banco ou autenticação conectados. A implementação legada permanece disponível para comparação. README atualizado com comando e URLs para teste no navegador.
+
+Checks aprovados: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` (549: 83 validation, 71 DB, 12 jobs, 3 storage, 122 API, 223 web, 30 Worker, 5 portal), `pnpm build`, `git diff --check`. Verificação HTTP do Nuxt local: três rotas 200 com `data-institution` correto, desconhecida 404, cookie visual DARK refletido no HTML SSR. Sem E2E/axe automatizado nesta fatia; sem integração. O lint inicial falhou por analisar `.nuxt/.output` gerados como React; corrigido com ignores e segunda execução verde. Warning de depreciação transitiva no build Nuxt não quebrou o build.
+
+Aceite MIG 1 cumprido. Próximo: MIG 2 — API FastAPI básica isolada.
+
 ## LOOP 5.30 — Concluído
 
 Estado inicial: 5.29 concluído em 5a6d630, Git limpo. Escopo: auditar Registry operacional dos 17 blocos implementados até 5.29, versões/contextos/schemas/editor/renderer e documentar fronteira com FEEDs alocados a loops posteriores. Sem implementar FEEDs ou PageTemplate antecipadamente.

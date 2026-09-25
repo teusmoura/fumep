@@ -1,5 +1,7 @@
 # PLANO DE IMPLEMENTAÇÃO V1 — DESENVOLVIMENTO EM LOOPS
 
+> Em 2026-09-25 a execução deste plano na pilha NestJS/Next.js foi interrompida após o loop 5.30. O loop 5.31 ficou não commitado e preservado em stash. A migração aprovada segue `MIGRACAO_FASTAPI_NUXT_CANONICA.md` e `docs/CURRENT_LOOP.md`. Os loops abaixo permanecem como referência funcional/histórica, não como ordem ativa de implementação técnica.
+
 ## STATUS CANÔNICO
 
 Esta versão incorpora as correções da auditoria e passa a ser o roteiro oficial de implementação da V1.

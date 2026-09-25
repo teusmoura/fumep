@@ -19,6 +19,8 @@ export default defineConfig([
   prettier,
   globalIgnores([
     "**/.next/**",
+    "**/.nuxt/**",
+    "**/.output/**",
     "**/dist/**",
     "**/node_modules/**",
     "coverage/**",
