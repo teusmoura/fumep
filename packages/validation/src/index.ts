@@ -690,6 +690,64 @@ export const mapBlockSchemaV1 = contentBlockCommonSchema.safeExtend({
 export type MapBlockDataV1 = z.infer<typeof mapBlockDataSchemaV1>;
 export type MapBlockV1 = z.infer<typeof mapBlockSchemaV1>;
 
+export const VIDEO_V1_LIMITS = Object.freeze({ titleCharacters: 200, descriptionCharacters: 1000 });
+export function parseVideoUrlV1(
+  value: string,
+): { provider: "YOUTUBE" | "VIMEO"; videoId: string; embedUrl: string } | undefined {
+  if (value.length > 2048 || /[\x00-\x20\x7f\\]/.test(value)) return undefined;
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "https:" || url.username || url.password || url.port || url.hash)
+      return undefined;
+    let id: string | undefined;
+    if (url.hostname === "www.youtube.com" || url.hostname === "youtube.com") {
+      if (
+        url.pathname !== "/watch" ||
+        [...url.searchParams.keys()].some((key) => key !== "v") ||
+        url.searchParams.getAll("v").length !== 1
+      )
+        return undefined;
+      id = url.searchParams.get("v") ?? undefined;
+    } else if (url.hostname === "youtu.be") {
+      if (url.search) return undefined;
+      id = url.pathname.slice(1);
+    }
+    if (id && /^[A-Za-z0-9_-]{11}$/.test(id))
+      return {
+        provider: "YOUTUBE",
+        videoId: id,
+        embedUrl: `https://www.youtube-nocookie.com/embed/${id}`,
+      };
+    if ((url.hostname === "vimeo.com" || url.hostname === "www.vimeo.com") && !url.search) {
+      id = url.pathname.slice(1);
+      if (/^[1-9][0-9]{0,14}$/.test(id))
+        return { provider: "VIMEO", videoId: id, embedUrl: `https://player.vimeo.com/video/${id}` };
+    }
+    return undefined;
+  } catch {
+    return undefined;
+  }
+}
+export const videoBlockDataSchemaV1 = z
+  .object({
+    url: z
+      .string()
+      .refine(
+        (value) => Boolean(parseVideoUrlV1(value)),
+        "Use uma URL HTTPS de vídeo YouTube ou Vimeo",
+      ),
+    title: heroLabelSchemaV1.max(VIDEO_V1_LIMITS.titleCharacters),
+    description: heroLabelSchemaV1.max(VIDEO_V1_LIMITS.descriptionCharacters).optional(),
+  })
+  .strict();
+export const videoBlockSchemaV1 = contentBlockCommonSchema.safeExtend({
+  type: z.literal("VIDEO"),
+  schemaVersion: z.literal(1),
+  data: videoBlockDataSchemaV1,
+});
+export type VideoBlockDataV1 = z.infer<typeof videoBlockDataSchemaV1>;
+export type VideoBlockV1 = z.infer<typeof videoBlockSchemaV1>;
+
 // Resolved transport metadata, never persisted as HERO JSONB or used as backend
 // authorization. Caller must resolve a fresh, authorized library image.
 export const heroResolvedImageSchemaV1 = z

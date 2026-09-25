@@ -15,6 +15,7 @@ import type {
   StatisticsBlockV1,
   CarouselBlockV1,
   MapBlockV1,
+  VideoBlockV1,
 } from "@fumep/validation";
 import { frontendBlockRegistry } from "./block-registry";
 import { availableLibraryImages } from "./available-library-images";
@@ -34,7 +35,8 @@ export type BuilderBlock =
   | TimelineBlockV1
   | StatisticsBlockV1
   | CarouselBlockV1
-  | MapBlockV1;
+  | MapBlockV1
+  | VideoBlockV1;
 export type BuilderType = BuilderBlock["type"];
 export function setBuilderBlockBackground(
   blocks: readonly BuilderBlock[],
@@ -218,7 +220,12 @@ export function newBuilderBlock(
                               ? { items: [{ imageId, alt: imageAlt ?? "" }] }
                               : type === "MAP"
                                 ? { latitude: 0, longitude: 0, address: "Novo endereço" }
-                                : { imageId, decorative: false };
+                                : type === "VIDEO"
+                                  ? {
+                                      url: "https://www.youtube.com/watch?v=M7lc1UVf-VE",
+                                      title: "Novo vídeo",
+                                    }
+                                  : { imageId, decorative: false };
   return parseBuilderBlocks(
     [
       ...blocks,

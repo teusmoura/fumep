@@ -15,7 +15,10 @@ import {
   statisticsBlockSchemaV1,
   carouselBlockSchemaV1,
   mapBlockSchemaV1,
+  videoBlockSchemaV1,
 } from "@fumep/validation";
+import { VideoBlockEditor } from "./editors/video-block-editor";
+import { VideoBlockRenderer } from "./renderers/video-block-renderer";
 import { MapBlockEditor } from "./editors/map-block-editor";
 import { MapBlockRenderer } from "./renderers/map-block-renderer";
 import { CarouselBlockEditor } from "./editors/carousel-block-editor";
@@ -64,7 +67,8 @@ export const frontendBlockRegistry = createBlockRegistry<
   | typeof TimelineBlockRenderer
   | typeof StatisticsBlockRenderer
   | typeof CarouselBlockRenderer
-  | typeof MapBlockRenderer,
+  | typeof MapBlockRenderer
+  | typeof VideoBlockRenderer,
   | typeof TextBlockEditor
   | typeof HeroBlockEditor
   | typeof ImageBlockEditor
@@ -80,6 +84,7 @@ export const frontendBlockRegistry = createBlockRegistry<
   | typeof StatisticsBlockEditor
   | typeof CarouselBlockEditor
   | typeof MapBlockEditor
+  | typeof VideoBlockEditor
 >([
   {
     type: "TEXT",
@@ -215,5 +220,14 @@ export const frontendBlockRegistry = createBlockRegistry<
     editor: MapBlockEditor,
     label: "Mapa",
     allowedContexts: ["PAGE"],
+  },
+  {
+    type: "VIDEO",
+    schemaVersion: 1,
+    zodSchema: videoBlockSchemaV1,
+    renderer: VideoBlockRenderer,
+    editor: VideoBlockEditor,
+    label: "Vídeo",
+    allowedContexts: ["PAGE", "ARTICLE"],
   },
 ]);

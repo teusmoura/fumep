@@ -1,5 +1,7 @@
 # BlockRegistry
 
+Após 5.28, VIDEO v1 está registrado em PAGE e ARTICLE com url HTTPS validada de YouTube/Vimeo, title obrigatório e description? em texto controlado. Renderer SSR exibe título/link e botão para ativar um iframe gerado pelo sistema somente após ação do visitante; sem HTML/iframe livre ou carregamento externo automático. Catálogo frontend: TEXT, HERO (PAGE), IMAGE, IMAGE_TEXT, CAROUSEL, CARDS (PAGE), QUICK_LINKS (PAGE), CTA, SPACER (PAGE), FAQ (PAGE), TABS (PAGE), TABLE, TIMELINE (PAGE), STATISTICS (PAGE), MAP (PAGE) e VIDEO.
+
 Após 5.27, MAP v1 está registrado somente em PAGE com title?, latitude, longitude, address e zoom? validados. Editor de campos estruturados e renderer SSR apresentam a localização de forma responsiva e acessível; o link calculado abre OpenStreetMap apenas por ação do visitante, sem HTML/iframe arbitrário nem requisição externa automática. Catálogo frontend: TEXT, HERO (PAGE), IMAGE, IMAGE_TEXT, CAROUSEL, CARDS (PAGE), QUICK_LINKS (PAGE), CTA, SPACER (PAGE), FAQ (PAGE), TABS (PAGE), TABLE, TIMELINE (PAGE), STATISTICS (PAGE) e MAP (PAGE).
 
 Após 5.26, CAROUSEL v1 completo está registrado em PAGE e ARTICLE com até 10 slides imageId/alt/caption?/url? da Media Library, editor de coleção e renderer SSR com interação Client acessível sem autoplay. Catálogo frontend: TEXT, HERO (PAGE), IMAGE, IMAGE_TEXT, CAROUSEL, CARDS (PAGE), QUICK_LINKS (PAGE), CTA, SPACER (PAGE), FAQ (PAGE), TABS (PAGE), TABLE, TIMELINE (PAGE) e STATISTICS (PAGE).

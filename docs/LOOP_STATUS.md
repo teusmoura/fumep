@@ -1,5 +1,15 @@
 # LOOP STATUS
 
+## LOOP 5.28 — Concluído
+
+Estado inicial: 5.27 concluído em 12ca68c, Git limpo. Escopo: VIDEO v1 PAGE/ARTICLE com url YouTube/Vimeo, title obrigatório e description? conforme contrato especializado; editor, renderer responsivo/acessível, Registry/builder, testes e documentação. Sem iframe livre, outros provedores, DOCUMENT ou persistência/publicação antecipada. O resumo anterior em CURRENT_LOOP divergia do documento especializado em title/provider; prevalece o contrato canônico.
+
+Entregue: schema Zod strict/versionado e parser de URL HTTPS com host/ID exatos, rejeição de parâmetros e origens arbitrárias; editor Client com aplicação async e falha retida; renderer SSR com título/descrição/link e botão de carregamento consentido, criando iframe somente de origem controlada após clique. Registro e criação no builder para PAGE/ARTICLE, sem endpoint, migration ou dependência nova. O draft inicial usa vídeo de exemplo público e exige substituição editorial.
+
+Checks aprovados: pnpm format:check, pnpm lint, pnpm typecheck, pnpm test, pnpm build e git diff --check. Suíte completa 534 testes (81 validation, 71 DB, 12 jobs, 3 storage, 122 API, 215 web, 30 Worker). O teste focado inicial detectou catálogo ARTICLE desatualizado; expectativa corrigida e suíte completa aprovada. axe-core sem violações semânticas no editor/renderer (contraste desabilitado no jsdom). test:e2e inexistente; sem QA real de navegador neste loop, coberto por testes DOM/SSR e build.
+
+Aceite cumprido. execute-loop/page-builder/architecture-guard preservaram os campos e provedores canônicos; nextjs-frontend/testing-qa verificaram SSR, interação, segurança básica, responsividade por CSS e A11y. Commit: feat(builder): add controlled video block v1. Próximo: 5.29 DOCUMENT.
+
 ## LOOP 5.27 — Concluído
 
 Estado inicial: 5.26 concluído em 9915a27, Git limpo. Escopo: MAP V1 PAGE-only com title?, latitude, longitude, address e zoom? estruturados; editor, renderer responsivo/acessível, Registry/builder, testes e documentação. Sem HTML/iframe arbitrário, carregamento externo automático, VIDEO ou persistência/publicação antecipada.

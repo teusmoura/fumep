@@ -99,45 +99,46 @@ LOOP 5.24 — CONCLUÍDO
 LOOP 5.25 — CONCLUÍDO
 LOOP 5.26 — CONCLUÍDO
 LOOP 5.27 — CONCLUÍDO
-LOOP 5.28 — ATUAL
+LOOP 5.28 — CONCLUÍDO
+LOOP 5.29 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 5.28 — VIDEO
+### LOOP 5.29 — DOCUMENT
 
-Estado: pronto após commit do 5.27. MAP concluído, checks verdes (527 testes). Revalidar commit e Git limpo.
+Estado: pronto após commit do 5.28. VIDEO concluído, checks verdes (534 testes). Revalidar commit e Git limpo.
 
 Objetivo:
 
 ```text
-Implementar VIDEO com YouTube/Vimeo apenas e campos estruturados.
+Implementar DOCUMENT com PDF válido da Media Library.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e FRONTEND; confirmar 5.27 commitado e Git limpo;
-- usar page-builder, nextjs-frontend, architecture-guard e testing-qa conforme escopo;
-- schema Zod por versão para VIDEO com title?, provider YouTube/Vimeo e videoId controlados;
-- editor acessível dos campos estruturados, callback async com falha retida;
-- renderer responsivo e acessível sem embed/HTML arbitrário, com BlockBackground/tema resolvidos pelo caller;
-- registrar definição completa em Registry/contextos canônicos e integrar criação no builder, sem antecipar DOCUMENT;
+- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e documentos de mídia/frontend; confirmar 5.28 commitado e Git limpo;
+- usar page-builder, media-storage, nextjs-frontend, architecture-guard e testing-qa conforme escopo;
+- schema Zod por versão para DOCUMENT com mediaId, title?, description? e buttonLabel? controlados;
+- editor acessível para selecionar PDF válido da Media Library, callback async com falha retida;
+- renderer responsivo e acessível com projeção de mídia resolvida/validada pelo caller, sem URL física em JSONB, com BlockBackground/tema resolvidos;
+- registrar definição completa em Registry/contextos canônicos e integrar criação no builder, sem antecipar Registry completo;
 - manter contrato de caller explícito, sem criar publicação, Preview ou gateways antecipados;
 - controles acessíveis/teclado/foco, tokens, responsividade e tema;
 - testes, checks disponíveis, documentação, commit e Git limpo.
 
 Não implementar:
 
-- DOCUMENT (5.29), provedores além de YouTube/Vimeo, HTML/iframe arbitrário, outros blocos/Preview/publicação/salvamento amplo antecipados.
+- Registry completo (5.30), outros blocos/Preview/publicação/salvamento amplo antecipados, URL física de storage em JSONB.
 
 Critério de aceite:
 
 ```text
-VIDEO disponível no Registry, Editor e Renderer com campos estruturados e apresentação acessível/responsiva, testes/documentação/checks verdes.
+DOCUMENT disponível no Registry, Editor e Renderer com PDF da Media Library e apresentação acessível/responsiva, testes/documentação/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 5.29 — DOCUMENT
+LOOP 5.30 — Registry completo
 ```
