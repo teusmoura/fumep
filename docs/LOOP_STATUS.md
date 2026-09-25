@@ -4,6 +4,14 @@
 
 Por decisão explícita do responsável, os loops técnicos NestJS/Next.js foram interrompidos após 5.30 (`bc5a96e`). O trabalho não commitado do 5.31 (schema PageTemplate, migration, testes e documentação) foi preservado no stash `b1bba349ce433efb2f4a9b1cb86739a3d004fca8`; não há aceite nem commit do 5.31. A pilha-alvo e a precedência estão em `docs/architecture/MIGRACAO_FASTAPI_NUXT_CANONICA.md`. Funcionalidades serão migradas individualmente antes da integração.
 
+### MIG 2 — API FastAPI básica isolada — concluído
+
+Entregue: aplicativo `apps/backend` em FastAPI/Python com `GET /api/v1/health`, `GET /api/v1/public/institutions/{slug}/theme`, modelos Pydantic `extra=forbid`, OpenAPI/Swagger e fixtures determinísticas para FUMEP, ETMSL e CRAMAM. Tema retorna apenas campos públicos, `Cache-Control: no-store` e `X-FUMEP-Data-Source: fixture`; 404 não revela dados internos. Sem consumo pelo Nuxt, persistência, Redis ou autenticação. Dependências Python fixadas em `requirements-lock.txt`; README contém comandos WSL/Windows e URLs de teste.
+
+Checks aprovados: `python -m pip check`, `python -m compileall -q app`, `python -m pytest -q` (6 testes), `pnpm format:check`, `git diff --check`. HTTP real em 127.0.0.1:8002: health `ok`, tema ETMSL com header fixture e `/docs` 200. A porta 8000 já estava ocupada, então 8002 foi usada sem alterar o backend antigo. O TestClient em FastAPI 0.141.1/Starlette 1.7 emite um aviso de depreciação transitiva sobre `httpx`; os testes passam. Checks completos da pilha JS não foram repetidos: nenhuma fonte JS mudou desde MIG 1, quando 549 testes e build global passaram. Sem integração/E2E/axe nesta fatia.
+
+Aceite MIG 2 cumprido. Próximo: MIG 3.1 — armazenamento isolado de sessões Redis e contrato de cookie, sem login/CRUD antecipados.
+
 ### MIG 1 — Páginas institucionais Nuxt — concluído
 
 Entregue: aplicativo Nuxt/Vue SSR separado em `apps/portal` com `/`, `/etmsl` e `/cramam`, identidade/cor local distinta, navegação institucional, título/meta por instituição, preferência Sistema/Claro/Escuro em cookie apenas visual, skip link, landmarks/labels e aviso explícito de demonstração sem persistência. Rota institucional desconhecida retorna 404. Sem FastAPI, banco ou autenticação conectados. A implementação legada permanece disponível para comparação. README atualizado com comando e URLs para teste no navegador.
