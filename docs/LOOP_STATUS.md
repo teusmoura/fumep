@@ -1,5 +1,15 @@
 # LOOP STATUS
 
+## LOOP 5.30 — Concluído
+
+Estado inicial: 5.29 concluído em 5a6d630, Git limpo. Escopo: auditar Registry operacional dos 17 blocos implementados até 5.29, versões/contextos/schemas/editor/renderer e documentar fronteira com FEEDs alocados a loops posteriores. Sem implementar FEEDs ou PageTemplate antecipadamente.
+
+Entregue: teste de contrato do catálogo operacional completo, afirmando ordem/tipos, 17 definições PAGE, oito contextos ARTICLE, schemaVersion 1, editor/renderer reais, drafts válidos do builder e rejeição de duplicatas, posições/versões inválidas. Documentada a fronteira entre o enum de 23 tipos V1 e o Registry operacional deste estágio: seis FEEDs permanecem reservados para loops posteriores, sem stubs. Nenhuma API, migration ou dependência nova.
+
+Checks aprovados: pnpm format:check, pnpm lint, pnpm typecheck, pnpm test, pnpm build e git diff --check. Suíte completa 544 testes (83 validation, 71 DB, 12 jobs, 3 storage, 122 API, 223 web, 30 Worker). Teste web focado 223 passou. test:e2e inexistente. Sem QA manual de navegador porque o loop altera apenas testes/documentação de contrato, sem UI nova.
+
+Aceite do estágio cumprido: todas as definições operacionais criadas até 5.29 estão registradas e validadas, sem definições parciais. Leitura literal de “todos os blocos V1” incluiria FEEDs agendados explicitamente para 5.34/8.13/9.11/10.10/11.5/13.15–13.16; execute-loop/architecture-guard preservaram essa ordem e não anteciparam implementação. Commit: test(builder): lock complete core registry contract. Próximo: 5.31 PageTemplate schema.
+
 ## LOOP 5.29 — Concluído
 
 Estado inicial: 5.28 concluído em 36f75cb, Git limpo. Escopo: DOCUMENT v1 PAGE/ARTICLE com PDF pronto da Biblioteca, mediaId e texto opcional, seleção/editor, renderer SSR com mídia resolvida pelo caller, testes e documentação. Sem URL física de MinIO no JSONB, Registry completo, endpoint/Preview/publicação antecipados.

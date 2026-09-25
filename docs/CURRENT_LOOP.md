@@ -101,43 +101,42 @@ LOOP 5.26 — CONCLUÍDO
 LOOP 5.27 — CONCLUÍDO
 LOOP 5.28 — CONCLUÍDO
 LOOP 5.29 — CONCLUÍDO
-LOOP 5.30 — ATUAL
+LOOP 5.30 — CONCLUÍDO
+LOOP 5.31 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 5.30 — Registry completo
+### LOOP 5.31 — PageTemplate schema
 
-Estado: pronto após commit do 5.29. DOCUMENT concluído, checks verdes (541 testes). Revalidar commit e Git limpo.
+Estado: pronto após commit do 5.30. Registry operacional auditado, checks verdes (544 testes). Revalidar commit e Git limpo.
 
 Objetivo:
 
 ```text
-Auditar e completar o Registry V1 conforme os tipos e contextos canônicos, com definições validadas.
+Criar schema de PageTemplate com blocks_snapshot e escopo institucional opcional.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop, plano e PAGE_BUILDER_CONTENT_BLOCKS.md; confirmar 5.29 commitado e Git limpo;
-- auditar o catálogo canônico contra schemas, editor, renderer, allowedContexts e versões realmente operacionais;
-- resolver lacunas do Registry no escopo do 5.30 sem implementar funcionalidades de loops posteriores;
-- cobrir validação, contextos e versões com testes de catálogo;
-- manter contrato de caller explícito, sem criar publicação, Preview ou gateways antecipados;
-- preservar acessibilidade, segurança e tema dos blocos existentes;
+- reler AGENTS.md, execute-loop, plano, modelo lógico e documento especializado; confirmar 5.30 commitado e Git limpo;
+- usar drizzle-data-model, page-builder, architecture-guard e testing-qa conforme escopo;
+- criar tabela page_templates com blocks_snapshot e escopo institucional opcional conforme contratos canônicos;
+- adicionar constraints, índices, migration e testes de schema aplicáveis, sem CRUD ou criação de página antecipados;
 - testes, checks disponíveis, documentação, commit e Git limpo.
 
 Não implementar:
 
-- PageTemplate schema (5.31), Preview/publicação/salvamento amplo antecipados; não registrar definições incompletas com editor/renderer fictícios.
+- CRUD administrativo (5.32), criar página a partir de template (5.33), Preview/publicação/salvamento amplo antecipados.
 
 Critério de aceite:
 
 ```text
-Todos os blocos V1 previstos para o Registry deste estágio registrados e validados, sem definições parciais; testes/documentação/checks verdes.
+Template global ou institucional pode ser persistido no schema, com testes/documentação/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 5.31 — PageTemplate schema
+LOOP 5.32 — CRUD de PageTemplate
 ```
