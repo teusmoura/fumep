@@ -748,6 +748,42 @@ export const videoBlockSchemaV1 = contentBlockCommonSchema.safeExtend({
 export type VideoBlockDataV1 = z.infer<typeof videoBlockDataSchemaV1>;
 export type VideoBlockV1 = z.infer<typeof videoBlockSchemaV1>;
 
+export const DOCUMENT_V1_LIMITS = Object.freeze({
+  titleCharacters: 200,
+  descriptionCharacters: 1000,
+  buttonLabelCharacters: 100,
+});
+export const documentBlockDataSchemaV1 = z
+  .object({
+    mediaId: z.uuid(),
+    title: heroLabelSchemaV1.max(DOCUMENT_V1_LIMITS.titleCharacters).optional(),
+    description: heroLabelSchemaV1.max(DOCUMENT_V1_LIMITS.descriptionCharacters).optional(),
+    buttonLabel: heroLabelSchemaV1.max(DOCUMENT_V1_LIMITS.buttonLabelCharacters).optional(),
+  })
+  .strict();
+export const documentBlockSchemaV1 = contentBlockCommonSchema.safeExtend({
+  type: z.literal("DOCUMENT"),
+  schemaVersion: z.literal(1),
+  data: documentBlockDataSchemaV1,
+});
+export const documentResolvedMediaSchemaV1 = z
+  .object({
+    id: z.uuid(),
+    type: z.literal("DOCUMENT"),
+    processingStatus: z.literal("READY"),
+    deletionStatus: z.literal("NONE"),
+    mimeType: z.literal("application/pdf"),
+    originalFilename: heroLabelSchemaV1.max(255),
+    href: z
+      .string()
+      .max(2048)
+      .regex(/^\/media\/[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_.-]+)*$/),
+  })
+  .strict();
+export type DocumentBlockDataV1 = z.infer<typeof documentBlockDataSchemaV1>;
+export type DocumentBlockV1 = z.infer<typeof documentBlockSchemaV1>;
+export type DocumentResolvedMediaV1 = z.infer<typeof documentResolvedMediaSchemaV1>;
+
 // Resolved transport metadata, never persisted as HERO JSONB or used as backend
 // authorization. Caller must resolve a fresh, authorized library image.
 export const heroResolvedImageSchemaV1 = z

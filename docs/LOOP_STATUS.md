@@ -1,5 +1,15 @@
 # LOOP STATUS
 
+## LOOP 5.29 — Concluído
+
+Estado inicial: 5.28 concluído em 36f75cb, Git limpo. Escopo: DOCUMENT v1 PAGE/ARTICLE com PDF pronto da Biblioteca, mediaId e texto opcional, seleção/editor, renderer SSR com mídia resolvida pelo caller, testes e documentação. Sem URL física de MinIO no JSONB, Registry completo, endpoint/Preview/publicação antecipados.
+
+Entregue: schema Zod strict/versionado para mediaId e title?/description?/buttonLabel?, projeção de PDF READY/NONE com href interno validado; seleção de PDFs disponíveis da Biblioteca, editor Client com callback async e falha retida; renderer SSR com PDF resolvido por ID e link nativo para visualização. Registry/PageBuilder permitem DOCUMENT em PAGE/ARTICLE somente quando há PDF elegível. Sem URL física em JSONB, endpoint, migration ou dependência nova; backend/caller deve revalidar disponibilidade, autorização e MediaUsage.
+
+Checks aprovados: pnpm format:check, pnpm lint, pnpm typecheck, pnpm test, pnpm build e git diff --check. Suíte completa 541 testes (83 validation, 71 DB, 12 jobs, 3 storage, 122 API, 220 web, 30 Worker). Testes focados validation/web aprovados; axe-core sem violações semânticas no editor/renderer (contraste desabilitado no jsdom). test:e2e inexistente. Não houve QA manual de navegador neste loop; SSR, DOM, seleção no builder e build estão cobertos por testes automatizados.
+
+Aceite cumprido. execute-loop/page-builder/media-storage/architecture-guard preservaram mídia por ID, PDF válido e contrato do caller; nextjs-frontend/testing-qa verificaram semântica, segurança básica e A11y. Commit: feat(builder): add document PDF block v1. Próximo: 5.30 Registry completo.
+
 ## LOOP 5.28 — Concluído
 
 Estado inicial: 5.27 concluído em 12ca68c, Git limpo. Escopo: VIDEO v1 PAGE/ARTICLE com url YouTube/Vimeo, title obrigatório e description? conforme contrato especializado; editor, renderer responsivo/acessível, Registry/builder, testes e documentação. Sem iframe livre, outros provedores, DOCUMENT ou persistência/publicação antecipada. O resumo anterior em CURRENT_LOOP divergia do documento especializado em title/provider; prevalece o contrato canônico.

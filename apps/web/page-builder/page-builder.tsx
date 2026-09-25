@@ -3,6 +3,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import type { BlockContext } from "@fumep/validation";
 import { frontendBlockRegistry } from "./block-registry";
 import { availableLibraryImages } from "./available-library-images";
+import { availableLibraryDocuments } from "./available-library-documents";
 import { AnchorEditor } from "./anchor-editor";
 import { BackgroundEditor } from "./background-editor";
 import type { ContentBlockBackground } from "@fumep/validation";
@@ -22,6 +23,7 @@ export interface PageBuilderProps {
   context: BlockContext;
   initialBlocks: unknown;
   images?: readonly unknown[];
+  documents?: readonly unknown[];
   onApply: (blocks: BuilderBlock[]) => void | Promise<void>;
   disabled?: boolean;
 }
@@ -30,6 +32,7 @@ export function PageBuilder({
   context,
   initialBlocks,
   images = [],
+  documents = [],
   onApply,
   disabled = false,
 }: PageBuilderProps) {
@@ -46,6 +49,7 @@ export function PageBuilder({
   const confirmationButton = useRef<HTMLButtonElement>(null);
   const status = useRef<HTMLParagraphElement>(null);
   const available = availableLibraryImages(images);
+  const availableDocuments = availableLibraryDocuments(documents);
   useEffect(() => {
     if (message) status.current?.focus();
   }, [message, blocks, candidate, notice]);
@@ -72,6 +76,7 @@ export function PageBuilder({
       crypto.randomUUID(),
       available[0]?.id,
       available[0]?.altText?.trim() || "",
+      availableDocuments[0]?.id,
     );
     if (!next) {
       notify("Não foi possível iniciar o bloco. Verifique contexto e imagens disponíveis.");
@@ -116,6 +121,7 @@ export function PageBuilder({
         ariaLabel={`Editor ${adding ? "novo bloco" : `do bloco ${(blocks?.findIndex((item) => item.id === block.id) ?? -1) + 1}`} — ${block.type}`}
         initialValue={block.data}
         images={available}
+        documents={availableDocuments}
         onApply={(data: unknown) => apply(block, data, adding)}
         disabled={disabled || busy || Boolean(deleting)}
       />
@@ -271,7 +277,8 @@ export function PageBuilder({
             disabled={
               locked ||
               (["IMAGE", "IMAGE_TEXT", "CARDS", "CAROUSEL"].includes(definition.type) &&
-                !available.length)
+                !available.length) ||
+              (definition.type === "DOCUMENT" && !availableDocuments.length)
             }
             onClick={() => add(definition.type as BuilderType)}
           >
@@ -284,6 +291,9 @@ export function PageBuilder({
           Para adicionar IMAGE, IMAGE_TEXT, CARDS ou CAROUSEL, selecione uma imagem disponível da
           Biblioteca de Mídia.
         </p>
+      )}
+      {!availableDocuments.length && (
+        <p>Para adicionar DOCUMENT, selecione um PDF pronto da Biblioteca de Mídia.</p>
       )}
       {!blocks.length && <p>Nenhum bloco adicionado ao draft.</p>}
       <p id={instructionsId}>

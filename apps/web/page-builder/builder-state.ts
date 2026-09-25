@@ -16,6 +16,7 @@ import type {
   CarouselBlockV1,
   MapBlockV1,
   VideoBlockV1,
+  DocumentBlockV1,
 } from "@fumep/validation";
 import { frontendBlockRegistry } from "./block-registry";
 import { availableLibraryImages } from "./available-library-images";
@@ -36,7 +37,8 @@ export type BuilderBlock =
   | StatisticsBlockV1
   | CarouselBlockV1
   | MapBlockV1
-  | VideoBlockV1;
+  | VideoBlockV1
+  | DocumentBlockV1;
 export type BuilderType = BuilderBlock["type"];
 export function setBuilderBlockBackground(
   blocks: readonly BuilderBlock[],
@@ -173,6 +175,7 @@ export function newBuilderBlock(
   id: string,
   imageId?: string,
   imageAlt?: string,
+  documentId?: string,
 ): BuilderBlock | undefined {
   if (!frontendBlockRegistry.get(type, 1, context)) return undefined;
   const position = blocks.length ? Math.max(...blocks.map((block) => block.position)) + 1 : 0;
@@ -225,7 +228,9 @@ export function newBuilderBlock(
                                       url: "https://www.youtube.com/watch?v=M7lc1UVf-VE",
                                       title: "Novo vídeo",
                                     }
-                                  : { imageId, decorative: false };
+                                  : type === "DOCUMENT"
+                                    ? { mediaId: documentId }
+                                    : { imageId, decorative: false };
   return parseBuilderBlocks(
     [
       ...blocks,

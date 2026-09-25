@@ -23,6 +23,28 @@ const image = {
   createdAt: "2026-09-17T12:00:00.000Z",
 };
 const roots: Root[] = [];
+const pdf = {
+  ...image,
+  type: "DOCUMENT",
+  originalFilename: "edital.pdf",
+  mimeType: "application/pdf",
+  altText: null,
+  width: null,
+  height: null,
+};
+it("adds DOCUMENT only when a ready PDF is supplied separately from images", async () => {
+  const unavailable = await mount(vi.fn(), [], [], "ARTICLE");
+  expect(unavailable.main.querySelector<HTMLButtonElement>("button")?.textContent).toBeTruthy();
+  expect(
+    [...unavailable.main.querySelectorAll("button")].find(
+      (button) => button.textContent === "Adicionar DOCUMENT",
+    )?.disabled,
+  ).toBe(true);
+  const { main, onApply } = await mount(vi.fn(), [], [], "ARTICLE", [pdf]);
+  await click(main, "Adicionar DOCUMENT");
+  await apply(main);
+  expect(onApply.mock.calls[0]![0][0]).toMatchObject({ type: "DOCUMENT", data: { mediaId: id } });
+});
 it("adds IMAGE_TEXT through its composite editor using an available image and applies the full draft", async () => {
   const { main, onApply } = await mount();
   await click(main, "Adicionar IMAGE_TEXT");
@@ -446,6 +468,7 @@ async function mount(
   images: unknown[] = [image],
   initialBlocks: unknown = [],
   context: "PAGE" | "ARTICLE" = "PAGE",
+  documents: unknown[] = [],
 ) {
   vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
   const main = document.createElement("main");
@@ -460,6 +483,7 @@ async function mount(
           context={context}
           initialBlocks={initialBlocks}
           images={images}
+          documents={documents}
           onApply={onApply}
         />
       </>,

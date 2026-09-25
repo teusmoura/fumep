@@ -16,7 +16,10 @@ import {
   carouselBlockSchemaV1,
   mapBlockSchemaV1,
   videoBlockSchemaV1,
+  documentBlockSchemaV1,
 } from "@fumep/validation";
+import { DocumentBlockEditor } from "./editors/document-block-editor";
+import { DocumentBlockRenderer } from "./renderers/document-block-renderer";
 import { VideoBlockEditor } from "./editors/video-block-editor";
 import { VideoBlockRenderer } from "./renderers/video-block-renderer";
 import { MapBlockEditor } from "./editors/map-block-editor";
@@ -68,7 +71,8 @@ export const frontendBlockRegistry = createBlockRegistry<
   | typeof StatisticsBlockRenderer
   | typeof CarouselBlockRenderer
   | typeof MapBlockRenderer
-  | typeof VideoBlockRenderer,
+  | typeof VideoBlockRenderer
+  | typeof DocumentBlockRenderer,
   | typeof TextBlockEditor
   | typeof HeroBlockEditor
   | typeof ImageBlockEditor
@@ -85,6 +89,7 @@ export const frontendBlockRegistry = createBlockRegistry<
   | typeof CarouselBlockEditor
   | typeof MapBlockEditor
   | typeof VideoBlockEditor
+  | typeof DocumentBlockEditor
 >([
   {
     type: "TEXT",
@@ -228,6 +233,15 @@ export const frontendBlockRegistry = createBlockRegistry<
     renderer: VideoBlockRenderer,
     editor: VideoBlockEditor,
     label: "Vídeo",
+    allowedContexts: ["PAGE", "ARTICLE"],
+  },
+  {
+    type: "DOCUMENT",
+    schemaVersion: 1,
+    zodSchema: documentBlockSchemaV1,
+    renderer: DocumentBlockRenderer,
+    editor: DocumentBlockEditor,
+    label: "Documento PDF",
     allowedContexts: ["PAGE", "ARTICLE"],
   },
 ]);

@@ -100,45 +100,44 @@ LOOP 5.25 — CONCLUÍDO
 LOOP 5.26 — CONCLUÍDO
 LOOP 5.27 — CONCLUÍDO
 LOOP 5.28 — CONCLUÍDO
-LOOP 5.29 — ATUAL
+LOOP 5.29 — CONCLUÍDO
+LOOP 5.30 — ATUAL
 ```
 
 ## Loop atual
 
-### LOOP 5.29 — DOCUMENT
+### LOOP 5.30 — Registry completo
 
-Estado: pronto após commit do 5.28. VIDEO concluído, checks verdes (534 testes). Revalidar commit e Git limpo.
+Estado: pronto após commit do 5.29. DOCUMENT concluído, checks verdes (541 testes). Revalidar commit e Git limpo.
 
 Objetivo:
 
 ```text
-Implementar DOCUMENT com PDF válido da Media Library.
+Auditar e completar o Registry V1 conforme os tipos e contextos canônicos, com definições validadas.
 ```
 
 Implementar:
 
-- reler AGENTS.md, execute-loop, plano, PAGE_BUILDER_CONTENT_BLOCKS.md e documentos de mídia/frontend; confirmar 5.28 commitado e Git limpo;
-- usar page-builder, media-storage, nextjs-frontend, architecture-guard e testing-qa conforme escopo;
-- schema Zod por versão para DOCUMENT com mediaId, title?, description? e buttonLabel? controlados;
-- editor acessível para selecionar PDF válido da Media Library, callback async com falha retida;
-- renderer responsivo e acessível com projeção de mídia resolvida/validada pelo caller, sem URL física em JSONB, com BlockBackground/tema resolvidos;
-- registrar definição completa em Registry/contextos canônicos e integrar criação no builder, sem antecipar Registry completo;
+- reler AGENTS.md, execute-loop, plano e PAGE_BUILDER_CONTENT_BLOCKS.md; confirmar 5.29 commitado e Git limpo;
+- auditar o catálogo canônico contra schemas, editor, renderer, allowedContexts e versões realmente operacionais;
+- resolver lacunas do Registry no escopo do 5.30 sem implementar funcionalidades de loops posteriores;
+- cobrir validação, contextos e versões com testes de catálogo;
 - manter contrato de caller explícito, sem criar publicação, Preview ou gateways antecipados;
-- controles acessíveis/teclado/foco, tokens, responsividade e tema;
+- preservar acessibilidade, segurança e tema dos blocos existentes;
 - testes, checks disponíveis, documentação, commit e Git limpo.
 
 Não implementar:
 
-- Registry completo (5.30), outros blocos/Preview/publicação/salvamento amplo antecipados, URL física de storage em JSONB.
+- PageTemplate schema (5.31), Preview/publicação/salvamento amplo antecipados; não registrar definições incompletas com editor/renderer fictícios.
 
 Critério de aceite:
 
 ```text
-DOCUMENT disponível no Registry, Editor e Renderer com PDF da Media Library e apresentação acessível/responsiva, testes/documentação/checks verdes.
+Todos os blocos V1 previstos para o Registry deste estágio registrados e validados, sem definições parciais; testes/documentação/checks verdes.
 ```
 
 ## Próximo loop
 
 ```text
-LOOP 5.30 — Registry completo
+LOOP 5.31 — PageTemplate schema
 ```
