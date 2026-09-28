@@ -11,14 +11,15 @@
 - MIG 3.2 — Política de senha/credenciais Argon2id: concluído, 28 testes Python aprovados.
 - MIG 3.3 — Fluxo de login isolado: concluído, 36 testes Python aprovados.
 - MIG 3.4 — Autorização institucional e papéis: concluído, 45 testes Python aprovados.
-- **MIG 3.5 — Contrato CSRF isolado: próximo após commit de MIG 3.4.**
+- MIG 3.5 — Contrato CSRF isolado: concluído, 66 testes Python aprovados.
+- **MIG 3.6 — Logout e leitura de sessão isolados: próximo após commit de MIG 3.5.**
 
-## MIG 3.5 — Contrato CSRF isolado
+## MIG 3.6 — Logout e leitura de sessão isolados
 
-Implementar contrato de proteção CSRF para futuras mutações administrativas baseadas em cookie: token imprevisível ligado à sessão, validação do token e de Origin/Referer conforme o documento de segurança. Manter serviço/testes isolados, sem endpoint, middleware global, UI Nuxt ou integração PostgreSQL. GET não altera estado. Evitar registrar token em log ou persistir token puro além do necessário ao vínculo com sessão.
+Implementar casos de uso isolados para leitura de sessão e logout sobre Redis: leitura retorna apenas projeção pública mínima ao cliente autenticado; logout remove a sessão e prepara expiração do cookie. Cobrir sessão ausente/expirada, logout idempotente e falha de Redis sem fallback. Não adicionar endpoint, guard, PostgreSQL ou UI Nuxt nesta fatia.
 
-Aceite: token válido e origem autorizada passam; token ausente/incorreto e origem externa falham; cobertura para métodos mutáveis, cookie e cabeçalhos relevantes, sem quebrar API pública existente. Checks verdes, status atualizado e commit criado.
+Aceite: leitura válida/ausente e logout válido/repetido têm comportamento testado; dados sensíveis não aparecem na projeção; cookie é expirado com atributos corretos; checks verdes, status atualizado e commit criado.
 
 ## Próximo loop
 
-**MIG 3.6 — Contrato de logout e leitura de sessão isolados.** Detalhar somente após aceite de MIG 3.5, respeitando ordem e segurança canônicas.
+**MIG 3.7 — Rate limiting de login isolado.** Detalhar somente após aceite de MIG 3.6, respeitando ordem e segurança canônicas.
