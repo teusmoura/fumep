@@ -36,6 +36,14 @@ Checks aprovados: `python -m pip check`, `python -m compileall -q app`, `python 
 
 Aceite MIG 3.5 cumprido. O futuro adaptador HTTP deverá aplicar este contrato a todas as mutações administrativas, com segredo/origem por configuração segura. Próximo: MIG 3.6 — logout e leitura de sessão isolados.
 
+### MIG 3.6 — Logout e leitura de sessão isolados — concluído
+
+Estado inicial: MIG 3.5 concluído em `0f83137`, Git limpo. Entregue: `SessionUseCases.read` projeta somente ID, papel e instituições de sessão Redis válida; ausente/expirada retorna `None`. Logout remove sessão e expira cookie com atributos seguros, inclusive em repetição ou token ausente. Falhas de Redis propagam sem fallback. Fronteira documentada em `docs/SESSION_USE_CASES_MIGRATION.md`; sem endpoint/guard/UI.
+
+Checks aprovados: `python -m pip check`, `python -m compileall -q app`, `python -m pytest -q` (73 aprovados, 1 integração Redis opcional ignorada sem URL), `pnpm format:check` e `git diff --check`. Warning transitivo Starlette/TestClient sobre httpx sem falha. Sem código JS alterado; checks JS completos não repetidos.
+
+Aceite MIG 3.6 cumprido. A futura rota de logout exige CSRF; a leitura não substitui revalidação da conta/permissões atuais no backend. Próximo: MIG 3.7 — rate limiting de login isolado.
+
 ### MIG 3.1 — Sessão Redis e cookie — concluído
 
 Entregue: `RedisSessionStore` com token opaco de 32 bytes, `SET NX EX`, prefixo isolado da pilha legada, leitura/renovação atômica `WATCH/MULTI/EXEC`, limite de inatividade de 30 minutos, limite absoluto de 8 horas, invalidação e descarte de dados corrompidos. Cookie `fumep_session` HttpOnly, SameSite=Lax, Path=/, Secure em produção. Sem login, autorização de rotas ou integração com Nuxt. Contrato/teste local descritos em `docs/REDIS_SESSION_MIGRATION.md`.

@@ -12,14 +12,15 @@
 - MIG 3.3 — Fluxo de login isolado: concluído, 36 testes Python aprovados.
 - MIG 3.4 — Autorização institucional e papéis: concluído, 45 testes Python aprovados.
 - MIG 3.5 — Contrato CSRF isolado: concluído, 66 testes Python aprovados.
-- **MIG 3.6 — Logout e leitura de sessão isolados: próximo após commit de MIG 3.5.**
+- MIG 3.6 — Logout e leitura de sessão isolados: concluído, 73 testes Python aprovados.
+- **MIG 3.7 — Rate limiting de login isolado: próximo após commit de MIG 3.6.**
 
-## MIG 3.6 — Logout e leitura de sessão isolados
+## MIG 3.7 — Rate limiting de login isolado
 
-Implementar casos de uso isolados para leitura de sessão e logout sobre Redis: leitura retorna apenas projeção pública mínima ao cliente autenticado; logout remove a sessão e prepara expiração do cookie. Cobrir sessão ausente/expirada, logout idempotente e falha de Redis sem fallback. Não adicionar endpoint, guard, PostgreSQL ou UI Nuxt nesta fatia.
+Implementar política isolada de limite de tentativas de login usando Redis: 5 tentativas por minuto por IP, controle complementar por conta/e-mail normalizado e resposta neutra sem revelar existência de usuário. Tratar concorrência e expiração com operação atômica; falha do Redis deve falhar fechado. Sem conectar endpoint/login HTTP nem criar bloqueio permanente de conta nesta fatia. Consultar o documento de segurança antes de implementar.
 
-Aceite: leitura válida/ausente e logout válido/repetido têm comportamento testado; dados sensíveis não aparecem na projeção; cookie é expirado com atributos corretos; checks verdes, status atualizado e commit criado.
+Aceite: limites por IP e conta, janelas/retry e concorrência testados; não registrar e-mail/IP em texto puro em chave Redis; erro de infraestrutura não libera tentativas. Checks verdes, status atualizado e commit criado.
 
 ## Próximo loop
 
-**MIG 3.7 — Rate limiting de login isolado.** Detalhar somente após aceite de MIG 3.6, respeitando ordem e segurança canônicas.
+**MIG 3.8 — Contrato de recuperação de senha isolado.** Detalhar somente após aceite de MIG 3.7, respeitando ordem e segurança canônicas.
