@@ -9,14 +9,15 @@
 - MIG 2 — API FastAPI básica isolada: concluído, 6 testes Python e HTTP real aprovados.
 - MIG 3.1 — Sessão Redis e contrato de cookie: concluído, 17 testes Python incluindo Redis real.
 - MIG 3.2 — Política de senha/credenciais Argon2id: concluído, 28 testes Python aprovados.
-- **MIG 3.3 — Fluxo de login isolado: próximo após commit de MIG 3.2.**
+- MIG 3.3 — Fluxo de login isolado: concluído, 36 testes Python aprovados.
+- **MIG 3.4 — Autorização institucional e papéis: próximo após commit de MIG 3.3.**
 
-## MIG 3.3 — Fluxo de login isolado
+## MIG 3.4 — Autorização institucional e papéis
 
-Implementar o caso de uso de login no backend FastAPI como serviço isolado: repositório de usuário por contrato/injeção (test double somente em testes), verificação de hash Argon2id, estado ativo, vínculo institucional e criação de sessão Redis pelo componente MIG 3.1. Respostas de falha não devem diferenciar usuário inexistente, senha incorreta ou conta inativa. Não criar usuário fictício de produção, endpoint HTTP, acesso PostgreSQL, guard ou tela Nuxt nesta subfatia; integração posterior não é simulada como persistência.
+Implementar política isolada de autorização backend para papéis ADMIN/EDITOR e escopo por instituição: ADMIN global, EDITOR restrito às instituições atribuídas, conteúdo multi-institucional exigindo todas as atribuições. Partir dos contratos de sessão existentes, sem endpoint, guard HTTP, PostgreSQL ou UI; não usar controles de frontend como autorização. Consultar o documento especializado e o modelo lógico antes de codificar.
 
-Aceite: serviço autentica somente conta ativa com hash válido, cria sessão opaca contendo identidade e escopo institucional mínimo, falha de forma uniforme sem criar sessão, testes verdes com repositório injetado e Redis simulado/real conforme disponibilidade. Atualizar status e commitar somente após aceite.
+Aceite: operações de exemplo ADMIN-only e EDITOR scoped têm decisão correta, incluindo Editor ETMSL sem acesso CRAMAM e Editor parcial sem acesso a conteúdo compartilhado. Testes de negação e aprovação verdes; status atualizado e commit criado.
 
 ## Próximo loop
 
-**MIG 3.4 — Autorização institucional e papéis em serviço isolado.** Consultar os documentos canônicos de segurança e o modelo lógico antes de detalhar o próximo escopo.
+**MIG 3.5 — Contrato de proteção CSRF isolado.** Detalhar somente após aceite de MIG 3.4, respeitando ordem e segurança canônicas.

@@ -12,6 +12,14 @@ Checks aprovados: `python -m pip check`, `python -m compileall -q app`, `python 
 
 Aceite MIG 3.2 cumprido. Próximo: MIG 3.3 — fluxo isolado de login com contrato de repositório de usuário e criação de sessão Redis; integração PostgreSQL/HTTP fica para decisão explícita posterior.
 
+### MIG 3.3 — Fluxo de login isolado — concluído
+
+Estado inicial: MIG 3.2 concluído em `d158777`, Git limpo. Entregue: `LoginService` com contrato `UserRepository` injetado, verificação Argon2id, conta ativa, papel e vínculo institucional; sessão Redis opaca apenas no sucesso. Usuário inexistente, senha errada, conta inativa e Editor sem instituição falham com a mesma resposta, sem sessão. Hash-isca aleatório em memória reduz diferença imediata entre usuário existente/inexistente; falha do Redis não autoriza fallback. Contrato/fronteira em `docs/LOGIN_SERVICE_MIGRATION.md`. Sem endpoint, PostgreSQL, guard, cookie HTTP ou UI nesta fatia.
+
+Checks aprovados: `python -m pip check`, `python -m compileall -q app`, `python -m pytest -q` (36 aprovados, 1 integração Redis opcional ignorada sem URL), `pnpm format:check` e `git diff --check`. Warning transitivo Starlette/TestClient sobre httpx sem falha. Sem código JS alterado; checks JS completos não repetidos.
+
+Aceite MIG 3.3 cumprido. `architecture-guard`: conforme com observação — autenticação permanece isolada, sem rota disponível ou dados reais; rate limiting, auditoria, revalidação e invalidação de sessões existentes exigem fatias futuras. Próximo: MIG 3.4 — autorização institucional e papéis em serviço isolado.
+
 ### MIG 3.1 — Sessão Redis e cookie — concluído
 
 Entregue: `RedisSessionStore` com token opaco de 32 bytes, `SET NX EX`, prefixo isolado da pilha legada, leitura/renovação atômica `WATCH/MULTI/EXEC`, limite de inatividade de 30 minutos, limite absoluto de 8 horas, invalidação e descarte de dados corrompidos. Cookie `fumep_session` HttpOnly, SameSite=Lax, Path=/, Secure em produção. Sem login, autorização de rotas ou integração com Nuxt. Contrato/teste local descritos em `docs/REDIS_SESSION_MIGRATION.md`.
