@@ -66,6 +66,10 @@ Checks aprovados: `python -m pip check`, `python -m compileall -q app`, `python 
 
 Aceite do **contrato isolado** MIG 3.8 cumprido. `architecture-guard`: conforme com observação — a suíte não prova revogação Redis ou transação PostgreSQL reais; não expor recuperação até implementar/testar adaptadores e coordenação de login concorrente. Próximo: MIG 3.9 — contratos HTTP de autenticação FastAPI, sujeito às escolhas de integração necessárias.
 
+### MIG 3.9 — Contratos HTTP de autenticação FastAPI — aguardando decisão
+
+Estado inicial: MIG 3.8 concluído em `0691a36`, Git limpo. Auditoria de escopo: serviços Python estão isolados, sem repositórios PostgreSQL, auditoria persistida ou revogação de todas as sessões. A estratégia ORM/migrations Python sobre o schema Drizzle existente não foi fechada. Expor rotas agora violaria o aceite de não retornar sucesso fictício e os controles de segurança canônicos. Registrado MIG-AUTH-001 em `docs/ISSUES_ARCHITECTURE.md`; nenhuma rota ou dado alterado. `docs/CURRENT_LOOP.md` permanece em MIG 3.9, sem declarar conclusão.
+
 ### MIG 3.1 — Sessão Redis e cookie — concluído
 
 Entregue: `RedisSessionStore` com token opaco de 32 bytes, `SET NX EX`, prefixo isolado da pilha legada, leitura/renovação atômica `WATCH/MULTI/EXEC`, limite de inatividade de 30 minutos, limite absoluto de 8 horas, invalidação e descarte de dados corrompidos. Cookie `fumep_session` HttpOnly, SameSite=Lax, Path=/, Secure em produção. Sem login, autorização de rotas ou integração com Nuxt. Contrato/teste local descritos em `docs/REDIS_SESSION_MIGRATION.md`.

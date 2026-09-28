@@ -4,7 +4,15 @@ Use este arquivo apenas quando a implementação encontrar uma contradição rea
 
 ## Abertos
 
-Nenhum bloqueio arquitetural aberto. A migração aprovada segue decisões por funcionalidade; a antiga sequência de loops foi interrompida após 5.30.
+### MIG-AUTH-001 — Adaptador PostgreSQL/migrations Python antes das rotas de autenticação
+
+Classificação: **bloqueador para concluir MIG 3.9**. Registrado em 2026-09-28; sem alteração de schema ou dados.
+
+O documento canônico de migração preserva o schema/dados PostgreSQL existentes e exige fechar ORM/migrations Python antes de escrever na base. Hoje `apps/backend` contém apenas serviços isolados e test doubles; não há repositório Python de usuários/tokens, auditoria real ou revogação de todas as sessões. O aceite de MIG 3.9 proíbe sucesso fictício em rota administrativa. Expor login/reset agora omitiria persistência e controles obrigatórios; aplicar migrations automáticas sobre o histórico Drizzle sem baseline revisada poderia alterar a base indevidamente.
+
+Decisão recomendada para aprovação: SQLAlchemy 2 para mapeamento explícito das tabelas existentes e Alembic para **novas** migrations Python, com baseline auditada contra o schema Drizzle e sem executar `create_all`, `autogenerate`, `stamp` ou `upgrade` na base existente automaticamente. Primeiro validar em banco de teste/cópia; depois implementar repositórios de usuários/tokens e auditoria, revogação Redis e fluxos HTTP completos. Alternativa: psycopg 3 com SQL parametrizado e migrations SQL manuais; mantém controle direto, mas amplia código de repositório/transação a manter para as próximas funcionalidades.
+
+É necessária escolha explícita da estratégia de persistência/migrations e confirmação de que o banco de teste pode ser usado para validar a linha-base. Até lá, MIG 3.9 permanece ativo e nenhuma rota de autenticação administrativa será exposta.
 
 ## Resolvidos
 
