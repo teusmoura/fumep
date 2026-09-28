@@ -44,6 +44,14 @@ Checks aprovados: `python -m pip check`, `python -m compileall -q app`, `python 
 
 Aceite MIG 3.6 cumprido. A futura rota de logout exige CSRF; a leitura não substitui revalidação da conta/permissões atuais no backend. Próximo: MIG 3.7 — rate limiting de login isolado.
 
+### MIG 3.7 — Rate limiting de login isolado — concluído
+
+Estado inicial: MIG 3.6 concluído em `2ff5db6`, Git limpo. Entregue: orçamento inicial de 5 tentativas/minuto por IP e conta normalizada, decisão neutra sem consulta ao usuário, retry temporário, transação Redis `WATCH/MULTI/EXEC`, chaves HMAC sem IP/e-mail em texto puro e falha fechada em erro/contensão. Contrato e limite de integração em `docs/LOGIN_RATE_LIMIT_MIGRATION.md`; sem endpoint ou bloqueio permanente.
+
+Checks aprovados: `python -m pip check`, `python -m compileall -q app`, `python -m pytest -q` (80 aprovados, 1 integração Redis opcional ignorada sem URL), teste de concorrência repetido 10 vezes, `pnpm format:check` e `git diff --check`. Warning transitivo Starlette/TestClient sobre httpx sem falha. Sem código JS alterado; checks JS completos não repetidos. O teste focado inicial tinha uma contagem esperada incorreta de chaves Redis; corrigida e reexecutada com sucesso.
+
+Aceite MIG 3.7 cumprido. O futuro endpoint ainda deve conectar o limitador, registrar auditoria de falhas e aplicar política progressiva antes de produção. Próximo: MIG 3.8 — contrato de recuperação de senha isolado.
+
 ### MIG 3.1 — Sessão Redis e cookie — concluído
 
 Entregue: `RedisSessionStore` com token opaco de 32 bytes, `SET NX EX`, prefixo isolado da pilha legada, leitura/renovação atômica `WATCH/MULTI/EXEC`, limite de inatividade de 30 minutos, limite absoluto de 8 horas, invalidação e descarte de dados corrompidos. Cookie `fumep_session` HttpOnly, SameSite=Lax, Path=/, Secure em produção. Sem login, autorização de rotas ou integração com Nuxt. Contrato/teste local descritos em `docs/REDIS_SESSION_MIGRATION.md`.

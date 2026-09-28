@@ -13,14 +13,15 @@
 - MIG 3.4 — Autorização institucional e papéis: concluído, 45 testes Python aprovados.
 - MIG 3.5 — Contrato CSRF isolado: concluído, 66 testes Python aprovados.
 - MIG 3.6 — Logout e leitura de sessão isolados: concluído, 73 testes Python aprovados.
-- **MIG 3.7 — Rate limiting de login isolado: próximo após commit de MIG 3.6.**
+- MIG 3.7 — Rate limiting de login isolado: concluído, 80 testes Python aprovados.
+- **MIG 3.8 — Contrato de recuperação de senha isolado: próximo após commit de MIG 3.7.**
 
-## MIG 3.7 — Rate limiting de login isolado
+## MIG 3.8 — Contrato de recuperação de senha isolado
 
-Implementar política isolada de limite de tentativas de login usando Redis: 5 tentativas por minuto por IP, controle complementar por conta/e-mail normalizado e resposta neutra sem revelar existência de usuário. Tratar concorrência e expiração com operação atômica; falha do Redis deve falhar fechado. Sem conectar endpoint/login HTTP nem criar bloqueio permanente de conta nesta fatia. Consultar o documento de segurança antes de implementar.
+Implementar contratos isolados de solicitação e consumo de token de recuperação de senha: resposta neutra para conta existente/inexistente, token aleatório de uso único com validade de 30 minutos e somente hash persistível; senha nova segue Argon2id. Usar repositórios/provedores injetados com test doubles apenas nos testes, sem criar endpoint, conexão PostgreSQL, envio de e-mail real ou UI. Definir limites de transação/invalidação de sessões conforme documento especializado antes de codificar, sem fingir atomicidade inexistente.
 
-Aceite: limites por IP e conta, janelas/retry e concorrência testados; não registrar e-mail/IP em texto puro em chave Redis; erro de infraestrutura não libera tentativas. Checks verdes, status atualizado e commit criado.
+Aceite: existência da conta não vaza; token é aleatório, só hash vai ao repositório, expira e não reutiliza; redefinição exige senha válida e invalidação de sessões, com testes de falha e documentação dos limites da implementação isolada. Checks verdes, status atualizado e commit criado.
 
 ## Próximo loop
 
-**MIG 3.8 — Contrato de recuperação de senha isolado.** Detalhar somente após aceite de MIG 3.7, respeitando ordem e segurança canônicas.
+**MIG 3.9 — Contratos HTTP de autenticação FastAPI.** Detalhar somente após aceite de MIG 3.8, preservando controles de segurança e sem integrar Nuxt ainda.
