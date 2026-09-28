@@ -14,14 +14,15 @@
 - MIG 3.5 — Contrato CSRF isolado: concluído, 66 testes Python aprovados.
 - MIG 3.6 — Logout e leitura de sessão isolados: concluído, 73 testes Python aprovados.
 - MIG 3.7 — Rate limiting de login isolado: concluído, 80 testes Python aprovados.
-- **MIG 3.8 — Contrato de recuperação de senha isolado: próximo após commit de MIG 3.7.**
+- MIG 3.8 — Contrato de recuperação de senha isolado: concluído, 89 testes Python aprovados.
+- **MIG 3.9 — Contratos HTTP de autenticação FastAPI: próximo após commit de MIG 3.8.**
 
-## MIG 3.8 — Contrato de recuperação de senha isolado
+## MIG 3.9 — Contratos HTTP de autenticação FastAPI
 
-Implementar contratos isolados de solicitação e consumo de token de recuperação de senha: resposta neutra para conta existente/inexistente, token aleatório de uso único com validade de 30 minutos e somente hash persistível; senha nova segue Argon2id. Usar repositórios/provedores injetados com test doubles apenas nos testes, sem criar endpoint, conexão PostgreSQL, envio de e-mail real ou UI. Definir limites de transação/invalidação de sessões conforme documento especializado antes de codificar, sem fingir atomicidade inexistente.
+Inspecionar os casos de uso MIG 3.1–3.8 e definir/implementar contratos HTTP FastAPI de autenticação somente na medida em que não exponham fluxos incompletos. Login, consulta de sessão, logout, recuperação e reset precisam preservar Redis, cookie HttpOnly, CSRF, rate limiting, autorização, auditoria e persistência reais antes de uma rota de produção. Decidir o adaptador Python de PostgreSQL/migrations antes de escrever no banco existente. Se não houver decisão suficiente, registrar a questão em `docs/ISSUES_ARCHITECTURE.md`, não expor rota insegura e limitar-se ao trabalho independente.
 
-Aceite: existência da conta não vaza; token é aleatório, só hash vai ao repositório, expira e não reutiliza; redefinição exige senha válida e invalidação de sessões, com testes de falha e documentação dos limites da implementação isolada. Checks verdes, status atualizado e commit criado.
+Aceite: contratos HTTP/OpenAPI validados por TestClient sem fixture de usuário em produção; nenhuma rota administrativa retorna sucesso fictício; controles obrigatórios presentes nos fluxos expostos. Checks verdes, status atualizado e commit criado somente se o escopo seguro estiver completo.
 
 ## Próximo loop
 
-**MIG 3.9 — Contratos HTTP de autenticação FastAPI.** Detalhar somente após aceite de MIG 3.8, preservando controles de segurança e sem integrar Nuxt ainda.
+**MIG 3.10 — Integração Nuxt dos fluxos de autenticação.** Planejar somente após aceite de MIG 3.9 e dados reais testados.

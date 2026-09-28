@@ -58,6 +58,14 @@ Durante a revisão de recuperação de senha, foi detectado que o contrato MIG 3
 
 Checks da correção: `python -m pip check`, `python -m compileall -q app`, `python -m pytest -q` (81 aprovados, 1 integração Redis opcional ignorada), `pnpm format:check` e `git diff --check`, todos verdes.
 
+### MIG 3.8 — Contrato de recuperação de senha isolado — concluído
+
+Estado inicial: MIG 3.7 concluído em `3f0c5d9`, correção AUTH-002 concluída em `fdc6d80`, Git limpo. Entregue: solicitação de recuperação com resposta neutra, token aleatório de 32 bytes, hash SHA-256 persistível e expiração em 30 minutos; reset com senha Argon2id e `ResetExecutor` que exige uso único, revogação de sessões antes de atualização/consumo/auditoria. Test double com lock cobre concorrência e falha de revogação. Limites de transação e integração em `docs/PASSWORD_RECOVERY_MIGRATION.md`. Sem endpoint, PostgreSQL, envio real ou UI.
+
+Checks aprovados: `python -m pip check`, `python -m compileall -q app`, `python -m pytest -q` (89 aprovados, 1 integração Redis opcional ignorada sem URL), `pnpm format:check` e `git diff --check`. Warning transitivo Starlette/TestClient sobre httpx sem falha. Sem código JS alterado; checks JS completos não repetidos.
+
+Aceite do **contrato isolado** MIG 3.8 cumprido. `architecture-guard`: conforme com observação — a suíte não prova revogação Redis ou transação PostgreSQL reais; não expor recuperação até implementar/testar adaptadores e coordenação de login concorrente. Próximo: MIG 3.9 — contratos HTTP de autenticação FastAPI, sujeito às escolhas de integração necessárias.
+
 ### MIG 3.1 — Sessão Redis e cookie — concluído
 
 Entregue: `RedisSessionStore` com token opaco de 32 bytes, `SET NX EX`, prefixo isolado da pilha legada, leitura/renovação atômica `WATCH/MULTI/EXEC`, limite de inatividade de 30 minutos, limite absoluto de 8 horas, invalidação e descarte de dados corrompidos. Cookie `fumep_session` HttpOnly, SameSite=Lax, Path=/, Secure em produção. Sem login, autorização de rotas ou integração com Nuxt. Contrato/teste local descritos em `docs/REDIS_SESSION_MIGRATION.md`.
