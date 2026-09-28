@@ -20,6 +20,14 @@ Checks aprovados: `python -m pip check`, `python -m compileall -q app`, `python 
 
 Aceite MIG 3.3 cumprido. `architecture-guard`: conforme com observação — autenticação permanece isolada, sem rota disponível ou dados reais; rate limiting, auditoria, revalidação e invalidação de sessões existentes exigem fatias futuras. Próximo: MIG 3.4 — autorização institucional e papéis em serviço isolado.
 
+### MIG 3.4 — Autorização institucional e papéis — concluído
+
+Estado inicial: MIG 3.3 concluído em `04fab7f`, Git limpo. Entregue: política backend isolada para ADMIN global e EDITOR vinculado a instituições, exigindo todas as atribuições para conteúdo compartilhado e rejeitando escopo vazio. `CurrentUserAccess` representa estado atualizado de fonte confiável; divergência de ID, papel, instituições ou conta inativa nega acesso. Contrato/fronteira em `docs/AUTHORIZATION_POLICY_MIGRATION.md`. Sem guard HTTP ou PostgreSQL.
+
+Checks aprovados: `python -m pip check`, `python -m compileall -q app`, `python -m pytest -q` (45 aprovados, 1 integração Redis opcional ignorada sem URL), `pnpm format:check` e `git diff --check`. Warning transitivo Starlette/TestClient sobre httpx sem falha. Nenhum código JS alterado; checks JS completos não repetidos.
+
+Aceite MIG 3.4 cumprido. `architecture-guard`: conforme com observação — o futuro guard deverá obter o estado atualizado do usuário no backend e invalidar sessões após desativação/mudança de permissão; esta política não aceita estado fornecido pelo navegador. Próximo: MIG 3.5 — contrato CSRF isolado.
+
 ### MIG 3.1 — Sessão Redis e cookie — concluído
 
 Entregue: `RedisSessionStore` com token opaco de 32 bytes, `SET NX EX`, prefixo isolado da pilha legada, leitura/renovação atômica `WATCH/MULTI/EXEC`, limite de inatividade de 30 minutos, limite absoluto de 8 horas, invalidação e descarte de dados corrompidos. Cookie `fumep_session` HttpOnly, SameSite=Lax, Path=/, Secure em produção. Sem login, autorização de rotas ou integração com Nuxt. Contrato/teste local descritos em `docs/REDIS_SESSION_MIGRATION.md`.

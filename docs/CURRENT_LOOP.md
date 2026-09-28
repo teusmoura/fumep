@@ -10,14 +10,15 @@
 - MIG 3.1 — Sessão Redis e contrato de cookie: concluído, 17 testes Python incluindo Redis real.
 - MIG 3.2 — Política de senha/credenciais Argon2id: concluído, 28 testes Python aprovados.
 - MIG 3.3 — Fluxo de login isolado: concluído, 36 testes Python aprovados.
-- **MIG 3.4 — Autorização institucional e papéis: próximo após commit de MIG 3.3.**
+- MIG 3.4 — Autorização institucional e papéis: concluído, 45 testes Python aprovados.
+- **MIG 3.5 — Contrato CSRF isolado: próximo após commit de MIG 3.4.**
 
-## MIG 3.4 — Autorização institucional e papéis
+## MIG 3.5 — Contrato CSRF isolado
 
-Implementar política isolada de autorização backend para papéis ADMIN/EDITOR e escopo por instituição: ADMIN global, EDITOR restrito às instituições atribuídas, conteúdo multi-institucional exigindo todas as atribuições. Partir dos contratos de sessão existentes, sem endpoint, guard HTTP, PostgreSQL ou UI; não usar controles de frontend como autorização. Consultar o documento especializado e o modelo lógico antes de codificar.
+Implementar contrato de proteção CSRF para futuras mutações administrativas baseadas em cookie: token imprevisível ligado à sessão, validação do token e de Origin/Referer conforme o documento de segurança. Manter serviço/testes isolados, sem endpoint, middleware global, UI Nuxt ou integração PostgreSQL. GET não altera estado. Evitar registrar token em log ou persistir token puro além do necessário ao vínculo com sessão.
 
-Aceite: operações de exemplo ADMIN-only e EDITOR scoped têm decisão correta, incluindo Editor ETMSL sem acesso CRAMAM e Editor parcial sem acesso a conteúdo compartilhado. Testes de negação e aprovação verdes; status atualizado e commit criado.
+Aceite: token válido e origem autorizada passam; token ausente/incorreto e origem externa falham; cobertura para métodos mutáveis, cookie e cabeçalhos relevantes, sem quebrar API pública existente. Checks verdes, status atualizado e commit criado.
 
 ## Próximo loop
 
-**MIG 3.5 — Contrato de proteção CSRF isolado.** Detalhar somente após aceite de MIG 3.4, respeitando ordem e segurança canônicas.
+**MIG 3.6 — Contrato de logout e leitura de sessão isolados.** Detalhar somente após aceite de MIG 3.5, respeitando ordem e segurança canônicas.
