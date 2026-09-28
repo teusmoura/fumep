@@ -6,13 +6,13 @@ Use este arquivo apenas quando a implementação encontrar uma contradição rea
 
 ### MIG-AUTH-001 — Adaptador PostgreSQL/migrations Python antes das rotas de autenticação
 
-Classificação: **bloqueador para concluir MIG 3.9**. Registrado em 2026-09-28; sem alteração de schema ou dados.
+Classificação: **decisão pendente para MIG 6 (integração)**. Registrado em 2026-09-28; sem alteração de schema ou dados. Não bloqueia a migração funcional isolada MIG 4/MIG 5, conforme a sequência canônica e a orientação explícita do responsável de integrar somente depois.
 
 O documento canônico de migração preserva o schema/dados PostgreSQL existentes e exige fechar ORM/migrations Python antes de escrever na base. Hoje `apps/backend` contém apenas serviços isolados e test doubles; não há repositório Python de usuários/tokens, auditoria real ou revogação de todas as sessões. O aceite de MIG 3.9 proíbe sucesso fictício em rota administrativa. Expor login/reset agora omitiria persistência e controles obrigatórios; aplicar migrations automáticas sobre o histórico Drizzle sem baseline revisada poderia alterar a base indevidamente.
 
 Decisão recomendada para aprovação: SQLAlchemy 2 para mapeamento explícito das tabelas existentes e Alembic para **novas** migrations Python, com baseline auditada contra o schema Drizzle e sem executar `create_all`, `autogenerate`, `stamp` ou `upgrade` na base existente automaticamente. Primeiro validar em banco de teste/cópia; depois implementar repositórios de usuários/tokens e auditoria, revogação Redis e fluxos HTTP completos. Alternativa: psycopg 3 com SQL parametrizado e migrations SQL manuais; mantém controle direto, mas amplia código de repositório/transação a manter para as próximas funcionalidades.
 
-É necessária escolha explícita da estratégia de persistência/migrations e confirmação de que o banco de teste pode ser usado para validar a linha-base. Até lá, MIG 3.9 permanece ativo e nenhuma rota de autenticação administrativa será exposta.
+É necessária escolha explícita da estratégia de persistência/migrations e confirmação de que o banco de teste pode ser usado para validar a linha-base antes de MIG 6. O plano canônico coloca a integração depois de MIG 4 e MIG 5; portanto, MIG 3.9 (rotas HTTP) foi adiado para MIG 6 e nenhuma rota de autenticação administrativa será exposta até lá.
 
 ## Resolvidos
 

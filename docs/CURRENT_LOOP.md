@@ -15,14 +15,16 @@
 - MIG 3.6 — Logout e leitura de sessão isolados: concluído, 73 testes Python aprovados.
 - MIG 3.7 — Rate limiting de login isolado: concluído, 80 testes Python aprovados.
 - MIG 3.8 — Contrato de recuperação de senha isolado: concluído, 89 testes Python aprovados.
-- **MIG 3.9 — Contratos HTTP de autenticação FastAPI: próximo após commit de MIG 3.8.**
+- Contratos HTTP de autenticação: adiados para MIG 6, fase de integração, conforme estratégia canônica; não declarados concluídos.
+- MIG 4.1 — Modelo isolado de metadados da Biblioteca: concluído, 119 testes Python aprovados.
+- **MIG 4.2 — Validação isolada de imagem para upload: próximo após commit de MIG 4.1.**
 
-## MIG 3.9 — Contratos HTTP de autenticação FastAPI
+## MIG 4.2 — Validação isolada de imagem para upload
 
-Inspecionar os casos de uso MIG 3.1–3.8 e definir/implementar contratos HTTP FastAPI de autenticação somente na medida em que não exponham fluxos incompletos. Login, consulta de sessão, logout, recuperação e reset precisam preservar Redis, cookie HttpOnly, CSRF, rate limiting, autorização, auditoria e persistência reais antes de uma rota de produção. Decidir o adaptador Python de PostgreSQL/migrations antes de escrever no banco existente. Se não houver decisão suficiente, registrar a questão em `docs/ISSUES_ARCHITECTURE.md`, não expor rota insegura e limitar-se ao trabalho independente.
+Implementar validação isolada dos bytes e metadados de imagem antes de qualquer upload: formatos JPEG, PNG, WebP e AVIF; extensão, MIME declarado, assinatura real/magic bytes, limite de 15 MB, nome original seguro e rejeição de SVG/outros tipos. Calcular SHA-256 sobre os bytes validados. Usar biblioteca/adaptador Python somente se necessário e documentar decisão; manter sem endpoint, MinIO, PostgreSQL, Worker, variantes ou UI.
 
-Aceite: contratos HTTP/OpenAPI validados por TestClient sem fixture de usuário em produção; nenhuma rota administrativa retorna sucesso fictício; controles obrigatórios presentes nos fluxos expostos. Checks verdes, status atualizado e commit criado somente se o escopo seguro estiver completo.
+Aceite: arquivos válidos de formatos permitidos são aceitos com hash correto; extensão/MIME/magic bytes discordantes, SVG e tamanho excedido são rejeitados; testes e checks verdes, status atualizado e commit criado. Não afirmar armazenamento ou processamento de imagem.
 
 ## Próximo loop
 
-**MIG 3.10 — Integração Nuxt dos fluxos de autenticação.** Planejar somente após aceite de MIG 3.9 e dados reais testados.
+**MIG 4.3 — Contrato isolado de upload/armazenamento MinIO.** Detalhar após aceite de MIG 4.2, sem antecipar persistência PostgreSQL.

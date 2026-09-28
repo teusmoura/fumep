@@ -66,9 +66,17 @@ Checks aprovados: `python -m pip check`, `python -m compileall -q app`, `python 
 
 Aceite do **contrato isolado** MIG 3.8 cumprido. `architecture-guard`: conforme com observação — a suíte não prova revogação Redis ou transação PostgreSQL reais; não expor recuperação até implementar/testar adaptadores e coordenação de login concorrente. Próximo: MIG 3.9 — contratos HTTP de autenticação FastAPI, sujeito às escolhas de integração necessárias.
 
-### MIG 3.9 — Contratos HTTP de autenticação FastAPI — aguardando decisão
+### MIG 3.9 — Contratos HTTP de autenticação FastAPI — adiado para MIG 6
 
-Estado inicial: MIG 3.8 concluído em `0691a36`, Git limpo. Auditoria de escopo: serviços Python estão isolados, sem repositórios PostgreSQL, auditoria persistida ou revogação de todas as sessões. A estratégia ORM/migrations Python sobre o schema Drizzle existente não foi fechada. Expor rotas agora violaria o aceite de não retornar sucesso fictício e os controles de segurança canônicos. Registrado MIG-AUTH-001 em `docs/ISSUES_ARCHITECTURE.md`; nenhuma rota ou dado alterado. `docs/CURRENT_LOOP.md` permanece em MIG 3.9, sem declarar conclusão.
+Estado inicial: MIG 3.8 concluído em `0691a36`, Git limpo. Auditoria de escopo: serviços Python estão isolados, sem repositórios PostgreSQL, auditoria persistida ou revogação de todas as sessões. A estratégia ORM/migrations Python sobre o schema Drizzle existente não foi fechada. Expor rotas agora violaria o aceite de não retornar sucesso fictício e os controles de segurança canônicos. Registrado MIG-AUTH-001 em `docs/ISSUES_ARCHITECTURE.md`; nenhuma rota ou dado alterado. A sequência canônica e a orientação explícita do responsável colocam integração somente após MIG 4 e MIG 5. Assim, este item não foi declarado concluído nem executado; foi remapeado para MIG 6, sem necessidade de escolha ORM antecipada. Próximo loop funcional: MIG 4.1.
+
+### MIG 4.1 — Modelo isolado de metadados da Biblioteca — concluído
+
+Estado inicial: MIG 3.8 concluído em `0691a36`, Git limpo antes do ajuste documental de sequência; autenticação HTTP adiada para MIG 6. Entregue: contrato Pydantic estrito de metadados `MediaMetadata`, validações de tamanho/dimensões/checksum/nome/chave relativa e projeção pública mínima que não expõe storage/erro/autor. Mídia não READY ou em exclusão não é projetada. Detalhes em `docs/MEDIA_METADATA_MIGRATION.md`. Sem banco, MinIO, upload, Worker ou UI.
+
+Checks aprovados: `python -m pip check`, `python -m compileall -q app`, `python -m pytest -q` (119 aprovados, 1 integração Redis opcional ignorada sem URL), `pnpm format:check` e `git diff --check`. Warning transitivo Starlette/TestClient sobre httpx sem falha. Sem código JS alterado; checks JS completos não repetidos.
+
+Aceite do contrato isolado MIG 4.1 cumprido; não se declara tabela/persistência real. Próximo: MIG 4.2 — validação de imagem para upload antes de tocar MinIO.
 
 ### MIG 3.1 — Sessão Redis e cookie — concluído
 
