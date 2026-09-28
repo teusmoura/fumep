@@ -14,7 +14,7 @@ def setup() -> tuple[CsrfService, RedisSessionStore, fakeredis.FakeRedis, str]:
     client = fakeredis.FakeRedis()
     sessions = RedisSessionStore(client, clock=lambda: 1_000_000)
     token = sessions.create(user_id=uuid4(), role="ADMIN")
-    return CsrfService(sessions, secret=b"s" * 32, allowed_origin=ORIGIN), sessions, client, token
+    return CsrfService(sessions, allowed_origin=ORIGIN), sessions, client, token
 
 
 @pytest.mark.parametrize("method", ["POST", "PUT", "PATCH", "DELETE"])
@@ -66,7 +66,7 @@ def test_missing_invalid_cross_origin_or_safe_method_fails_closed(
         csrf.validate_mutation(**request)
 
 
-def test_token_is_bound_to_live_session_and_not_stored_in_redis_or_cookie() -> None:
+def test_token_is_random_stored_in_redis_and_not_in_cookie() -> None:
     csrf, sessions, client, first = setup()
     second = sessions.create(user_id=uuid4(), role="ADMIN")
     token = csrf.issue(first)
@@ -76,7 +76,7 @@ def test_token_is_bound_to_live_session_and_not_stored_in_redis_or_cookie() -> N
     set_session_cookie(response, first, production=True)
     assert token not in response.headers["set-cookie"]
     assert "httponly" in response.headers["set-cookie"].lower()
-    assert token.encode() not in client.get(f"migration:session:{first}")
+    assert token.encode() in client.get(f"migration:session:{first}")
     with pytest.raises(CsrfRejectedError):
         csrf.validate_mutation(
             method="POST", session_token=second, csrf_token=token,
@@ -107,8 +107,8 @@ def test_malformed_session_cookie_fails_without_internal_error() -> None:
         )
 
 
-@pytest.mark.parametrize("secret,origin", [(b"short", ORIGIN), (b"s" * 32, "https://portal.example.com/admin")])
-def test_configuration_must_use_strong_secret_and_exact_origin(secret: bytes, origin: str) -> None:
+@pytest.mark.parametrize("origin", ["https://portal.example.com/admin", "https://name:pass@portal.example.com"])
+def test_configuration_requires_exact_origin(origin: str) -> None:
     sessions = RedisSessionStore(fakeredis.FakeRedis())
     with pytest.raises(ValueError):
-        CsrfService(sessions, secret=secret, allowed_origin=origin)
+        CsrfService(sessions, allowed_origin=origin)

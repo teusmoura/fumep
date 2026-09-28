@@ -8,7 +8,7 @@ from typing import Literal
 from uuid import UUID
 
 from fastapi import Response
-from pydantic import BaseModel, ConfigDict, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from redis import Redis
 from redis.exceptions import WatchError
 
@@ -26,6 +26,7 @@ class SessionData(BaseModel):
     user_id: UUID
     role: Role
     institution_ids: list[UUID]
+    csrf_token: str = Field(repr=False, min_length=43, max_length=43, pattern=r"^[A-Za-z0-9_-]{43}$")
     created_at: int
     last_activity_at: int
     absolute_expires_at: int
@@ -58,6 +59,7 @@ class RedisSessionStore:
             user_id=user_id,
             role=role,
             institution_ids=list(institution_ids),
+            csrf_token=secrets.token_urlsafe(32),
             created_at=now,
             last_activity_at=now,
             absolute_expires_at=now + ABSOLUTE_SECONDS,

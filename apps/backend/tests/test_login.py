@@ -50,21 +50,23 @@ def credentials(password: str = PASSWORD) -> LoginCredentials:
 def test_editor_login_creates_scoped_opaque_redis_session() -> None:
     user = make_user()
     service, users, sessions, client = setup(user)
-    token = service.login(credentials())
-    data = sessions.read_and_refresh(token)
+    result = service.login(credentials())
+    data = sessions.read_and_refresh(result.session_token)
     assert data is not None
     assert data.user_id == user.id
     assert data.role == "EDITOR"
     assert data.institution_ids == list(user.institution_ids)
+    assert data.csrf_token == result.csrf_token
+    assert result.csrf_token not in repr(result)
     assert users.lookups == [EMAIL]
     assert client.dbsize() == 1
-    assert PASSWORD not in str(client.get(f"migration:session:{token}"))
+    assert PASSWORD not in str(client.get(f"migration:session:{result.session_token}"))
 
 
 def test_admin_login_keeps_global_role_without_institution_assignment() -> None:
     user = make_user(role="ADMIN", assigned=False)
     service, _, sessions, _ = setup(user)
-    data = sessions.read_and_refresh(service.login(credentials()))
+    data = sessions.read_and_refresh(service.login(credentials()).session_token)
     assert data is not None and data.role == "ADMIN" and data.institution_ids == []
 
 

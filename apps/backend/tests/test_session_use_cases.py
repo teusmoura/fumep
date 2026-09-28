@@ -4,15 +4,19 @@ import fakeredis
 import pytest
 from fastapi import Response
 
+from app.csrf import CsrfRejectedError, CsrfService
 from app.session_use_cases import SessionUseCases
 from app.sessions import COOKIE_NAME, IDLE_SECONDS, RedisSessionStore
+
+
+ORIGIN = "https://portal.example.com"
 
 
 def setup() -> tuple[SessionUseCases, RedisSessionStore, fakeredis.FakeRedis, list[int]]:
     client = fakeredis.FakeRedis()
     clock = [1_000_000]
     store = RedisSessionStore(client, clock=lambda: clock[0])
-    return SessionUseCases(store), store, client, clock
+    return SessionUseCases(store, CsrfService(store, allowed_origin=ORIGIN)), store, client, clock
 
 
 def test_read_returns_minimal_authenticated_view() -> None:
@@ -24,7 +28,9 @@ def test_read_returns_minimal_authenticated_view() -> None:
     assert view.user_id == user
     assert view.role == "EDITOR"
     assert view.institution_ids == [institution]
-    assert set(view.model_dump()) == {"user_id", "role", "institution_ids"}
+    assert set(view.model_dump()) == {"user_id", "role", "institution_ids", "csrf_token"}
+    assert view.csrf_token == store.read_and_refresh(token).csrf_token
+    assert view.csrf_token not in repr(view)
     serialized = view.model_dump_json()
     assert token not in serialized
     assert "password" not in serialized
@@ -46,7 +52,10 @@ def test_logout_removes_session_and_expires_cookie(production: bool) -> None:
     use_cases, store, client, _ = setup()
     token = store.create(user_id=uuid4(), role="ADMIN")
     response = Response()
-    use_cases.logout(token, response, production=production)
+    use_cases.logout(
+        token, response, production=production,
+        csrf_token=store.read_and_refresh(token).csrf_token, origin=ORIGIN,
+    )
     assert client.dbsize() == 0
     assert use_cases.read(token) is None
     cookie = response.headers["set-cookie"].lower()
@@ -61,7 +70,10 @@ def test_logout_removes_session_and_expires_cookie(production: bool) -> None:
 def test_logout_is_idempotent_with_missing_or_repeated_token() -> None:
     use_cases, store, client, _ = setup()
     token = store.create(user_id=uuid4(), role="ADMIN")
-    use_cases.logout(token, Response(), production=False)
+    use_cases.logout(
+        token, Response(), production=False,
+        csrf_token=store.read_and_refresh(token).csrf_token, origin=ORIGIN,
+    )
     use_cases.logout(token, Response(), production=False)
     use_cases.logout(None, Response(), production=False)
     use_cases.logout("malformed", Response(), production=False)
@@ -76,9 +88,12 @@ def test_redis_failure_does_not_report_logout_or_clear_cookie() -> None:
     def unavailable(*args: object, **kwargs: object) -> None:
         raise ConnectionError("Redis unavailable")
 
+    csrf_token = store.read_and_refresh(token).csrf_token
     client.delete = unavailable  # type: ignore[method-assign]
     with pytest.raises(ConnectionError, match="Redis unavailable"):
-        use_cases.logout(token, response, production=True)
+        use_cases.logout(
+            token, response, production=True, csrf_token=csrf_token, origin=ORIGIN
+        )
     assert "set-cookie" not in response.headers
 
 
@@ -92,3 +107,13 @@ def test_redis_failure_does_not_return_stale_session() -> None:
     client.pipeline = unavailable  # type: ignore[method-assign]
     with pytest.raises(ConnectionError, match="Redis unavailable"):
         use_cases.read(token)
+
+
+def test_authenticated_logout_requires_csrf_before_deleting_session() -> None:
+    use_cases, store, _, _ = setup()
+    token = store.create(user_id=uuid4(), role="ADMIN")
+    response = Response()
+    with pytest.raises(CsrfRejectedError):
+        use_cases.logout(token, response, production=True)
+    assert store.read_and_refresh(token) is not None
+    assert "set-cookie" not in response.headers

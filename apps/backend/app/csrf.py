@@ -1,7 +1,5 @@
 """CSRF contract for future cookie-authenticated administrative mutations."""
 
-import base64
-import hashlib
 import hmac
 import re
 from urllib.parse import urlsplit
@@ -38,28 +36,18 @@ def _origin(value: str, *, allow_path: bool) -> tuple[str, str, int] | None:
 
 
 class CsrfService:
-    def __init__(self, sessions: RedisSessionStore, *, secret: bytes, allowed_origin: str) -> None:
-        if len(secret) < 32:
-            raise ValueError("CSRF secret must contain at least 32 bytes")
+    def __init__(self, sessions: RedisSessionStore, *, allowed_origin: str) -> None:
         origin = _origin(allowed_origin, allow_path=False)
         if origin is None:
             raise ValueError("A single absolute allowed origin is required")
         self.sessions = sessions
-        self.secret = secret
         self.allowed_origin = origin
 
-    def _token(self, session_token: str) -> str:
-        if not _SESSION_TOKEN.fullmatch(session_token):
-            raise CsrfRejectedError()
-        digest = hmac.new(
-            self.secret, b"fumep-csrf-v1:" + session_token.encode("ascii"), hashlib.sha256
-        ).digest()
-        return base64.urlsafe_b64encode(digest).decode("ascii").rstrip("=")
-
     def issue(self, session_token: str) -> str:
-        if self.sessions.read_and_refresh(session_token) is None:
+        session = self.sessions.read_and_refresh(session_token)
+        if session is None:
             raise CsrfRejectedError()
-        return self._token(session_token)
+        return session.csrf_token
 
     def validate_mutation(
         self,
@@ -78,9 +66,8 @@ class CsrfService:
             raise CsrfRejectedError()
         if referer is not None and _origin(referer, allow_path=True) != self.allowed_origin:
             raise CsrfRejectedError()
-        if csrf_token is None or not hmac.compare_digest(
-            csrf_token, self._token(session_token)
-        ):
+        if not _SESSION_TOKEN.fullmatch(session_token) or not csrf_token or not _SESSION_TOKEN.fullmatch(csrf_token):
             raise CsrfRejectedError()
-        if self.sessions.read_and_refresh(session_token) is None:
+        session = self.sessions.read_and_refresh(session_token)
+        if session is None or not hmac.compare_digest(csrf_token, session.csrf_token):
             raise CsrfRejectedError()

@@ -30,15 +30,15 @@ Aceite MIG 3.4 cumprido. `architecture-guard`: conforme com observação — o f
 
 ### MIG 3.5 — Contrato CSRF isolado — concluído
 
-Estado inicial: MIG 3.4 concluído em `a6b77e9`, Git limpo. Entregue: token HMAC-SHA-256 vinculado à sessão Redis ativa, segredo injetado (mínimo 32 bytes), validação de Origin/Referer e POST/PUT/PATCH/DELETE; token não é persistido nem colocado no cookie. Origem externa, token ausente/incorreto, sessão invalidada ou cookie malformado falham fechado. Contrato e limites em `docs/CSRF_CONTRACT_MIGRATION.md`; sem rota/middleware/UI.
+Estado inicial: MIG 3.4 concluído em `a6b77e9`, Git limpo. Originalmente entregue com token HMAC derivado, depois corrigido para token aleatório armazenado na sessão Redis conforme AUTH-002 (ver correção canônica abaixo). Validação de Origin/Referer e POST/PUT/PATCH/DELETE, sem token no cookie. Origem externa, token ausente/incorreto, sessão invalidada ou cookie malformado falham fechado. Contrato e limites em `docs/CSRF_CONTRACT_MIGRATION.md`; sem rota/middleware/UI.
 
 Checks aprovados: `python -m pip check`, `python -m compileall -q app`, `python -m pytest -q` (66 aprovados, 1 integração Redis opcional ignorada sem URL), `pnpm format:check` e `git diff --check`. Warning transitivo Starlette/TestClient sobre httpx sem falha. Sem código JS alterado; checks JS completos não repetidos.
 
-Aceite MIG 3.5 cumprido. O futuro adaptador HTTP deverá aplicar este contrato a todas as mutações administrativas, com segredo/origem por configuração segura. Próximo: MIG 3.6 — logout e leitura de sessão isolados.
+Aceite MIG 3.5 cumprido após correção AUTH-002. O futuro adaptador HTTP deverá aplicar este contrato a todas as mutações administrativas, com origem por configuração segura. Próximo: MIG 3.6 — logout e leitura de sessão isolados.
 
 ### MIG 3.6 — Logout e leitura de sessão isolados — concluído
 
-Estado inicial: MIG 3.5 concluído em `0f83137`, Git limpo. Entregue: `SessionUseCases.read` projeta somente ID, papel e instituições de sessão Redis válida; ausente/expirada retorna `None`. Logout remove sessão e expira cookie com atributos seguros, inclusive em repetição ou token ausente. Falhas de Redis propagam sem fallback. Fronteira documentada em `docs/SESSION_USE_CASES_MIGRATION.md`; sem endpoint/guard/UI.
+Estado inicial: MIG 3.5 concluído em `0f83137`, Git limpo. Entregue: `SessionUseCases.read` projeta ID, papel e instituições de sessão Redis válida; após correção AUTH-002 também entrega token CSRF para a resposta autenticada. Ausente/expirada retorna `None`. Logout remove sessão e expira cookie com atributos seguros, inclusive em repetição ou token ausente. Falhas de Redis propagam sem fallback. Fronteira documentada em `docs/SESSION_USE_CASES_MIGRATION.md`; sem endpoint/guard/UI.
 
 Checks aprovados: `python -m pip check`, `python -m compileall -q app`, `python -m pytest -q` (73 aprovados, 1 integração Redis opcional ignorada sem URL), `pnpm format:check` e `git diff --check`. Warning transitivo Starlette/TestClient sobre httpx sem falha. Sem código JS alterado; checks JS completos não repetidos.
 
@@ -51,6 +51,12 @@ Estado inicial: MIG 3.6 concluído em `2ff5db6`, Git limpo. Entregue: orçamento
 Checks aprovados: `python -m pip check`, `python -m compileall -q app`, `python -m pytest -q` (80 aprovados, 1 integração Redis opcional ignorada sem URL), teste de concorrência repetido 10 vezes, `pnpm format:check` e `git diff --check`. Warning transitivo Starlette/TestClient sobre httpx sem falha. Sem código JS alterado; checks JS completos não repetidos. O teste focado inicial tinha uma contagem esperada incorreta de chaves Redis; corrigida e reexecutada com sucesso.
 
 Aceite MIG 3.7 cumprido. O futuro endpoint ainda deve conectar o limitador, registrar auditoria de falhas e aplicar política progressiva antes de produção. Próximo: MIG 3.8 — contrato de recuperação de senha isolado.
+
+### Correção canônica AUTH-002 antes de MIG 3.8
+
+Durante a revisão de recuperação de senha, foi detectado que o contrato MIG 3.5 de token derivado por HMAC contrariava a decisão AUTH-002 já aprovada em `docs/ISSUES_ARCHITECTURE.md`. Sem reescrever commits anteriores, a implementação foi corrigida: token CSRF aleatório de 32 bytes no payload Redis; `LoginResult` e consulta de sessão o entregam separadamente do cookie; `CsrfService` compara o valor armazenado e conserva validação de origem/método/sessão. Logout com sessão válida passou a exigir CSRF, enquanto ausência/repetição permanece idempotente. Documentos MIG 3.1/3.3/3.5/3.6 e testes ajustados. O loop ativo continua MIG 3.8 até seu próprio aceite.
+
+Checks da correção: `python -m pip check`, `python -m compileall -q app`, `python -m pytest -q` (81 aprovados, 1 integração Redis opcional ignorada), `pnpm format:check` e `git diff --check`, todos verdes.
 
 ### MIG 3.1 — Sessão Redis e cookie — concluído
 

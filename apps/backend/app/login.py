@@ -28,6 +28,12 @@ class InvalidCredentialsError(Exception):
         super().__init__("Invalid credentials")
 
 
+@dataclass(frozen=True, slots=True)
+class LoginResult:
+    session_token: str = field(repr=False)
+    csrf_token: str = field(repr=False)
+
+
 # The random decoy is generated in memory, never committed or persisted. Missing
 # users still exercise Argon2id so the response is not an immediate lookup oracle.
 _DECOY_HASH = hash_new_password(NewPasswordInput(password=secrets.token_urlsafe(32)))
@@ -38,7 +44,7 @@ class LoginService:
         self.users = users
         self.sessions = sessions
 
-    def login(self, credentials: LoginCredentials) -> str:
+    def login(self, credentials: LoginCredentials) -> LoginResult:
         user = self.users.find_by_email(str(credentials.email))
         valid_password = verify_password(
             credentials, user.password_hash if user is not None else _DECOY_HASH
@@ -50,8 +56,12 @@ class LoginService:
             or (user.role == "EDITOR" and not user.institution_ids)
         ):
             raise InvalidCredentialsError()
-        return self.sessions.create(
+        token = self.sessions.create(
             user_id=user.id,
             role=user.role,
             institution_ids=user.institution_ids,
         )
+        session = self.sessions.read_and_refresh(token)
+        if session is None:
+            raise RuntimeError("New session unavailable")
+        return LoginResult(session_token=token, csrf_token=session.csrf_token)
