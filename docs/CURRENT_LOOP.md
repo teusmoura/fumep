@@ -8,14 +8,15 @@
 - MIG 1 — Páginas institucionais Nuxt: concluído, checks verdes (549 testes).
 - MIG 2 — API FastAPI básica isolada: concluído, 6 testes Python e HTTP real aprovados.
 - MIG 3.1 — Sessão Redis e contrato de cookie: concluído, 17 testes Python incluindo Redis real.
-- **MIG 3.2 — Política de senha/credenciais Argon2id: próximo após commit de MIG 3.1.**
+- MIG 3.2 — Política de senha/credenciais Argon2id: concluído, 28 testes Python aprovados.
+- **MIG 3.3 — Fluxo de login isolado: próximo após commit de MIG 3.2.**
 
-## MIG 3.2 — Política de senha/credenciais Argon2id
+## MIG 3.3 — Fluxo de login isolado
 
-Implementar a política de senha mínima de 10 caracteres, hashing e verificação Argon2id em Python, contratos Pydantic de entrada de credenciais e testes para senha válida/inválida, hash não reversível e ausência de vazamento. Não criar usuário fictício de produção, endpoint de login, guard, conexão PostgreSQL ou tela Nuxt nesta subfatia.
+Implementar o caso de uso de login no backend FastAPI como serviço isolado: repositório de usuário por contrato/injeção (test double somente em testes), verificação de hash Argon2id, estado ativo, vínculo institucional e criação de sessão Redis pelo componente MIG 3.1. Respostas de falha não devem diferenciar usuário inexistente, senha incorreta ou conta inativa. Não criar usuário fictício de produção, endpoint HTTP, acesso PostgreSQL, guard ou tela Nuxt nesta subfatia; integração posterior não é simulada como persistência.
 
-Aceite: contratos rejeitam entrada inválida; hashing/verificação Argon2id funcionam com parâmetros documentados e testes verdes; nenhuma credencial é registrada ou persistida fora do hash. Atualizar status e commitar somente após aceite.
+Aceite: serviço autentica somente conta ativa com hash válido, cria sessão opaca contendo identidade e escopo institucional mínimo, falha de forma uniforme sem criar sessão, testes verdes com repositório injetado e Redis simulado/real conforme disponibilidade. Atualizar status e commitar somente após aceite.
 
 ## Próximo loop
 
-**MIG 3.3 — Login com repositório de usuário e sessão Redis.** Consultar `docs/architecture/MIGRACAO_FASTAPI_NUXT_CANONICA.md` e o documento de segurança.
+**MIG 3.4 — Autorização institucional e papéis em serviço isolado.** Consultar os documentos canônicos de segurança e o modelo lógico antes de detalhar o próximo escopo.

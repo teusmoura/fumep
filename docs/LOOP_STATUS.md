@@ -4,6 +4,14 @@
 
 Por decisão explícita do responsável, os loops técnicos NestJS/Next.js foram interrompidos após 5.30 (`bc5a96e`). O trabalho não commitado do 5.31 (schema PageTemplate, migration, testes e documentação) foi preservado no stash `b1bba349ce433efb2f4a9b1cb86739a3d004fca8`; não há aceite nem commit do 5.31. A pilha-alvo e a precedência estão em `docs/architecture/MIGRACAO_FASTAPI_NUXT_CANONICA.md`. Funcionalidades serão migradas individualmente antes da integração.
 
+### MIG 3.2 — Política de senha/credenciais Argon2id — concluído
+
+Estado inicial: MIG 3.1 concluído em `4d6a65f`, Git limpo. Entregue: contratos Pydantic estritos para credenciais de login e senha nova, normalização de e-mail sem alterar senha, mínimo de 10 caracteres somente para senha nova, hash/verificação Argon2id com parâmetros explícitos e salt aleatório. Senha é mascarada antes da validação para não aparecer em representação, serialização ou `ValidationError.errors()`. Parâmetros e fronteira estão em `docs/PASSWORD_POLICY_MIGRATION.md`. Sem endpoint de login, usuário fictício persistido ou conexão PostgreSQL.
+
+Checks aprovados: `python -m pip check`, `python -m compileall -q app`, `python -m pytest -q` (28 aprovados, 1 integração Redis opcional ignorada sem URL), `pnpm format:check` e `git diff --check`. A suíte Python existente permaneceu verde. Warning transitivo Starlette/TestClient sobre httpx sem falha. Checks JS completos não repetidos porque nenhum código JS mudou.
+
+Aceite MIG 3.2 cumprido. Próximo: MIG 3.3 — fluxo isolado de login com contrato de repositório de usuário e criação de sessão Redis; integração PostgreSQL/HTTP fica para decisão explícita posterior.
+
 ### MIG 3.1 — Sessão Redis e cookie — concluído
 
 Entregue: `RedisSessionStore` com token opaco de 32 bytes, `SET NX EX`, prefixo isolado da pilha legada, leitura/renovação atômica `WATCH/MULTI/EXEC`, limite de inatividade de 30 minutos, limite absoluto de 8 horas, invalidação e descarte de dados corrompidos. Cookie `fumep_session` HttpOnly, SameSite=Lax, Path=/, Secure em produção. Sem login, autorização de rotas ou integração com Nuxt. Contrato/teste local descritos em `docs/REDIS_SESSION_MIGRATION.md`.
