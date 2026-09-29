@@ -92,6 +92,12 @@ Estado inicial: MIG 4.2 concluído em `ef358ec`, Git limpo. Entregue: adaptador 
 
 Aceite: testes com cliente simulado cobrem rejeição sem escrita, chaves seguras, round-trip, remoção isolada, leitura limitada e falhas de put/get/remove. Integração local com MinIO real passou; o teste cria/remove somente sua chave aleatória no bucket existente. Checks: `pytest -q` com MinIO real (159 aprovados, 1 integração Redis opcional ignorada), `pip check`, `compileall -q app`, `pnpm format:check` e `git diff --check` aprovados. Warning transitivo Starlette/TestClient sem falha; checks JS completos não aplicáveis porque nenhum código JS/TS mudou. Próximo: MIG 4.4 — categorias isoladas.
 
+### MIG 4.4 — Categorias isoladas da Biblioteca — concluído
+
+Estado inicial: MIG 4.3 concluído em `bec7b04`, Git limpo. Entregue: contratos Pydantic e serviço Python para criar, listar e selecionar categorias com nome/slug/vínculo institucional, ADMIN global e EDITOR limitado às instituições atribuídas. Sessão e estado atual são revalidados antes das operações; categorias globais/estrangeiras não são selecionáveis pelo EDITOR. Repositório somente nos testes em memória, sem alegação de persistência. Fronteiras em `docs/MEDIA_CATEGORIES_MIGRATION.md`; sem endpoint, UI, upload integrado ou schema novo.
+
+Checks: `pytest -q` (174 aprovados, 2 integrações opcionais ignoradas sem ambiente configurado), `pip check`, `compileall -q app`, `pnpm format:check` e `git diff --check` aprovados. O teste focado passou com 16 casos; uma montagem incorreta do payload de teste foi corrigida antes da suíte completa. Warning transitivo Starlette/TestClient sem falha. Checks JS completos não aplicáveis, pois nenhum código JS/TS mudou. Aceite cumprido; próximo MIG 4.5 — seleção/reutilização isolada.
+
 ### MIG 3.1 — Sessão Redis e cookie — concluído
 
 Entregue: `RedisSessionStore` com token opaco de 32 bytes, `SET NX EX`, prefixo isolado da pilha legada, leitura/renovação atômica `WATCH/MULTI/EXEC`, limite de inatividade de 30 minutos, limite absoluto de 8 horas, invalidação e descarte de dados corrompidos. Cookie `fumep_session` HttpOnly, SameSite=Lax, Path=/, Secure em produção. Sem login, autorização de rotas ou integração com Nuxt. Contrato/teste local descritos em `docs/REDIS_SESSION_MIGRATION.md`.
