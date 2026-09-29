@@ -21,6 +21,7 @@ iniconfig==2.3.0
 lupa==2.8
 minio==7.2.20
 packaging==26.3
+Pillow==12.3.0
 pluggy==1.6.0
 pycparser==3.0
 pycryptodome==3.23.0

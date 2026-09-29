@@ -14,14 +14,15 @@
 - MIG 4.5 — Duplicidade/seleção isoladas: concluído, 191 testes Python aprovados e 2 integrações opcionais ignoradas.
 - MIG 4.6 — Validação e armazenamento PDF isolados: concluído, 220 testes Python aprovados, integração MinIO real aprovada e 1 integração Redis opcional ignorada.
 - MIG 4.7 — Publicação isolada de PROCESS_MEDIA em Redis: concluído, 228 testes Python aprovados com Redis e MinIO reais.
-- **MIG 4.8 — Worker Python recebe e verifica original de imagem isoladamente: loop atual.**
+- MIG 4.8 — Worker Python e inspeção isolada do original: concluído, 242 testes Python aprovados com Redis e MinIO reais.
+- **MIG 4.9 — Variantes responsivas isoladas: loop atual.**
 
-## MIG 4.8 — Worker Python recebe e verifica original de imagem isoladamente
+## MIG 4.9 — Variantes responsivas isoladas
 
-Criar o consumidor Python separado da API para `PROCESS_MEDIA` usando RQ/JSON e o agendador de retries. Com repositório de leitura injetado (fixture nos testes), o Worker reconsulta a mídia por ID, lê o original privado no MinIO, verifica tamanho/checksum e decodifica dimensões e orientação com adaptador Python escolhido e documentado. Falhar com segurança em mídia ausente/corrompida, storage indisponível ou payload inválido. Testar recepção real em Redis e original real no MinIO sem introduzir persistência PostgreSQL nesta fatia.
+Gerar derivados WebP e AVIF e thumbnail a partir de original validado, usando Pillow no Worker sem upscale e com tamanhos canônicos. Guardar objetos privados no MinIO com chaves internas determinísticas, preservar o original, tornar repetição idempotente e testar formatos, imagem pequena, falhas parciais e objetos reais. Metadados de variantes permanecem em contrato/repositório injetado até a escolha da persistência Python; não escrever no schema PostgreSQL existente neste loop.
 
-Aceite: job é recebido por Worker separado, original válido é revalidado e suas dimensões são obtidas; repetição não modifica o original; falhas são observáveis e o processo fecha conexões; testes/checks verdes, status atualizado e commit criado. Sem variantes, estado READY, escrita PostgreSQL, endpoint ou UI.
+Aceite: derivados têm dimensões corretas, não fazem upscale, são referenciados por chaves internas e a repetição não duplica objetos; falha parcial preserva original e derivados válidos; testes/checks verdes, status atualizado e commit criado. Sem estado READY, escrita PostgreSQL, endpoint ou UI.
 
 ## Próximo loop
 
-**MIG 4.9 — Variantes responsivas isoladas.** Detalhar após aceite de MIG 4.8; não antecipar integração entre Nuxt, FastAPI e PostgreSQL.
+**MIG 4.10 — Lifecycle de processamento isolado.** Detalhar após aceite de MIG 4.9; não antecipar integração entre Nuxt, FastAPI e PostgreSQL.

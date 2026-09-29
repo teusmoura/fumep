@@ -1,0 +1,7 @@
+# MIG 4.8 — inspeção isolada do original no Worker Python
+
+Escolha do adaptador de imagem: **Pillow 12.3.0**. As [wheels oficiais](https://pillow.readthedocs.io/en/stable/releasenotes/11.3.0.html) incluem AVIF; a [transposição EXIF](https://pillow.readthedocs.io/en/stable/reference/ImageOps.html) fornece dimensões exibidas corretamente. O limite local é 40 milhões de pixels, além do limite de 15 MiB do original. JPEG, PNG, WebP e AVIF devem passar pelo mesmo decode completo; cabeçalho sozinho não basta.
+
+`MediaOriginalProcessor` recebe um repositório de **leitura** e `OriginalImageStorage` injetados. Reconsulta a mídia por UUID, exige IMAGE elegível, lê o original privado, revalida extensão/MIME/assinatura, tamanho e SHA-256 contra metadados e só então decodifica. Não grava Media, variantes ou estado READY. `process_media` é o ponto de entrada RQ/JSON e recebe apenas `media_id`; falhas propagam ao RQ sem incluir bytes ou segredos no retorno.
+
+`run_worker` executa RQ `SimpleWorker` com agendador de retries em um processo dedicado, injeta o processador somente durante a execução e fecha a conexão Redis ao sair. `SimpleWorker` não cria subprocesso por job; o isolamento entre API e Worker exige processos separados no deploy. Nesta fase, o repositório de mídia é fixture injetada nos testes, **não** persistência PostgreSQL nem Worker de produção configurado. A integração posterior deverá fornecer repositório real, lifecycle de processos e reconciliação de jobs perdidos. Nenhum endpoint ou upload foi conectado.

@@ -116,6 +116,12 @@ Estado inicial: MIG 4.6 concluído em `0731ca3`, Git limpo. RQ 2.12.0 escolhido 
 
 Checks: `python -m pytest -q tests/test_media_queue.py` com Redis real (7 aprovados); `python -m pytest -q` com Redis e MinIO reais (228 aprovados); `python -m pip check`, `python -m compileall -q app`, `pnpm format:check` e `git diff --check` aprovados. Warning transitivo Starlette/TestClient sem falha. Checks JS completos não aplicáveis porque nenhum JS/TS mudou. O primeiro teste revelou ausência do extra Lua do fakeredis; dependência de teste adicionada e testes reexecutados. Aceite cumprido; próximo MIG 4.8 — Worker Python recebe e verifica original de imagem isoladamente.
 
+### MIG 4.8 — Worker Python e inspeção isolada do original — concluído
+
+Estado inicial: MIG 4.7 concluído em `9a87501`, Git limpo. Pillow 12.3.0 escolhido para decodificação de JPEG/PNG/WebP/AVIF e orientação EXIF. `MediaOriginalProcessor` reconsulta metadados injetados, exige IMAGE elegível, lê MinIO privado, revalida assinatura/tamanho/SHA-256, limita a 40 milhões de pixels e decodifica completamente sem alterar o original. RQ `SimpleWorker` separado da API consome JSON com agendador de retries, sanitiza falhas no resultado e fecha Redis; repositório de teste é fixture, não PostgreSQL. Sem variantes, READY, endpoint ou UI. Fronteiras em `docs/MEDIA_WORKER_MIGRATION.md`.
+
+Checks: `python -m pytest -q tests/test_media_worker.py` com Redis/MinIO reais (14 aprovados); `python -m pytest -q` com Redis/MinIO reais (242 aprovados); `python -m pip check`, `python -m compileall -q app`, `pnpm format:check` e `git diff --check` aprovados. Warning transitivo Starlette/TestClient sem falha; checks JS completos não aplicáveis. Fixture inicial ligava produtor e Worker a servidores fakeredis diferentes; corrigida e reexecutada. Aceite da fatia isolada cumprido; próximo MIG 4.9 — variantes responsivas isoladas.
+
 ### MIG 3.1 — Sessão Redis e cookie — concluído
 
 Entregue: `RedisSessionStore` com token opaco de 32 bytes, `SET NX EX`, prefixo isolado da pilha legada, leitura/renovação atômica `WATCH/MULTI/EXEC`, limite de inatividade de 30 minutos, limite absoluto de 8 horas, invalidação e descarte de dados corrompidos. Cookie `fumep_session` HttpOnly, SameSite=Lax, Path=/, Secure em produção. Sem login, autorização de rotas ou integração com Nuxt. Contrato/teste local descritos em `docs/REDIS_SESSION_MIGRATION.md`.
