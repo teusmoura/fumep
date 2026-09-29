@@ -98,6 +98,12 @@ Estado inicial: MIG 4.3 concluído em `bec7b04`, Git limpo. Entregue: contratos 
 
 Checks: `pytest -q` (174 aprovados, 2 integrações opcionais ignoradas sem ambiente configurado), `pip check`, `compileall -q app`, `pnpm format:check` e `git diff --check` aprovados. O teste focado passou com 16 casos; uma montagem incorreta do payload de teste foi corrigida antes da suíte completa. Warning transitivo Starlette/TestClient sem falha. Checks JS completos não aplicáveis, pois nenhum código JS/TS mudou. Aceite cumprido; próximo MIG 4.5 — seleção/reutilização isolada.
 
+### MIG 4.5 — Duplicidade e seleção isoladas — concluído
+
+Estado inicial: MIG 4.4 concluído em `3106bd9`, Git limpo. Entregue: serviço Python de leitura que calcula checksum de imagem validada, oferece duplicata IMAGE autorizada e permite `UPLOAD_ANYWAY` explícito sem escrita. Seleção por ID reconsulta mídia/categoria e exige `READY`, deleção `NONE` e escopo atual; EDITOR não seleciona mídia global/estrangeira. PDF pronto pode ser selecionado, mas não oferecido como duplicata de imagem. Projeção não expõe chave de storage. Limites em `docs/MEDIA_REUSE_MIGRATION.md`; repositório só em testes, sem endpoint/UI/MinIO/PostgreSQL.
+
+Checks: `pytest -q` (191 aprovados, 2 integrações opcionais ignoradas), `pip check`, `compileall -q app`, `pnpm format:check` e `git diff --check` aprovados. Testes focados: 17 aprovados, incluindo mudança de estado/categoria após oferta. Warning transitivo Starlette/TestClient sem falha. Checks JS completos não aplicáveis. Aceite cumprido; próximo MIG 4.6 — validação e armazenamento PDF isolados.
+
 ### MIG 3.1 — Sessão Redis e cookie — concluído
 
 Entregue: `RedisSessionStore` com token opaco de 32 bytes, `SET NX EX`, prefixo isolado da pilha legada, leitura/renovação atômica `WATCH/MULTI/EXEC`, limite de inatividade de 30 minutos, limite absoluto de 8 horas, invalidação e descarte de dados corrompidos. Cookie `fumep_session` HttpOnly, SameSite=Lax, Path=/, Secure em produção. Sem login, autorização de rotas ou integração com Nuxt. Contrato/teste local descritos em `docs/REDIS_SESSION_MIGRATION.md`.

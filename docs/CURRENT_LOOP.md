@@ -11,14 +11,15 @@
 - MIG 4.2 — Validação isolada de imagem: concluído, 151 testes Python aprovados e 1 integração Redis opcional ignorada.
 - MIG 4.3 — Armazenamento isolado MinIO: concluído, inclusive teste com MinIO real; evidências em `docs/LOOP_STATUS.md`.
 - MIG 4.4 — Categorias isoladas da Biblioteca: concluído, 174 testes Python aprovados e 2 integrações opcionais ignoradas.
-- **MIG 4.5 — Seleção/reutilização de mídia isolada: loop atual.**
+- MIG 4.5 — Duplicidade/seleção isoladas: concluído, 191 testes Python aprovados e 2 integrações opcionais ignoradas.
+- **MIG 4.6 — Validação e armazenamento PDF isolados: loop atual.**
 
-## MIG 4.5 — Seleção/reutilização de mídia isolada
+## MIG 4.6 — Validação e armazenamento PDF isolados
 
-Implementar contrato Python isolado para detectar mídia existente por SHA-256 e oferecer seleção autorizada ou novo envio explícito. Revalidar escopo institucional da mídia/categoria e estado de processamento/deleção antes da seleção. Usar repositório de teste em memória, sem afirmar persistência PostgreSQL. Não adicionar endpoint, UI, upload integrado, Worker ou variantes.
+Implementar validação editorial de PDF (extensão, MIME, assinatura real, nome seguro, limite inclusivo de 30 MiB e SHA-256) e armazenamento isolado no MinIO privado com chave interna `documents/<uuid>.pdf`. Testar round-trip e falhas sem introduzir endpoint, PostgreSQL, Worker, MediaUsage ou UI. Consultar as regras especializadas de documentos e segurança antes de implementar.
 
-Aceite: duplicata autorizada é oferecida sem bloquear novo envio explícito; mídia estrangeira, global para EDITOR, indisponível ou não pronta nunca é selecionável; seleção não grava novo objeto nem registro; testes/checks verdes, status atualizado e commit criado.
+Aceite: PDF válido é aceito e armazenado/lido sem alteração; tipo incorreto, assinatura/magic bytes discordantes, tamanho excedido e nome inseguro são rejeitados antes da escrita; remoção limita-se à chave solicitada; testes/checks verdes, status atualizado e commit criado.
 
 ## Próximo loop
 
-**MIG 4.6 — Próxima subfuncionalidade da Biblioteca.** Detalhar após aceite de MIG 4.5, sem antecipar integração entre Nuxt, FastAPI e PostgreSQL.
+**MIG 4.7 — Próxima subfuncionalidade da Biblioteca.** Detalhar após aceite de MIG 4.6, sem antecipar integração entre Nuxt, FastAPI e PostgreSQL.
