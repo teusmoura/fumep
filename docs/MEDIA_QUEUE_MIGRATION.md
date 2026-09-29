@@ -1,0 +1,7 @@
+# MIG 4.7 — fila de mídia Python isolada
+
+Escolha do adaptador: **RQ 2.12.0 sobre Redis** para a fila Python `fumep:media`. A [documentação oficial](https://python-rq.org/docs/) confirma `job_id` determinístico com `unique=True`, retries limitados com intervalos, retenção configurável e uso do serializador JSON. RQ substitui BullMQ somente na pilha Python; o código legado permanece. O produtor usa JSON, nunca o serializador `pickle` padrão. O futuro Worker deverá usar o mesmo serializador e executar o agendador de retries com intervalo.
+
+`PROCESS_MEDIA` recebe somente `media_id` UUID canônico. O ID `process-media-<uuid>` deduplica enquanto o job existir no Redis; duas publicações para a mesma mídia retornam o mesmo ID sem uma segunda entrada. São até três execuções (inicial + duas novas tentativas após 5 e 30 segundos), com retenção de sucesso por 24 horas e falha por sete dias. Os limites de retenção são configuráveis. Falhas Redis propagam; não se devolve sucesso fictício. A conexão explícita é fechada pelo produtor.
+
+Esta fatia não implementa consumidor. O caminho de função reservado para o Worker é `app.media_worker.process_media`, a ser criado no MIG 4.8. A futura integração deve publicar **após** confirmar o registro Media no PostgreSQL e recuperar jobs perdidos a partir da fonte de verdade. Deduplicação do Redis é temporária, não substitui a idempotência e as transições persistidas de Media. Não há endpoint, upload integrado, banco, processamento de imagem ou UI neste loop.

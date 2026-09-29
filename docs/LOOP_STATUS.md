@@ -110,6 +110,12 @@ Estado inicial: MIG 4.5 concluído em `bac3715`, Git limpo. Entregue: validador 
 
 Checks: 27 testes focados aprovados com 1 integração opcional ignorada sem configuração; integração com MinIO real, 8 testes aprovados; `pytest -q` completo com MinIO real, 220 aprovados e 1 integração Redis opcional ignorada. `pip check`, `compileall -q app`, `pnpm format:check` e `git diff --check` aprovados. Warning transitivo Starlette/TestClient sem falha. Checks JS completos não aplicáveis, pois nenhum código JS/TS mudou. Aceite cumprido; próximo MIG 4.7 — contrato isolado de fila de mídia Python.
 
+### MIG 4.7 — Publicação isolada de PROCESS_MEDIA em Redis — concluído
+
+Estado inicial: MIG 4.6 concluído em `0731ca3`, Git limpo. RQ 2.12.0 escolhido e documentado como adaptador Python para `fumep:media`, com JSON em vez de pickle. O produtor publica só `media_id` UUID, ID determinístico, deduplicação atômica, duas novas tentativas em 5/30 segundos, retenção configurável e fechamento explícito. Colisão com job de outra função/fila e erros Redis não viram falso sucesso. Sem Worker, banco, endpoint, upload integrado ou UI; publicação após commit Media e recuperação por PostgreSQL continuam responsabilidade da integração futura.
+
+Checks: `python -m pytest -q tests/test_media_queue.py` com Redis real (7 aprovados); `python -m pytest -q` com Redis e MinIO reais (228 aprovados); `python -m pip check`, `python -m compileall -q app`, `pnpm format:check` e `git diff --check` aprovados. Warning transitivo Starlette/TestClient sem falha. Checks JS completos não aplicáveis porque nenhum JS/TS mudou. O primeiro teste revelou ausência do extra Lua do fakeredis; dependência de teste adicionada e testes reexecutados. Aceite cumprido; próximo MIG 4.8 — Worker Python recebe e verifica original de imagem isoladamente.
+
 ### MIG 3.1 — Sessão Redis e cookie — concluído
 
 Entregue: `RedisSessionStore` com token opaco de 32 bytes, `SET NX EX`, prefixo isolado da pilha legada, leitura/renovação atômica `WATCH/MULTI/EXEC`, limite de inatividade de 30 minutos, limite absoluto de 8 horas, invalidação e descarte de dados corrompidos. Cookie `fumep_session` HttpOnly, SameSite=Lax, Path=/, Secure em produção. Sem login, autorização de rotas ou integração com Nuxt. Contrato/teste local descritos em `docs/REDIS_SESSION_MIGRATION.md`.

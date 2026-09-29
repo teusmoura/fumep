@@ -13,14 +13,15 @@
 - MIG 4.4 — Categorias isoladas da Biblioteca: concluído, 174 testes Python aprovados e 2 integrações opcionais ignoradas.
 - MIG 4.5 — Duplicidade/seleção isoladas: concluído, 191 testes Python aprovados e 2 integrações opcionais ignoradas.
 - MIG 4.6 — Validação e armazenamento PDF isolados: concluído, 220 testes Python aprovados, integração MinIO real aprovada e 1 integração Redis opcional ignorada.
-- **MIG 4.7 — Contrato isolado de fila de mídia Python: loop atual.**
+- MIG 4.7 — Publicação isolada de PROCESS_MEDIA em Redis: concluído, 228 testes Python aprovados com Redis e MinIO reais.
+- **MIG 4.8 — Worker Python recebe e verifica original de imagem isoladamente: loop atual.**
 
-## MIG 4.7 — Contrato isolado de fila de mídia Python
+## MIG 4.8 — Worker Python recebe e verifica original de imagem isoladamente
 
-Escolher e registrar o adaptador Python de fila sobre Redis antes de implementá-lo. Entregar somente o contrato isolado de publicação de `PROCESS_MEDIA` com payload mínimo e ID estável, retries/backoff limitados, namespace próprio, retenção configurada e fechamento de conexão. Testar configuração, publicação, duplicata, falhas e lifecycle contra Redis real quando disponível. Preservar a regra de que a publicação futura ocorrerá apenas após a persistência de Media; este loop não conecta upload ou banco.
+Criar o consumidor Python separado da API para `PROCESS_MEDIA` usando RQ/JSON e o agendador de retries. Com repositório de leitura injetado (fixture nos testes), o Worker reconsulta a mídia por ID, lê o original privado no MinIO, verifica tamanho/checksum e decodifica dimensões e orientação com adaptador Python escolhido e documentado. Falhar com segurança em mídia ausente/corrompida, storage indisponível ou payload inválido. Testar recepção real em Redis e original real no MinIO sem introduzir persistência PostgreSQL nesta fatia.
 
-Aceite: contrato e escolha do adaptador documentados; publicação isolada é idempotente para o mesmo mediaId e não perde erros Redis; retries e fechamento são verificáveis; testes/checks verdes, status atualizado e commit criado. Sem consumidor/Worker, processamento de imagem, variantes, endpoint, PostgreSQL ou UI.
+Aceite: job é recebido por Worker separado, original válido é revalidado e suas dimensões são obtidas; repetição não modifica o original; falhas são observáveis e o processo fecha conexões; testes/checks verdes, status atualizado e commit criado. Sem variantes, estado READY, escrita PostgreSQL, endpoint ou UI.
 
 ## Próximo loop
 
-**MIG 4.8 — Recepção isolada de PROCESS_MEDIA no Worker Python.** Detalhar após aceite de MIG 4.7; não antecipar processamento/variantes nem integração entre Nuxt, FastAPI e PostgreSQL.
+**MIG 4.9 — Variantes responsivas isoladas.** Detalhar após aceite de MIG 4.8; não antecipar integração entre Nuxt, FastAPI e PostgreSQL.
