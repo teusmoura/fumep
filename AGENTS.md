@@ -4,7 +4,7 @@
 
 Você está trabalhando na V1 do Portal FUMEP, um portal institucional multi-institucional para FUMEP, ETMSL e CRAMAM.
 
-O projeto deve ser implementado em **loops pequenos, verificáveis e cumulativos**. Não antecipe funcionalidades de loops futuros.
+O projeto deve ser implementado em **loops verificáveis e cumulativos**, com uma entrega funcional clara por loop. Evite subdivisões artificiais que gerem apenas contratos sem um resultado testável. Não antecipe funcionalidades de loops futuros.
 
 ## Fonte de verdade documental
 
@@ -68,6 +68,7 @@ Trabalhe **somente no loop atual**.
 Não implemente itens do próximo loop mesmo que pareçam fáceis.
 
 Se perceber que o loop exige mudar uma decisão arquitetural:
+
 1. não altere silenciosamente;
 2. registre o conflito em `docs/ISSUES_ARCHITECTURE.md`;
 3. pare essa parte da implementação;
@@ -75,16 +76,12 @@ Se perceber que o loop exige mudar uma decisão arquitetural:
 
 ## Processo obrigatório por loop
 
-1. Ler o loop atual no plano canônico.
-2. Inspecionar o estado do repositório.
-3. Implementar somente o escopo do loop.
-4. Criar/ajustar testes aplicáveis.
-5. Executar checks aplicáveis.
-6. Corrigir todas as falhas introduzidas.
-7. Atualizar `docs/LOOP_STATUS.md`.
-8. Atualizar `docs/CURRENT_LOOP.md` apenas se todos os critérios de aceite forem satisfeitos.
-9. Commitar as alterações.
-10. Confirmar `git status` limpo.
+1. No início da execução, ler `AGENTS.md`, a skill `execute-loop` quando aplicável, `docs/CURRENT_LOOP.md` e o trecho do loop no plano canônico. Consultar apenas os documentos especializados relevantes; não reler os mesmos arquivos a cada microetapa nem carregar o histórico inteiro de `docs/LOOP_STATUS.md`.
+2. Inspecionar o Git e implementar somente o loop atual, com testes proporcionais aos critérios de aceite. Rodar testes focados durante a implementação; executar os checks aplicáveis completos uma vez antes do aceite e repetir apenas os que forem afetados por correções.
+3. Corrigir falhas introduzidas. Registrar em `docs/LOOP_STATUS.md` um resumo curto de entrega, evidências, checks e bloqueios, sem diário de comandos ou repetição do histórico.
+4. Atualizar `docs/CURRENT_LOOP.md` somente após todos os critérios de aceite. Commitar e confirmar `git status` limpo.
+
+Uma execução trabalha **no máximo o loop atual**; não iniciar automaticamente o próximo loop no mesmo turno. A meta operacional é cerca de 8 mil tokens por execução, sem sacrificar segurança, testes ou aceite. Se o trabalho ultrapassar essa meta, deixar um checkpoint conciso e retomar depois; não declarar um loop parcial como concluído.
 
 ## Checks
 
@@ -103,7 +100,7 @@ Quando E2E já existir:
 pnpm test:e2e
 ```
 
-Não declare um loop concluído sem executar os checks disponíveis.
+Não declare um loop concluído sem executar os checks aplicáveis. Checks legados completos são exigidos quando a fatia os afeta; não repeti-los apenas por existir código legado inalterado. Registre os checks não aplicáveis ou indisponíveis, com motivo.
 
 ## Git
 

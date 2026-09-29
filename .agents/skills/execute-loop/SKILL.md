@@ -1,44 +1,22 @@
 ---
 name: execute-loop
-description: Execute o loop atual do Plano de Implementação do Portal FUMEP com escopo estrito, validação, atualização de status e commit.
+description: Execute um loop atual do Portal FUMEP com aceite, checks aplicáveis, status e commit; use quando o usuário pedir para continuar ou concluir loops.
 ---
 
 # Execute Loop
 
-## Quando usar
+## Execução enxuta
 
-Use sempre que o usuário pedir para iniciar, continuar, executar ou concluir um loop do Portal FUMEP.
-
-## Workflow
-
-1. Leia `docs/CURRENT_LOOP.md`.
-2. Localize o loop correspondente em `docs/architecture/PLANO_IMPLEMENTACAO_V1_LOOPS_CANONICO.md`.
-3. Leia somente os documentos especializados necessários ao loop.
-4. Verifique `git status`.
-5. Escreva uma lista curta do escopo atual em `docs/LOOP_STATUS.md`.
-6. Implemente apenas o loop.
-7. Não antecipe loops seguintes.
-8. Execute os checks que já existirem.
-9. Corrija falhas introduzidas.
-10. Atualize `docs/LOOP_STATUS.md` com evidências.
-11. Se o aceite estiver completo, atualize `docs/CURRENT_LOOP.md` para o próximo loop.
-12. Commit.
-13. Confirme worktree limpo.
+- Leia `AGENTS.md`, `docs/CURRENT_LOOP.md` e o trecho pertinente de `docs/architecture/PLANO_IMPLEMENTACAO_V1_LOOPS_CANONICO.md` uma vez no início. Consulte apenas referências necessárias ao loop. Use busca direcionada no histórico, sem carregar `docs/LOOP_STATUS.md` inteiro.
+- Confira `git status` e preserve trabalho preexistente. Execute apenas o loop atual; não antecipe o próximo nem inicie outro loop no mesmo turno.
+- Implemente uma entrega verificável. Durante a edição, rode testes focados. Antes de aceitar, rode uma vez os checks aplicáveis à fatia e os legados afetados; reexecute o que uma correção atingir. Não reduza cobertura para economizar tokens.
+- Registre em `docs/LOOP_STATUS.md` somente resultado, evidência de aceite, checks e bloqueios. Se todos os critérios passarem, prepare `docs/CURRENT_LOOP.md` para o próximo loop, faça commit e confirme Git limpo.
+- Trate cerca de 8 mil tokens como meta por execução, não como licença para omitir validação. Se a fatia não couber, deixe checkpoint sucinto, preserve o trabalho e informe o que falta; não marque aceite parcial como concluído.
 
 ## Bloqueio arquitetural
 
-Se houver contradição:
-- consulte o manifesto;
-- consulte o documento especializado;
-- use `$architecture-guard`;
-- registre o conflito se ainda persistir;
-- não invente decisão.
+Se houver contradição, consulte manifesto e documento especializado, use `$architecture-guard`, registre o conflito persistente e não invente decisão.
 
 ## Saída final
 
-Informe:
-- loop;
-- mudança;
-- checks;
-- commit;
-- próximo loop.
+Informe loop, entrega, checks, commit, próximo loop e bloqueios, se houver.
