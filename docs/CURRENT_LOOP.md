@@ -9,14 +9,15 @@
 - Contratos HTTP de autenticação: adiados para MIG 6, fase de integração, conforme estratégia canônica; não declarados concluídos.
 - MIG 4.1 — Metadados isolados da Biblioteca: concluído em `30639aa`.
 - MIG 4.2 — Validação isolada de imagem: concluído, 151 testes Python aprovados e 1 integração Redis opcional ignorada.
-- **MIG 4.3 — Contrato isolado de armazenamento MinIO: loop atual.**
+- MIG 4.3 — Armazenamento isolado MinIO: concluído, inclusive teste com MinIO real; evidências em `docs/LOOP_STATUS.md`.
+- **MIG 4.4 — Categorias da Biblioteca como funcionalidade isolada: loop atual.**
 
-## MIG 4.3 — Contrato isolado de armazenamento MinIO
+## MIG 4.4 — Categorias da Biblioteca como funcionalidade isolada
 
-Implementar adaptador Python isolado para guardar, ler e remover o original no MinIO privado, usando chave interna gerada e relativa, sem expor URL ou credenciais ao navegador. Reutilizar a validação MIG 4.2 antes da gravação. Decidir e documentar o cliente Python MinIO nesta funcionalidade. Manter sem endpoint, PostgreSQL, Worker, variantes ou UI; não afirmar upload editorial integrado.
+Portar as regras de categorias editoriais para Python: nome, vínculo institucional, permissões de ADMIN/EDITOR e seleção apenas de categorias autorizadas. Usar repositório de teste em memória para exercitar a funcionalidade, sem afirmar persistência PostgreSQL. Consultar a arquitetura especializada antes de fechar o contrato. Não adicionar endpoint, upload integrado ou UI nesta fatia.
 
-Aceite: bytes validados podem ser gravados e lidos sem alteração, com chave segura; rejeições não geram objeto; remoção atua apenas na chave solicitada; falhas do storage são propagadas sem sucesso fictício; testes/checks aplicáveis verdes, status atualizado e commit criado.
+Aceite: ADMIN opera globalmente; EDITOR apenas no escopo institucional atribuído; categorias inválidas ou fora de escopo são rejeitadas; testes/checks verdes, status atualizado e commit criado.
 
 ## Próximo loop
 
-**MIG 4.4 — Próxima subfuncionalidade da Biblioteca.** Detalhar após aceite de MIG 4.3, conforme sequência da migração, sem antecipar integração ou persistência PostgreSQL.
+**MIG 4.5 — Seleção/reutilização de mídia isolada.** Detalhar após aceite de MIG 4.4, sem antecipar integração entre Nuxt, FastAPI e PostgreSQL.

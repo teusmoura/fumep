@@ -86,6 +86,12 @@ Checks: `pytest` (151 aprovados, 1 integração Redis opcional ignorada), `pip c
 
 Aceite do validador isolado cumprido. Não há endpoint, MinIO, PostgreSQL, Worker, variantes ou UI nesta entrega. Próximo: MIG 4.3 — contrato isolado de armazenamento MinIO.
 
+### MIG 4.3 — Armazenamento isolado MinIO — concluído
+
+Estado inicial: MIG 4.2 concluído em `ef358ec`, Git limpo. Entregue: adaptador Python com SDK `minio` 7.2.20, bucket interno `portal-private`, validação MIG 4.2 antes da gravação, chave UUID relativa, leitura limitada e remoção restrita à chave solicitada. Falhas do SDK propagam sem fallback. Decisão e fronteiras em `docs/MINIO_STORAGE_MIGRATION.md`; sem endpoint, PostgreSQL, Worker, variantes ou UI.
+
+Aceite: testes com cliente simulado cobrem rejeição sem escrita, chaves seguras, round-trip, remoção isolada, leitura limitada e falhas de put/get/remove. Integração local com MinIO real passou; o teste cria/remove somente sua chave aleatória no bucket existente. Checks: `pytest -q` com MinIO real (159 aprovados, 1 integração Redis opcional ignorada), `pip check`, `compileall -q app`, `pnpm format:check` e `git diff --check` aprovados. Warning transitivo Starlette/TestClient sem falha; checks JS completos não aplicáveis porque nenhum código JS/TS mudou. Próximo: MIG 4.4 — categorias isoladas.
+
 ### MIG 3.1 — Sessão Redis e cookie — concluído
 
 Entregue: `RedisSessionStore` com token opaco de 32 bytes, `SET NX EX`, prefixo isolado da pilha legada, leitura/renovação atômica `WATCH/MULTI/EXEC`, limite de inatividade de 30 minutos, limite absoluto de 8 horas, invalidação e descarte de dados corrompidos. Cookie `fumep_session` HttpOnly, SameSite=Lax, Path=/, Secure em produção. Sem login, autorização de rotas ou integração com Nuxt. Contrato/teste local descritos em `docs/REDIS_SESSION_MIGRATION.md`.
