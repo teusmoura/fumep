@@ -12,14 +12,15 @@
 - MIG 4.3 — Armazenamento isolado MinIO: concluído, inclusive teste com MinIO real; evidências em `docs/LOOP_STATUS.md`.
 - MIG 4.4 — Categorias isoladas da Biblioteca: concluído, 174 testes Python aprovados e 2 integrações opcionais ignoradas.
 - MIG 4.5 — Duplicidade/seleção isoladas: concluído, 191 testes Python aprovados e 2 integrações opcionais ignoradas.
-- **MIG 4.6 — Validação e armazenamento PDF isolados: loop atual.**
+- MIG 4.6 — Validação e armazenamento PDF isolados: concluído, 220 testes Python aprovados, integração MinIO real aprovada e 1 integração Redis opcional ignorada.
+- **MIG 4.7 — Contrato isolado de fila de mídia Python: loop atual.**
 
-## MIG 4.6 — Validação e armazenamento PDF isolados
+## MIG 4.7 — Contrato isolado de fila de mídia Python
 
-Implementar validação editorial de PDF (extensão, MIME, assinatura real, nome seguro, limite inclusivo de 30 MiB e SHA-256) e armazenamento isolado no MinIO privado com chave interna `documents/<uuid>.pdf`. Testar round-trip e falhas sem introduzir endpoint, PostgreSQL, Worker, MediaUsage ou UI. Consultar as regras especializadas de documentos e segurança antes de implementar.
+Escolher e registrar o adaptador Python de fila sobre Redis antes de implementá-lo. Entregar somente o contrato isolado de publicação de `PROCESS_MEDIA` com payload mínimo e ID estável, retries/backoff limitados, namespace próprio, retenção configurada e fechamento de conexão. Testar configuração, publicação, duplicata, falhas e lifecycle contra Redis real quando disponível. Preservar a regra de que a publicação futura ocorrerá apenas após a persistência de Media; este loop não conecta upload ou banco.
 
-Aceite: PDF válido é aceito e armazenado/lido sem alteração; tipo incorreto, assinatura/magic bytes discordantes, tamanho excedido e nome inseguro são rejeitados antes da escrita; remoção limita-se à chave solicitada; testes/checks verdes, status atualizado e commit criado.
+Aceite: contrato e escolha do adaptador documentados; publicação isolada é idempotente para o mesmo mediaId e não perde erros Redis; retries e fechamento são verificáveis; testes/checks verdes, status atualizado e commit criado. Sem consumidor/Worker, processamento de imagem, variantes, endpoint, PostgreSQL ou UI.
 
 ## Próximo loop
 
-**MIG 4.7 — Próxima subfuncionalidade da Biblioteca.** Detalhar após aceite de MIG 4.6, sem antecipar integração entre Nuxt, FastAPI e PostgreSQL.
+**MIG 4.8 — Recepção isolada de PROCESS_MEDIA no Worker Python.** Detalhar após aceite de MIG 4.7; não antecipar processamento/variantes nem integração entre Nuxt, FastAPI e PostgreSQL.

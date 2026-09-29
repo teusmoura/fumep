@@ -104,6 +104,12 @@ Estado inicial: MIG 4.4 concluído em `3106bd9`, Git limpo. Entregue: serviço P
 
 Checks: `pytest -q` (191 aprovados, 2 integrações opcionais ignoradas), `pip check`, `compileall -q app`, `pnpm format:check` e `git diff --check` aprovados. Testes focados: 17 aprovados, incluindo mudança de estado/categoria após oferta. Warning transitivo Starlette/TestClient sem falha. Checks JS completos não aplicáveis. Aceite cumprido; próximo MIG 4.6 — validação e armazenamento PDF isolados.
 
+### MIG 4.6 — Validação e armazenamento PDF isolados — concluído
+
+Estado inicial: MIG 4.5 concluído em `bac3715`, Git limpo. Entregue: validador Python de nome/extensão, MIME, assinatura PDF, limite inclusivo de 30 MiB e SHA-256; adaptador MinIO para bucket privado, chave UUID `documents/<uuid>.pdf`, leitura limitada e remoção de uma chave válida. Validação ocorre antes da escrita. Fronteiras em `docs/PDF_STORAGE_MIGRATION.md`; assinatura não substitui parser ou antivírus. Sem endpoint, PostgreSQL, Worker, MediaUsage ou UI.
+
+Checks: 27 testes focados aprovados com 1 integração opcional ignorada sem configuração; integração com MinIO real, 8 testes aprovados; `pytest -q` completo com MinIO real, 220 aprovados e 1 integração Redis opcional ignorada. `pip check`, `compileall -q app`, `pnpm format:check` e `git diff --check` aprovados. Warning transitivo Starlette/TestClient sem falha. Checks JS completos não aplicáveis, pois nenhum código JS/TS mudou. Aceite cumprido; próximo MIG 4.7 — contrato isolado de fila de mídia Python.
+
 ### MIG 3.1 — Sessão Redis e cookie — concluído
 
 Entregue: `RedisSessionStore` com token opaco de 32 bytes, `SET NX EX`, prefixo isolado da pilha legada, leitura/renovação atômica `WATCH/MULTI/EXEC`, limite de inatividade de 30 minutos, limite absoluto de 8 horas, invalidação e descarte de dados corrompidos. Cookie `fumep_session` HttpOnly, SameSite=Lax, Path=/, Secure em produção. Sem login, autorização de rotas ou integração com Nuxt. Contrato/teste local descritos em `docs/REDIS_SESSION_MIGRATION.md`.

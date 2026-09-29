@@ -1,0 +1,7 @@
+# MIG 4.6 — PDF editorial isolado
+
+O backend Python valida o arquivo inteiro antes de chamar MinIO: nome original sem caminho/caracteres de controle e com base não vazia, extensão `.pdf`, MIME declarado `application/pdf`, assinatura `%PDF-` com versão PDF 1.0–1.7 ou 2.0 seguida de quebra de linha, limite inclusivo de 30 MiB e SHA-256 dos bytes aceitos. A assinatura é uma verificação de magic bytes, não análise estrutural completa ou antivírus. O futuro adaptador HTTP deve limitar o corpo **durante a recepção**, antes de carregar os bytes em memória, e aplicar controles de autorização, CSRF e auditoria.
+
+`OriginalPdfStorage` revalida na gravação e usa somente o bucket privado `portal-private`, com chave relativa aleatória `documents/<uuid>.pdf`; o nome enviado nunca compõe a chave. A leitura aceita apenas esse formato de chave, limita a resposta a 30 MiB e sempre fecha a conexão. A remoção aceita apenas uma chave explícita por chamada. Falhas do SDK propagam, sem fallback nem URL pública.
+
+Os testes usam cliente simulado e, opcionalmente, MinIO real com `FUMEP_MINIO_TEST_ENDPOINT`, `FUMEP_MINIO_TEST_ACCESS_KEY`, `FUMEP_MINIO_TEST_SECRET_KEY` e `FUMEP_MINIO_TEST_SECURE`. O bucket privado deve existir. A prova real cria uma chave aleatória e remove somente essa chave. Não usar credenciais de produção. Nenhum endpoint, PostgreSQL, Worker, MediaUsage ou UI foi integrado nesta fatia.
