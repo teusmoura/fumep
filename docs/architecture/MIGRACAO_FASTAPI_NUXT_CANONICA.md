@@ -20,6 +20,8 @@ Para a migração, a precedência é: este documento e o plano de migração aba
 
 Migrar e aceitar cada funcionalidade isoladamente com fixtures/contratos locais; somente depois conectar Nuxt, FastAPI, PostgreSQL, Redis e MinIO. Fixtures devem ser identificadas como demonstração e nunca simular persistência real. A integração terá testes de contrato e fluxo ponta a ponta próprios. Código legado permanece executável durante a transição para comparação; não se introduz fallback de produção entre pilhas sem decisão específica.
 
+**Cadência ajustada em 2026-09-29:** uma funcionalidade isolada não deve ser quebrada em loops sucessivos de infraestrutura sem resultado completo. Agrupar as etapas técnicas necessárias em um loop com caminho executável e aceite verificável (por exemplo, job → Worker → variantes → estado final), preservando a fronteira de integração acima. Os loops MIG 4.1–4.8 já concluídos não são reabertos; esta regra orienta os próximos. A demonstração isolada não deve ser apresentada como recurso utilizável no navegador ou persistência de produção.
+
 ## Plano de migração em fatias
 
 1. **MIG 1 — Páginas institucionais Nuxt**: `/`, `/etmsl`, `/cramam`, identidade, aparência claro/escuro/sistema, SSR, sem API. Testes de rota/semântica e build; navegador verificável.

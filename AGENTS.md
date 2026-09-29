@@ -6,6 +6,8 @@ Você está trabalhando na V1 do Portal FUMEP, um portal institucional multi-ins
 
 O projeto deve ser implementado em **loops verificáveis e cumulativos**, com uma entrega funcional clara por loop. Evite subdivisões artificiais que gerem apenas contratos sem um resultado testável. Não antecipe funcionalidades de loops futuros.
 
+**Cadência funcional:** planeje cada loop pelo resultado completo dentro da fronteira aprovada, reunindo contrato, serviço, armazenamento, estados e testes que dependam uns dos outros. Fila, schema, validador ou status isolados são etapas internas do mesmo loop, não motivos automáticos para abrir loops separados. O aceite deve demonstrar um caminho executável de ponta a ponta dentro dessa fronteira; indique explicitamente se ele ainda não é utilizável no navegador. Mantenha um loop por execução, mas aumente a fatia funcional em vez de multiplicar execuções pequenas. Não antecipe a fase de integração FastAPI/Nuxt/PostgreSQL sem nova decisão.
+
 ## Fonte de verdade documental
 
 Antes de implementar qualquer mudança arquitetural, consulte:

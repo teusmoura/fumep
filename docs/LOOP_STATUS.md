@@ -122,6 +122,10 @@ Estado inicial: MIG 4.7 concluído em `9a87501`, Git limpo. Pillow 12.3.0 escolh
 
 Checks: `python -m pytest -q tests/test_media_worker.py` com Redis/MinIO reais (14 aprovados); `python -m pytest -q` com Redis/MinIO reais (242 aprovados); `python -m pip check`, `python -m compileall -q app`, `pnpm format:check` e `git diff --check` aprovados. Warning transitivo Starlette/TestClient sem falha; checks JS completos não aplicáveis. Fixture inicial ligava produtor e Worker a servidores fakeredis diferentes; corrigida e reexecutada. Aceite da fatia isolada cumprido; próximo MIG 4.9 — variantes responsivas isoladas.
 
+### Ajuste de cadência antes do MIG 4.9
+
+Por solicitação do responsável, o MIG 4.9 passa a reunir variantes e lifecycle de processamento em um resultado funcional isolado, demonstrado por job real até READY/FAILED. Etapas técnicas deixam de virar loops por padrão. Os loops MIG 4.1–4.8 e seus commits permanecem concluídos; a decisão de integração somente após as funcionalidades isoladas continua. Nenhum código funcional foi alterado neste ajuste.
+
 ### MIG 3.1 — Sessão Redis e cookie — concluído
 
 Entregue: `RedisSessionStore` com token opaco de 32 bytes, `SET NX EX`, prefixo isolado da pilha legada, leitura/renovação atômica `WATCH/MULTI/EXEC`, limite de inatividade de 30 minutos, limite absoluto de 8 horas, invalidação e descarte de dados corrompidos. Cookie `fumep_session` HttpOnly, SameSite=Lax, Path=/, Secure em produção. Sem login, autorização de rotas ou integração com Nuxt. Contrato/teste local descritos em `docs/REDIS_SESSION_MIGRATION.md`.
