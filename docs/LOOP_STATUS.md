@@ -78,6 +78,14 @@ Checks aprovados: `python -m pip check`, `python -m compileall -q app`, `python 
 
 Aceite do contrato isolado MIG 4.1 cumprido; não se declara tabela/persistência real. Próximo: MIG 4.2 — validação de imagem para upload antes de tocar MinIO.
 
+### MIG 4.2 — Validação isolada de imagem para upload — concluído
+
+Estado inicial: MIG 4.1 concluído em `30639aa`, Git limpo; a revisão de processo `2a7cdef` preservou o trabalho iniciado. Entregue: validador Python isolado para JPEG/PNG/WebP/AVIF, com concordância de extensão, MIME declarado e assinatura, nome original seguro, limite inclusivo de 15 MiB e SHA-256 dos bytes aceitos. SVG e outros tipos são rejeitados. A inspeção limitada de cabeçalhos não é decodificação completa; nenhuma biblioteca Python adicional foi necessária. O futuro adaptador HTTP deverá limitar o corpo durante a recepção, antes de carregar os bytes para esta função.
+
+Checks: `pytest` (151 aprovados, 1 integração Redis opcional ignorada), `pip check`, `compileall -q app`, `pnpm format:check` e `git diff --check` aprovados. Testes focados cobrem os quatro formatos, divergências, cabeçalhos/boxes malformados, controles no nome, limite exato e checksum. Checks JS de lint/typecheck/test/build não se aplicam: nenhum código JS/TS foi alterado. Warning transitivo Starlette/TestClient sobre httpx, sem falha.
+
+Aceite do validador isolado cumprido. Não há endpoint, MinIO, PostgreSQL, Worker, variantes ou UI nesta entrega. Próximo: MIG 4.3 — contrato isolado de armazenamento MinIO.
+
 ### MIG 3.1 — Sessão Redis e cookie — concluído
 
 Entregue: `RedisSessionStore` com token opaco de 32 bytes, `SET NX EX`, prefixo isolado da pilha legada, leitura/renovação atômica `WATCH/MULTI/EXEC`, limite de inatividade de 30 minutos, limite absoluto de 8 horas, invalidação e descarte de dados corrompidos. Cookie `fumep_session` HttpOnly, SameSite=Lax, Path=/, Secure em produção. Sem login, autorização de rotas ou integração com Nuxt. Contrato/teste local descritos em `docs/REDIS_SESSION_MIGRATION.md`.
