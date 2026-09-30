@@ -1,0 +1,7 @@
+# MIG 4.9 — processamento completo de imagem, isolado
+
+O job RQ/JSON `PROCESS_MEDIA` usa somente `media_id`. O Worker reconsulta metadados no repositório injetado, passa de PENDING para PROCESSING, relê e valida o original privado (tipo, tamanho, assinatura e SHA-256), orienta/decodifica com Pillow e produz WebP/AVIF nas larguras 320, 640, 960, 1280 e 1920 até a largura original, incluindo a largura original quando menor que 1920. Não há upscale. O menor WebP (até 320 px) é o thumbnail, sem objeto duplicado.
+
+Derivados vão ao bucket privado `portal-private`, em `images/variants/<media-id>-<largura>.<formato>`. As chaves são determinísticas e cada objeto leva SHA-256 em metadado; uma repetição com mesmo tamanho/checksum não regrava o objeto. O repositório injetado recebe metadados de cada variante e só marca READY depois de todas, inclusive o thumbnail. Falha intermediária conserva PROCESSING para retry RQ; após esgotar as tentativas, registra FAILED com código sanitizado. Original e derivados já válidos nunca são apagados pela falha. Repetir mídia READY não lê/reprocessa o original.
+
+O repositório dos testes é **fixture em memória**: comprova contrato e ordem, não durabilidade ou transação PostgreSQL. Antes de expor upload/status, a integração deverá escolher ORM/migrations Python, implementar transições condicionais e atômicas, reconciliação após perda de job/Redis e auditoria persistida. Esta entrega não disponibiliza o fluxo no navegador, não escreve no schema existente e não publica arquivos/URLs.

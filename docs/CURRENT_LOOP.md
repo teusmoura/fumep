@@ -15,14 +15,15 @@
 - MIG 4.6 — Validação e armazenamento PDF isolados: concluído, 220 testes Python aprovados, integração MinIO real aprovada e 1 integração Redis opcional ignorada.
 - MIG 4.7 — Publicação isolada de PROCESS_MEDIA em Redis: concluído, 228 testes Python aprovados com Redis e MinIO reais.
 - MIG 4.8 — Worker Python e inspeção isolada do original: concluído, 242 testes Python aprovados com Redis e MinIO reais.
-- **MIG 4.9 — Processamento de imagem completo e isolado: loop atual.**
+- MIG 4.9 — Processamento de imagem completo e isolado: concluído, 253 testes Python aprovados com Redis e MinIO reais; estado/variantes ainda em fixture.
+- **MIG 4.10 — Uso e exclusão de mídia como fluxo isolado: loop atual.**
 
-## MIG 4.9 — Processamento de imagem completo e isolado
+## MIG 4.10 — Uso e exclusão de mídia como fluxo isolado
 
-Fechar o fluxo isolado `PROCESS_MEDIA` em uma única entrega: original validado → Worker → WebP/AVIF/thumbnail sem upscale → objetos MinIO e metadados de variantes → transições PENDING/PROCESSING/READY/FAILED. Usar repositório de estado/variantes injetado e fixture explícita nos testes, com operações idempotentes, falhas sanitizadas e preservação do original e de derivados válidos após falha parcial. Testar execução real em Redis e MinIO, repetição, imagem pequena e falhas antes/depois da gravação. Não escrever no schema PostgreSQL existente nem expor endpoint/UI nesta fase.
+Entregar um fluxo isolado de vínculo/desvínculo de uso e exclusão segura: mídia em uso ou PROCESSING não pode ser excluída; mídia elegível registra intenção antes do job, fica indisponível para novos usos e o Worker remove variantes/original/metadados de forma idempotente, com retry limitado e falhas preservadas. Usar repositório injetado/fixture explícita e MinIO real nos testes. Consultar MEDIA-002, Storage §§55.1–55.5 e Jobs §6.1 antes de implementar; não alegar durabilidade PostgreSQL onde houver apenas fixture.
 
-Aceite: um job válido chega a READY somente após todas as variantes/metadados exigidos; falha definitiva chega a FAILED sem apagar o original, com retry limitado e repetição segura; objetos/dimensões/checksums são verificados em MinIO real; testes/checks verdes, status atualizado e commit criado. Este aceite é funcional **na fronteira isolada**, não significa upload ou acompanhamento disponível no navegador.
+Aceite: vínculo cria bloqueio real na regra de exclusão; desvínculo libera quando elegível; falhas parciais e repetição não removem mídia em uso nem perdem a intenção; testes/checks verdes, status atualizado e commit criado. Sem endpoint/UI e sem escrita no schema PostgreSQL existente antes da decisão ORM/migrations.
 
 ## Próximo loop
 
-**MIG 4.10 — Uso e exclusão de mídia como fluxo isolado.** Detalhar após aceite de MIG 4.9; não antecipar integração entre Nuxt, FastAPI e PostgreSQL.
+**MIG 5 — Page Builder por funcionalidade completa.** Detalhar após aceite de MIG 4.10; não antecipar integração entre Nuxt, FastAPI e PostgreSQL.

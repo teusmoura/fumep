@@ -79,6 +79,19 @@ class MemoryStorage:
         return self.content
 
 
+class InspectionOnlyService:
+    """Legacy checkpoint fixture; the complete pipeline is tested separately."""
+
+    def __init__(self, inspector: MediaOriginalProcessor) -> None:
+        self.inspector = inspector
+
+    def process(self, media_id: UUID):
+        return self.inspector.inspect(media_id)
+
+    def mark_failed(self, media_id: UUID) -> None:
+        pass
+
+
 def setup(image_format: str = "PNG", *, rotate: bool = False):
     mime = {"JPEG": "image/jpeg", "PNG": "image/png", "WEBP": "image/webp", "AVIF": "image/avif"}[image_format]
     content = sample_image(image_format, rotate=rotate)
@@ -158,7 +171,7 @@ def test_worker_receives_job_and_closes_redis_without_leaking_storage_error() ->
     job_id = publisher.enqueue_process_media(media_id).job_id
     worker_client = fakeredis.FakeRedis(server=server)
     with patch.object(worker_client, "close", wraps=worker_client.close) as close:
-        run_worker(worker_client, processor, burst=True)  # type: ignore[arg-type]
+        run_worker(worker_client, InspectionOnlyService(processor), burst=True)  # type: ignore[arg-type]
         close.assert_called_once()
     job = Job.fetch(job_id, connection=client, serializer="json")
     assert job.get_status(refresh=True) == "finished"
@@ -175,7 +188,7 @@ def test_invalid_payload_and_storage_failure_are_recorded_safely() -> None:
     invalid = queue.enqueue_call(func=WORKER_FUNCTION, kwargs={"media_id": "not-a-uuid"})
     storage.fail = True
     broken = queue.enqueue_call(func=WORKER_FUNCTION, kwargs={"media_id": str(media_id)})
-    run_worker(fakeredis.FakeRedis(server=server), processor, burst=True)  # type: ignore[arg-type]
+    run_worker(fakeredis.FakeRedis(server=server), InspectionOnlyService(processor), burst=True)  # type: ignore[arg-type]
     for job_id in (invalid.id, broken.id):
         job = Job.fetch(job_id, connection=client, serializer="json")
         assert job.get_status(refresh=True) == "failed"
@@ -217,7 +230,7 @@ def test_real_redis_and_minio_when_configured() -> None:
     try:
         job_id = publisher.enqueue_process_media(media_id).job_id
         worker_redis = Redis.from_url(redis_url, socket_connect_timeout=2, socket_timeout=2)
-        run_worker(worker_redis, MediaOriginalProcessor(reader, storage), config=config, burst=True)
+        run_worker(worker_redis, InspectionOnlyService(MediaOriginalProcessor(reader, storage)), config=config, burst=True)
         job = Job.fetch(job_id, connection=redis_client, serializer="json")
         assert job.get_status(refresh=True) == "finished"
         assert job.return_value() == {"media_id": str(media_id), "width": 3, "height": 2}

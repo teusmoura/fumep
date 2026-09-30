@@ -126,6 +126,12 @@ Checks: `python -m pytest -q tests/test_media_worker.py` com Redis/MinIO reais (
 
 Por solicitação do responsável, o MIG 4.9 passa a reunir variantes e lifecycle de processamento em um resultado funcional isolado, demonstrado por job real até READY/FAILED. Etapas técnicas deixam de virar loops por padrão. Os loops MIG 4.1–4.8 e seus commits permanecem concluídos; a decisão de integração somente após as funcionalidades isoladas continua. Nenhum código funcional foi alterado neste ajuste.
 
+### MIG 4.9 — Processamento de imagem completo e isolado — concluído
+
+Estado inicial: replanejamento concluído em `5ff98a7`, Git limpo. Entregue: `PROCESS_MEDIA` no Worker RQ gera WebP/AVIF nas larguras canônicas sem upscale, reutiliza o menor WebP como thumbnail, grava variantes privadas com chaves e checksum determinísticos e registra metadados em repositório injetado. Transições PENDING/PROCESSING/READY/FAILED são verificadas; READY exige todos os derivados. Retry intermediário mantém PROCESSING; tentativa terminal falha com código sanitizado. Repetição e falha parcial preservam original e variantes válidas. A persistência de estado/variantes é fixture, não PostgreSQL; fronteira em `docs/MEDIA_PIPELINE_MIGRATION.md`.
+
+Checks: `python -m pytest -q tests/test_media_pipeline.py tests/test_media_worker.py` com Redis/MinIO reais (25 aprovados); `python -m pytest -q` com Redis/MinIO reais (253 aprovados); `python -m pip check`, `python -m compileall -q app`, `pnpm format:check` e `git diff --check` aprovados. Warning transitivo Starlette/TestClient sem falha. Checks JS completos não aplicáveis. Teste de retry inicialmente falhou por fixture que simulava falha só na primeira chamada; fixture corrigida e reexecutada. Aceite da fronteira isolada cumprido, sem alegar uso no navegador. Próximo MIG 4.10 — uso e exclusão de mídia isolados.
+
 ### MIG 3.1 — Sessão Redis e cookie — concluído
 
 Entregue: `RedisSessionStore` com token opaco de 32 bytes, `SET NX EX`, prefixo isolado da pilha legada, leitura/renovação atômica `WATCH/MULTI/EXEC`, limite de inatividade de 30 minutos, limite absoluto de 8 horas, invalidação e descarte de dados corrompidos. Cookie `fumep_session` HttpOnly, SameSite=Lax, Path=/, Secure em produção. Sem login, autorização de rotas ou integração com Nuxt. Contrato/teste local descritos em `docs/REDIS_SESSION_MIGRATION.md`.

@@ -10,6 +10,7 @@ from uuid import UUID
 from PIL import Image, ImageOps, UnidentifiedImageError
 from redis import Redis
 from rq import Queue, SimpleWorker
+from rq import get_current_job
 
 from .image_upload_validation import validate_image_upload
 from .media_metadata import MediaMetadata
@@ -42,6 +43,8 @@ class ImageInspection:
     media_id: UUID
     width: int
     height: int
+    content: bytes
+    mime_type: str
 
 
 class MediaOriginalProcessor:
@@ -88,6 +91,8 @@ class MediaOriginalProcessor:
                         media_id=media_id,
                         width=displayed.width,
                         height=displayed.height,
+                        content=content,
+                        mime_type=media.mime_type,
                     )
                 finally:
                     displayed.close()
@@ -95,7 +100,19 @@ class MediaOriginalProcessor:
             raise InvalidMediaOriginalError("MEDIA_DECODE_REJECTED") from exc
 
 
-_active_processor: ContextVar[MediaOriginalProcessor | None] = ContextVar(
+class MediaJobResult(Protocol):
+    media_id: UUID
+    width: int
+    height: int
+
+
+class MediaJobProcessor(Protocol):
+    def process(self, media_id: UUID) -> MediaJobResult: ...
+
+    def mark_failed(self, media_id: UUID) -> None: ...
+
+
+_active_processor: ContextVar[MediaJobProcessor | None] = ContextVar(
     "active_media_processor", default=None
 )
 
@@ -109,8 +126,14 @@ def process_media(media_id: str) -> dict[str, int | str]:
         parsed_id = UUID(media_id)
         if str(parsed_id) != media_id:
             raise ValueError("non-canonical UUID")
-        inspection = processor.inspect(parsed_id)
+        inspection = processor.process(parsed_id)
     except Exception:
+        job = get_current_job()
+        if "parsed_id" in locals() and (job is None or not job.retries_left):
+            try:
+                processor.mark_failed(parsed_id)
+            except Exception:
+                pass  # A falha do registro não pode virar sucesso do job.
         raise MediaProcessingError("MEDIA_INSPECTION_FAILED") from None
     return {
         "media_id": str(inspection.media_id),
@@ -121,7 +144,7 @@ def process_media(media_id: str) -> dict[str, int | str]:
 
 def run_worker(
     client: Redis,
-    processor: MediaOriginalProcessor,
+    processor: MediaJobProcessor,
     *,
     config: MediaQueueConfig | None = None,
     burst: bool = False,
