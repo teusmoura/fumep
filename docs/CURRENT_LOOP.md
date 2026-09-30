@@ -16,14 +16,15 @@
 - MIG 4.7 — Publicação isolada de PROCESS_MEDIA em Redis: concluído, 228 testes Python aprovados com Redis e MinIO reais.
 - MIG 4.8 — Worker Python e inspeção isolada do original: concluído, 242 testes Python aprovados com Redis e MinIO reais.
 - MIG 4.9 — Processamento de imagem completo e isolado: concluído, 253 testes Python aprovados com Redis e MinIO reais; estado/variantes ainda em fixture.
-- **MIG 4.10 — Uso e exclusão de mídia como fluxo isolado: loop atual.**
+- MIG 4.10 — Uso e exclusão de mídia como fluxo isolado: concluído, 262 testes Python aprovados; fixture de estado, sem endpoint/UI ou PostgreSQL.
+- **MIG 5.1 — Page Builder básico de páginas como funcionalidade isolada: loop atual.**
 
-## MIG 4.10 — Uso e exclusão de mídia como fluxo isolado
+## MIG 5.1 — Page Builder básico de páginas como funcionalidade isolada
 
-Entregar um fluxo isolado de vínculo/desvínculo de uso e exclusão segura: mídia em uso ou PROCESSING não pode ser excluída; mídia elegível registra intenção antes do job, fica indisponível para novos usos e o Worker remove variantes/original/metadados de forma idempotente, com retry limitado e falhas preservadas. Usar repositório injetado/fixture explícita e MinIO real nos testes. Consultar MEDIA-002, Storage §§55.1–55.5 e Jobs §6.1 antes de implementar; não alegar durabilidade PostgreSQL onde houver apenas fixture.
+Entregar um caminho editorial isolado e verificável no Nuxt: criar/editar localmente uma página com blocos TEXT, HERO e IMAGE usando schemas versionados, BlockRegistry, controles estruturados, preview e os mesmos renderers para página pública demonstrativa. Incluir upload/seleção de mídia somente como fixture explícita, sem sugerir persistência. Agrupar contrato, editor, renderização, estado e testes numa única funcionalidade, sem dividir novamente por bloco. Consultar Page Builder canônico, Design System e loops canônicos 5.1–5.9; preservar sanitização, alt e CTA válidos e não permitir CSS/grid livre.
 
-Aceite: vínculo cria bloqueio real na regra de exclusão; desvínculo libera quando elegível; falhas parciais e repetição não removem mídia em uso nem perdem a intenção; testes/checks verdes, status atualizado e commit criado. Sem endpoint/UI e sem escrita no schema PostgreSQL existente antes da decisão ORM/migrations.
+Aceite: o fluxo demonstrativo permite adicionar, editar, reordenar e remover TEXT/HERO/IMAGE, rejeita conteúdo inválido, mostra preview correspondente ao rendering público e passa testes de componentes/SSR/acessibilidade aplicáveis. Não declarar publicação, PageVersion, MediaUsage persistente ou integração FastAPI/PostgreSQL como concluídos.
 
 ## Próximo loop
 
-**MIG 5 — Page Builder por funcionalidade completa.** Detalhar após aceite de MIG 4.10; não antecipar integração entre Nuxt, FastAPI e PostgreSQL.
+**MIG 5.2 — Blocos avançados do Page Builder.** Detalhar após aceite do builder básico, mantendo funcionalidade completa por loop e sem antecipar integração FastAPI/PostgreSQL.

@@ -11,6 +11,7 @@ from rq.job import Job
 
 QUEUE_NAME = "fumep:media"
 WORKER_FUNCTION = "app.media_worker.process_media"
+DELETE_WORKER_FUNCTION = "app.media_deletion_worker.delete_media"
 
 
 @dataclass(frozen=True, slots=True)
@@ -79,6 +80,43 @@ class MediaQueuePublisher:
                 or existing.kwargs != payload
             ):
                 raise
+            return EnqueueResult(job_id=job_id, created=False)
+        return EnqueueResult(job_id=job_id, created=True)
+
+    def enqueue_delete_media(self, media_id: UUID) -> EnqueueResult:
+        if self._closed:
+            raise RuntimeError("Media queue publisher is closed")
+        if not isinstance(media_id, UUID):
+            raise ValueError("Invalid media ID")
+        job_id = f"delete-media-{media_id}"
+        payload = {"media_id": str(media_id)}
+        def publish() -> None:
+            self._queue.enqueue_call(
+                func=DELETE_WORKER_FUNCTION,
+                kwargs=payload,
+                job_id=job_id,
+                unique=True,
+                retry=Retry(max=2, interval=(1, 2)),
+                result_ttl=self.config.success_ttl_seconds,
+                failure_ttl=self.config.failure_ttl_seconds,
+                timeout=self.config.job_timeout_seconds,
+            )
+
+        try:
+            publish()
+        except DuplicateJobError:
+            existing = Job.fetch(job_id, connection=self._client, serializer="json")
+            if (
+                existing.origin != self.config.queue_name
+                or existing.func_name != DELETE_WORKER_FUNCTION
+                or existing.kwargs != payload
+            ):
+                raise
+            if existing.get_status(refresh=True) in {"finished", "failed", "stopped", "canceled"}:
+                # Recovery/new authorized cycle may reuse the deterministic ID.
+                existing.delete()
+                publish()
+                return EnqueueResult(job_id=job_id, created=True)
             return EnqueueResult(job_id=job_id, created=False)
         return EnqueueResult(job_id=job_id, created=True)
 
