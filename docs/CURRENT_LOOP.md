@@ -17,14 +17,15 @@
 - MIG 4.8 — Worker Python e inspeção isolada do original: concluído, 242 testes Python aprovados com Redis e MinIO reais.
 - MIG 4.9 — Processamento de imagem completo e isolado: concluído, 253 testes Python aprovados com Redis e MinIO reais; estado/variantes ainda em fixture.
 - MIG 4.10 — Uso e exclusão de mídia como fluxo isolado: concluído, 262 testes Python aprovados; fixture de estado, sem endpoint/UI ou PostgreSQL.
-- **MIG 5.1 — Page Builder básico de páginas como funcionalidade isolada: loop atual.**
+- MIG 5.1 — Page Builder básico de páginas isolado: concluído, editor demonstrativo Nuxt/SSR e checks completos aprovados; sem persistência.
+- **MIG 5.2 — Composição editorial avançada isolada: loop atual.**
 
-## MIG 5.1 — Page Builder básico de páginas como funcionalidade isolada
+## MIG 5.2 — Composição editorial avançada isolada
 
-Entregar um caminho editorial isolado e verificável no Nuxt: criar/editar localmente uma página com blocos TEXT, HERO e IMAGE usando schemas versionados, BlockRegistry, controles estruturados, preview e os mesmos renderers para página pública demonstrativa. Incluir upload/seleção de mídia somente como fixture explícita, sem sugerir persistência. Agrupar contrato, editor, renderização, estado e testes numa única funcionalidade, sem dividir novamente por bloco. Consultar Page Builder canônico, Design System e loops canônicos 5.1–5.9; preservar sanitização, alt e CTA válidos e não permitir CSS/grid livre.
+Expandir o builder Nuxt isolado com IMAGE_TEXT, CARDS, QUICK_LINKS e CTA como um conjunto editorial completo: schemas versionados, campos controlados no editor, renderers compartilhados pela prévia e página pública demonstrativa, fixtures explícitas e testes. Consultar Page Builder canônico §§14, 16, 17 e CTA, limites de itens, acessibilidade e links. Não integrar FastAPI/PostgreSQL, publicação, PageVersion ou MediaUsage persistente nesta fatia.
 
-Aceite: o fluxo demonstrativo permite adicionar, editar, reordenar e remover TEXT/HERO/IMAGE, rejeita conteúdo inválido, mostra preview correspondente ao rendering público e passa testes de componentes/SSR/acessibilidade aplicáveis. Não declarar publicação, PageVersion, MediaUsage persistente ou integração FastAPI/PostgreSQL como concluídos.
+Aceite: adicionar/editar/reordenar/remover os quatro tipos, rejeitar dados/links/mídias inválidos, manter renderers idênticos em prévia e demo pública, sem regressão nos três blocos básicos; checks e smoke SSR/a11y aplicáveis verdes, status e commit.
 
 ## Próximo loop
 
-**MIG 5.2 — Blocos avançados do Page Builder.** Detalhar após aceite do builder básico, mantendo funcionalidade completa por loop e sem antecipar integração FastAPI/PostgreSQL.
+**MIG 5.3 — Blocos interativos do Page Builder.** Detalhar após aceite do conjunto editorial avançado; manter funcionalidade completa por loop e não antecipar integração FastAPI/PostgreSQL.

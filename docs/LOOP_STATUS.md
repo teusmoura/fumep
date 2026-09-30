@@ -138,6 +138,12 @@ Estado inicial: MIG 4.9 em `c521a3f`, Git limpo. Entregue: vínculo impede exclu
 
 Checks: `python -m pytest -q` com Redis/MinIO reais (262 aprovados, 1 warning transitivo Starlette/TestClient), inclusive após ajuste ADMIN; `python -m pytest -q tests/test_media_deletion.py tests/test_media_queue.py` com serviços reais (16 aprovados). `python -m pip check`, `python -m compileall -q app`, `pnpm format:check` e `git diff --check` aprovados. Checks JS/E2E não aplicáveis: apenas Python/docs mudaram e não há interface nova. A primeira execução real falhou por protocolo HTTPS usado contra MinIO HTTP local; configuração do teste corrigida e reexecutada. Próximo MIG 5.1 — Page Builder básico de páginas como funcionalidade isolada.
 
+### MIG 5.1 — Page Builder básico de páginas isolado — concluído
+
+Estado inicial: MIG 4.10 em `8d74612`, Git limpo. Entregue: contratos Zod v1/registry e editor Nuxt de TEXT, HERO e IMAGE, com inclusão, edição, reordenação por teclado, ocultação e remoção; prévia e página pública demonstrativa compartilham renderers. Alt, CTA/link interno, mídia da fixture, posição, IDs e âncoras são validados antes da prévia. Texto é escapado pelo Vue; HTML/CSS/grid livres não são aceitos. Rotas SSR `/builder-demo` e `/builder-demo/public` responderam 200; axe-core no HTML SSR não encontrou violações nas regras suportadas pelo jsdom (contraste não medido). Imagens SVG são assets visuais fixos, não uploads editoriais. Sem salvamento/publicação/autorização: limites em `docs/PAGE_BUILDER_MIGRATION.md`.
+
+Checks: `pnpm lint`, `pnpm typecheck`, `pnpm test` e `pnpm build` completos aprovados; portal com 10 testes, 2 arquivos. Após adicionar `lang=pt-BR` ao app raiz, build/test/typecheck do portal, lint e formatação foram repetidos e aprovados. `pnpm format:check` e `git diff --check` aprovados; `pnpm test:e2e` indisponível (script ausente), substituído por smoke SSR e axe-core nas duas rotas. O lockfile foi mantido com apenas a nova dependência Zod. Próximo MIG 5.2 — composição editorial avançada isolada.
+
 ### MIG 3.1 — Sessão Redis e cookie — concluído
 
 Entregue: `RedisSessionStore` com token opaco de 32 bytes, `SET NX EX`, prefixo isolado da pilha legada, leitura/renovação atômica `WATCH/MULTI/EXEC`, limite de inatividade de 30 minutos, limite absoluto de 8 horas, invalidação e descarte de dados corrompidos. Cookie `fumep_session` HttpOnly, SameSite=Lax, Path=/, Secure em produção. Sem login, autorização de rotas ou integração com Nuxt. Contrato/teste local descritos em `docs/REDIS_SESSION_MIGRATION.md`.

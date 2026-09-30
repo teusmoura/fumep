@@ -1,0 +1,43 @@
+import type { Component } from "vue";
+import { blockSchemas, type BlockType } from "./contracts";
+import BlockFields from "./BlockFields.vue";
+import TextBlock from "./TextBlock.vue";
+import HeroBlock from "./HeroBlock.vue";
+import ImageBlock from "./ImageBlock.vue";
+
+export const blockRegistry: Record<
+  BlockType,
+  {
+    label: string;
+    schemaVersion: 1;
+    schema: (typeof blockSchemas)[BlockType];
+    editor: Component;
+    renderer: Component;
+    allowedContexts: readonly ["PAGE"];
+  }
+> = {
+  TEXT: {
+    label: "Texto",
+    schemaVersion: 1,
+    schema: blockSchemas.TEXT,
+    editor: BlockFields,
+    renderer: TextBlock,
+    allowedContexts: ["PAGE"],
+  },
+  HERO: {
+    label: "Destaque",
+    schemaVersion: 1,
+    schema: blockSchemas.HERO,
+    editor: BlockFields,
+    renderer: HeroBlock,
+    allowedContexts: ["PAGE"],
+  },
+  IMAGE: {
+    label: "Imagem",
+    schemaVersion: 1,
+    schema: blockSchemas.IMAGE,
+    editor: BlockFields,
+    renderer: ImageBlock,
+    allowedContexts: ["PAGE"],
+  },
+};

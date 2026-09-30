@@ -65,9 +65,165 @@ select {
   top: 1rem;
 }
 a:focus-visible,
-select:focus-visible {
+select:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
   outline: 3px solid #e99a00;
   outline-offset: 3px;
+}
+
+.builder-shell {
+  min-height: 100svh;
+  background: #f6f8fb;
+  color: #152336;
+}
+.builder-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem clamp(1rem, 4vw, 3rem);
+  background: white;
+  border-bottom: 1px solid #dce4ec;
+}
+.builder-header a {
+  color: #174f80;
+  font-weight: 700;
+}
+.builder-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 460px) minmax(0, 1fr);
+  gap: 2rem;
+  max-width: 1500px;
+  margin: auto;
+  padding: 2rem clamp(1rem, 4vw, 3rem);
+}
+.builder-public {
+  max-width: 1100px;
+  margin: auto;
+  padding: 2rem 1rem;
+}
+.builder-notice {
+  border-left: 4px solid #174f80;
+  background: #e8f0f7;
+  padding: 0.8rem 1rem;
+}
+.builder-add,
+.builder-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+.builder-shell button {
+  border: 1px solid #174f80;
+  border-radius: 0.4rem;
+  padding: 0.5rem 0.75rem;
+  background: white;
+  color: #174f80;
+  cursor: pointer;
+}
+.builder-shell button:hover {
+  background: #e8f0f7;
+}
+.builder-shell button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.builder-list {
+  padding-left: 1.6rem;
+}
+.builder-card {
+  background: white;
+  border: 1px solid #dce4ec;
+  border-radius: 0.6rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+.builder-card h2 {
+  margin-top: 0;
+  font-size: 1.15rem;
+}
+.builder-fields {
+  display: grid;
+  gap: 0.45rem;
+}
+.builder-fields label {
+  font-weight: 600;
+  margin-top: 0.45rem;
+}
+.builder-fields input:not([type="checkbox"]),
+.builder-fields textarea,
+.builder-fields select {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #657b90;
+  border-radius: 0.3rem;
+  font: inherit;
+}
+.builder-fields .builder-check {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.builder-preview {
+  background: white;
+  border: 1px solid #dce4ec;
+  border-radius: 0.6rem;
+  padding: clamp(1rem, 3vw, 2rem);
+  align-self: start;
+}
+.builder-errors {
+  color: #8a2432;
+}
+.builder-block {
+  margin: 0 0 1.5rem;
+  padding: clamp(1rem, 3vw, 2rem);
+  border-radius: 0.45rem;
+}
+.builder-block h2 {
+  margin-top: 0;
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+}
+.builder-block p {
+  white-space: pre-line;
+  line-height: 1.6;
+}
+.builder-surface {
+  background: #e8f0f7;
+}
+.builder-block img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+  object-fit: cover;
+  border-radius: 0.3rem;
+}
+.builder-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: center;
+}
+.builder-cta {
+  display: inline-block;
+  background: #174f80;
+  color: white;
+  padding: 0.65rem 1rem;
+  border-radius: 0.3rem;
+}
+.builder-block figcaption {
+  margin-top: 0.6rem;
+  color: #46556a;
+}
+@media (max-width: 850px) {
+  .builder-layout,
+  .builder-hero {
+    grid-template-columns: 1fr;
+  }
 }
 .site-header {
   background: var(--background);
