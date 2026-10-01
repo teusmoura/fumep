@@ -10,9 +10,9 @@ import {
 import { demoBlocks } from "./demo";
 
 describe("Page Builder demonstrativo", () => {
-  it("validates all ten versioned fixture blocks", () => {
+  it("validates all thirteen versioned fixture blocks", () => {
     expect(demoBlocks.map((block) => blockSchema.safeParse(block).success)).toEqual(
-      Array(10).fill(true),
+      Array(13).fill(true),
     );
     expect(validatePage(demoBlocks)).toEqual([]);
   });
@@ -227,5 +227,71 @@ describe("Page Builder demonstrativo", () => {
     expect(
       blockSchema.safeParse({ ...table, data: { ...table.data, html: "<table></table>" } }).success,
     ).toBe(false);
+  });
+
+  it("adds, reorders and removes TIMELINE, STATISTICS and CAROUSEL", () => {
+    const blocks = (["TIMELINE", "STATISTICS", "CAROUSEL"] as const).map((type, position) =>
+      createBlock(type, position),
+    );
+    expect(validatePage(blocks)).toEqual([]);
+    expect(moveBlock(blocks, 2, 0).map((block) => block.type)).toEqual([
+      "CAROUSEL",
+      "TIMELINE",
+      "STATISTICS",
+    ]);
+    expect(validatePage(normalizePositions(blocks.slice(1)))).toEqual([]);
+  });
+
+  it("requires timeline titles and descriptions without arbitrary HTML", () => {
+    const block = createBlock("TIMELINE", 0);
+    if (block.type !== "TIMELINE") throw new Error("Unexpected block");
+    expect(validatePage([{ ...block, data: { ...block.data, items: [] } }])).not.toEqual([]);
+    expect(
+      validatePage([
+        {
+          ...block,
+          data: { ...block.data, items: [{ date: "", title: " ", description: "Texto" }] },
+        },
+      ]),
+    ).not.toEqual([]);
+    expect(
+      blockSchema.safeParse({ ...block, data: { ...block.data, html: "<div>foo</div>" } }).success,
+    ).toBe(false);
+  });
+
+  it("caps statistics at twelve and requires value and label", () => {
+    const block = createBlock("STATISTICS", 0);
+    if (block.type !== "STATISTICS") throw new Error("Unexpected block");
+    expect(
+      validatePage([{ ...block, data: { items: Array(12).fill(block.data.items[0]) } }]),
+    ).toEqual([]);
+    expect(
+      validatePage([{ ...block, data: { items: Array(13).fill(block.data.items[0]) } }]),
+    ).not.toEqual([]);
+    expect(
+      validatePage([
+        { ...block, data: { items: [{ value: "", label: "Indicador", description: "" }] } },
+      ]),
+    ).not.toEqual([]);
+  });
+
+  it("caps carousel at ten and validates image, alt and internal URL", () => {
+    const block = createBlock("CAROUSEL", 0);
+    if (block.type !== "CAROUSEL") throw new Error("Unexpected block");
+    const item = block.data.items[0]!;
+    expect(validatePage([{ ...block, data: { items: Array(10).fill(item) } }])).toEqual([]);
+    expect(validatePage([{ ...block, data: { items: Array(11).fill(item) } }])).not.toEqual([]);
+    expect(validatePage([{ ...block, data: { items: [{ ...item, alt: "" }] } }])).not.toEqual([]);
+    expect(
+      validatePage([
+        {
+          ...block,
+          data: { items: [{ ...item, imageId: "cccccccc-cccc-4ccc-8ccc-cccccccccccc" }] },
+        },
+      ]),
+    ).not.toEqual([]);
+    expect(
+      validatePage([{ ...block, data: { items: [{ ...item, url: "https://evil.example" }] } }]),
+    ).not.toEqual([]);
   });
 });

@@ -185,6 +185,61 @@ const table = base
       }),
   })
   .strict();
+const timeline = base
+  .extend({
+    type: z.literal("TIMELINE"),
+    data: z
+      .object({
+        title: z.string(),
+        items: z
+          .array(
+            z.object({ date: z.string(), title: requiredText, description: requiredText }).strict(),
+          )
+          .min(1)
+          .max(50),
+      })
+      .strict(),
+  })
+  .strict();
+const statistics = base
+  .extend({
+    type: z.literal("STATISTICS"),
+    data: z
+      .object({
+        items: z
+          .array(
+            z
+              .object({ value: requiredText, label: requiredText, description: z.string() })
+              .strict(),
+          )
+          .min(1)
+          .max(12),
+      })
+      .strict(),
+  })
+  .strict();
+const carousel = base
+  .extend({
+    type: z.literal("CAROUSEL"),
+    data: z
+      .object({
+        items: z
+          .array(
+            z
+              .object({
+                imageId: uuid,
+                alt: requiredText,
+                caption: z.string(),
+                url: optionalInternalLink,
+              })
+              .strict(),
+          )
+          .min(1)
+          .max(10),
+      })
+      .strict(),
+  })
+  .strict();
 
 export const blockSchemas = {
   TEXT: text,
@@ -197,6 +252,9 @@ export const blockSchemas = {
   FAQ: faq,
   TABS: tabs,
   TABLE: table,
+  TIMELINE: timeline,
+  STATISTICS: statistics,
+  CAROUSEL: carousel,
 } as const;
 export const blockSchema = z.discriminatedUnion("type", [
   text,
@@ -209,6 +267,9 @@ export const blockSchema = z.discriminatedUnion("type", [
   faq,
   tabs,
   table,
+  timeline,
+  statistics,
+  carousel,
 ]);
 export type BuilderBlock = z.infer<typeof blockSchema>;
 export type BlockType = BuilderBlock["type"];
@@ -223,6 +284,9 @@ export const blockTypes: BlockType[] = [
   "FAQ",
   "TABS",
   "TABLE",
+  "TIMELINE",
+  "STATISTICS",
+  "CAROUSEL",
 ];
 
 export const mediaFixture = [
@@ -352,6 +416,29 @@ export function createBlock(type: BlockType, position: number): BuilderBlock {
           rows: [["Valor 1", "Valor 2"]],
         },
       };
+    case "TIMELINE":
+      return {
+        ...common,
+        type,
+        data: {
+          title: "Linha do tempo",
+          items: [{ date: "", title: "Marco", description: "Descrição do marco." }],
+        },
+      };
+    case "STATISTICS":
+      return {
+        ...common,
+        type,
+        data: { items: [{ value: "1", label: "Indicador", description: "" }] },
+      };
+    case "CAROUSEL":
+      return {
+        ...common,
+        type,
+        data: {
+          items: [{ imageId: mediaFixture[0].id, alt: "Fachada da ETMSL", caption: "", url: "" }],
+        },
+      };
   }
 }
 
@@ -386,6 +473,8 @@ export function validatePage(blocks: BuilderBlock[]): string[] {
       if (!mediaFor(mediaId)) errors.push(`Bloco ${index + 1}: mídia não selecionável.`);
     }
     if (block.type === "CARDS" && block.data.items.some((item) => !mediaFor(item.imageId)))
+      errors.push(`Bloco ${index + 1}: mídia não selecionável.`);
+    if (block.type === "CAROUSEL" && block.data.items.some((item) => !mediaFor(item.imageId)))
       errors.push(`Bloco ${index + 1}: mídia não selecionável.`);
   });
   return errors;

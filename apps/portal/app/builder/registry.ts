@@ -11,6 +11,9 @@ import CtaBlock from "./CtaBlock.vue";
 import FaqBlock from "./FaqBlock.vue";
 import TabsBlock from "./TabsBlock.vue";
 import TableBlock from "./TableBlock.vue";
+import TimelineBlock from "./TimelineBlock.vue";
+import StatisticsBlock from "./StatisticsBlock.vue";
+import CarouselBlock from "./CarouselBlock.vue";
 
 export const blockRegistry: Record<
   BlockType,
@@ -101,6 +104,30 @@ export const blockRegistry: Record<
     schema: blockSchemas.TABLE,
     editor: BlockFields,
     renderer: TableBlock,
+    allowedContexts: ["PAGE"],
+  },
+  TIMELINE: {
+    label: "Linha do tempo",
+    schemaVersion: 1,
+    schema: blockSchemas.TIMELINE,
+    editor: BlockFields,
+    renderer: TimelineBlock,
+    allowedContexts: ["PAGE"],
+  },
+  STATISTICS: {
+    label: "Indicadores",
+    schemaVersion: 1,
+    schema: blockSchemas.STATISTICS,
+    editor: BlockFields,
+    renderer: StatisticsBlock,
+    allowedContexts: ["PAGE"],
+  },
+  CAROUSEL: {
+    label: "Carrossel",
+    schemaVersion: 1,
+    schema: blockSchemas.CAROUSEL,
+    editor: BlockFields,
+    renderer: CarouselBlock,
     allowedContexts: ["PAGE"],
   },
 };

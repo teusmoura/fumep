@@ -20,14 +20,15 @@
 - MIG 5.1 — Page Builder básico de páginas isolado: concluído, editor demonstrativo Nuxt/SSR e checks completos aprovados; sem persistência.
 - MIG 5.2 — Composição editorial avançada isolada: concluído, quatro blocos novos no editor/SSR e checks completos aprovados; sem persistência.
 - MIG 5.3 — FAQ, TABS e TABLE como conjunto editorial isolado: concluído, dez blocos válidos no editor/SSR e checks completos aprovados; sem persistência.
-- **MIG 5.4 — TIMELINE, STATISTICS e CAROUSEL como conjunto isolado: loop atual.**
+- MIG 5.4 — TIMELINE, STATISTICS e CAROUSEL como conjunto isolado: concluído, treze blocos válidos no editor/SSR e checks aprovados; sem persistência.
+- **MIG 5.5 — MAP, VIDEO e DOCUMENT como recursos externos controlados: loop atual.**
 
-## MIG 5.4 — TIMELINE, STATISTICS e CAROUSEL como conjunto isolado
+## MIG 5.5 — MAP, VIDEO e DOCUMENT como recursos externos controlados
 
-Expandir o builder Nuxt demonstrativo com TIMELINE (`title?`, itens com data opcional/título/descrição), STATISTICS (até 12 itens de valor/rótulo/descrição opcional) e CAROUSEL (até 10 slides conforme contrato canônico). Cada tipo deve ter schema v1, editor controlado, renderer compartilhado pela prévia e página pública, fixture e testes. Consultar Page Builder canônico §§15, 21–22 e plano canônico loops 5.24–5.26. Não integrar FastAPI/PostgreSQL, publicação ou PageVersion.
+Expandir o builder Nuxt demonstrativo com MAP (coordenadas/endereço/zoom estruturados, sem HTML de mapa), VIDEO (somente YouTube/Vimeo, sem iframe livre) e DOCUMENT (um PDF de mídia selecionável, título/descrição/rótulo opcionais). Cada tipo deve ter schema v1, editor controlado, renderer compartilhado pela prévia e página pública, fixture e testes. Consultar Page Builder canônico §§23–25 e plano canônico loops 5.27–5.29. Para DOCUMENT, diferenciar claramente PDF de fixture visual de um arquivo persistido na Media Library, sem declarar integração inexistente. Não integrar FastAPI/PostgreSQL, publicação ou PageVersion.
 
-Aceite: adicionar/editar/reordenar/remover os três tipos; carrossel operável por teclado e sem avanço automático obrigatório; limites/estrutura inválida rejeitados; os dez blocos anteriores permanecem válidos. Checks completos, smoke SSR/a11y, status e commit.
+Aceite: adicionar/editar/reordenar/remover os três tipos; URL de vídeo restrita, mapa sem HTML fornecido pelo Editor, PDF selecionável e acessível; estrutura inválida rejeitada; os treze blocos anteriores permanecem válidos. Checks aplicáveis, smoke SSR/a11y, status e commit.
 
 ## Próximo loop
 
-**MIG 5.5 — MAP, VIDEO e DOCUMENT como recursos externos controlados.** Detalhar após aceite de TIMELINE/STATISTICS/CAROUSEL; manter funcionalidade completa por loop e não antecipar integração FastAPI/PostgreSQL.
+**MIG 5.6 — fechamento do registry V1 e validação cruzada.** Detalhar após aceite de MAP/VIDEO/DOCUMENT; manter funcionalidade completa por loop e não antecipar integração FastAPI/PostgreSQL.

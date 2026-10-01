@@ -326,6 +326,49 @@ textarea:focus-visible {
 .builder-table-scroll th {
   background: #e8f0f7;
 }
+.builder-timeline {
+  border-left: 3px solid #174f80;
+  margin-left: 0.4rem;
+  padding-left: 1.5rem;
+}
+.builder-timeline li {
+  padding: 0.3rem 0 1rem;
+}
+.builder-timeline-date {
+  font-weight: 700;
+}
+.builder-statistics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 1rem;
+  list-style: none;
+  padding: 0;
+}
+.builder-statistics > li {
+  border: 1px solid #9badbf;
+  border-radius: 0.4rem;
+  padding: 1rem;
+}
+.builder-statistics h3 {
+  font-weight: 700;
+}
+.builder-statistics-value {
+  display: block;
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0.4rem 0;
+}
+.builder-carousel-slide figure {
+  margin: 0;
+}
+.builder-carousel-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
 @media (max-width: 850px) {
   .builder-layout,
   .builder-hero,

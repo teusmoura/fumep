@@ -1,5 +1,11 @@
 # LOOP STATUS
 
+## MIG 5.4 — TIMELINE, STATISTICS e CAROUSEL isolados — concluído
+
+Estado inicial: MIG 5.3 concluído em `2f1075c`, Git limpo. Entregue: três schemas v1 estritos, edição controlada, renderers compartilhados entre prévia e SSR público, fixture fixa de treze blocos e testes. TIMELINE usa lista ordenada de marcos; STATISTICS limita doze indicadores; CAROUSEL limita dez imagens da fixture, valida alt/URL/mídia e usa controles manuais de teclado, sem autoplay. Limite demonstrativo de 50 marcos não é decisão de persistência. Sem integração ou PageVersion.
+
+Checks aprovados: `pnpm lint`, `pnpm format:check`, `pnpm --filter @fumep/portal typecheck`, `pnpm --filter @fumep/portal test` (22), `pnpm --filter @fumep/portal build`, smoke SSR em `/builder-demo` e `/builder-demo/public` (HTTP 200; conteúdo presente), axe em ambas (0 violações com contraste desabilitado no jsdom), `git diff --check`. Testes legados completos não repetidos: código legado inalterado e aprovado no MIG 5.3. Falha inicial de axe na lista de indicadores foi corrigida com `ul`/`li` e revalidada. E2E Playwright indisponível como script do workspace; teclado em navegador real permanece QA futuro. Próximo: MIG 5.5 — MAP, VIDEO e DOCUMENT isolados.
+
 ## MIG 5.3 — FAQ, TABS e TABLE isolados — concluído
 
 Estado inicial: MIG 5.2 concluído em `6f1c89d`, Git limpo. Entregue: três schemas v1 estritos, campos editoriais controlados, renderers registrados compartilhados entre prévia e rota pública, fixture fixa de dez blocos e testes. FAQ usa expansão nativa por teclado (até 30 itens); TABS usa setas/Home/End e semântica ARIA (até 8); TABLE usa cabeçalhos/linhas estruturados e tabela semântica, sem HTML livre. Limites demonstrativos de 12 colunas/50 linhas não são contrato de persistência. Sem FastAPI, PostgreSQL, publicação ou PageVersion.

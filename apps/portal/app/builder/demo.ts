@@ -169,4 +169,55 @@ export const demoBlocks: BuilderBlock[] = [
       rows: [["Atendimento", "Manhã"]],
     },
   },
+  {
+    id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbc",
+    position: 10,
+    type: "TIMELINE",
+    isVisible: true,
+    schemaVersion: 1,
+    background: "SURFACE",
+    data: {
+      title: "Nossa trajetória",
+      items: [
+        {
+          date: "2026",
+          title: "Novo portal",
+          description: "Uma etapa de modernização institucional.",
+        },
+      ],
+    },
+  },
+  {
+    id: "cccccccc-cccc-4ccc-8ccc-cccccccccccd",
+    position: 11,
+    type: "STATISTICS",
+    isVisible: true,
+    schemaVersion: 1,
+    background: "NONE",
+    data: { items: [{ value: "3", label: "Instituições", description: "FUMEP, ETMSL e CRAMAM" }] },
+  },
+  {
+    id: "dddddddd-dddd-4ddd-8ddd-ddddddddddde",
+    position: 12,
+    type: "CAROUSEL",
+    isVisible: true,
+    schemaVersion: 1,
+    background: "SURFACE",
+    data: {
+      items: [
+        {
+          imageId: mediaFixture[0].id,
+          alt: "Fachada ilustrada da ETMSL",
+          caption: "Escola",
+          url: "/etmsl",
+        },
+        {
+          imageId: mediaFixture[1].id,
+          alt: "Estantes ilustradas da biblioteca",
+          caption: "Biblioteca",
+          url: "",
+        },
+      ],
+    },
+  },
 ];
