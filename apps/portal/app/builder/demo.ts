@@ -121,4 +121,52 @@ export const demoBlocks: BuilderBlock[] = [
       buttonUrl: "/etmsl",
     },
   },
+  {
+    id: "88888888-8888-4888-8888-888888888888",
+    position: 7,
+    type: "FAQ",
+    isVisible: true,
+    schemaVersion: 1,
+    background: "NONE",
+    data: {
+      title: "Perguntas frequentes",
+      items: [
+        {
+          question: "Como posso conhecer a escola?",
+          answer: "Consulte os canais institucionais da ETMSL.",
+        },
+        {
+          question: "Onde encontro novidades?",
+          answer: "Acompanhe as páginas públicas do portal.",
+        },
+      ],
+    },
+  },
+  {
+    id: "99999999-9999-4999-8999-999999999999",
+    position: 8,
+    type: "TABS",
+    isVisible: true,
+    schemaVersion: 1,
+    background: "SURFACE",
+    data: {
+      tabs: [
+        { label: "Ensino", content: "Conheça as atividades de ensino da instituição." },
+        { label: "Espaços", content: "Explore os espaços de aprendizagem." },
+      ],
+    },
+  },
+  {
+    id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaab",
+    position: 9,
+    type: "TABLE",
+    isVisible: true,
+    schemaVersion: 1,
+    background: "NONE",
+    data: {
+      caption: "Exemplo de horários",
+      headers: ["Atividade", "Período"],
+      rows: [["Atendimento", "Manhã"]],
+    },
+  },
 ];

@@ -281,6 +281,51 @@ textarea:focus-visible {
   color: #46556a;
   font-size: 0.85rem;
 }
+.builder-faq-item {
+  border-bottom: 1px solid #9badbf;
+}
+.builder-faq-item summary {
+  cursor: pointer;
+  font-weight: 700;
+  padding: 0.85rem 0;
+}
+.builder-faq-item summary:focus-visible {
+  outline: 3px solid #e99a00;
+}
+.builder-tablist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  border-bottom: 1px solid #9badbf;
+}
+.builder-tablist button[aria-selected="true"] {
+  border-bottom: 3px solid #174f80;
+  font-weight: 700;
+}
+.builder-tabpanel {
+  padding: 0.5rem 0;
+}
+.builder-table-scroll {
+  overflow-x: auto;
+}
+.builder-table-scroll table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.builder-table-scroll caption {
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  text-align: left;
+}
+.builder-table-scroll th,
+.builder-table-scroll td {
+  border: 1px solid #9badbf;
+  padding: 0.65rem;
+  text-align: left;
+}
+.builder-table-scroll th {
+  background: #e8f0f7;
+}
 @media (max-width: 850px) {
   .builder-layout,
   .builder-hero,

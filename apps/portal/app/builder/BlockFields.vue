@@ -3,6 +3,7 @@ import { computed } from "vue";
 import type { BuilderBlock } from "./contracts";
 import { mediaFixture } from "./contracts";
 import AdvancedFields from "./AdvancedFields.vue";
+import StructuredFields from "./StructuredFields.vue";
 
 const props = defineProps<{ block: BuilderBlock }>();
 const emit = defineEmits<{ change: [block: BuilderBlock] }>();
@@ -47,7 +48,7 @@ function changeCommon(field: string, value: string | boolean | undefined) {
       Exibir no preview</label
     >
 
-    <template v-if="block.type !== 'IMAGE'">
+    <template v-if="block.type !== 'IMAGE' && block.type !== 'TABS' && block.type !== 'TABLE'">
       <label :for="`${block.id}-title`">Título</label>
       <input
         :id="`${block.id}-title`"
@@ -143,6 +144,11 @@ function changeCommon(field: string, value: string | boolean | undefined) {
         block.type === 'QUICK_LINKS' ||
         block.type === 'CTA'
       "
+      :block="block"
+      @change="emit('change', $event)"
+    />
+    <StructuredFields
+      v-if="block.type === 'FAQ' || block.type === 'TABS' || block.type === 'TABLE'"
       :block="block"
       @change="emit('change', $event)"
     />

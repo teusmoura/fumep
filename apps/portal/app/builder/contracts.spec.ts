@@ -10,9 +10,9 @@ import {
 import { demoBlocks } from "./demo";
 
 describe("Page Builder demonstrativo", () => {
-  it("validates all seven versioned fixture blocks", () => {
+  it("validates all ten versioned fixture blocks", () => {
     expect(demoBlocks.map((block) => blockSchema.safeParse(block).success)).toEqual(
-      Array(7).fill(true),
+      Array(10).fill(true),
     );
     expect(validatePage(demoBlocks)).toEqual([]);
   });
@@ -172,5 +172,60 @@ describe("Page Builder demonstrativo", () => {
       validatePage([{ ...block, data: { ...block.data, buttonUrl: "javascript:alert(1)" } }]),
     ).not.toEqual([]);
     expect(validatePage([{ ...block, data: { ...block.data, buttonUrl: "/etmsl" } }])).toEqual([]);
+  });
+
+  it("adds, reorders and removes the structured content blocks", () => {
+    const blocks = (["FAQ", "TABS", "TABLE"] as const).map((type, position) =>
+      createBlock(type, position),
+    );
+    expect(validatePage(blocks)).toEqual([]);
+    expect(moveBlock(blocks, 2, 0).map((block) => block.type)).toEqual(["TABLE", "FAQ", "TABS"]);
+    expect(validatePage(normalizePositions(blocks.slice(1)))).toEqual([]);
+  });
+
+  it("enforces FAQ and TABS cardinality and required text", () => {
+    const faq = createBlock("FAQ", 0);
+    const tabs = createBlock("TABS", 0);
+    if (faq.type !== "FAQ" || tabs.type !== "TABS") throw new Error("Unexpected block");
+    expect(
+      validatePage([{ ...faq, data: { ...faq.data, items: Array(30).fill(faq.data.items[0]) } }]),
+    ).toEqual([]);
+    expect(
+      validatePage([{ ...faq, data: { ...faq.data, items: Array(31).fill(faq.data.items[0]) } }]),
+    ).not.toEqual([]);
+    expect(validatePage([{ ...faq, data: { ...faq.data, items: [] } }])).not.toEqual([]);
+    expect(
+      validatePage([
+        { ...faq, data: { ...faq.data, items: [{ question: " ", answer: "Resposta" }] } },
+      ]),
+    ).not.toEqual([]);
+    expect(validatePage([{ ...tabs, data: { tabs: Array(8).fill(tabs.data.tabs[0]) } }])).toEqual(
+      [],
+    );
+    expect(
+      validatePage([{ ...tabs, data: { tabs: Array(9).fill(tabs.data.tabs[0]) } }]),
+    ).not.toEqual([]);
+    expect(
+      validatePage([{ ...tabs, data: { tabs: [{ label: "Aba", content: " " }] } }]),
+    ).not.toEqual([]);
+  });
+
+  it("requires structured TABLE rows that match headers and rejects HTML fields", () => {
+    const table = createBlock("TABLE", 0);
+    if (table.type !== "TABLE") throw new Error("Unexpected block");
+    expect(
+      validatePage([{ ...table, data: { ...table.data, headers: ["Nome"], rows: [["ETMSL"]] } }]),
+    ).toEqual([]);
+    expect(
+      validatePage([
+        { ...table, data: { ...table.data, headers: ["Nome"], rows: [["ETMSL", "extra"]] } },
+      ]),
+    ).not.toEqual([]);
+    expect(
+      validatePage([{ ...table, data: { ...table.data, headers: [""], rows: [["ETMSL"]] } }]),
+    ).not.toEqual([]);
+    expect(
+      blockSchema.safeParse({ ...table, data: { ...table.data, html: "<table></table>" } }).success,
+    ).toBe(false);
   });
 });

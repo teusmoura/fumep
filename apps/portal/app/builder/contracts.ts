@@ -138,6 +138,53 @@ const cta = base
       .strict(),
   })
   .strict();
+const faq = base
+  .extend({
+    type: z.literal("FAQ"),
+    data: z
+      .object({
+        title: z.string(),
+        items: z
+          .array(z.object({ question: requiredText, answer: requiredText }).strict())
+          .min(1)
+          .max(30),
+      })
+      .strict(),
+  })
+  .strict();
+const tabs = base
+  .extend({
+    type: z.literal("TABS"),
+    data: z
+      .object({
+        tabs: z
+          .array(z.object({ label: requiredText, content: requiredText }).strict())
+          .min(1)
+          .max(8),
+      })
+      .strict(),
+  })
+  .strict();
+const table = base
+  .extend({
+    type: z.literal("TABLE"),
+    data: z
+      .object({
+        caption: z.string(),
+        headers: z.array(requiredText).min(1).max(12),
+        rows: z.array(z.array(z.string())).min(1).max(50),
+      })
+      .strict()
+      .superRefine((value, ctx) => {
+        if (value.rows.some((row) => row.length !== value.headers.length))
+          ctx.addIssue({
+            code: "custom",
+            path: ["rows"],
+            message: "Colunas da tabela não correspondem aos cabeçalhos.",
+          });
+      }),
+  })
+  .strict();
 
 export const blockSchemas = {
   TEXT: text,
@@ -147,6 +194,9 @@ export const blockSchemas = {
   CARDS: cards,
   QUICK_LINKS: quickLinks,
   CTA: cta,
+  FAQ: faq,
+  TABS: tabs,
+  TABLE: table,
 } as const;
 export const blockSchema = z.discriminatedUnion("type", [
   text,
@@ -156,6 +206,9 @@ export const blockSchema = z.discriminatedUnion("type", [
   cards,
   quickLinks,
   cta,
+  faq,
+  tabs,
+  table,
 ]);
 export type BuilderBlock = z.infer<typeof blockSchema>;
 export type BlockType = BuilderBlock["type"];
@@ -167,6 +220,9 @@ export const blockTypes: BlockType[] = [
   "CARDS",
   "QUICK_LINKS",
   "CTA",
+  "FAQ",
+  "TABS",
+  "TABLE",
 ];
 
 export const mediaFixture = [
@@ -268,6 +324,33 @@ export function createBlock(type: BlockType, position: number): BuilderBlock {
         ...common,
         type,
         data: { title: "Saiba mais", text: "", buttonLabel: "Acessar", buttonUrl: "/etmsl" },
+      };
+    case "FAQ":
+      return {
+        ...common,
+        type,
+        data: {
+          title: "Perguntas frequentes",
+          items: [
+            { question: "Como participar?", answer: "Consulte as informações da instituição." },
+          ],
+        },
+      };
+    case "TABS":
+      return {
+        ...common,
+        type,
+        data: { tabs: [{ label: "Primeira aba", content: "Conteúdo da aba." }] },
+      };
+    case "TABLE":
+      return {
+        ...common,
+        type,
+        data: {
+          caption: "Tabela demonstrativa",
+          headers: ["Coluna 1", "Coluna 2"],
+          rows: [["Valor 1", "Valor 2"]],
+        },
       };
   }
 }

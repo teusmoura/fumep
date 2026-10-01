@@ -1,5 +1,11 @@
 # LOOP STATUS
 
+## MIG 5.3 — FAQ, TABS e TABLE isolados — concluído
+
+Estado inicial: MIG 5.2 concluído em `6f1c89d`, Git limpo. Entregue: três schemas v1 estritos, campos editoriais controlados, renderers registrados compartilhados entre prévia e rota pública, fixture fixa de dez blocos e testes. FAQ usa expansão nativa por teclado (até 30 itens); TABS usa setas/Home/End e semântica ARIA (até 8); TABLE usa cabeçalhos/linhas estruturados e tabela semântica, sem HTML livre. Limites demonstrativos de 12 colunas/50 linhas não são contrato de persistência. Sem FastAPI, PostgreSQL, publicação ou PageVersion.
+
+Checks aprovados: `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm test`, `pnpm build`, smoke SSR em `/builder-demo` e `/builder-demo/public` (HTTP 200; conteúdo presente), axe em ambas as rotas (0 violações com contraste desabilitado no jsdom), `git diff --check`. E2E Playwright não disponível como script do workspace; inspeção de teclado em navegador real ainda é QA futuro. `architecture-guard`: conforme com observação de que fixtures não equivalem a persistência/publicação. Próximo: MIG 5.4 — TIMELINE, STATISTICS e CAROUSEL isolados.
+
 ## Migração FastAPI + Nuxt — 2026-09-25
 
 Por decisão explícita do responsável, os loops técnicos NestJS/Next.js foram interrompidos após 5.30 (`bc5a96e`). O trabalho não commitado do 5.31 (schema PageTemplate, migration, testes e documentação) foi preservado no stash `b1bba349ce433efb2f4a9b1cb86739a3d004fca8`; não há aceite nem commit do 5.31. A pilha-alvo e a precedência estão em `docs/architecture/MIGRACAO_FASTAPI_NUXT_CANONICA.md`. Funcionalidades serão migradas individualmente antes da integração.

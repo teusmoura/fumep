@@ -8,6 +8,9 @@ import ImageTextBlock from "./ImageTextBlock.vue";
 import CardsBlock from "./CardsBlock.vue";
 import QuickLinksBlock from "./QuickLinksBlock.vue";
 import CtaBlock from "./CtaBlock.vue";
+import FaqBlock from "./FaqBlock.vue";
+import TabsBlock from "./TabsBlock.vue";
+import TableBlock from "./TableBlock.vue";
 
 export const blockRegistry: Record<
   BlockType,
@@ -74,6 +77,30 @@ export const blockRegistry: Record<
     schema: blockSchemas.CTA,
     editor: BlockFields,
     renderer: CtaBlock,
+    allowedContexts: ["PAGE"],
+  },
+  FAQ: {
+    label: "Perguntas frequentes",
+    schemaVersion: 1,
+    schema: blockSchemas.FAQ,
+    editor: BlockFields,
+    renderer: FaqBlock,
+    allowedContexts: ["PAGE"],
+  },
+  TABS: {
+    label: "Abas",
+    schemaVersion: 1,
+    schema: blockSchemas.TABS,
+    editor: BlockFields,
+    renderer: TabsBlock,
+    allowedContexts: ["PAGE"],
+  },
+  TABLE: {
+    label: "Tabela",
+    schemaVersion: 1,
+    schema: blockSchemas.TABLE,
+    editor: BlockFields,
+    renderer: TableBlock,
     allowedContexts: ["PAGE"],
   },
 };

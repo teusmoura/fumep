@@ -19,14 +19,15 @@
 - MIG 4.10 — Uso e exclusão de mídia como fluxo isolado: concluído, 262 testes Python aprovados; fixture de estado, sem endpoint/UI ou PostgreSQL.
 - MIG 5.1 — Page Builder básico de páginas isolado: concluído, editor demonstrativo Nuxt/SSR e checks completos aprovados; sem persistência.
 - MIG 5.2 — Composição editorial avançada isolada: concluído, quatro blocos novos no editor/SSR e checks completos aprovados; sem persistência.
-- **MIG 5.3 — FAQ, TABS e TABLE como conjunto editorial isolado: loop atual.**
+- MIG 5.3 — FAQ, TABS e TABLE como conjunto editorial isolado: concluído, dez blocos válidos no editor/SSR e checks completos aprovados; sem persistência.
+- **MIG 5.4 — TIMELINE, STATISTICS e CAROUSEL como conjunto isolado: loop atual.**
 
-## MIG 5.3 — FAQ, TABS e TABLE como conjunto editorial isolado
+## MIG 5.4 — TIMELINE, STATISTICS e CAROUSEL como conjunto isolado
 
-Expandir o builder Nuxt demonstrativo com FAQ (até 30 itens), TABS (até 8 abas, sem blocos aninhados) e TABLE (cabeçalhos/linhas estruturados, sem HTML livre). Cada tipo deve ter schema v1, editor controlado, renderer compartilhado pela prévia e página pública, fixture e testes. Consultar Page Builder canônico §§18–20, plano canônico loops 5.21–5.23 e regras de acessibilidade; não integrar FastAPI/PostgreSQL, publicação ou PageVersion.
+Expandir o builder Nuxt demonstrativo com TIMELINE (`title?`, itens com data opcional/título/descrição), STATISTICS (até 12 itens de valor/rótulo/descrição opcional) e CAROUSEL (até 10 slides conforme contrato canônico). Cada tipo deve ter schema v1, editor controlado, renderer compartilhado pela prévia e página pública, fixture e testes. Consultar Page Builder canônico §§15, 21–22 e plano canônico loops 5.24–5.26. Não integrar FastAPI/PostgreSQL, publicação ou PageVersion.
 
-Aceite: adicionar/editar/reordenar/remover os três tipos; FAQ e abas operáveis por teclado, tabela com semântica acessível; limites/estrutura inválida rejeitados; os sete blocos anteriores permanecem válidos. Checks completos, smoke SSR/a11y, status e commit.
+Aceite: adicionar/editar/reordenar/remover os três tipos; carrossel operável por teclado e sem avanço automático obrigatório; limites/estrutura inválida rejeitados; os dez blocos anteriores permanecem válidos. Checks completos, smoke SSR/a11y, status e commit.
 
 ## Próximo loop
 
-**MIG 5.4 — Blocos de dados e recursos externos controlados.** Detalhar após aceite de FAQ/TABS/TABLE; manter funcionalidade completa por loop e não antecipar integração FastAPI/PostgreSQL.
+**MIG 5.5 — MAP, VIDEO e DOCUMENT como recursos externos controlados.** Detalhar após aceite de TIMELINE/STATISTICS/CAROUSEL; manter funcionalidade completa por loop e não antecipar integração FastAPI/PostgreSQL.
