@@ -5,6 +5,7 @@ import { mediaFixture } from "./contracts";
 import AdvancedFields from "./AdvancedFields.vue";
 import StructuredFields from "./StructuredFields.vue";
 import DataFields from "./DataFields.vue";
+import ExternalFields from "./ExternalFields.vue";
 
 const props = defineProps<{ block: BuilderBlock }>();
 const emit = defineEmits<{ change: [block: BuilderBlock] }>();
@@ -56,7 +57,10 @@ function changeCommon(field: string, value: string | boolean | undefined) {
         block.type !== 'TABLE' &&
         block.type !== 'TIMELINE' &&
         block.type !== 'STATISTICS' &&
-        block.type !== 'CAROUSEL'
+        block.type !== 'CAROUSEL' &&
+        block.type !== 'MAP' &&
+        block.type !== 'VIDEO' &&
+        block.type !== 'DOCUMENT'
       "
     >
       <label :for="`${block.id}-title`">Título</label>
@@ -164,6 +168,11 @@ function changeCommon(field: string, value: string | boolean | undefined) {
     />
     <DataFields
       v-if="block.type === 'TIMELINE' || block.type === 'STATISTICS' || block.type === 'CAROUSEL'"
+      :block="block"
+      @change="emit('change', $event)"
+    />
+    <ExternalFields
+      v-if="block.type === 'MAP' || block.type === 'VIDEO' || block.type === 'DOCUMENT'"
       :block="block"
       @change="emit('change', $event)"
     />

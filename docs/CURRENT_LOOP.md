@@ -21,14 +21,15 @@
 - MIG 5.2 — Composição editorial avançada isolada: concluído, quatro blocos novos no editor/SSR e checks completos aprovados; sem persistência.
 - MIG 5.3 — FAQ, TABS e TABLE como conjunto editorial isolado: concluído, dez blocos válidos no editor/SSR e checks completos aprovados; sem persistência.
 - MIG 5.4 — TIMELINE, STATISTICS e CAROUSEL como conjunto isolado: concluído, treze blocos válidos no editor/SSR e checks aprovados; sem persistência.
-- **MIG 5.5 — MAP, VIDEO e DOCUMENT como recursos externos controlados: loop atual.**
+- MIG 5.5 — MAP, VIDEO e DOCUMENT como recursos externos controlados: concluído, dezesseis blocos válidos no editor/SSR e PDF local de fixture; sem Media Library real.
+- **MIG 5.6 — fechamento do registry V1 e validação cruzada: loop atual.**
 
-## MIG 5.5 — MAP, VIDEO e DOCUMENT como recursos externos controlados
+## MIG 5.6 — fechamento do registry V1 e validação cruzada
 
-Expandir o builder Nuxt demonstrativo com MAP (coordenadas/endereço/zoom estruturados, sem HTML de mapa), VIDEO (somente YouTube/Vimeo, sem iframe livre) e DOCUMENT (um PDF de mídia selecionável, título/descrição/rótulo opcionais). Cada tipo deve ter schema v1, editor controlado, renderer compartilhado pela prévia e página pública, fixture e testes. Consultar Page Builder canônico §§23–25 e plano canônico loops 5.27–5.29. Para DOCUMENT, diferenciar claramente PDF de fixture visual de um arquivo persistido na Media Library, sem declarar integração inexistente. Não integrar FastAPI/PostgreSQL, publicação ou PageVersion.
+Auditar o registry Nuxt contra os tipos V1 definidos em Page Builder canônico e o aceite do plano canônico loop 5.30. Fechar as lacunas de tipos e validação dentro da fronteira isolada aprovada: schemas v1, editores controlados, renderers compartilhados, fixtures e testes. Recursos cujo conteúdo depende de integração ainda não aprovada devem permanecer explicitamente demonstrativos, sem simular dados reais. Não integrar FastAPI/PostgreSQL/MinIO, publicação ou PageVersion.
 
-Aceite: adicionar/editar/reordenar/remover os três tipos; URL de vídeo restrita, mapa sem HTML fornecido pelo Editor, PDF selecionável e acessível; estrutura inválida rejeitada; os treze blocos anteriores permanecem válidos. Checks aplicáveis, smoke SSR/a11y, status e commit.
+Aceite: inventário canônico de tipos e regras com lacunas resolvidas para a demonstração, registro e schemas coerentes, todos os blocos anteriores válidos, conteúdo inválido rejeitado, testes e smoke SSR/a11y; documentar claramente qualquer dependência pendente de integração. Checks aplicáveis, status e commit.
 
 ## Próximo loop
 
-**MIG 5.6 — fechamento do registry V1 e validação cruzada.** Detalhar após aceite de MAP/VIDEO/DOCUMENT; manter funcionalidade completa por loop e não antecipar integração FastAPI/PostgreSQL.
+**MIG 5.7 — PageTemplate isolado.** Detalhar após fechamento do registry, conforme Page Builder canônico e estratégia de migração, sem antecipar integração FastAPI/PostgreSQL.

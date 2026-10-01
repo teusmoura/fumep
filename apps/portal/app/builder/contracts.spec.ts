@@ -6,13 +6,14 @@ import {
   moveBlock,
   normalizePositions,
   validatePage,
+  videoEmbedUrl,
 } from "./contracts";
 import { demoBlocks } from "./demo";
 
 describe("Page Builder demonstrativo", () => {
-  it("validates all thirteen versioned fixture blocks", () => {
+  it("validates all sixteen versioned fixture blocks", () => {
     expect(demoBlocks.map((block) => blockSchema.safeParse(block).success)).toEqual(
-      Array(13).fill(true),
+      Array(16).fill(true),
     );
     expect(validatePage(demoBlocks)).toEqual([]);
   });
@@ -293,5 +294,68 @@ describe("Page Builder demonstrativo", () => {
     expect(
       validatePage([{ ...block, data: { items: [{ ...item, url: "https://evil.example" }] } }]),
     ).not.toEqual([]);
+  });
+
+  it("adds, reorders and removes MAP, VIDEO and DOCUMENT", () => {
+    const blocks = (["MAP", "VIDEO", "DOCUMENT"] as const).map((type, position) =>
+      createBlock(type, position),
+    );
+    expect(validatePage(blocks)).toEqual([]);
+    expect(moveBlock(blocks, 2, 0).map((block) => block.type)).toEqual([
+      "DOCUMENT",
+      "MAP",
+      "VIDEO",
+    ]);
+    expect(validatePage(normalizePositions(blocks.slice(1)))).toEqual([]);
+  });
+
+  it("restricts MAP coordinates and rejects editor-supplied HTML", () => {
+    const block = createBlock("MAP", 0);
+    if (block.type !== "MAP") throw new Error("Unexpected block");
+    expect(validatePage([{ ...block, data: { ...block.data, latitude: 91 } }])).not.toEqual([]);
+    expect(validatePage([{ ...block, data: { ...block.data, longitude: -181 } }])).not.toEqual([]);
+    expect(validatePage([{ ...block, data: { ...block.data, zoom: 0 } }])).not.toEqual([]);
+    expect(validatePage([{ ...block, data: { ...block.data, address: " " } }])).not.toEqual([]);
+    expect(
+      blockSchema.safeParse({ ...block, data: { ...block.data, html: "<iframe>" } }).success,
+    ).toBe(false);
+  });
+
+  it("allows only narrow HTTPS YouTube and Vimeo URLs", () => {
+    const block = createBlock("VIDEO", 0);
+    if (block.type !== "VIDEO") throw new Error("Unexpected block");
+    expect(videoEmbedUrl("https://www.youtube.com/watch?v=aqz-KE-bpKQ")).toBe(
+      "https://www.youtube-nocookie.com/embed/aqz-KE-bpKQ",
+    );
+    expect(videoEmbedUrl("https://vimeo.com/123456")).toBe("https://player.vimeo.com/video/123456");
+    for (const url of [
+      "http://vimeo.com/123456",
+      "https://evil.example/video",
+      "https://www.youtube.com.evil.example/watch?v=aqz-KE-bpKQ",
+      "https://www.youtube.com/watch?v=aqz-KE-bpKQ&autoplay=1",
+      "javascript:alert(1)",
+    ]) {
+      expect(validatePage([{ ...block, data: { ...block.data, url } }])).not.toEqual([]);
+    }
+    expect(
+      blockSchema.safeParse({ ...block, data: { ...block.data, iframe: "<iframe>" } }).success,
+    ).toBe(false);
+  });
+
+  it("accepts only the selected demonstration PDF fixture", () => {
+    const block = createBlock("DOCUMENT", 0);
+    if (block.type !== "DOCUMENT") throw new Error("Unexpected block");
+    expect(validatePage([block])).toEqual([]);
+    expect(
+      validatePage([
+        { ...block, data: { ...block.data, mediaId: "cccccccc-cccc-4ccc-8ccc-cccccccccccc" } },
+      ]),
+    ).not.toEqual([]);
+    expect(
+      blockSchema.safeParse({
+        ...block,
+        data: { ...block.data, src: "https://evil.example/file.pdf" },
+      }).success,
+    ).toBe(false);
   });
 });

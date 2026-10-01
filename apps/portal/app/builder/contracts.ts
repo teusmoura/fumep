@@ -240,6 +240,84 @@ const carousel = base
       .strict(),
   })
   .strict();
+export function videoEmbedUrl(value: string): string | null {
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "https:" || url.username || url.password || url.port) return null;
+    const host = url.hostname.toLowerCase();
+    let id: string | null = null;
+    if (host === "www.youtube.com" || host === "youtube.com") {
+      if (
+        url.pathname !== "/watch" ||
+        url.hash ||
+        [...url.searchParams.keys()].some((key) => key !== "v")
+      )
+        return null;
+      id = url.searchParams.get("v");
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return null;
+      return `https://www.youtube-nocookie.com/embed/${id}`;
+    }
+    if (host === "youtu.be") {
+      if (url.search || url.hash) return null;
+      id = url.pathname.slice(1);
+      if (!/^[A-Za-z0-9_-]{11}$/.test(id)) return null;
+      return `https://www.youtube-nocookie.com/embed/${id}`;
+    }
+    if (host === "vimeo.com" || host === "www.vimeo.com") {
+      if (url.search || url.hash) return null;
+      id = url.pathname.slice(1);
+      if (!/^[0-9]{1,15}$/.test(id)) return null;
+      return `https://player.vimeo.com/video/${id}`;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+const map = base
+  .extend({
+    type: z.literal("MAP"),
+    data: z
+      .object({
+        title: z.string(),
+        latitude: z.number().finite().min(-90).max(90),
+        longitude: z.number().finite().min(-180).max(180),
+        address: requiredText,
+        zoom: z.number().int().min(1).max(20),
+      })
+      .strict(),
+  })
+  .strict();
+const video = base
+  .extend({
+    type: z.literal("VIDEO"),
+    data: z
+      .object({
+        url: z
+          .string()
+          .refine(
+            (value) => videoEmbedUrl(value) !== null,
+            "Use URL HTTPS de vídeo YouTube ou Vimeo.",
+          ),
+        title: requiredText,
+        description: z.string(),
+      })
+      .strict(),
+  })
+  .strict();
+const document = base
+  .extend({
+    type: z.literal("DOCUMENT"),
+    data: z
+      .object({
+        mediaId: uuid,
+        title: z.string(),
+        description: z.string(),
+        buttonLabel: z.string(),
+      })
+      .strict(),
+  })
+  .strict();
 
 export const blockSchemas = {
   TEXT: text,
@@ -255,6 +333,9 @@ export const blockSchemas = {
   TIMELINE: timeline,
   STATISTICS: statistics,
   CAROUSEL: carousel,
+  MAP: map,
+  VIDEO: video,
+  DOCUMENT: document,
 } as const;
 export const blockSchema = z.discriminatedUnion("type", [
   text,
@@ -270,6 +351,9 @@ export const blockSchema = z.discriminatedUnion("type", [
   timeline,
   statistics,
   carousel,
+  map,
+  video,
+  document,
 ]);
 export type BuilderBlock = z.infer<typeof blockSchema>;
 export type BlockType = BuilderBlock["type"];
@@ -287,6 +371,9 @@ export const blockTypes: BlockType[] = [
   "TIMELINE",
   "STATISTICS",
   "CAROUSEL",
+  "MAP",
+  "VIDEO",
+  "DOCUMENT",
 ];
 
 export const mediaFixture = [
@@ -301,6 +388,11 @@ export const mediaFixture = [
     src: "/builder/biblioteca.svg",
   },
 ] as const;
+export const pdfFixture = {
+  id: "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+  label: "Documento demonstrativo (PDF)",
+  src: "/builder/demo-document.pdf",
+} as const;
 
 export function mediaFor(id: string) {
   return mediaFixture.find((item) => item.id === id);
@@ -439,6 +531,39 @@ export function createBlock(type: BlockType, position: number): BuilderBlock {
           items: [{ imageId: mediaFixture[0].id, alt: "Fachada da ETMSL", caption: "", url: "" }],
         },
       };
+    case "MAP":
+      return {
+        ...common,
+        type,
+        data: {
+          title: "Localização",
+          latitude: -22.56,
+          longitude: -47.4,
+          address: "Piracicaba, SP",
+          zoom: 14,
+        },
+      };
+    case "VIDEO":
+      return {
+        ...common,
+        type,
+        data: {
+          url: "https://www.youtube.com/watch?v=aqz-KE-bpKQ",
+          title: "Vídeo demonstrativo",
+          description: "",
+        },
+      };
+    case "DOCUMENT":
+      return {
+        ...common,
+        type,
+        data: {
+          mediaId: pdfFixture.id,
+          title: "Documento demonstrativo",
+          description: "PDF de fixture local, sem Media Library.",
+          buttonLabel: "Abrir PDF de demonstração",
+        },
+      };
   }
 }
 
@@ -476,6 +601,8 @@ export function validatePage(blocks: BuilderBlock[]): string[] {
       errors.push(`Bloco ${index + 1}: mídia não selecionável.`);
     if (block.type === "CAROUSEL" && block.data.items.some((item) => !mediaFor(item.imageId)))
       errors.push(`Bloco ${index + 1}: mídia não selecionável.`);
+    if (block.type === "DOCUMENT" && block.data.mediaId !== pdfFixture.id)
+      errors.push(`Bloco ${index + 1}: PDF não selecionável.`);
   });
   return errors;
 }

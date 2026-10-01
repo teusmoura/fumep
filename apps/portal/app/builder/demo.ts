@@ -1,5 +1,5 @@
 import type { BuilderBlock } from "./contracts";
-import { mediaFixture } from "./contracts";
+import { mediaFixture, pdfFixture } from "./contracts";
 
 /** Static, public-safe fixture; never a saved PageVersion. */
 export const demoBlocks: BuilderBlock[] = [
@@ -218,6 +218,48 @@ export const demoBlocks: BuilderBlock[] = [
           url: "",
         },
       ],
+    },
+  },
+  {
+    id: "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeef",
+    position: 13,
+    type: "MAP",
+    isVisible: true,
+    schemaVersion: 1,
+    background: "NONE",
+    data: {
+      title: "Onde estamos",
+      latitude: -22.72,
+      longitude: -47.65,
+      address: "Piracicaba, SP",
+      zoom: 14,
+    },
+  },
+  {
+    id: "ffffffff-ffff-4fff-8fff-ffffffffffff",
+    position: 14,
+    type: "VIDEO",
+    isVisible: true,
+    schemaVersion: 1,
+    background: "SURFACE",
+    data: {
+      url: "https://www.youtube.com/watch?v=aqz-KE-bpKQ",
+      title: "Vídeo demonstrativo",
+      description: "Player externo carregado somente após sua escolha.",
+    },
+  },
+  {
+    id: "abababab-abab-4bab-8bab-abababababab",
+    position: 15,
+    type: "DOCUMENT",
+    isVisible: true,
+    schemaVersion: 1,
+    background: "NONE",
+    data: {
+      mediaId: pdfFixture.id,
+      title: "PDF demonstrativo",
+      description: "Arquivo de fixture local, sem integração com a Media Library.",
+      buttonLabel: "Abrir PDF de demonstração",
     },
   },
 ];

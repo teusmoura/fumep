@@ -1,5 +1,11 @@
 # LOOP STATUS
 
+## MIG 5.5 — MAP, VIDEO e DOCUMENT isolados — concluído
+
+Estado inicial: MIG 5.4 concluído em `32a006a`, Git limpo. Autorização explícita do responsável: PDF de fixture local na demonstração, validação contra Media Library real adiada para a integração. Entregue: três schemas v1 estritos, editores controlados, renderers compartilhados, fixture pública de dezesseis blocos e testes. MAP usa coordenadas/endereço/zoom e link controlado sem consulta externa no SSR; VIDEO limita YouTube/Vimeo HTTPS e carrega iframe conhecido só após clique; DOCUMENT seleciona PDF local de fixture, com aviso explícito de que não há persistência na biblioteca. `architecture-guard`: conforme com observação — contrato final de Media Library ainda pendente de integração, sem simulação de persistência.
+
+Checks aprovados: `pnpm lint`, `pnpm format:check`, `pnpm --filter @fumep/portal typecheck`, `pnpm --filter @fumep/portal test` (26), `pnpm --filter @fumep/portal build`, smoke SSR em `/builder-demo` e `/builder-demo/public` (HTTP 200, conteúdo presente e sem iframe antes do clique), axe em ambas (0 violações com contraste desabilitado no jsdom), PDF fixture HTTP 200/application/pdf com cinco objetos e xref consistente, `git diff --check`. Typecheck inicial da resposta PDF corrigido e revalidado. Testes legados completos não repetidos: código legado inalterado. E2E Playwright indisponível como script do workspace; interação real no navegador permanece QA futuro. Próximo: MIG 5.6 — registry V1 e validação cruzada.
+
 ## MIG 5.4 — TIMELINE, STATISTICS e CAROUSEL isolados — concluído
 
 Estado inicial: MIG 5.3 concluído em `2f1075c`, Git limpo. Entregue: três schemas v1 estritos, edição controlada, renderers compartilhados entre prévia e SSR público, fixture fixa de treze blocos e testes. TIMELINE usa lista ordenada de marcos; STATISTICS limita doze indicadores; CAROUSEL limita dez imagens da fixture, valida alt/URL/mídia e usa controles manuais de teclado, sem autoplay. Limite demonstrativo de 50 marcos não é decisão de persistência. Sem integração ou PageVersion.

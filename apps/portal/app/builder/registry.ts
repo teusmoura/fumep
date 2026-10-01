@@ -14,6 +14,9 @@ import TableBlock from "./TableBlock.vue";
 import TimelineBlock from "./TimelineBlock.vue";
 import StatisticsBlock from "./StatisticsBlock.vue";
 import CarouselBlock from "./CarouselBlock.vue";
+import MapBlock from "./MapBlock.vue";
+import VideoBlock from "./VideoBlock.vue";
+import DocumentBlock from "./DocumentBlock.vue";
 
 export const blockRegistry: Record<
   BlockType,
@@ -128,6 +131,30 @@ export const blockRegistry: Record<
     schema: blockSchemas.CAROUSEL,
     editor: BlockFields,
     renderer: CarouselBlock,
+    allowedContexts: ["PAGE"],
+  },
+  MAP: {
+    label: "Mapa",
+    schemaVersion: 1,
+    schema: blockSchemas.MAP,
+    editor: BlockFields,
+    renderer: MapBlock,
+    allowedContexts: ["PAGE"],
+  },
+  VIDEO: {
+    label: "Vídeo",
+    schemaVersion: 1,
+    schema: blockSchemas.VIDEO,
+    editor: BlockFields,
+    renderer: VideoBlock,
+    allowedContexts: ["PAGE"],
+  },
+  DOCUMENT: {
+    label: "Documento PDF",
+    schemaVersion: 1,
+    schema: blockSchemas.DOCUMENT,
+    editor: BlockFields,
+    renderer: DocumentBlock,
     allowedContexts: ["PAGE"],
   },
 };

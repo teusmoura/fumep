@@ -369,6 +369,15 @@ textarea:focus-visible {
   gap: 0.8rem;
   margin-top: 1rem;
 }
+.builder-video-frame {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+}
+.builder-block address {
+  font-style: normal;
+  font-weight: 700;
+}
 @media (max-width: 850px) {
   .builder-layout,
   .builder-hero,
