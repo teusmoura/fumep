@@ -4,6 +4,16 @@ const uuid = z.uuid();
 const internalLink = z.string().refine((value) => /^\/(?!\/)[\w\-/]*$/.test(value), {
   message: "Use um caminho interno iniciado por /.",
 });
+const optionalInternalLink = z.union([z.literal(""), internalLink]);
+const requiredText = z.string().trim().min(1);
+const optionalButton = z
+  .object({ buttonLabel: z.string(), buttonUrl: z.string() })
+  .superRefine((value, ctx) => {
+    if (value.buttonLabel.trim() || value.buttonUrl.trim()) {
+      if (!value.buttonLabel.trim() || !internalLink.safeParse(value.buttonUrl).success)
+        ctx.addIssue({ code: "custom", path: ["buttonUrl"], message: "CTA inválido." });
+    }
+  });
 const base = z.object({
   id: uuid,
   position: z.number().int().nonnegative(),
@@ -66,10 +76,98 @@ const image = base
   })
   .strict();
 
-export const blockSchemas = { TEXT: text, HERO: hero, IMAGE: image } as const;
-export const blockSchema = z.discriminatedUnion("type", [text, hero, image]);
+const imageText = base
+  .extend({
+    type: z.literal("IMAGE_TEXT"),
+    data: z
+      .object({
+        title: requiredText,
+        text: requiredText,
+        imageId: uuid,
+        imageAlt: requiredText,
+        imagePosition: z.enum(["IMAGE_LEFT", "IMAGE_RIGHT"]),
+        buttonLabel: z.string(),
+        buttonUrl: z.string(),
+      })
+      .strict()
+      .superRefine((value, ctx) => {
+        const result = optionalButton.safeParse(value);
+        if (!result.success)
+          ctx.addIssue({ code: "custom", path: ["buttonUrl"], message: "CTA inválido." });
+      }),
+  })
+  .strict();
+const card = z
+  .object({
+    imageId: uuid,
+    alt: requiredText,
+    title: requiredText,
+    description: z.string(),
+    url: optionalInternalLink,
+  })
+  .strict();
+const cards = base
+  .extend({
+    type: z.literal("CARDS"),
+    data: z.object({ title: z.string(), items: z.array(card).min(1).max(12) }).strict(),
+  })
+  .strict();
+const quickLink = z
+  .object({
+    label: requiredText,
+    url: internalLink,
+    icon: z.enum(["NONE", "BOOK", "CALENDAR", "ARROW"]),
+  })
+  .strict();
+const quickLinks = base
+  .extend({
+    type: z.literal("QUICK_LINKS"),
+    data: z.object({ title: z.string(), items: z.array(quickLink).min(1).max(12) }).strict(),
+  })
+  .strict();
+const cta = base
+  .extend({
+    type: z.literal("CTA"),
+    data: z
+      .object({
+        title: requiredText,
+        text: z.string(),
+        buttonLabel: requiredText,
+        buttonUrl: internalLink,
+      })
+      .strict(),
+  })
+  .strict();
+
+export const blockSchemas = {
+  TEXT: text,
+  HERO: hero,
+  IMAGE: image,
+  IMAGE_TEXT: imageText,
+  CARDS: cards,
+  QUICK_LINKS: quickLinks,
+  CTA: cta,
+} as const;
+export const blockSchema = z.discriminatedUnion("type", [
+  text,
+  hero,
+  image,
+  imageText,
+  cards,
+  quickLinks,
+  cta,
+]);
 export type BuilderBlock = z.infer<typeof blockSchema>;
 export type BlockType = BuilderBlock["type"];
+export const blockTypes: BlockType[] = [
+  "TEXT",
+  "HERO",
+  "IMAGE",
+  "IMAGE_TEXT",
+  "CARDS",
+  "QUICK_LINKS",
+  "CTA",
+];
 
 export const mediaFixture = [
   {
@@ -125,6 +223,52 @@ export function createBlock(type: BlockType, position: number): BuilderBlock {
           link: "",
         },
       };
+    case "IMAGE_TEXT":
+      return {
+        ...common,
+        type,
+        data: {
+          title: "Imagem e texto",
+          text: "Escreva aqui.",
+          imageId: mediaFixture[0].id,
+          imageAlt: "Fachada da ETMSL",
+          imagePosition: "IMAGE_LEFT",
+          buttonLabel: "",
+          buttonUrl: "",
+        },
+      };
+    case "CARDS":
+      return {
+        ...common,
+        type,
+        data: {
+          title: "Cards",
+          items: [
+            {
+              imageId: mediaFixture[0].id,
+              alt: "Fachada da ETMSL",
+              title: "Primeiro card",
+              description: "",
+              url: "",
+            },
+          ],
+        },
+      };
+    case "QUICK_LINKS":
+      return {
+        ...common,
+        type,
+        data: {
+          title: "Links rápidos",
+          items: [{ label: "Página institucional", url: "/etmsl", icon: "ARROW" }],
+        },
+      };
+    case "CTA":
+      return {
+        ...common,
+        type,
+        data: { title: "Saiba mais", text: "", buttonLabel: "Acessar", buttonUrl: "/etmsl" },
+      };
   }
 }
 
@@ -154,7 +298,11 @@ export function validatePage(blocks: BuilderBlock[]): string[] {
       if (anchors.has(block.anchor)) errors.push(`Bloco ${index + 1}: âncora duplicada.`);
       anchors.add(block.anchor);
     }
-    if (block.type !== "TEXT" && !mediaFor(block.data.imageId))
+    if (["HERO", "IMAGE", "IMAGE_TEXT"].includes(block.type)) {
+      const mediaId = (block.data as { imageId: string }).imageId;
+      if (!mediaFor(mediaId)) errors.push(`Bloco ${index + 1}: mídia não selecionável.`);
+    }
+    if (block.type === "CARDS" && block.data.items.some((item) => !mediaFor(item.imageId)))
       errors.push(`Bloco ${index + 1}: mídia não selecionável.`);
   });
   return errors;

@@ -18,14 +18,15 @@
 - MIG 4.9 — Processamento de imagem completo e isolado: concluído, 253 testes Python aprovados com Redis e MinIO reais; estado/variantes ainda em fixture.
 - MIG 4.10 — Uso e exclusão de mídia como fluxo isolado: concluído, 262 testes Python aprovados; fixture de estado, sem endpoint/UI ou PostgreSQL.
 - MIG 5.1 — Page Builder básico de páginas isolado: concluído, editor demonstrativo Nuxt/SSR e checks completos aprovados; sem persistência.
-- **MIG 5.2 — Composição editorial avançada isolada: loop atual.**
+- MIG 5.2 — Composição editorial avançada isolada: concluído, quatro blocos novos no editor/SSR e checks completos aprovados; sem persistência.
+- **MIG 5.3 — FAQ, TABS e TABLE como conjunto editorial isolado: loop atual.**
 
-## MIG 5.2 — Composição editorial avançada isolada
+## MIG 5.3 — FAQ, TABS e TABLE como conjunto editorial isolado
 
-Expandir o builder Nuxt isolado com IMAGE_TEXT, CARDS, QUICK_LINKS e CTA como um conjunto editorial completo: schemas versionados, campos controlados no editor, renderers compartilhados pela prévia e página pública demonstrativa, fixtures explícitas e testes. Consultar Page Builder canônico §§14, 16, 17 e CTA, limites de itens, acessibilidade e links. Não integrar FastAPI/PostgreSQL, publicação, PageVersion ou MediaUsage persistente nesta fatia.
+Expandir o builder Nuxt demonstrativo com FAQ (até 30 itens), TABS (até 8 abas, sem blocos aninhados) e TABLE (cabeçalhos/linhas estruturados, sem HTML livre). Cada tipo deve ter schema v1, editor controlado, renderer compartilhado pela prévia e página pública, fixture e testes. Consultar Page Builder canônico §§18–20, plano canônico loops 5.21–5.23 e regras de acessibilidade; não integrar FastAPI/PostgreSQL, publicação ou PageVersion.
 
-Aceite: adicionar/editar/reordenar/remover os quatro tipos, rejeitar dados/links/mídias inválidos, manter renderers idênticos em prévia e demo pública, sem regressão nos três blocos básicos; checks e smoke SSR/a11y aplicáveis verdes, status e commit.
+Aceite: adicionar/editar/reordenar/remover os três tipos; FAQ e abas operáveis por teclado, tabela com semântica acessível; limites/estrutura inválida rejeitados; os sete blocos anteriores permanecem válidos. Checks completos, smoke SSR/a11y, status e commit.
 
 ## Próximo loop
 
-**MIG 5.3 — Blocos interativos do Page Builder.** Detalhar após aceite do conjunto editorial avançado; manter funcionalidade completa por loop e não antecipar integração FastAPI/PostgreSQL.
+**MIG 5.4 — Blocos de dados e recursos externos controlados.** Detalhar após aceite de FAQ/TABS/TABLE; manter funcionalidade completa por loop e não antecipar integração FastAPI/PostgreSQL.

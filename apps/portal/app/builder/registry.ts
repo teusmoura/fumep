@@ -4,6 +4,10 @@ import BlockFields from "./BlockFields.vue";
 import TextBlock from "./TextBlock.vue";
 import HeroBlock from "./HeroBlock.vue";
 import ImageBlock from "./ImageBlock.vue";
+import ImageTextBlock from "./ImageTextBlock.vue";
+import CardsBlock from "./CardsBlock.vue";
+import QuickLinksBlock from "./QuickLinksBlock.vue";
+import CtaBlock from "./CtaBlock.vue";
 
 export const blockRegistry: Record<
   BlockType,
@@ -38,6 +42,38 @@ export const blockRegistry: Record<
     schema: blockSchemas.IMAGE,
     editor: BlockFields,
     renderer: ImageBlock,
+    allowedContexts: ["PAGE"],
+  },
+  IMAGE_TEXT: {
+    label: "Imagem e texto",
+    schemaVersion: 1,
+    schema: blockSchemas.IMAGE_TEXT,
+    editor: BlockFields,
+    renderer: ImageTextBlock,
+    allowedContexts: ["PAGE"],
+  },
+  CARDS: {
+    label: "Cards",
+    schemaVersion: 1,
+    schema: blockSchemas.CARDS,
+    editor: BlockFields,
+    renderer: CardsBlock,
+    allowedContexts: ["PAGE"],
+  },
+  QUICK_LINKS: {
+    label: "Links rápidos",
+    schemaVersion: 1,
+    schema: blockSchemas.QUICK_LINKS,
+    editor: BlockFields,
+    renderer: QuickLinksBlock,
+    allowedContexts: ["PAGE"],
+  },
+  CTA: {
+    label: "Chamada para ação",
+    schemaVersion: 1,
+    schema: blockSchemas.CTA,
+    editor: BlockFields,
+    renderer: CtaBlock,
     allowedContexts: ["PAGE"],
   },
 };

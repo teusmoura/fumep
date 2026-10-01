@@ -5,6 +5,7 @@ import {
   moveBlock,
   normalizePositions,
   validatePage,
+  blockTypes,
   type BuilderBlock,
   type BlockType,
 } from "~/builder/contracts";
@@ -42,12 +43,7 @@ function remove(index: number) {
           uploads.
         </p>
         <div class="builder-add" aria-label="Adicionar bloco">
-          <button
-            v-for="type in ['TEXT', 'HERO', 'IMAGE'] as const"
-            :key="type"
-            type="button"
-            @click="add(type)"
-          >
+          <button v-for="type in blockTypes" :key="type" type="button" @click="add(type)">
             Adicionar {{ blockRegistry[type].label }}
           </button>
         </div>

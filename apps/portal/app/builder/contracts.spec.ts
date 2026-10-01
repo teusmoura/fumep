@@ -10,12 +10,10 @@ import {
 import { demoBlocks } from "./demo";
 
 describe("Page Builder demonstrativo", () => {
-  it("validates the three versioned fixture blocks", () => {
-    expect(demoBlocks.map((block) => blockSchema.safeParse(block).success)).toEqual([
-      true,
-      true,
-      true,
-    ]);
+  it("validates all seven versioned fixture blocks", () => {
+    expect(demoBlocks.map((block) => blockSchema.safeParse(block).success)).toEqual(
+      Array(7).fill(true),
+    );
     expect(validatePage(demoBlocks)).toEqual([]);
   });
 
@@ -73,5 +71,106 @@ describe("Page Builder demonstrativo", () => {
       ]),
     ).toContain("Bloco 2: âncora duplicada.");
     expect(validatePage([a, { ...b, id: a.id }])).toContain("Bloco 2: ID duplicado.");
+  });
+
+  it("adds, reorders and removes each advanced editorial block", () => {
+    const types = ["IMAGE_TEXT", "CARDS", "QUICK_LINKS", "CTA"] as const;
+    const blocks = types.map((type, position) => createBlock(type, position));
+    expect(validatePage(blocks)).toEqual([]);
+    expect(moveBlock(blocks, 3, 0).map((block) => block.type)).toEqual([
+      "CTA",
+      "IMAGE_TEXT",
+      "CARDS",
+      "QUICK_LINKS",
+    ]);
+    expect(
+      validatePage(normalizePositions(blocks.filter((block) => block.type !== "CARDS"))),
+    ).toEqual([]);
+  });
+
+  it("restricts IMAGE_TEXT position, alt, media and paired CTA", () => {
+    const block = createBlock("IMAGE_TEXT", 0);
+    if (block.type !== "IMAGE_TEXT") throw new Error("Unexpected block");
+    expect(
+      validatePage([{ ...block, data: { ...block.data, imagePosition: "CENTER" } } as never]),
+    ).not.toEqual([]);
+    expect(validatePage([{ ...block, data: { ...block.data, imageAlt: "" } }])).not.toEqual([]);
+    expect(
+      validatePage([
+        { ...block, data: { ...block.data, imageId: "cccccccc-cccc-4ccc-8ccc-cccccccccccc" } },
+      ]),
+    ).not.toEqual([]);
+    expect(
+      validatePage([
+        {
+          ...block,
+          data: { ...block.data, buttonLabel: "Abrir", buttonUrl: "https://evil.example" },
+        },
+      ]),
+    ).not.toEqual([]);
+  });
+
+  it("caps CARDS at twelve and validates every image, alt and URL", () => {
+    const block = createBlock("CARDS", 0);
+    if (block.type !== "CARDS") throw new Error("Unexpected block");
+    const item = block.data.items[0]!;
+    expect(
+      validatePage([{ ...block, data: { ...block.data, items: Array(12).fill(item) } }]),
+    ).toEqual([]);
+    expect(
+      validatePage([{ ...block, data: { ...block.data, items: Array(13).fill(item) } }]),
+    ).not.toEqual([]);
+    expect(validatePage([{ ...block, data: { ...block.data, items: [] } }])).not.toEqual([]);
+    expect(
+      validatePage([{ ...block, data: { ...block.data, items: [{ ...item, alt: "" }] } }]),
+    ).not.toEqual([]);
+    expect(
+      validatePage([
+        {
+          ...block,
+          data: {
+            ...block.data,
+            items: [{ ...item, imageId: "cccccccc-cccc-4ccc-8ccc-cccccccccccc" }],
+          },
+        },
+      ]),
+    ).not.toEqual([]);
+    expect(
+      validatePage([
+        { ...block, data: { ...block.data, items: [{ ...item, url: "javascript:alert(1)" }] } },
+      ]),
+    ).not.toEqual([]);
+  });
+
+  it("restricts QUICK_LINKS icons and internal destinations", () => {
+    const block = createBlock("QUICK_LINKS", 0);
+    if (block.type !== "QUICK_LINKS") throw new Error("Unexpected block");
+    const item = block.data.items[0]!;
+    expect(
+      validatePage([
+        { ...block, data: { ...block.data, items: [{ ...item, icon: "UPLOAD" }] } } as never,
+      ]),
+    ).not.toEqual([]);
+    expect(
+      validatePage([
+        { ...block, data: { ...block.data, items: [{ ...item, url: "//evil.example" }] } },
+      ]),
+    ).not.toEqual([]);
+    expect(
+      validatePage([{ ...block, data: { ...block.data, items: [{ ...item, label: "" }] } }]),
+    ).not.toEqual([]);
+    expect(
+      validatePage([{ ...block, data: { ...block.data, items: Array(13).fill(item) } }]),
+    ).not.toEqual([]);
+  });
+
+  it("requires complete CTA and rejects script URLs", () => {
+    const block = createBlock("CTA", 0);
+    if (block.type !== "CTA") throw new Error("Unexpected block");
+    expect(validatePage([{ ...block, data: { ...block.data, buttonLabel: "" } }])).not.toEqual([]);
+    expect(
+      validatePage([{ ...block, data: { ...block.data, buttonUrl: "javascript:alert(1)" } }]),
+    ).not.toEqual([]);
+    expect(validatePage([{ ...block, data: { ...block.data, buttonUrl: "/etmsl" } }])).toEqual([]);
   });
 });

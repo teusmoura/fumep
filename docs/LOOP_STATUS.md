@@ -144,6 +144,12 @@ Estado inicial: MIG 4.10 em `8d74612`, Git limpo. Entregue: contratos Zod v1/reg
 
 Checks: `pnpm lint`, `pnpm typecheck`, `pnpm test` e `pnpm build` completos aprovados; portal com 10 testes, 2 arquivos. Após adicionar `lang=pt-BR` ao app raiz, build/test/typecheck do portal, lint e formatação foram repetidos e aprovados. `pnpm format:check` e `git diff --check` aprovados; `pnpm test:e2e` indisponível (script ausente), substituído por smoke SSR e axe-core nas duas rotas. O lockfile foi mantido com apenas a nova dependência Zod. Próximo MIG 5.2 — composição editorial avançada isolada.
 
+### MIG 5.2 — Composição editorial avançada isolada — concluído
+
+Estado inicial: MIG 5.1 em `03c0526`, Git limpo. IMAGE_TEXT, CARDS, QUICK_LINKS e CTA agora têm schemas Zod v1 estritos, campos controlados no editor, renderers no Registry e fixtures demonstrativas. IMAGE_TEXT limita a posição a esquerda/direita; CARDS exige imagem/alt contextual e limita a 12; QUICK_LINKS só aceita ícones do sistema; CTA e links aceitam caminhos internos. Inclusão/edição/reordenação/remoção dos quatro tipos ocorre no editor existente, sem regressão dos três básicos. Prévia e demo pública usam o mesmo `BuilderBlocks` e bloqueiam dados inválidos. Sem persistência/publicação/MediaUsage real. Arquitetura: conforme com observação (fixture e limite demonstrativo de QUICK_LINKS, sem alterar decisão canônica).
+
+Checks: `pnpm --config.verify-deps-before-run=false lint`, `format:check`, `typecheck`, `test` e `build` completos aprovados; portal com 15 testes. SSR `/builder-demo` e `/builder-demo/public`: HTTP 200, quatro novos títulos presentes e zero violações axe-core nas regras suportadas pelo jsdom (contraste não medido). `pnpm test:e2e` indisponível (script ausente); smoke SSR/axe usado nesta fatia. Próximo MIG 5.3 — FAQ, TABS e TABLE como conjunto editorial isolado.
+
 ### MIG 3.1 — Sessão Redis e cookie — concluído
 
 Entregue: `RedisSessionStore` com token opaco de 32 bytes, `SET NX EX`, prefixo isolado da pilha legada, leitura/renovação atômica `WATCH/MULTI/EXEC`, limite de inatividade de 30 minutos, limite absoluto de 8 horas, invalidação e descarte de dados corrompidos. Cookie `fumep_session` HttpOnly, SameSite=Lax, Path=/, Secure em produção. Sem login, autorização de rotas ou integração com Nuxt. Contrato/teste local descritos em `docs/REDIS_SESSION_MIGRATION.md`.

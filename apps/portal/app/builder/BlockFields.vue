@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import type { BuilderBlock } from "./contracts";
 import { mediaFixture } from "./contracts";
+import AdvancedFields from "./AdvancedFields.vue";
 
 const props = defineProps<{ block: BuilderBlock }>();
 const emit = defineEmits<{ change: [block: BuilderBlock] }>();
@@ -135,5 +136,15 @@ function changeCommon(field: string, value: string | boolean | undefined) {
         @input="change('link', read($event))"
       />
     </template>
+    <AdvancedFields
+      v-if="
+        block.type === 'IMAGE_TEXT' ||
+        block.type === 'CARDS' ||
+        block.type === 'QUICK_LINKS' ||
+        block.type === 'CTA'
+      "
+      :block="block"
+      @change="emit('change', $event)"
+    />
   </div>
 </template>
