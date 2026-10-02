@@ -23,14 +23,15 @@
 - MIG 5.4 — TIMELINE, STATISTICS e CAROUSEL como conjunto isolado: concluído, treze blocos válidos no editor/SSR e checks aprovados; sem persistência.
 - MIG 5.5 — MAP, VIDEO e DOCUMENT como recursos externos controlados: concluído, dezesseis blocos válidos no editor/SSR e PDF local de fixture; sem Media Library real.
 - MIG 5.6 — catálogo demonstrativo do registry V1: concluído, 23 tipos canônicos registrados e validados em Nuxt; feeds ainda em fixture.
-- **MIG 5.7 — PageTemplate isolado: loop atual.**
+- MIG 5.7 — PageTemplate isolado: concluído, contrato e aplicação de snapshots em rascunho local; sem persistência.
+- **MIG 5.8 — integração PageTemplate e persistência: próximo loop condicionado a decisão.**
 
-## MIG 5.7 — PageTemplate isolado
+## MIG 5.8 — integração PageTemplate e persistência (aguarda decisão)
 
-Implementar um fluxo isolado e demonstrável de PageTemplate (snapshot de blocos, escopo global/institucional, aplicação em rascunho local) conforme Page Builder canônico e plano loops 5.31–5.32, mantendo a fronteira de migração. Antes de escolher persistência, consultar a decisão canônica de ORM/migrations Python; não escrever no PostgreSQL existente nem reivindicar CRUD persistido sem essa decisão. Não integrar FastAPI, publicar páginas ou remover o legado.
+Antes de escrever no PostgreSQL existente, fechar a estratégia de ORM/migrations Python e baseline segura das migrations Drizzle, pendente em `docs/ISSUES_ARCHITECTURE.md` (MIG-AUTH-001). O plano canônico loops 5.31–5.33 exige tabela persistente, CRUD ADMIN e cópia independente de snapshot. A decisão de stack e a passagem da fase funcional isolada para a integração precisam ser explícitas; não aplicar migration, expor CRUD ou alterar dados antes disso.
 
-Aceite: contrato e aplicação de template demonstráveis sem mutar fixture original, escopo validado, snapshot completo validado pelo registry, testes de rejeição e smoke SSR/a11y se houver interface. Documentar explicitamente o que ainda depende de persistência/autorização backend. Checks aplicáveis, status e commit.
+Aceite futuro: baseline de banco auditada em ambiente de teste; CRUD de PageTemplate no FastAPI autorizado apenas a ADMIN; snapshots validados pelo registry, aplicação com novos IDs e independência; testes de contrato, autorização e persistência, além de checks aplicáveis, status e commit.
 
 ## Próximo loop
 
-**MIG 5.8 — integração PageTemplate e persistência.** Detalhar somente após decisão de ORM/migrations Python e fronteira de integração autorizada; não antecipar no MIG 5.7.
+**MIG 6 — integração restante entre Nuxt, FastAPI, PostgreSQL, Redis e MinIO.** Planejar após a decisão acima, preservando o legado até paridade testada e aceite explícito.

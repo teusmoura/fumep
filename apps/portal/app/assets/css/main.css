@@ -402,6 +402,19 @@ textarea:focus-visible {
 .builder-spacer-large {
   height: 4rem;
 }
+.builder-template-controls {
+  display: grid;
+  gap: 0.6rem;
+}
+.builder-template-controls label {
+  font-weight: 700;
+}
+.builder-template-controls select {
+  padding: 0.55rem;
+  border: 1px solid #657b90;
+  border-radius: 0.3rem;
+  font: inherit;
+}
 @media (max-width: 850px) {
   .builder-layout,
   .builder-hero,

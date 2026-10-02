@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import {
   createBlock,
   moveBlock,
@@ -12,10 +12,39 @@ import {
 import { demoBlocks } from "~/builder/demo";
 import { blockRegistry } from "~/builder/registry";
 import BuilderBlocks from "~/builder/BuilderBlocks.vue";
+import { applyTemplate, templateFixture } from "~/builder/templates";
+import { feedInstitutionFixture } from "~/builder/contracts";
 
 useHead({ title: "Page Builder demonstrativo — Portal FUMEP" });
 const blocks = ref<BuilderBlock[]>(demoBlocks.map((block) => structuredClone(block)));
 const errors = computed(() => validatePage(blocks.value));
+const draftInstitutionId = ref<string>(feedInstitutionFixture[1].id);
+const selectedTemplateId = ref(templateFixture[0]!.id);
+const templateMessage = ref("");
+const availableTemplates = computed(() =>
+  templateFixture.filter(
+    (template) =>
+      template.isActive &&
+      (template.institutionId === null || template.institutionId === draftInstitutionId.value),
+  ),
+);
+watch(draftInstitutionId, () => {
+  selectedTemplateId.value = availableTemplates.value[0]?.id ?? "";
+  templateMessage.value = "";
+});
+function applySelectedTemplate() {
+  const template = availableTemplates.value.find((item) => item.id === selectedTemplateId.value);
+  if (!template) {
+    templateMessage.value = "Selecione um modelo disponível para a instituição.";
+    return;
+  }
+  try {
+    blocks.value = applyTemplate(template, draftInstitutionId.value);
+    templateMessage.value = "Modelo aplicado ao rascunho local. Alterações não são salvas.";
+  } catch {
+    templateMessage.value = "Não foi possível aplicar este modelo.";
+  }
+}
 function add(type: BlockType) {
   blocks.value = [...blocks.value, createBlock(type, blocks.value.length)];
 }
@@ -42,6 +71,33 @@ function remove(index: number) {
           Demonstração local: alterações não são salvas. Mídias são ilustrações da aplicação, não
           uploads.
         </p>
+        <section class="builder-card builder-template-controls" aria-labelledby="template-heading">
+          <h2 id="template-heading">Começar de um modelo</h2>
+          <p class="builder-hint">
+            Modelos são fixtures locais. Aplicar substitui os blocos deste rascunho, sem salvar ou
+            publicar uma página.
+          </p>
+          <label for="draft-institution">Instituição do rascunho demonstrativo</label>
+          <select id="draft-institution" v-model="draftInstitutionId">
+            <option
+              v-for="institution in feedInstitutionFixture"
+              :key="institution.id"
+              :value="institution.id"
+            >
+              {{ institution.label }}
+            </option>
+          </select>
+          <label for="demo-template">Modelo disponível</label>
+          <select id="demo-template" v-model="selectedTemplateId">
+            <option v-for="template in availableTemplates" :key="template.id" :value="template.id">
+              {{ template.name }}
+            </option>
+          </select>
+          <button type="button" @click="applySelectedTemplate">
+            Aplicar modelo e substituir rascunho
+          </button>
+          <p v-if="templateMessage" role="status">{{ templateMessage }}</p>
+        </section>
         <div class="builder-add" aria-label="Adicionar bloco">
           <button v-for="type in blockTypes" :key="type" type="button" @click="add(type)">
             Adicionar {{ blockRegistry[type].label }}
