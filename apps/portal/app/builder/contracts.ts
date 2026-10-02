@@ -318,6 +318,67 @@ const document = base
       .strict(),
   })
   .strict();
+export const feedInstitutionFixture = [
+  { id: "11111111-aaaa-4111-8111-111111111111", label: "FUMEP" },
+  { id: "22222222-bbbb-4222-8222-222222222222", label: "ETMSL" },
+] as const;
+export const feedCategoryFixture = [
+  { id: "33333333-cccc-4333-8333-333333333333", label: "Institucional" },
+  { id: "44444444-dddd-4444-8444-444444444444", label: "Ensino" },
+] as const;
+export const galleryFixture = {
+  id: "55555555-eeee-4555-8555-555555555555",
+  label: "Galeria demonstrativa",
+} as const;
+const institutionFilter = z.array(z.enum(feedInstitutionFixture.map((item) => item.id))).max(2);
+const categoryFilter = z.array(z.enum(feedCategoryFixture.map((item) => item.id))).max(2);
+const feedLimit = z.number().int().min(1).max(12);
+const categorizedFeed = z
+  .object({
+    title: z.string(),
+    institutionIds: institutionFilter,
+    categoryIds: categoryFilter,
+    limit: feedLimit,
+    order: z.literal("DEFAULT").optional(),
+  })
+  .strict();
+const simpleFeed = z
+  .object({
+    title: z.string(),
+    institutionIds: institutionFilter,
+    limit: feedLimit,
+    order: z.literal("DEFAULT").optional(),
+  })
+  .strict();
+const statusFeed = z
+  .object({
+    title: z.string(),
+    institutionIds: institutionFilter,
+    limit: feedLimit,
+    status: z.enum(["ALL", "OPEN", "CLOSED"]),
+  })
+  .strict();
+const newsFeed = base.extend({ type: z.literal("NEWS_FEED"), data: categorizedFeed }).strict();
+const eventFeed = base.extend({ type: z.literal("EVENT_FEED"), data: categorizedFeed }).strict();
+const courseFeed = base.extend({ type: z.literal("COURSE_FEED"), data: simpleFeed }).strict();
+const contestFeed = base.extend({ type: z.literal("CONTEST_FEED"), data: statusFeed }).strict();
+const selectionProcessFeed = base
+  .extend({ type: z.literal("SELECTION_PROCESS_FEED"), data: statusFeed })
+  .strict();
+const galleryFeed = base
+  .extend({
+    type: z.literal("GALLERY_FEED"),
+    data: z
+      .object({ galleryId: z.literal(galleryFixture.id), title: z.string(), limit: feedLimit })
+      .strict(),
+  })
+  .strict();
+const spacer = base
+  .extend({
+    type: z.literal("SPACER"),
+    data: z.object({ size: z.enum(["SMALL", "MEDIUM", "LARGE"]) }).strict(),
+  })
+  .strict();
 
 export const blockSchemas = {
   TEXT: text,
@@ -336,6 +397,13 @@ export const blockSchemas = {
   MAP: map,
   VIDEO: video,
   DOCUMENT: document,
+  NEWS_FEED: newsFeed,
+  EVENT_FEED: eventFeed,
+  COURSE_FEED: courseFeed,
+  CONTEST_FEED: contestFeed,
+  SELECTION_PROCESS_FEED: selectionProcessFeed,
+  GALLERY_FEED: galleryFeed,
+  SPACER: spacer,
 } as const;
 export const blockSchema = z.discriminatedUnion("type", [
   text,
@@ -354,6 +422,13 @@ export const blockSchema = z.discriminatedUnion("type", [
   map,
   video,
   document,
+  newsFeed,
+  eventFeed,
+  courseFeed,
+  contestFeed,
+  selectionProcessFeed,
+  galleryFeed,
+  spacer,
 ]);
 export type BuilderBlock = z.infer<typeof blockSchema>;
 export type BlockType = BuilderBlock["type"];
@@ -374,6 +449,13 @@ export const blockTypes: BlockType[] = [
   "MAP",
   "VIDEO",
   "DOCUMENT",
+  "NEWS_FEED",
+  "EVENT_FEED",
+  "COURSE_FEED",
+  "CONTEST_FEED",
+  "SELECTION_PROCESS_FEED",
+  "GALLERY_FEED",
+  "SPACER",
 ];
 
 export const mediaFixture = [
@@ -564,6 +646,22 @@ export function createBlock(type: BlockType, position: number): BuilderBlock {
           buttonLabel: "Abrir PDF de demonstração",
         },
       };
+    case "NEWS_FEED":
+    case "EVENT_FEED":
+      return {
+        ...common,
+        type,
+        data: { title: "", institutionIds: [], categoryIds: [], limit: 3 },
+      };
+    case "COURSE_FEED":
+      return { ...common, type, data: { title: "", institutionIds: [], limit: 3 } };
+    case "CONTEST_FEED":
+    case "SELECTION_PROCESS_FEED":
+      return { ...common, type, data: { title: "", institutionIds: [], limit: 3, status: "ALL" } };
+    case "GALLERY_FEED":
+      return { ...common, type, data: { galleryId: galleryFixture.id, title: "", limit: 2 } };
+    case "SPACER":
+      return { ...common, type, data: { size: "MEDIUM" } };
   }
 }
 

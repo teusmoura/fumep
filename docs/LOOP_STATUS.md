@@ -1,5 +1,11 @@
 # LOOP STATUS
 
+## MIG 5.6 — catálogo demonstrativo do registry V1 — concluído
+
+Estado inicial: MIG 5.5 concluído em `497f9ad`, Git limpo. Inventariados os 23 tipos canônicos; adicionados NEWS_FEED, EVENT_FEED, COURSE_FEED, CONTEST_FEED, SELECTION_PROCESS_FEED, GALLERY_FEED e SPACER com schemas v1, editor, renderer compartilhado, fixtures e validação de filtros/limites. Feeds exibem somente dados locais marcados como demonstração e não fazem consultas externas; SPACER limita SMALL/MEDIUM/LARGE. Testes comparam os 23 tipos ao catálogo e exercitam seleção/filtros/status/limite. `architecture-guard`: conforme com observação — catálogo completo **na demonstração**, sem declarar feeds reais, publicação ou paridade funcional de TEXT/fundos canônicos.
+
+Checks aprovados: `pnpm lint`, `pnpm format:check`, `pnpm --filter @fumep/portal typecheck`, `pnpm --filter @fumep/portal test` (30), `pnpm --filter @fumep/portal build`, smoke SSR em `/builder-demo` e `/builder-demo/public` (HTTP 200 e conteúdo presente), axe em ambas (0 violações com contraste desabilitado no jsdom), `git diff --check`. Falha inicial do teste de quantidade de fixtures (16 antigas versus 23 novas) corrigida; rechecks verdes. Legado não afetado, portanto suíte legada completa não repetida. E2E Playwright indisponível como script do workspace. Próximo: MIG 5.7 — PageTemplate isolado.
+
 ## MIG 5.5 — MAP, VIDEO e DOCUMENT isolados — concluído
 
 Estado inicial: MIG 5.4 concluído em `32a006a`, Git limpo. Autorização explícita do responsável: PDF de fixture local na demonstração, validação contra Media Library real adiada para a integração. Entregue: três schemas v1 estritos, editores controlados, renderers compartilhados, fixture pública de dezesseis blocos e testes. MAP usa coordenadas/endereço/zoom e link controlado sem consulta externa no SSR; VIDEO limita YouTube/Vimeo HTTPS e carrega iframe conhecido só após clique; DOCUMENT seleciona PDF local de fixture, com aviso explícito de que não há persistência na biblioteca. `architecture-guard`: conforme com observação — contrato final de Media Library ainda pendente de integração, sem simulação de persistência.

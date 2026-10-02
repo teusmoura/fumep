@@ -1,5 +1,5 @@
 import type { BuilderBlock } from "./contracts";
-import { mediaFixture, pdfFixture } from "./contracts";
+import { galleryFixture, mediaFixture, pdfFixture } from "./contracts";
 
 /** Static, public-safe fixture; never a saved PageVersion. */
 export const demoBlocks: BuilderBlock[] = [
@@ -261,5 +261,68 @@ export const demoBlocks: BuilderBlock[] = [
       description: "Arquivo de fixture local, sem integração com a Media Library.",
       buttonLabel: "Abrir PDF de demonstração",
     },
+  },
+  {
+    id: "10101010-1010-4010-8010-101010101010",
+    position: 16,
+    type: "NEWS_FEED",
+    isVisible: true,
+    schemaVersion: 1,
+    background: "SURFACE",
+    data: { title: "Notícias demonstrativas", institutionIds: [], categoryIds: [], limit: 2 },
+  },
+  {
+    id: "20202020-2020-4020-8020-202020202020",
+    position: 17,
+    type: "EVENT_FEED",
+    isVisible: true,
+    schemaVersion: 1,
+    background: "NONE",
+    data: { title: "Eventos demonstrativos", institutionIds: [], categoryIds: [], limit: 2 },
+  },
+  {
+    id: "30303030-3030-4030-8030-303030303030",
+    position: 18,
+    type: "COURSE_FEED",
+    isVisible: true,
+    schemaVersion: 1,
+    background: "SURFACE",
+    data: { title: "Cursos demonstrativos", institutionIds: [], limit: 2 },
+  },
+  {
+    id: "40404040-4040-4040-8040-404040404040",
+    position: 19,
+    type: "CONTEST_FEED",
+    isVisible: true,
+    schemaVersion: 1,
+    background: "NONE",
+    data: { title: "Concursos demonstrativos", institutionIds: [], limit: 2, status: "ALL" },
+  },
+  {
+    id: "50505050-5050-4050-8050-505050505050",
+    position: 20,
+    type: "SELECTION_PROCESS_FEED",
+    isVisible: true,
+    schemaVersion: 1,
+    background: "SURFACE",
+    data: { title: "Seleções demonstrativas", institutionIds: [], limit: 2, status: "ALL" },
+  },
+  {
+    id: "60606060-6060-4060-8060-606060606060",
+    position: 21,
+    type: "GALLERY_FEED",
+    isVisible: true,
+    schemaVersion: 1,
+    background: "NONE",
+    data: { title: "Galeria demonstrativa", galleryId: galleryFixture.id, limit: 2 },
+  },
+  {
+    id: "70707070-7070-4070-8070-707070707070",
+    position: 22,
+    type: "SPACER",
+    isVisible: true,
+    schemaVersion: 1,
+    background: "NONE",
+    data: { size: "MEDIUM" },
   },
 ];

@@ -17,6 +17,8 @@ import CarouselBlock from "./CarouselBlock.vue";
 import MapBlock from "./MapBlock.vue";
 import VideoBlock from "./VideoBlock.vue";
 import DocumentBlock from "./DocumentBlock.vue";
+import FeedBlock from "./FeedBlock.vue";
+import SpacerBlock from "./SpacerBlock.vue";
 
 export const blockRegistry: Record<
   BlockType,
@@ -155,6 +157,62 @@ export const blockRegistry: Record<
     schema: blockSchemas.DOCUMENT,
     editor: BlockFields,
     renderer: DocumentBlock,
+    allowedContexts: ["PAGE"],
+  },
+  NEWS_FEED: {
+    label: "Notícias",
+    schemaVersion: 1,
+    schema: blockSchemas.NEWS_FEED,
+    editor: BlockFields,
+    renderer: FeedBlock,
+    allowedContexts: ["PAGE"],
+  },
+  EVENT_FEED: {
+    label: "Eventos",
+    schemaVersion: 1,
+    schema: blockSchemas.EVENT_FEED,
+    editor: BlockFields,
+    renderer: FeedBlock,
+    allowedContexts: ["PAGE"],
+  },
+  COURSE_FEED: {
+    label: "Cursos",
+    schemaVersion: 1,
+    schema: blockSchemas.COURSE_FEED,
+    editor: BlockFields,
+    renderer: FeedBlock,
+    allowedContexts: ["PAGE"],
+  },
+  CONTEST_FEED: {
+    label: "Concursos",
+    schemaVersion: 1,
+    schema: blockSchemas.CONTEST_FEED,
+    editor: BlockFields,
+    renderer: FeedBlock,
+    allowedContexts: ["PAGE"],
+  },
+  SELECTION_PROCESS_FEED: {
+    label: "Processos seletivos",
+    schemaVersion: 1,
+    schema: blockSchemas.SELECTION_PROCESS_FEED,
+    editor: BlockFields,
+    renderer: FeedBlock,
+    allowedContexts: ["PAGE"],
+  },
+  GALLERY_FEED: {
+    label: "Galeria",
+    schemaVersion: 1,
+    schema: blockSchemas.GALLERY_FEED,
+    editor: BlockFields,
+    renderer: FeedBlock,
+    allowedContexts: ["PAGE"],
+  },
+  SPACER: {
+    label: "Espaçador",
+    schemaVersion: 1,
+    schema: blockSchemas.SPACER,
+    editor: BlockFields,
+    renderer: SpacerBlock,
     allowedContexts: ["PAGE"],
   },
 };

@@ -22,14 +22,15 @@
 - MIG 5.3 — FAQ, TABS e TABLE como conjunto editorial isolado: concluído, dez blocos válidos no editor/SSR e checks completos aprovados; sem persistência.
 - MIG 5.4 — TIMELINE, STATISTICS e CAROUSEL como conjunto isolado: concluído, treze blocos válidos no editor/SSR e checks aprovados; sem persistência.
 - MIG 5.5 — MAP, VIDEO e DOCUMENT como recursos externos controlados: concluído, dezesseis blocos válidos no editor/SSR e PDF local de fixture; sem Media Library real.
-- **MIG 5.6 — fechamento do registry V1 e validação cruzada: loop atual.**
+- MIG 5.6 — catálogo demonstrativo do registry V1: concluído, 23 tipos canônicos registrados e validados em Nuxt; feeds ainda em fixture.
+- **MIG 5.7 — PageTemplate isolado: loop atual.**
 
-## MIG 5.6 — fechamento do registry V1 e validação cruzada
+## MIG 5.7 — PageTemplate isolado
 
-Auditar o registry Nuxt contra os tipos V1 definidos em Page Builder canônico e o aceite do plano canônico loop 5.30. Fechar as lacunas de tipos e validação dentro da fronteira isolada aprovada: schemas v1, editores controlados, renderers compartilhados, fixtures e testes. Recursos cujo conteúdo depende de integração ainda não aprovada devem permanecer explicitamente demonstrativos, sem simular dados reais. Não integrar FastAPI/PostgreSQL/MinIO, publicação ou PageVersion.
+Implementar um fluxo isolado e demonstrável de PageTemplate (snapshot de blocos, escopo global/institucional, aplicação em rascunho local) conforme Page Builder canônico e plano loops 5.31–5.32, mantendo a fronteira de migração. Antes de escolher persistência, consultar a decisão canônica de ORM/migrations Python; não escrever no PostgreSQL existente nem reivindicar CRUD persistido sem essa decisão. Não integrar FastAPI, publicar páginas ou remover o legado.
 
-Aceite: inventário canônico de tipos e regras com lacunas resolvidas para a demonstração, registro e schemas coerentes, todos os blocos anteriores válidos, conteúdo inválido rejeitado, testes e smoke SSR/a11y; documentar claramente qualquer dependência pendente de integração. Checks aplicáveis, status e commit.
+Aceite: contrato e aplicação de template demonstráveis sem mutar fixture original, escopo validado, snapshot completo validado pelo registry, testes de rejeição e smoke SSR/a11y se houver interface. Documentar explicitamente o que ainda depende de persistência/autorização backend. Checks aplicáveis, status e commit.
 
 ## Próximo loop
 
-**MIG 5.7 — PageTemplate isolado.** Detalhar após fechamento do registry, conforme Page Builder canônico e estratégia de migração, sem antecipar integração FastAPI/PostgreSQL.
+**MIG 5.8 — integração PageTemplate e persistência.** Detalhar somente após decisão de ORM/migrations Python e fronteira de integração autorizada; não antecipar no MIG 5.7.

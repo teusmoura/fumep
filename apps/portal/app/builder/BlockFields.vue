@@ -6,6 +6,7 @@ import AdvancedFields from "./AdvancedFields.vue";
 import StructuredFields from "./StructuredFields.vue";
 import DataFields from "./DataFields.vue";
 import ExternalFields from "./ExternalFields.vue";
+import FeedFields from "./FeedFields.vue";
 
 const props = defineProps<{ block: BuilderBlock }>();
 const emit = defineEmits<{ change: [block: BuilderBlock] }>();
@@ -60,7 +61,14 @@ function changeCommon(field: string, value: string | boolean | undefined) {
         block.type !== 'CAROUSEL' &&
         block.type !== 'MAP' &&
         block.type !== 'VIDEO' &&
-        block.type !== 'DOCUMENT'
+        block.type !== 'DOCUMENT' &&
+        block.type !== 'NEWS_FEED' &&
+        block.type !== 'EVENT_FEED' &&
+        block.type !== 'COURSE_FEED' &&
+        block.type !== 'CONTEST_FEED' &&
+        block.type !== 'SELECTION_PROCESS_FEED' &&
+        block.type !== 'GALLERY_FEED' &&
+        block.type !== 'SPACER'
       "
     >
       <label :for="`${block.id}-title`">Título</label>
@@ -173,6 +181,19 @@ function changeCommon(field: string, value: string | boolean | undefined) {
     />
     <ExternalFields
       v-if="block.type === 'MAP' || block.type === 'VIDEO' || block.type === 'DOCUMENT'"
+      :block="block"
+      @change="emit('change', $event)"
+    />
+    <FeedFields
+      v-if="
+        block.type === 'NEWS_FEED' ||
+        block.type === 'EVENT_FEED' ||
+        block.type === 'COURSE_FEED' ||
+        block.type === 'CONTEST_FEED' ||
+        block.type === 'SELECTION_PROCESS_FEED' ||
+        block.type === 'GALLERY_FEED' ||
+        block.type === 'SPACER'
+      "
       :block="block"
       @change="emit('change', $event)"
     />

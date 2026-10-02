@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   blockSchema,
+  blockSchemas,
+  blockTypes,
   createBlock,
+  feedCategoryFixture,
+  feedInstitutionFixture,
+  galleryFixture,
   mediaFixture,
   moveBlock,
   normalizePositions,
@@ -9,11 +14,12 @@ import {
   videoEmbedUrl,
 } from "./contracts";
 import { demoBlocks } from "./demo";
+import { feedItemsFor } from "./feeds";
 
 describe("Page Builder demonstrativo", () => {
-  it("validates all sixteen versioned fixture blocks", () => {
+  it("validates all twenty-three versioned fixture blocks", () => {
     expect(demoBlocks.map((block) => blockSchema.safeParse(block).success)).toEqual(
-      Array(16).fill(true),
+      Array(23).fill(true),
     );
     expect(validatePage(demoBlocks)).toEqual([]);
   });
@@ -357,5 +363,140 @@ describe("Page Builder demonstrativo", () => {
         data: { ...block.data, src: "https://evil.example/file.pdf" },
       }).success,
     ).toBe(false);
+  });
+
+  it("covers exactly the twenty-three canonical V1 block types", () => {
+    const canonical = [
+      "TEXT",
+      "HERO",
+      "IMAGE",
+      "IMAGE_TEXT",
+      "CAROUSEL",
+      "CARDS",
+      "QUICK_LINKS",
+      "FAQ",
+      "TABS",
+      "TABLE",
+      "TIMELINE",
+      "STATISTICS",
+      "MAP",
+      "VIDEO",
+      "DOCUMENT",
+      "NEWS_FEED",
+      "EVENT_FEED",
+      "COURSE_FEED",
+      "CONTEST_FEED",
+      "SELECTION_PROCESS_FEED",
+      "GALLERY_FEED",
+      "CTA",
+      "SPACER",
+    ];
+    expect([...blockTypes].sort()).toEqual([...canonical].sort());
+    expect(Object.keys(blockSchemas).sort()).toEqual([...canonical].sort());
+    expect(
+      blockTypes
+        .map((type, position) => createBlock(type, position))
+        .every((block) => blockSchema.safeParse(block).success),
+    ).toBe(true);
+  });
+
+  it("validates feed configuration limits and selectable fixture filters", () => {
+    const types = [
+      "NEWS_FEED",
+      "EVENT_FEED",
+      "COURSE_FEED",
+      "CONTEST_FEED",
+      "SELECTION_PROCESS_FEED",
+      "GALLERY_FEED",
+    ] as const;
+    const blocks = types.map((type, position) => createBlock(type, position));
+    expect(validatePage(blocks)).toEqual([]);
+    for (const block of blocks) {
+      expect(
+        validatePage([{ ...block, position: 0, data: { ...block.data, limit: 13 } } as never]),
+      ).not.toEqual([]);
+      expect(
+        validatePage([{ ...block, position: 0, data: { ...block.data, limit: 0 } } as never]),
+      ).not.toEqual([]);
+    }
+    const news = createBlock("NEWS_FEED", 0);
+    if (news.type !== "NEWS_FEED") throw new Error("Unexpected block");
+    expect(
+      validatePage([
+        {
+          ...news,
+          data: { ...news.data, institutionIds: ["cccccccc-cccc-4ccc-8ccc-cccccccccccc"] as never },
+        },
+      ]),
+    ).not.toEqual([]);
+    expect(
+      validatePage([
+        {
+          ...news,
+          data: { ...news.data, categoryIds: ["cccccccc-cccc-4ccc-8ccc-cccccccccccc"] as never },
+        },
+      ]),
+    ).not.toEqual([]);
+    expect(
+      blockSchema.safeParse({
+        ...news,
+        data: { ...news.data, items: [{ title: "notícia copiada" }] },
+      }).success,
+    ).toBe(false);
+    const gallery = createBlock("GALLERY_FEED", 0);
+    if (gallery.type !== "GALLERY_FEED") throw new Error("Unexpected block");
+    expect(
+      validatePage([
+        {
+          ...gallery,
+          data: { ...gallery.data, galleryId: "cccccccc-cccc-4ccc-8ccc-cccccccccccc" as never },
+        },
+      ]),
+    ).not.toEqual([]);
+    expect(gallery.data.galleryId).toBe(galleryFixture.id);
+  });
+
+  it("filters static feeds without copying content into block data", () => {
+    const news = createBlock("NEWS_FEED", 0);
+    if (news.type !== "NEWS_FEED") throw new Error("Unexpected block");
+    expect(feedItemsFor(news)).toHaveLength(2);
+    expect(
+      feedItemsFor({
+        ...news,
+        data: {
+          ...news.data,
+          institutionIds: [feedInstitutionFixture[1].id],
+          categoryIds: [feedCategoryFixture[1].id],
+          limit: 1,
+        },
+      }),
+    ).toHaveLength(1);
+    expect(
+      feedItemsFor({
+        ...news,
+        data: {
+          ...news.data,
+          institutionIds: [feedInstitutionFixture[0].id],
+          categoryIds: [feedCategoryFixture[1].id],
+        },
+      }),
+    ).toEqual([]);
+    const contest = createBlock("CONTEST_FEED", 0);
+    if (contest.type !== "CONTEST_FEED") throw new Error("Unexpected block");
+    expect(feedItemsFor({ ...contest, data: { ...contest.data, status: "OPEN" } })).toHaveLength(1);
+    const gallery = createBlock("GALLERY_FEED", 0);
+    if (gallery.type !== "GALLERY_FEED") throw new Error("Unexpected block");
+    expect(feedItemsFor(gallery)).toHaveLength(2);
+    expect(feedItemsFor({ ...gallery, data: { ...gallery.data, limit: 1 } })).toHaveLength(1);
+  });
+
+  it("restricts SPACER to three design-system sizes", () => {
+    const block = createBlock("SPACER", 0);
+    if (block.type !== "SPACER") throw new Error("Unexpected block");
+    expect(validatePage([block])).toEqual([]);
+    expect(validatePage([{ ...block, data: { size: "100px" } } as never])).not.toEqual([]);
+    expect(blockSchema.safeParse({ ...block, data: { ...block.data, pixels: 100 } }).success).toBe(
+      false,
+    );
   });
 });

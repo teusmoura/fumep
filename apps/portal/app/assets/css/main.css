@@ -378,6 +378,30 @@ textarea:focus-visible {
   font-style: normal;
   font-weight: 700;
 }
+.builder-feed-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 1rem;
+  padding: 0;
+  list-style: none;
+}
+.builder-feed-list li {
+  border: 1px solid #9badbf;
+  border-radius: 0.4rem;
+  padding: 1rem;
+}
+.builder-feed-list h3 {
+  margin-bottom: 0.3rem;
+}
+.builder-spacer-small {
+  height: 1rem;
+}
+.builder-spacer-medium {
+  height: 2rem;
+}
+.builder-spacer-large {
+  height: 4rem;
+}
 @media (max-width: 850px) {
   .builder-layout,
   .builder-hero,
