@@ -1,5 +1,11 @@
 # LOOP STATUS
 
+## MIG 5.8 — checkpoint parcial, não concluído
+
+Decisão SQLAlchemy 2 + Alembic aprovada em 2026-10-02. Banco local exclusivo `portal_fumep_mig58_test` criado; migrations Drizzle 0000–0019 aplicadas; baseline Alembic e `page_templates` novos aplicados só nele. O banco preexistente `portal_fumep` apresenta `page_templates` fora das migrations commitadas e foi preservado sem escrita. Mapeamento/teste PostgreSQL de template global com rollback aprovado. Nenhum CRUD FastAPI exposto. `MIG-TEMPLATE-001` registra a decisão de sequência necessária: autenticação/guard ADMIN real e contratos de blocos com IDs reais precisam anteceder CRUD de produção, ou o escopo inicial teria de ser explicitamente reduzido. MIG 5.8 permanece atual, sem aceite.
+
+Checks deste checkpoint: `python -m pip check`, `python -m compileall -q app migrations`, `python -m pytest -q` (255 aprovados, 9 opcionais ignorados), teste PostgreSQL dedicado (2 aprovados), Alembic `upgrade head` somente no banco de teste e `git diff --check`. Checks JS não aplicáveis: nenhum código JS alterado. Aviso transitivo Starlette/httpx na suíte Python, sem falha.
+
 ## MIG 5.7 — PageTemplate isolado — concluído
 
 Estado inicial: MIG 5.6 concluído em `2d6afa9`, Git limpo. Entregue: contrato Zod de PageTemplate compatível com metadados/snapshot do modelo lógico, fixtures global e institucional, aplicação de snapshot em rascunho Nuxt com IDs novos/posições normalizadas, seleção de escopo e aviso explícito de não persistência. Testes de cópia independente, rejeição de escopo/inatividade/snapshot inválido e preservação do modelo. `architecture-guard`: conforme com observação — não há tabela/CRUD real, autorização backend ou PageVersion; ORM/migrations Python seguem decisão pendente antes de escrita no PostgreSQL existente.

@@ -4,17 +4,19 @@ Use este arquivo apenas quando a implementação encontrar uma contradição rea
 
 ## Abertos
 
-### MIG-AUTH-001 — Adaptador PostgreSQL/migrations Python antes das rotas de autenticação
+### MIG-TEMPLATE-001 — Ordem de integração antes do CRUD ADMIN de PageTemplate
 
-Classificação: **decisão pendente para MIG 6 (integração)**. Registrado em 2026-09-28; sem alteração de schema ou dados. Não bloqueia a migração funcional isolada MIG 4/MIG 5, conforme a sequência canônica e a orientação explícita do responsável de integrar somente depois.
+Classificação: **decisão de sequência pendente para MIG 5.8**. SQLAlchemy 2 + Alembic e auditoria em banco de teste foram autorizados em 2026-10-02 (MIG-AUTH-001 resolvida abaixo). A baseline Drizzle versionada até 0019 foi aplicada em `portal_fumep_mig58_test` e não contém `page_templates`; o banco local preexistente contém uma tabela `page_templates` não representada nas migrations commitadas, provavelmente do loop legado 5.31 interrompido. Não usá-la como baseline nem alterá-la automaticamente.
 
-O documento canônico de migração preserva o schema/dados PostgreSQL existentes e exige fechar ORM/migrations Python antes de escrever na base. Hoje `apps/backend` contém apenas serviços isolados e test doubles; não há repositório Python de usuários/tokens, auditoria real ou revogação de todas as sessões. O aceite de MIG 3.9 proíbe sucesso fictício em rota administrativa. Expor login/reset agora omitiria persistência e controles obrigatórios; aplicar migrations automáticas sobre o histórico Drizzle sem baseline revisada poderia alterar a base indevidamente.
+O backend FastAPI ainda não expõe login/sessão HTTP com revalidação PostgreSQL, CSRF e rate limiting, embora os serviços isolados existam. Portanto, não há guard ADMIN real para expor CRUD de templates. Além disso, o registry Nuxt atual é demonstrativo: seus schemas prendem mídia, filtros e galeria a IDs de fixture; a base Drizzle versionada não tem `galleries`. Usar esse registry em produção rejeitaria IDs reais; ignorá-lo aceitaria snapshots sem validação equivalente. O aceite de MIG 5.8 exige ambos: autorização ADMIN real e snapshot validado. Não abrir endpoints fictícios nem limitar silenciosamente os templates a um subconjunto de blocos.
 
-Decisão recomendada para aprovação: SQLAlchemy 2 para mapeamento explícito das tabelas existentes e Alembic para **novas** migrations Python, com baseline auditada contra o schema Drizzle e sem executar `create_all`, `autogenerate`, `stamp` ou `upgrade` na base existente automaticamente. Primeiro validar em banco de teste/cópia; depois implementar repositórios de usuários/tokens e auditoria, revogação Redis e fluxos HTTP completos. Alternativa: psycopg 3 com SQL parametrizado e migrations SQL manuais; mantém controle direto, mas amplia código de repositório/transação a manter para as próximas funcionalidades.
-
-É necessária escolha explícita da estratégia de persistência/migrations e confirmação de que o banco de teste pode ser usado para validar a linha-base antes de MIG 6. O plano canônico coloca a integração depois de MIG 4 e MIG 5; portanto, MIG 3.9 (rotas HTTP) foi adiado para MIG 6 e nenhuma rota de autenticação administrativa será exposta até lá.
+Decisão recomendada: reordenar a integração para concluir primeiro autenticação/guard ADMIN FastAPI e contratos Page Builder com IDs reais (incluindo dependência da galeria), mantendo o CRUD PageTemplate aguardando esses pré-requisitos. Alternativa: restringir explicitamente o escopo inicial de templates a blocos sem recursos ainda não integrados, com aceite reduzido documentado. A escolha altera o alcance do loop e requer confirmação do responsável.
 
 ## Resolvidos
+
+### MIG-AUTH-001 — SQLAlchemy/Alembic autorizados
+
+Em 2026-10-02, o responsável aprovou SQLAlchemy 2, Alembic para novas migrations Python, baseline auditada primeiro em banco de teste/cópia e início da integração FastAPI/PostgreSQL. É proibido executar `create_all`, `autogenerate`, `stamp` ou `upgrade` automaticamente na base existente. A decisão de tecnologia está encerrada; a implementação de autenticação HTTP e outros repositórios permanece trabalho futuro, não autorização para enfraquecer guards.
 
 ### STACK-001 — Substituição da pilha V1 por FastAPI + Nuxt
 

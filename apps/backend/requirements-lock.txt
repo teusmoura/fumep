@@ -1,4 +1,5 @@
-# Resolved on Python 3.12 / Windows; updated for MIG 4.3. Refresh intentionally when upgrading.
+# Resolved on Python 3.12 / Windows; updated for MIG 5.8. Refresh intentionally when upgrading.
+alembic==1.20.0
 annotated-doc==0.0.5
 annotated-types==0.8.0
 anyio==4.15.1
@@ -13,16 +14,21 @@ dnspython==2.8.0
 email-validator==2.3.0
 fakeredis==2.38.0
 fastapi==0.141.1
+greenlet==3.5.6
 h11==0.16.0
 httpcore==1.0.9
 httpx==0.28.1
 idna==3.20
 iniconfig==2.3.0
 lupa==2.8
+Mako==1.4.3
+MarkupSafe==3.0.3
 minio==7.2.20
 packaging==26.3
 Pillow==12.3.0
 pluggy==1.6.0
+psycopg==3.3.6
+psycopg-binary==3.3.6
 pycparser==3.0
 pycryptodome==3.23.0
 python-dateutil==2.9.0.post0
@@ -34,8 +40,10 @@ redis==8.1.0
 rq==2.12.0
 six==1.17.0
 sortedcontainers==2.4.0
+SQLAlchemy==2.0.54
 starlette==1.7.0
 typing-inspection==0.4.4
 typing_extensions==4.16.0
+tzdata==2026.4
 uvicorn==0.54.0
 urllib3==2.8.0
