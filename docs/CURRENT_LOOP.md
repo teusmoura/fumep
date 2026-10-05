@@ -26,14 +26,15 @@
 - MIG 5.7 — PageTemplate isolado: concluído, contrato e aplicação de snapshots em rascunho local; sem persistência.
 - MIG 5.8 — integração PageTemplate e persistência: parcialmente iniciado (baseline em banco de teste + MVP HTTP de autenticação), suspenso sem aceite enquanto os catálogos reais são concluídos.
 - MIG 5.8-CAT — catálogo editorial funcional: concluído no banco de teste dedicado, CRUD REST com autorização institucional/CSRF e checks aprovados.
-- **MIG 5.8-GAL — galeria funcional: loop atual.**
+- MIG 5.8-GAL — galeria funcional: concluído em banco de teste dedicado, com CRUD/itens/MediaUsage/projeção REST autenticada e checks aprovados.
+- **MIG 5.8 — PageTemplate integrado: loop atual retomado após categorias e galerias.**
 
-## MIG 5.8-GAL — galeria funcional (atual)
+## MIG 5.8 — PageTemplate integrado (atual)
 
-Entregar Gallery + GalleryItem funcionais no FastAPI/PostgreSQL **somente no banco dedicado** `portal_fumep_mig58_test`: tabela/repository/service, galeria global ou institucional, CRUD e listagem com ADMIN global/EDITOR atribuído, itens ordenados com mídia IMAGE utilizável, alt obrigatório, `MediaUsage` transacional por item e exclusão bloqueada enquanto a mídia estiver em uso, CSRF em mutações, projeção REST de `GALLERY_FEED` sem duplicar os dados no bloco. Testar contrato HTTP/OpenAPI, autorização, escopo, ordem/concorrência, referências, estados de mídia e rollback. Não implementar estágio nem afirmar que o Nuxt público já consome o feed. Não migrar o banco local preexistente sem auditoria separada.
+Entregar PageTemplate integrado **somente no banco dedicado** `portal_fumep_mig58_test`: validar os 23 blocos por tipo/schemaVersion no backend, com referências existentes e utilizáveis de instituição, categoria editorial, galeria e mídia; CRUD REST/Pydantic exclusivo de ADMIN para criar, editar metadados, ativar/desativar e visualizar snapshots; aplicar template ativo a nova página em rascunho, copiando blocos com IDs novos e sem vínculo mutável com o template; testes de contrato, autorização, persistência, duplicação independente e CSRF. O registry Nuxt de demonstração não é validação de produção. Não executar migration na base local preexistente `portal_fumep`, onde `page_templates` está fora do histórico versionado; auditá-la separadamente antes de adoção. Não declarar UI Nuxt integrada ou publicação pública antes da MIG 6.
 
-MIG 5.8 permanece suspenso, não concluído: sua baseline PageTemplate foi testada apenas em `portal_fumep_mig58_test`, e o MVP de autenticação está em `/api/v1/auth/*` e `/api/v1/admin/session`. CRUD de templates continua fechado até categorias e galerias funcionais, schemas dos 23 blocos e referências reais. O plano canônico 5.31–5.33 continua exigindo CRUD ADMIN e cópia independente do snapshot.
+Pré-requisitos aceitos: baseline Alembic PageTemplate, MVP HTTP de login/sessão/guard ADMIN, catálogo editorial de categorias e galeria funcional com MediaUsage. O plano canônico 5.31–5.33 continua exigindo CRUD ADMIN e cópia independente do snapshot.
 
 ## Próximo loop
 
-**Retomar MIG 5.8 — PageTemplate integrado**, com schemas dos 23 blocos, referências reais, CRUD ADMIN e cópia independente para página em rascunho. MIG 6 permanece posterior. Ordem e limites em `docs/architecture/MIGRACAO_FASTAPI_NUXT_CANONICA.md`.
+**MIG 6 — integração restante Nuxt/FastAPI/PostgreSQL/Redis/MinIO**, somente após o aceite completo de PageTemplate. Preservar o legado até paridade demonstrada e aceite explícito.

@@ -9,3 +9,5 @@ O banco local preexistente `portal_fumep` contém `page_templates` apesar de a t
 No checkpoint inicial, o CRUD FastAPI **não foi aberto** porque ainda não existia login HTTP com revalidação de usuário PostgreSQL, sessão/CSRF e guard ADMIN integrado. O registry Nuxt também contém IDs de fixture e não é validador de snapshots de produção. `docs/ISSUES_ARCHITECTURE.md` registra as decisões de sequência. O loop 5.8 permanece aberto.
 
 Atualização 2026-10-05: o MVP HTTP de autenticação foi entregue; a sequência foi reordenada para categorias e galerias funcionais antes do CRUD PageTemplate. A revisão Alembic `20261005_02` adicionou `categories` somente ao banco de teste dedicado. O banco preexistente permanece intocado e o loop PageTemplate ainda não foi aceito.
+
+Atualização posterior: `20261005_03` adicionou `galleries` e `gallery_items` somente ao mesmo banco de teste; CRUD/itens/MediaUsage e feed de preview administrativo foram testados. PageTemplate volta a ser o loop atual, sem migração automática da base preexistente.

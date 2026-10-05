@@ -1,0 +1,7 @@
+# MVP — galerias no FastAPI
+
+MIG 5.8-GAL está funcional por API no banco dedicado `portal_fumep_mig58_test`, **sem interface Nuxt conectada e sem exposição pública do feed**. O OpenAPI lista `GET/POST /api/v1/admin/galleries`, `GET/PUT/DELETE /api/v1/admin/galleries/{id}`, `GET/POST /api/v1/admin/galleries/{id}/items`, `PUT/DELETE /api/v1/admin/galleries/{id}/items/{itemId}`, `PUT /api/v1/admin/galleries/{id}/order` e `GET /api/v1/admin/galleries/{id}/feed?limit=...` (preview autenticado). O feed retorna metadados/IDs/alt/legendas, não chaves MinIO nem URLs internas.
+
+Uma galeria pode ser global (ADMIN) ou institucional (ADMIN/EDITOR atribuído). Itens exigem mídia IMAGE em estado READY e sem intenção de exclusão, além de alt não vazio. `MediaUsage` é criado/removido na mesma transação que o item; a linha da mídia é bloqueada antes de adicionar uso. Reordenação exige todos os IDs da galeria exatamente uma vez. Mutações exigem sessão Redis e CSRF. A consulta real pública pelo Nuxt fica para MIG 6, quando publicação e renderização estiverem integradas; não trate o preview como página pública.
+
+Teste automatizado: definir `FUMEP_TEST_DATABASE_URL` apontando **exatamente** ao banco local dedicado já migrado e executar `python -m pytest -q tests/test_galleries_http.py` dentro de `apps/backend`. `FUMEP_TEST_REDIS_URL` opcional usa Redis real com prefixo isolado e sessões invalidadas no teardown. O banco preexistente `portal_fumep` não contém essas tabelas e não foi alterado.

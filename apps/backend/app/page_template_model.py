@@ -16,6 +16,7 @@ class Base(DeclarativeBase):
 # never used with create_all or autogenerate against the Drizzle-owned schema.
 Table("institutions", Base.metadata, Column("id", PG_UUID(as_uuid=True), primary_key=True))
 Table("users", Base.metadata, Column("id", PG_UUID(as_uuid=True), primary_key=True))
+Table("media", Base.metadata, Column("id", PG_UUID(as_uuid=True), primary_key=True))
 
 
 class PageTemplateRow(Base):

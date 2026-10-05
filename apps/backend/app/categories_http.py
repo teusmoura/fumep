@@ -1,21 +1,16 @@
 """Institution-scoped editorial category catalog, backed by PostgreSQL."""
 
-from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from redis.exceptions import RedisError
 from sqlalchemy import or_, select
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from app.auth_http import AuthContext, _current_session, auth_context
-from app.authorization import AccessDeniedError, CurrentUserAccess, require_admin, require_institutions
+from app.admin_access import Actor, actor, require_scope
 from app.category_model import CategoryRow
-from app.csrf import CsrfRejectedError
-from app.sessions import COOKIE_NAME, SessionData
 
 router = APIRouter(prefix="/api/v1/admin/categories", tags=["editorial categories"])
 
@@ -49,61 +44,12 @@ class CategoryView(CategoryCreate):
     updated_at: datetime
 
 
-@dataclass(frozen=True)
-class Actor:
-    context: AuthContext
-    session: SessionData
-    current: CurrentUserAccess
-
-
-def _actor(request: Request, context: AuthContext) -> Actor:
-    try:
-        view = _current_session(request, context)
-        token = request.cookies[COOKIE_NAME]
-        session = context.sessions.read_and_refresh(token)
-        current = context.users.current_access(view.user_id)
-        if session is None or current is None:
-            raise HTTPException(status_code=401, detail="Authentication required")
-        if (
-            not current.is_active or session.user_id != current.id
-            or session.role != current.role
-            or set(session.institution_ids) != current.institution_ids
-        ):
-            context.sessions.invalidate(token)
-            raise HTTPException(status_code=401, detail="Authentication required")
-        if request.method in {"POST", "PUT", "PATCH", "DELETE"}:
-            context.csrf.validate_mutation(
-                method=request.method, session_token=token,
-                csrf_token=request.headers.get("x-csrf-token"),
-                origin=request.headers.get("origin"), referer=request.headers.get("referer"),
-            )
-        return Actor(context, session, current)
-    except CsrfRejectedError as error:
-        raise HTTPException(status_code=403, detail="CSRF validation failed") from error
-    except (RedisError, SQLAlchemyError) as error:
-        raise HTTPException(status_code=503, detail="Category service unavailable") from error
-
-
-def actor(request: Request, context: AuthContext = Depends(auth_context)) -> Actor:
-    return _actor(request, context)
-
-
-def _scope(principal: Actor, institution_id: UUID | None) -> None:
-    try:
-        if institution_id is None:
-            require_admin(principal.session, principal.current)
-        else:
-            require_institutions(principal.session, principal.current, frozenset({institution_id}))
-    except AccessDeniedError as error:
-        raise HTTPException(status_code=403, detail="Category access denied") from error
-
-
 def _get(db: Session, category_id: UUID, principal: Actor, *, write: bool = False) -> CategoryRow:
     row = db.get(CategoryRow, category_id)
     if row is None:
         raise HTTPException(status_code=404, detail="Category not found")
     if write or row.institution_id is not None:
-        _scope(principal, row.institution_id)
+        require_scope(principal, row.institution_id)
     return row
 
 
@@ -137,7 +83,7 @@ def get_category(category_id: UUID, response: Response, principal: Actor = Depen
 @router.post("", response_model=CategoryView, status_code=201)
 def create_category(payload: CategoryCreate, response: Response, principal: Actor = Depends(actor)) -> CategoryView:
     response.headers["Cache-Control"] = "no-store"
-    _scope(principal, payload.institution_id)
+    require_scope(principal, payload.institution_id)
     try:
         with Session(_database(principal)) as db:
             row = CategoryRow(**payload.model_dump(), created_by=principal.current.id)
