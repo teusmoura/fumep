@@ -1,5 +1,11 @@
 # LOOP STATUS
 
+## MIG 5.8 — MVP HTTP de autenticação, checkpoint parcial
+
+Em 2026-10-05, o responsável aprovou a sequência MIG-TEMPLATE-001: autenticação/guard ADMIN e contratos de blocos com IDs reais antecedem CRUD PageTemplate. Entregue o primeiro MVP de API: login PostgreSQL/Argon2id com limite Redis por IP e conta, cookie de sessão HttpOnly/SameSite, consulta de sessão revalidando usuário/permissões no PostgreSQL, guard ADMIN demonstrável e logout com origem/CSRF. Sem usuário de demonstração, senha ou sessão em Git. `docs/MVP_AUTH_PAGE_TEMPLATE.md` mostra rotas, pré-requisitos e o que já é testável. Ainda não há UI Nuxt nem CRUD PageTemplate, e o banco preexistente continua intocado; MIG 5.8 permanece aberto.
+
+Checks deste checkpoint: `python -m pytest -q tests/test_auth_http.py tests/test_public_api.py` (12 aprovados); `python -m pytest -q tests/test_page_template_database.py` com banco dedicado (3 aprovados); `python -m pytest -q` com banco dedicado (264 aprovados, 7 integrações opcionais ignoradas); `python -m compileall -q apps/backend/app apps/backend/migrations`; `git diff --check`. Smoke real: Uvicorn em `127.0.0.1:8002`, `/docs` HTTP 200 e OpenAPI com as seis rotas esperadas. JS não afetado; sem E2E de interface aplicável ao MVP HTTP. Aviso transitivo Starlette/httpx sem falha.
+
 ## MIG 5.8 — checkpoint parcial, não concluído
 
 Decisão SQLAlchemy 2 + Alembic aprovada em 2026-10-02. Banco local exclusivo `portal_fumep_mig58_test` criado; migrations Drizzle 0000–0019 aplicadas; baseline Alembic e `page_templates` novos aplicados só nele. O banco preexistente `portal_fumep` apresenta `page_templates` fora das migrations commitadas e foi preservado sem escrita. Mapeamento/teste PostgreSQL de template global com rollback aprovado. Nenhum CRUD FastAPI exposto. `MIG-TEMPLATE-001` registra a decisão de sequência necessária: autenticação/guard ADMIN real e contratos de blocos com IDs reais precisam anteceder CRUD de produção, ou o escopo inicial teria de ser explicitamente reduzido. MIG 5.8 permanece atual, sem aceite.

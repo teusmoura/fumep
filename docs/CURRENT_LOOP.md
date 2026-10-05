@@ -24,11 +24,11 @@
 - MIG 5.5 — MAP, VIDEO e DOCUMENT como recursos externos controlados: concluído, dezesseis blocos válidos no editor/SSR e PDF local de fixture; sem Media Library real.
 - MIG 5.6 — catálogo demonstrativo do registry V1: concluído, 23 tipos canônicos registrados e validados em Nuxt; feeds ainda em fixture.
 - MIG 5.7 — PageTemplate isolado: concluído, contrato e aplicação de snapshots em rascunho local; sem persistência.
-- **MIG 5.8 — integração PageTemplate e persistência: loop atual, parcialmente iniciado e aguardando decisão de sequência (MIG-TEMPLATE-001).**
+- **MIG 5.8 — integração PageTemplate e persistência: loop atual, parcialmente iniciado; sequência de pré-requisitos aprovada em 2026-10-05.**
 
-## MIG 5.8 — integração PageTemplate e persistência (aguarda decisão)
+## MIG 5.8 — integração PageTemplate e persistência (em andamento)
 
-SQLAlchemy 2 + Alembic foram autorizados em 2026-10-02. A baseline Drizzle e a migration PageTemplate foram testadas apenas em `portal_fumep_mig58_test`; não executar migration na base existente. O plano canônico loops 5.31–5.33 exige CRUD ADMIN e cópia independente de snapshot. Antes de expor CRUD, resolver MIG-TEMPLATE-001: ordem de integração de login/guard ADMIN e contratos de blocos com IDs reais. Não reduzir o aceite silenciosamente nem usar o registry de fixture como validador de produção.
+SQLAlchemy 2 + Alembic foram autorizados em 2026-10-02. A baseline Drizzle e a migration PageTemplate foram testadas apenas em `portal_fumep_mig58_test`; não executar migration na base existente. Em 2026-10-05, o responsável aprovou integrar primeiro login/guard ADMIN e contratos de blocos com IDs reais, incluindo galeria, antes do CRUD PageTemplate. O primeiro MVP HTTP de autenticação fica em `/api/v1/auth/*` e `/api/v1/admin/session`, ainda sem UI Nuxt ou templates CRUD. Não usar o registry de fixture como validador de produção. O plano canônico loops 5.31–5.33 continua exigindo CRUD ADMIN e cópia independente de snapshot.
 
 Aceite futuro: baseline de banco auditada em ambiente de teste; CRUD de PageTemplate no FastAPI autorizado apenas a ADMIN; snapshots validados pelo registry, aplicação com novos IDs e independência; testes de contrato, autorização e persistência, além de checks aplicáveis, status e commit.
 

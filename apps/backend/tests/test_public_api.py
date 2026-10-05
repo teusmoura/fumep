@@ -37,12 +37,16 @@ def test_unknown_institution_is_not_found() -> None:
     assert response.json() == {"detail": "Institution not found"}
 
 
-def test_openapi_exposes_only_the_new_public_contracts() -> None:
+def test_openapi_exposes_public_and_authentication_contracts() -> None:
     document = client.get("/openapi.json").json()
     paths = document["paths"]
     assert set(paths) == {
         "/api/v1/health",
         "/api/v1/public/institutions/{slug}/theme",
+        "/api/v1/auth/login",
+        "/api/v1/auth/session",
+        "/api/v1/auth/logout",
+        "/api/v1/admin/session",
     }
     schema = document["components"]["schemas"]["PublicInstitutionTheme"]
     assert "password" not in str(schema).lower()

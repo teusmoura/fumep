@@ -4,15 +4,17 @@ Use este arquivo apenas quando a implementação encontrar uma contradição rea
 
 ## Abertos
 
+Nenhuma decisão arquitetural pendente para a ordem do MIG 5.8. A execução ainda depende de implementar os pré-requisitos autorizados abaixo.
+
+## Resolvidos
+
 ### MIG-TEMPLATE-001 — Ordem de integração antes do CRUD ADMIN de PageTemplate
 
 Classificação: **decisão de sequência pendente para MIG 5.8**. SQLAlchemy 2 + Alembic e auditoria em banco de teste foram autorizados em 2026-10-02 (MIG-AUTH-001 resolvida abaixo). A baseline Drizzle versionada até 0019 foi aplicada em `portal_fumep_mig58_test` e não contém `page_templates`; o banco local preexistente contém uma tabela `page_templates` não representada nas migrations commitadas, provavelmente do loop legado 5.31 interrompido. Não usá-la como baseline nem alterá-la automaticamente.
 
 O backend FastAPI ainda não expõe login/sessão HTTP com revalidação PostgreSQL, CSRF e rate limiting, embora os serviços isolados existam. Portanto, não há guard ADMIN real para expor CRUD de templates. Além disso, o registry Nuxt atual é demonstrativo: seus schemas prendem mídia, filtros e galeria a IDs de fixture; a base Drizzle versionada não tem `galleries`. Usar esse registry em produção rejeitaria IDs reais; ignorá-lo aceitaria snapshots sem validação equivalente. O aceite de MIG 5.8 exige ambos: autorização ADMIN real e snapshot validado. Não abrir endpoints fictícios nem limitar silenciosamente os templates a um subconjunto de blocos.
 
-Decisão recomendada: reordenar a integração para concluir primeiro autenticação/guard ADMIN FastAPI e contratos Page Builder com IDs reais (incluindo dependência da galeria), mantendo o CRUD PageTemplate aguardando esses pré-requisitos. Alternativa: restringir explicitamente o escopo inicial de templates a blocos sem recursos ainda não integrados, com aceite reduzido documentado. A escolha altera o alcance do loop e requer confirmação do responsável.
-
-## Resolvidos
+Decisão do responsável em 2026-10-05: seguir a recomendação. Integrar primeiro autenticação/guard ADMIN FastAPI e contratos Page Builder com IDs reais (incluindo dependência da galeria); só então abrir CRUD PageTemplate. Não reduzir o aceite nem utilizar IDs de fixture como se fossem de produção. O MVP inicial de autenticação HTTP é avanço parcial do MIG 5.8, não aceite do CRUD.
 
 ### MIG-AUTH-001 — SQLAlchemy/Alembic autorizados
 

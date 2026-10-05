@@ -7,7 +7,9 @@ import pytest
 from sqlalchemy import inspect, select, text
 
 from app.database import database_engine
+from app.auth_repository import PostgresUserRepository
 from app.page_template_model import PageTemplateRow
+from app.passwords import NewPasswordInput, hash_new_password
 
 
 @pytest.fixture(scope="module")
@@ -60,3 +62,31 @@ def test_template_mapping_roundtrip_rolls_back(engine):
                 assert loaded.created_at is not None
         finally:
             transaction.rollback()
+
+
+def test_postgres_user_repository_reads_current_role_from_isolated_database(engine):
+    user_id = uuid4()
+    email = f"mig58-{user_id}@example.invalid"
+    encoded = hash_new_password(NewPasswordInput(password="senha de teste longa"))
+    with engine.begin() as connection:
+        connection.execute(
+            text("INSERT INTO users (id, name, email, password_hash, role) "
+                 "VALUES (:id, 'Teste MIG 5.8', :email, :password_hash, 'ADMIN')"),
+            {"id": user_id, "email": email, "password_hash": encoded},
+        )
+    try:
+        users = PostgresUserRepository(engine)
+        found = users.find_by_email(email)
+        assert found is not None and found.id == user_id
+        assert found.password_hash == encoded and found.role == "ADMIN"
+        assert found.institution_ids == ()
+        assert users.find_by_email("missing@example.invalid") is None
+        current = users.current_access(user_id)
+        assert current is not None and current.role == "ADMIN" and current.is_active
+        with engine.begin() as connection:
+            connection.execute(text("UPDATE users SET is_active = FALSE WHERE id = :id"), {"id": user_id})
+        current = users.current_access(user_id)
+        assert current is not None and not current.is_active
+    finally:
+        with engine.begin() as connection:
+            connection.execute(text("DELETE FROM users WHERE id = :id"), {"id": user_id})
