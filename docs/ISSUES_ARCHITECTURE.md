@@ -4,7 +4,13 @@ Use este arquivo apenas quando a implementação encontrar uma contradição rea
 
 ## Abertos
 
-Nenhuma decisão arquitetural pendente para a ordem do MIG 5.8. A execução ainda depende de implementar os pré-requisitos autorizados abaixo.
+### MIG-TEMPLATE-002 — Catálogos reais de categoria e galeria não existem antes do PageTemplate
+
+Classificação: **bloqueador de sequência para validação referencial real do MIG 5.8**. Em 2026-10-05, a inspeção confirmou que nem as migrations Drizzle commitadas nem o banco local `portal_fumep` contêm `categories`, `galleries` ou `gallery_items`; `media_categories` não substitui categorias editoriais. O plano canônico coloca `Category` no loop 8.4 e `Gallery`/`GalleryItem` nos loops 11.1–11.2. O registry Nuxt atual usa IDs de fixture para esses filtros; `GALLERY_FEED` é admitido como configuração antes da consulta real na fase 11, mas isso **não prova existência referencial**. A decisão MIG-TEMPLATE-001 pediu contratos com IDs reais antes do CRUD, incluindo galeria.
+
+Para guardar templates com referências existentes de todos os 23 blocos agora, seria preciso antecipar catálogos futuros (ao menos categorias e galerias), alterando a ordem aprovada e criando infraestrutura sem a funcionalidade completa dessas fases. Não fazer isso silenciosamente nem confundir validação sintática de UUID com existência no PostgreSQL.
+
+Decisão recomendada: reordenar o plano para concluir primeiro os loops funcionais de categoria editorial e galeria; retomar o aceite completo de PageTemplate depois, com validação referencial real. Alternativa explícita: manter MIG 5.8 agora, aceitando snapshots com UUIDs estruturais ainda não resolvidos para `categoryIds`/`galleryId`, e revalidá-los na aplicação/publicação quando os catálogos existirem. Essa alternativa reduz o aceite referencial anterior e precisa de autorização. A tabela `page_templates` preexistente e não versionada também continua exigindo auditoria separada antes de migração na base existente.
 
 ## Resolvidos
 

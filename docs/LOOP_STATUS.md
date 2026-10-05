@@ -1,5 +1,9 @@
 # LOOP STATUS
 
+## MIG 5.8 — auditoria de dependências, decisão pendente
+
+Em 2026-10-05, após o MVP de autenticação, foi auditada a validação de snapshots contra o registry e o schema existente. `categories`, `galleries` e `gallery_items` estão ausentes das migrations Drizzle commitadas e da base local (consulta somente leitura); `media_categories` serve à Biblioteca, não aos feeds editoriais. O plano canônico reserva `Category` para 8.4 e `Gallery`/`GalleryItem` para 11.1–11.2. `MIG-TEMPLATE-002` registra as alternativas: reordenar os loops funcionais desses catálogos antes do CRUD completo (recomendado) ou aceitar temporariamente apenas UUID estrutural nos templates. Nenhuma tabela, dado ou endpoint foi alterado neste checkpoint; MIG 5.8 segue aberto. Check: `git status` limpo no início; inspeção SQL somente leitura e busca direcionada no plano/schema.
+
 ## MIG 5.8 — MVP HTTP de autenticação, checkpoint parcial
 
 Em 2026-10-05, o responsável aprovou a sequência MIG-TEMPLATE-001: autenticação/guard ADMIN e contratos de blocos com IDs reais antecedem CRUD PageTemplate. Entregue o primeiro MVP de API: login PostgreSQL/Argon2id com limite Redis por IP e conta, cookie de sessão HttpOnly/SameSite, consulta de sessão revalidando usuário/permissões no PostgreSQL, guard ADMIN demonstrável e logout com origem/CSRF. Sem usuário de demonstração, senha ou sessão em Git. `docs/MVP_AUTH_PAGE_TEMPLATE.md` mostra rotas, pré-requisitos e o que já é testável. Ainda não há UI Nuxt nem CRUD PageTemplate, e o banco preexistente continua intocado; MIG 5.8 permanece aberto.
