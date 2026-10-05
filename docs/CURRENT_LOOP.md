@@ -25,14 +25,15 @@
 - MIG 5.6 — catálogo demonstrativo do registry V1: concluído, 23 tipos canônicos registrados e validados em Nuxt; feeds ainda em fixture.
 - MIG 5.7 — PageTemplate isolado: concluído, contrato e aplicação de snapshots em rascunho local; sem persistência.
 - MIG 5.8 — integração PageTemplate e persistência: parcialmente iniciado (baseline em banco de teste + MVP HTTP de autenticação), suspenso sem aceite enquanto os catálogos reais são concluídos.
-- **MIG 5.8-CAT — catálogo editorial funcional: loop atual por reordenação explícita aprovada em 2026-10-05.**
+- MIG 5.8-CAT — catálogo editorial funcional: concluído no banco de teste dedicado, CRUD REST com autorização institucional/CSRF e checks aprovados.
+- **MIG 5.8-GAL — galeria funcional: loop atual.**
 
-## MIG 5.8-CAT — catálogo editorial funcional (atual)
+## MIG 5.8-GAL — galeria funcional (atual)
 
-Entrega completa no FastAPI/PostgreSQL de um catálogo de categorias editoriais real: migration `categories` somente no banco dedicado `portal_fumep_mig58_test`; criar, listar/consultar, alterar e remover via REST/Pydantic; unicidade de slug por escopo; categoria global administrada somente por ADMIN, categoria institucional por ADMIN ou EDITOR atribuído; sessão/CSRF nas mutações; testes de contrato, autorização, persistência e constraints. Não confundir com `media_categories`. Não criar ainda `ArticleCategory` nem usar a base local preexistente `portal_fumep` para migrations. O aceite deve demonstrar um fluxo CRUD executável pelo FastAPI/OpenAPI com PostgreSQL e Redis de teste, sem credenciais ou fixtures persistidas em Git.
+Entregar Gallery + GalleryItem funcionais no FastAPI/PostgreSQL **somente no banco dedicado** `portal_fumep_mig58_test`: tabela/repository/service, galeria global ou institucional, CRUD e listagem com ADMIN global/EDITOR atribuído, itens ordenados com mídia IMAGE utilizável, alt obrigatório, `MediaUsage` transacional por item e exclusão bloqueada enquanto a mídia estiver em uso, CSRF em mutações, projeção REST de `GALLERY_FEED` sem duplicar os dados no bloco. Testar contrato HTTP/OpenAPI, autorização, escopo, ordem/concorrência, referências, estados de mídia e rollback. Não implementar estágio nem afirmar que o Nuxt público já consome o feed. Não migrar o banco local preexistente sem auditoria separada.
 
 MIG 5.8 permanece suspenso, não concluído: sua baseline PageTemplate foi testada apenas em `portal_fumep_mig58_test`, e o MVP de autenticação está em `/api/v1/auth/*` e `/api/v1/admin/session`. CRUD de templates continua fechado até categorias e galerias funcionais, schemas dos 23 blocos e referências reais. O plano canônico 5.31–5.33 continua exigindo CRUD ADMIN e cópia independente do snapshot.
 
 ## Próximo loop
 
-**MIG 5.8-GAL — galeria funcional**, com Gallery, GalleryItem, MediaUsage, CRUD/ordenação e projeção REST de `GALLERY_FEED`. Depois, retomar o aceite integral da MIG 5.8 PageTemplate; MIG 6 continua posterior. Ordem e limites em `docs/architecture/MIGRACAO_FASTAPI_NUXT_CANONICA.md`.
+**Retomar MIG 5.8 — PageTemplate integrado**, com schemas dos 23 blocos, referências reais, CRUD ADMIN e cópia independente para página em rascunho. MIG 6 permanece posterior. Ordem e limites em `docs/architecture/MIGRACAO_FASTAPI_NUXT_CANONICA.md`.

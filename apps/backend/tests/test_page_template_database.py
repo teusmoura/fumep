@@ -26,14 +26,21 @@ def engine():
 
 def test_audited_baseline_and_template_table(engine):
     inspector = inspect(engine)
-    assert {"institutions", "users", "pages", "page_templates"}.issubset(inspector.get_table_names())
+    assert {"institutions", "users", "pages", "page_templates", "categories"}.issubset(inspector.get_table_names())
     columns = {column["name"] for column in inspector.get_columns("page_templates")}
     assert columns == {
         "id", "institution_id", "name", "description", "blocks_snapshot",
         "is_active", "created_by", "created_at", "updated_at",
     }
     with engine.connect() as connection:
-        assert connection.scalar(text("select version_num from alembic_version")) == "20261002_01"
+        assert connection.scalar(text("select version_num from alembic_version")) == "20261005_02"
+    category_columns = {column["name"] for column in inspector.get_columns("categories")}
+    assert category_columns == {
+        "id", "institution_id", "name", "slug", "description",
+        "created_by", "created_at", "updated_at",
+    }
+    category_indexes = {index["name"] for index in inspector.get_indexes("categories")}
+    assert {"categories_global_slug_unique", "categories_institution_slug_unique"}.issubset(category_indexes)
 
 
 def test_template_mapping_roundtrip_rolls_back(engine):

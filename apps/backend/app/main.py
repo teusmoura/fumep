@@ -3,10 +3,12 @@ from fastapi import FastAPI, HTTPException, Path, Response
 from .fixtures import PUBLIC_THEMES
 from .schemas import HealthResponse, PublicInstitutionTheme
 from .auth_http import admin_router, router as auth_router
+from .categories_http import router as categories_router
 
 app = FastAPI(title="Portal FUMEP API", version="1.0.0-migration")
 app.include_router(auth_router)
 app.include_router(admin_router)
+app.include_router(categories_router)
 
 
 @app.get("/api/v1/health", response_model=HealthResponse, tags=["health"])

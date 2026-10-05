@@ -1,5 +1,11 @@
 # LOOP STATUS
 
+## MIG 5.8-CAT — catálogo editorial funcional — concluído
+
+Migration Alembic `20261005_02` criou `categories` **somente** em `portal_fumep_mig58_test`, com FKs, checks e unicidade separada para slug global/institucional. FastAPI/Pydantic expõe criar, listar, consultar, atualizar e excluir; ADMIN gerencia escopo global e instituições, EDITOR somente instituições atribuídas; consulta global é legível, mutação global somente ADMIN. Sessão Redis revalidada no PostgreSQL, CSRF nas mutações, conflitos 409 e campos desconhecidos rejeitados. Testes reais PostgreSQL cobrem CRUD, unicidade por escopo, isolamento entre instituições, revogação de permissão, payload inválido e schema; os quatro testes de catálogo também passaram com Redis real e chaves de teste isoladas. Sem UI Nuxt conectada; API testável em OpenAPI quando apontada ao banco dedicado. Banco preexistente `portal_fumep` não recebeu migration nem escrita.
+
+Checks: `python -m alembic -c alembic.ini upgrade head` (banco dedicado); `python -m pytest -q tests/test_categories_http.py tests/test_page_template_database.py tests/test_public_api.py` (13 aprovados); `python -m pytest -q` com banco dedicado (268 aprovados, 7 opcionais ignorados); `python -m pytest -q tests/test_categories_http.py` com Redis real (4 aprovados); `python -m compileall -q app migrations`; `python -m pip check`; `git diff --check`. Aviso transitivo Starlette/httpx sem falha. Checks JS não aplicáveis: apenas código Python/documentação alterados. Próximo: MIG 5.8-GAL.
+
 ## Reordenação aprovada — MIG 5.8-CAT → MIG 5.8-GAL → retomar MIG 5.8
 
 Em 2026-10-05, o responsável escolheu antecipar as entregas funcionais de categoria editorial e galeria antes do CRUD PageTemplate. A ordem, fronteiras e aceites estão no plano canônico de migração; `MIG-TEMPLATE-002` foi encerrada. MIG 5.8 não foi declarada concluída, e o primeiro loop ativo passa a ser MIG 5.8-CAT. Este commit muda apenas documentação/ordem; nenhuma migration, tabela, endpoint ou dado foi alterado. Check aplicável: `git diff --check`; testes/build não aplicáveis a mudança exclusivamente documental.
