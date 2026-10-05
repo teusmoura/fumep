@@ -1,5 +1,9 @@
 # LOOP STATUS
 
+## Reordenação aprovada — MIG 5.8-CAT → MIG 5.8-GAL → retomar MIG 5.8
+
+Em 2026-10-05, o responsável escolheu antecipar as entregas funcionais de categoria editorial e galeria antes do CRUD PageTemplate. A ordem, fronteiras e aceites estão no plano canônico de migração; `MIG-TEMPLATE-002` foi encerrada. MIG 5.8 não foi declarada concluída, e o primeiro loop ativo passa a ser MIG 5.8-CAT. Este commit muda apenas documentação/ordem; nenhuma migration, tabela, endpoint ou dado foi alterado. Check aplicável: `git diff --check`; testes/build não aplicáveis a mudança exclusivamente documental.
+
 ## MIG 5.8 — auditoria de dependências, decisão pendente
 
 Em 2026-10-05, após o MVP de autenticação, foi auditada a validação de snapshots contra o registry e o schema existente. `categories`, `galleries` e `gallery_items` estão ausentes das migrations Drizzle commitadas e da base local (consulta somente leitura); `media_categories` serve à Biblioteca, não aos feeds editoriais. O plano canônico reserva `Category` para 8.4 e `Gallery`/`GalleryItem` para 11.1–11.2. `MIG-TEMPLATE-002` registra as alternativas: reordenar os loops funcionais desses catálogos antes do CRUD completo (recomendado) ou aceitar temporariamente apenas UUID estrutural nos templates. Nenhuma tabela, dado ou endpoint foi alterado neste checkpoint; MIG 5.8 segue aberto. Check: `git status` limpo no início; inspeção SQL somente leitura e busca direcionada no plano/schema.

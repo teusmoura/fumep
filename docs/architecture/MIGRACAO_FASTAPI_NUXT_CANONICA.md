@@ -22,6 +22,15 @@ Migrar e aceitar cada funcionalidade isoladamente com fixtures/contratos locais;
 
 **Cadência ajustada em 2026-09-29:** uma funcionalidade isolada não deve ser quebrada em loops sucessivos de infraestrutura sem resultado completo. Agrupar as etapas técnicas necessárias em um loop com caminho executável e aceite verificável (por exemplo, job → Worker → variantes → estado final), preservando a fronteira de integração acima. Os loops MIG 4.1–4.8 já concluídos não são reabertos; esta regra orienta os próximos. A demonstração isolada não deve ser apresentada como recurso utilizável no navegador ou persistência de produção.
 
+**Ordem ajustada em 2026-10-05 pelo responsável (MIG-TEMPLATE-002):** o aceite da integração PageTemplate (MIG 5.8) fica suspenso após a baseline SQLAlchemy/Alembic e o MVP HTTP de autenticação. As referências reais de categorias editoriais e galerias exigem catálogos funcionais antes do CRUD de templates. A ordem ativa, sem reabrir loops históricos nem antecipar artigos/estágio, passa a ser:
+
+1. **MIG 5.8-CAT — catálogo editorial funcional (loop atual)**: migrar `categories` somente em banco de teste auditado; CRUD/listagem REST FastAPI com Pydantic, slug único por instituição, categoria global somente sob ADMIN e categoria institucional sob ADMIN ou EDITOR autorizado, sessão/CSRF, testes PostgreSQL/HTTP/segurança. O resultado deve permitir criar, consultar, alterar e remover categorias reais, não apenas ter uma tabela. Vínculo `ArticleCategory` permanece na fase de artigos.
+2. **MIG 5.8-GAL — galeria funcional**: migrar `galleries` e `gallery_items` no mesmo banco de teste; CRUD/listagem e itens ordenados com autorização institucional, validação de mídia IMAGE utilizável, `MediaUsage` transacional que impede exclusão de mídia em uso, e projeção REST para `GALLERY_FEED` sem duplicar dados no bloco. Testar concorrência/ordenação, referências, segurança e contrato HTTP. A UI Nuxt e a publicação pública conectada permanecem na fase de integração; estágio continua na fase 11.
+3. **Retomar MIG 5.8 — PageTemplate integrado**: validar os 23 blocos com schemas por versão e referências reais de instituição, categoria editorial, galeria e mídia; CRUD ADMIN com snapshots persistidos e cópia para página em rascunho com IDs novos e independência; testes de autorização, persistência e contrato. Não usar IDs de fixture nem abrir CRUD antes dos pré-requisitos.
+4. **MIG 6 — integração restante**: conectar Nuxt/serviços e concluir E2E/a11y/paridade antes de retirar legado.
+
+As migrations Python seguem bloqueadas para o banco preexistente `portal_fumep`, que tem `page_templates` fora das migrations versionadas; executar apenas no banco de teste dedicado até auditoria/adopção separada. Este ajuste antecipa as fatias funcionais de Category e Gallery dos loops históricos 8.4 e 11.1–11.5, não suas fases inteiras nem outras entidades relacionadas.
+
 ## Plano de migração em fatias
 
 1. **MIG 1 — Páginas institucionais Nuxt**: `/`, `/etmsl`, `/cramam`, identidade, aparência claro/escuro/sistema, SSR, sem API. Testes de rota/semântica e build; navegador verificável.
