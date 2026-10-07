@@ -28,7 +28,8 @@ onMounted(async () => {
   <div class="builder-shell">
     <a class="skip-link" href="#main-content">Ir para o conteúdo</a>
     <header class="builder-header">
-      <NuxtLink to="/admin/pages">Voltar ao editor</NuxtLink
+      <NuxtLink :to="{ path: '/admin/pages', query: { id: route.params.id } }"
+        >Voltar ao editor</NuxtLink
       ><span>Prévia protegida · sem cache</span>
     </header>
     <main id="main-content" class="builder-public">

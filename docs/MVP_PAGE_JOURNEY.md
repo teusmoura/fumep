@@ -51,3 +51,17 @@ $env:NUXT_PUBLIC_API_BASE = 'http://localhost:8002'
 Abra `http://localhost:3002/admin/pages`. Entre com o ADMIN criado, escolha uma das três instituições, crie um modelo de texto, aplique-o, edite e salve o rascunho. A prévia protegida carrega a versão salva; **Salvar e publicar** gera `PageVersion` e libera o link público SSR. A API e a página pública não usam cache. Use sempre `localhost` no navegador (não misture com `127.0.0.1`), para que o cookie HttpOnly funcione entre as portas 3002 e 8002.
 
 O editor antigo em `/builder-demo` continua sendo somente fixture e não foi conectado. A base `portal_fumep` permanece intocada. Se já houver ADMIN no banco de migração, o bootstrap não altera a senha; entre com a credencial existente ou trate a conta separadamente.
+
+## Verificação no Chrome
+
+Com Nuxt e API iniciados como acima, a suíte Playwright/axe abre o Chrome instalado, cobre login, template, rascunho salvo, prévia, publicação e página SSR, e executa WCAG automatizado nas telas visitadas. Ela cria um modelo e uma página com slug único **no banco de demonstração**; não a execute contra produção. Em PowerShell, na raiz do projeto, informe as credenciais apenas no terminal (sem gravá-las em arquivo):
+
+```powershell
+$env:MIG6_E2E_EMAIL = Read-Host 'E-mail ADMIN local'
+$secure = Read-Host 'Senha ADMIN local' -AsSecureString
+$env:MIG6_E2E_PASSWORD = [System.Net.NetworkCredential]::new('', $secure).Password
+pnpm test:e2e
+Remove-Item Env:\MIG6_E2E_PASSWORD
+```
+
+Sem essas variáveis, só a checagem da tela pública de login roda; a jornada autenticada é marcada como ignorada, não como aceite.

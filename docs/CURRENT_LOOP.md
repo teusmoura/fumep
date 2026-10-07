@@ -28,14 +28,15 @@
 - MIG 5.8-CAT — catálogo editorial funcional: concluído no banco de teste dedicado, CRUD REST com autorização institucional/CSRF e checks aprovados.
 - MIG 5.8-GAL — galeria funcional: concluído em banco de teste dedicado, com CRUD/itens/MediaUsage/projeção REST autenticada e checks aprovados.
 - MIG 5.8 — PageTemplate integrado: concluído no banco de teste dedicado, com validação dos 23 blocos, CRUD ADMIN e cópia independente para Page DRAFT; evidências em `docs/LOOP_STATUS.md`.
-- **MIG 6 — integração funcional Nuxt/FastAPI: loop atual.**
+- MIG 6 — primeira jornada de página Nuxt/FastAPI: aceita no banco de demonstração com Playwright/axe, sem paridade V1.
+- **MIG 6-MEDIA — Biblioteca de Mídia integrada em FastAPI/Nuxt: próximo loop atual.**
 
-## MIG 6 — integração funcional (atual)
+## MIG 6-MEDIA — Biblioteca de Mídia integrada (atual)
 
-Conectar o frontend Nuxt aos serviços FastAPI e aos dados reais por uma **primeira jornada de página** verificável no navegador: autenticar ADMIN, escolher/aplicar PageTemplate, editar e salvar o rascunho, pré-visualizar, publicar e abrir a página pública SSR. Cobrir contrato HTTP, autorização institucional, CSRF, persistência, E2E e acessibilidade aplicável. Planejar as etapas internas sem multiplicar loops de endpoint/infraestrutura; não declarar a V1 completa por causa desta primeira jornada. A integração restante de mídia e módulos editoriais continua dentro do marco MIG 6, com paridade e aceite antes de retirar o legado.
+A primeira jornada de página já foi aceita no banco local de migração: login ADMIN, PageTemplate, rascunho, prévia, publicação e SSR público, com contrato, persistência, Playwright E2E e axe. Nesta próxima fatia, entregar uma Biblioteca de Mídia utilizável no navegador com FastAPI/Nuxt: upload de imagem/PDF, listagem/seleção, categorias, estados de processamento/variantes e exclusão segura, conectando Worker/MinIO já isolados. Incluir autorização, CSRF, persistência e acessibilidade; demonstrar a jornada completa, não apenas endpoints. Comparar o comportamento com as telas Next ainda existentes e registrar as diferenças antes de retirá-las.
 
-Pré-requisitos aceitos: MIG 5.8 PageTemplate, autenticação HTTP, categoria editorial e galeria funcionais. A base preexistente `portal_fumep` segue bloqueada para migrations Python porque contém `page_templates` não versionada; manter testes no banco dedicado até auditoria/adopção explícita. O editor Nuxt atual é fixture e não persiste. Consultar a decisão de migração canônica antes de integrar.
+O editor `/builder-demo` permanece fixture; a jornada real está em `/admin/pages`. A base preexistente `portal_fumep` segue bloqueada para migrations Python porque contém `page_templates` não versionada; manter testes no banco dedicado até auditoria/adopção explícita. Next/Nest permanecem congelados como referência até paridade testada ou nova decisão explícita do responsável. A proposta de eliminar o legado antes da paridade requer essa decisão; não apagar silenciosamente funcionalidades ainda ausentes em Nuxt.
 
 ## Próximo loop
 
-**Continuação de MIG 6 — integração restante e paridade**, somente após a primeira jornada de página ter aceite. Preservar o legado até paridade demonstrada e aceite explícito.
+**MIG 6 — galerias/categorias na interface e demais módulos editoriais**, após aceite da Biblioteca de Mídia. Ajustar a estratégia de retirada do legado somente após decisão explícita do responsável; não iniciar esse próximo loop nesta execução.

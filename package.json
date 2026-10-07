@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "pnpm --recursive --if-present run test",
+    "test:e2e": "pnpm --filter @fumep/portal run test:e2e",
     "typecheck": "tsc --project tsconfig.base.json --noEmit && pnpm --recursive --if-present run typecheck"
   },
   "devDependencies": {

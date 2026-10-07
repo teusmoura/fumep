@@ -1,5 +1,11 @@
 # LOOP STATUS
 
+## MIG 6 — primeira jornada de página aceita; integração restante aberta
+
+Jornada local validada no Chrome: login ADMIN, criação/aplicação de PageTemplate, edição e persistência do rascunho, prévia protegida, publicação e página pública SSR. O Playwright/axe verificou login, editor, prévia e página pública sem violações WCAG automatizadas; identificou e motivou a correção da rota aninhada de prévia e do retorno ao rascunho. A página criada pelo teste fica no banco dedicado de migração, nunca em `portal_fumep`. Instruções e limitações em `docs/MVP_PAGE_JOURNEY.md`.
+
+Checks: `pnpm lint`, `pnpm typecheck`, `pnpm build`, `pnpm format:check` e `pnpm test:e2e` (2 aprovados) passaram; backend completo com PostgreSQL/Redis locais **285 aprovados/7 opcionais ignorados** e Nuxt Vitest 36 aprovados. `pnpm test` passou nos pacotes executados até o legado Next esgotar memória ao abrir 56 workers; repetição isolada de **todos** os testes Next com paralelismo limitado: 223 aprovados. Não houve alteração funcional no legado. MIG 6 continua aberto para integração de mídia/editorial e paridade; nenhuma remoção do Next/Nest foi feita.
+
 ## MIG 6 — checkpoint de primeira jornada experimental; loop aberto
 
 Decisão MIG-PUBLISH-001 autorizada em 2026-10-07: publicação apenas no banco local dedicado, sem busca e sem cache público. FastAPI agora publica páginas de texto após validação, cria `PageVersion` imutável e `AuditLog` na mesma transação, impede republicação/rascunho vazio/blocos sem renderer real, e expõe leitura pública do snapshot por instituição/slug com `no-store`. A API ADMIN lista instituições ativas para a escolha no editor. Nuxt ganhou login ADMIN, criação de modelo de texto, aplicação em rascunho, edição/salvamento, prévia protegida e página pública SSR usando renderer compartilhado; `/builder-demo` continua fixture. Bootstrap interativo local e instruções em `docs/MVP_PAGE_JOURNEY.md`, sem senha no Git. Nenhuma escrita em `portal_fumep`.

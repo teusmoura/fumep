@@ -11,6 +11,8 @@ dist/
 __pycache__/
 .pytest_cache/
 coverage/
+test-results/
+playwright-report/
 *.log
 *.tsbuildinfo
 apps/web/next-env.d.ts
