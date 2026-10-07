@@ -4,15 +4,13 @@ Use este arquivo apenas quando a implementação encontrar uma contradição rea
 
 ## Abertos
 
-### MIG-PUBLISH-001 — Publicação da primeira jornada antes de busca e cache
-
-Classificação: **decisão de sequência para a publicação no MIG 6**. O loop atual exige publicar uma página real e abri-la no Nuxt SSR. `PAGE_BUILDER_CONTENT_BLOCKS.md` § publicação determina, após gerar `PageVersion` e publicar, `REINDEX_SEARCH` e `INVALIDATE_CACHE`. Porém o plano coloca `search_documents` e `REINDEX_SEARCH` apenas na fase 12; não há indexador nem serviço de invalidação na implementação FastAPI/Nuxt atual. Antecipar a busca completa expandiria materialmente o MIG 6, e publicar sem ela mudaria silenciosamente o contrato canônico.
-
-Decisão necessária: autorizar uma **primeira publicação experimental restrita ao banco dedicado de migração**, sem indexação enquanto não existe busca e com resposta pública `Cache-Control: no-store` (sem cache a invalidar), deixando publicação com indexação/cache para a fase de paridade; ou antecipar os serviços mínimos de busca/invalidação neste loop. A primeira opção é recomendada para demonstrar a jornada no navegador sem tratar o protótipo como produção. Até a decisão, não implementar o endpoint de publicação nem marcar o MIG 6 como concluído. Edição, persistência e preview de rascunho podem avançar de forma independente.
-
 Nenhuma decisão pendente de sequência para MIG 5.8-CAT. A adoção de migrations no banco preexistente continua proibida até auditoria separada.
 
 ## Resolvidos
+
+### MIG-PUBLISH-001 — Primeira publicação experimental antes de busca e cache
+
+Decisão autorizada pelo responsável em 2026-10-07: permitir **somente no banco dedicado de migração** a primeira jornada de publicação Nuxt/FastAPI sem indexação de busca, inexistente nesta fase, e com resposta pública `Cache-Control: no-store`, portanto sem cache público a invalidar. A publicação canônica com `REINDEX_SEARCH` e `INVALIDATE_CACHE` permanece exigida na fase de paridade, antes de uso de produção. Não usar essa exceção para publicar no banco preexistente `portal_fumep` ou declarar a V1 pronta. O motivo é a divergência de sequência entre `PAGE_BUILDER_CONTENT_BLOCKS.md` (fluxo de publicação) e o plano, que só implementa busca/indexação na fase 12.
 
 ### MIG-TEMPLATE-002 — Catálogos reais de categoria e galeria não existem antes do PageTemplate
 

@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
 import fakeredis
+import httpx
 import pytest
 from fastapi.testclient import TestClient
 from fastapi import HTTPException
@@ -18,6 +19,7 @@ from app.csrf import CsrfService
 from app.database import database_engine
 from app.login_rate_limit import LoginRateLimiter
 from app.main import app
+from app.public_pages_http import migration_public_engine
 from app.page_templates_http import _engine
 from app.sessions import COOKIE_NAME, RedisSessionStore
 from app.template_blocks import BLOCK_DATA_V1, BlockSnapshot, validate_snapshot
@@ -93,6 +95,7 @@ def template_env():
         production=False,
     )
     app.dependency_overrides[auth_context] = lambda: context
+    app.dependency_overrides[migration_public_engine] = lambda: engine
     try:
         with TestClient(app, base_url=ORIGIN, client=("127.0.0.1", 50003)) as client:
             yield client, engine, sessions, tokens, own, foreign, admin, editor, category, foreign_category, gallery, foreign_gallery, media
@@ -101,6 +104,8 @@ def template_env():
         for token in tokens:
             sessions.invalidate(token)
         with engine.begin() as db:
+            db.execute(text("DELETE FROM audit_logs WHERE action = 'PAGE_PUBLISHED' AND entity_id IN "
+                            "(SELECT id FROM pages WHERE created_by = :admin)"), {"admin": admin})
             db.execute(text("DELETE FROM media_usages WHERE entity_type = 'CONTENT_BLOCK' AND entity_id IN "
                             "(SELECT id FROM content_blocks WHERE owner_type = 'PAGE' AND owner_id IN "
                             "(SELECT id FROM pages WHERE created_by = :admin))"), {"admin": admin})
@@ -291,6 +296,74 @@ def test_draft_save_is_authorized_atomic_and_readable(template_env):
         assert db.scalar(text("SELECT count(*) FROM media_usages WHERE entity_type = 'CONTENT_BLOCK' "
                               "AND entity_id IN (SELECT id FROM content_blocks WHERE owner_id = :id)"),
                          {"id": page_id}) == 0
+
+
+def test_experimental_publish_uses_immutable_snapshot_and_no_public_cache(template_env):
+    client, engine, sessions, tokens, own, _, admin, _, _, _, _, _, _ = template_env
+    headers = authorize(client, sessions, tokens, admin, "ADMIN")
+    institution_choices = client.get("/api/v1/admin/page-institutions")
+    assert institution_choices.status_code == 200
+    assert any(item["id"] == str(own) for item in institution_choices.json())
+    created = client.post(ROOT, json={
+        "institution_id": str(own), "name": "Public text", "blocks_snapshot": [
+            block("TEXT", 0, {"title": "Publicado", "body": "Conteúdo real"}),
+        ],
+    }, headers=headers)
+    assert created.status_code == 201, created.text
+    slug = f"published-{uuid4()}"
+    applied = client.post(f"{ROOT}/{created.json()['id']}/apply", json={
+        "institution_id": str(own), "title": "Página publicada", "slug": slug,
+    }, headers=headers)
+    assert applied.status_code == 201, applied.text
+    page_id = applied.json()["id"]
+    public_path = f"/api/v1/public/institutions/template-test-{own}/pages/{slug}"
+    assert client.get(public_path).status_code == 404
+    assert client.post(f"{PAGES}/{page_id}/publish", headers={"Origin": ORIGIN}).status_code == 403
+    published = client.post(f"{PAGES}/{page_id}/publish", headers=headers)
+    assert published.status_code == 200, published.text
+    assert published.json()["status"] == "PUBLISHED" and published.json()["version_number"] == 1
+    assert published.headers["cache-control"] == "no-store"
+    assert client.post(f"{PAGES}/{page_id}/publish", headers=headers).status_code == 409
+    public = client.get(public_path)
+    assert public.status_code == 200, public.text
+    assert public.headers["cache-control"] == "no-store"
+    assert public.headers["x-fumep-data-source"] == "migration-test"
+    assert public.json()["blocks"][0]["data"]["body"] == "Conteúdo real"
+    if portal_url := os.getenv("FUMEP_PORTAL_TEST_URL"):
+        rendered = httpx.get(f"{portal_url}/paginas/template-test-{own}/{slug}", timeout=15)
+        assert rendered.status_code == 200, rendered.text[:500]
+        assert rendered.headers["cache-control"] == "no-store"
+        assert "Conteúdo real" in rendered.text
+    with engine.begin() as db:
+        assert db.scalar(text("SELECT count(*) FROM page_versions WHERE page_id = :id"), {"id": page_id}) == 1
+        assert db.scalar(text("SELECT count(*) FROM audit_logs WHERE action = 'PAGE_PUBLISHED' AND entity_id = :id"), {"id": page_id}) == 1
+        db.execute(text("UPDATE content_blocks SET data = '{\"title\": \"Alterado\", \"body\": \"Outro\"}'::jsonb "
+                        "WHERE owner_type = 'PAGE' AND owner_id = :id"), {"id": page_id})
+    assert client.get(public_path).json()["blocks"][0]["data"]["body"] == "Conteúdo real"
+
+
+def test_experimental_publish_rejects_unrenderable_blocks(template_env):
+    client, engine, sessions, tokens, own, _, admin, editor, _, _, _, _, _ = template_env
+    headers = authorize(client, sessions, tokens, admin, "ADMIN")
+    created = client.post(ROOT, json={
+        "institution_id": str(own), "name": "Other blocks", "blocks_snapshot": [
+            block("SPACER", 0, {"size": "MEDIUM"}),
+        ],
+    }, headers=headers)
+    assert created.status_code == 201, created.text
+    applied = client.post(f"{ROOT}/{created.json()['id']}/apply", json={
+        "institution_id": str(own), "title": "Unsupported", "slug": f"unsupported-{uuid4()}",
+    }, headers=headers)
+    assert applied.status_code == 201, applied.text
+    page_id = applied.json()["id"]
+    denied = client.post(f"{PAGES}/{page_id}/publish", headers=headers)
+    assert denied.status_code == 409 and "TEXT" in denied.json()["detail"]
+    with engine.connect() as db:
+        assert db.scalar(text("SELECT status FROM pages WHERE id = :id"), {"id": page_id}) == "DRAFT"
+        assert db.scalar(text("SELECT count(*) FROM page_versions WHERE page_id = :id"), {"id": page_id}) == 0
+    editor_headers = authorize(client, sessions, tokens, editor, "EDITOR", [own])
+    assert client.get("/api/v1/admin/page-institutions").status_code == 403
+    assert client.post(f"{PAGES}/{page_id}/publish", headers=editor_headers).status_code == 409
 
 
 def test_references_and_snapshot_fail_closed(template_env):

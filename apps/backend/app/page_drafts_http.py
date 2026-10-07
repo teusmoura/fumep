@@ -1,6 +1,6 @@
 """Authenticated draft read/save contract for the migration test database."""
 
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
@@ -127,3 +127,65 @@ def save_draft(page_id: UUID, payload: DraftSave, response: Response,
         raise HTTPException(status_code=409, detail="Page slug or block conflict") from error
     except SQLAlchemyError as error:
         raise HTTPException(status_code=503, detail="Page draft service unavailable") from error
+
+
+class PublishedView(BaseModel):
+    id: UUID
+    institution_id: UUID
+    title: str
+    slug: str
+    status: str
+    version_number: int
+
+
+@router.post("/{page_id}/publish", response_model=PublishedView)
+def publish_page(page_id: UUID, response: Response, principal: Actor = Depends(actor)) -> PublishedView:
+    """Experimental text-page publication; never writes outside the migration database."""
+    response.headers["Cache-Control"] = "no-store"
+    try:
+        with Session(_engine(principal)) as db:
+            page = _page(db, page_id, lock=True)
+            require_scope(principal, page.institution_id)
+            if page.status != "DRAFT":
+                raise HTTPException(status_code=409, detail="Page is not a draft")
+            draft = _view(db, page)
+            if not draft.blocks:
+                raise HTTPException(status_code=409, detail="Page requires content before publication")
+            validate_snapshot(draft.blocks)
+            if any(block.type != "TEXT" for block in draft.blocks):
+                raise HTTPException(status_code=409, detail="Experimental public renderer supports TEXT blocks only")
+            validate_references(db, draft.blocks, page.institution_id)
+            version_number = db.scalar(text(
+                "SELECT COALESCE(MAX(version_number), 0) + 1 FROM page_versions WHERE page_id = :id"
+            ), {"id": page_id})
+            snapshot = {
+                "schemaVersion": 1, "institutionId": str(page.institution_id),
+                "title": draft.title, "slug": draft.slug,
+                "blocks": [block.model_dump(mode="json", exclude_none=True) for block in draft.blocks],
+            }
+            db.execute(text(
+                "INSERT INTO page_versions (id, page_id, version_number, snapshot, created_by) "
+                "VALUES (:id, :page_id, :number, :snapshot, :user_id)"
+            ).bindparams(bindparam("snapshot", type_=JSONB)), {
+                "id": uuid4(), "page_id": page_id, "number": version_number,
+                "snapshot": snapshot, "user_id": principal.current.id,
+            })
+            db.execute(text(
+                "UPDATE pages SET status = 'PUBLISHED', updated_by = :user_id, updated_at = now() "
+                "WHERE id = :id"
+            ), {"id": page_id, "user_id": principal.current.id})
+            db.execute(text(
+                "INSERT INTO audit_logs (id, user_id, action, entity_type, entity_id, metadata) "
+                "VALUES (:id, :user_id, 'PAGE_PUBLISHED', 'PAGE', :page_id, :metadata)"
+            ).bindparams(bindparam("metadata", type_=JSONB)), {
+                "id": uuid4(), "user_id": principal.current.id, "page_id": page_id,
+                "metadata": {"versionNumber": version_number, "experimental": True},
+            })
+            db.commit()
+            return PublishedView(id=page_id, institution_id=page.institution_id,
+                                 title=draft.title, slug=draft.slug,
+                                 status="PUBLISHED", version_number=version_number)
+    except TemplateReferenceConflict as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error
+    except SQLAlchemyError as error:
+        raise HTTPException(status_code=503, detail="Page publication unavailable") from error

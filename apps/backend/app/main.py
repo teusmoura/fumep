@@ -1,4 +1,7 @@
+import os
+
 from fastapi import FastAPI, HTTPException, Path, Response
+from fastapi.middleware.cors import CORSMiddleware
 
 from .fixtures import PUBLIC_THEMES
 from .schemas import HealthResponse, PublicInstitutionTheme
@@ -7,14 +10,25 @@ from .categories_http import router as categories_router
 from .galleries_http import router as galleries_router
 from .page_templates_http import router as page_templates_router
 from .page_drafts_http import router as page_drafts_router
+from .public_pages_http import router as public_pages_router
+from .page_institutions_http import router as page_institutions_router
 
 app = FastAPI(title="Portal FUMEP API", version="1.0.0-migration")
+if origin := os.environ.get("APP_ORIGIN"):
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[origin], allow_credentials=True,
+        allow_methods=["GET", "POST", "PUT", "OPTIONS"],
+        allow_headers=["Content-Type", "X-CSRF-Token"],
+    )
 app.include_router(auth_router)
 app.include_router(admin_router)
 app.include_router(categories_router)
 app.include_router(galleries_router)
 app.include_router(page_templates_router)
 app.include_router(page_drafts_router)
+app.include_router(public_pages_router)
+app.include_router(page_institutions_router)
 
 
 @app.get("/api/v1/health", response_model=HealthResponse, tags=["health"])
