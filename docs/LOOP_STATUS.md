@@ -1,5 +1,11 @@
 # LOOP STATUS
 
+## MIG 6 — checkpoint de rascunho; publicação pendente de decisão
+
+Estado inicial: MIG 5.8 concluído em `5c568dc`, Git limpo. Entregue nesta fatia independente: `GET/PUT /api/v1/admin/pages/{page_id}` para ler e salvar Page DRAFT no banco dedicado de migração, inclusive rascunho vazio. Sessão Redis/cookie, revalidação PostgreSQL, escopo institucional e CSRF protegem o contrato. Salvar revalida os 23 tipos e referências reais, troca blocos e MediaUsage na mesma transação e impede edição de página não DRAFT; respostas são `no-store`. Testes cobrem autorização, CSRF, leitura após escrita, mídia, rollback por conflito, rascunho vazio e status publicado. Ainda **não** há interface Nuxt conectada, preview ou publicação utilizável no navegador; MIG 6 segue aberto.
+
+`MIG-PUBLISH-001` em `docs/ISSUES_ARCHITECTURE.md` registra a decisão necessária: publicação experimental restrita ao banco de migração, sem busca ainda e sem cache público, ou antecipação dos serviços de busca/invalidação. Até essa decisão, não implementar publicação nem avançar `docs/CURRENT_LOOP.md`. Checks: suíte backend completa com banco dedicado — **277 aprovados, 7 opcionais ignorados**; recheck focado após correção — **12 aprovados**; `python -m compileall -q app migrations`, `python -m pip check`, `git diff --check`. A primeira suíte detectou expectativa OpenAPI desatualizada; corrigida e revalidada. Aviso transitivo Starlette/httpx sem falha. `pnpm`/E2E não aplicáveis porque frontend e legado não foram alterados; E2E de navegador ainda faz parte do aceite do MIG 6.
+
 ## MIG 5.8 — PageTemplate integrado — concluído
 
 Após MIG 5.8-CAT/GAL e Git limpo em `e5e0d98`, PageTemplate ganhou validação Python/Pydantic dos 23 blocos v1, estrutura/ordem/âncoras, URLs e referências reais de instituição ativa, categoria, galeria e mídia utilizável. FastAPI expõe listagem, criação, leitura de snapshot, atualização de metadados, ativação/desativação e aplicação ADMIN com sessão Redis/cookie e CSRF. Aplicação cria Page DRAFT e ContentBlocks com novos IDs, dados independentes e MediaUsage transacional; referências são revalidadas ao aplicar. A API recusa bancos fora do teste local dedicado. Sem UI Nuxt conectada ou publicação; detalhes em `docs/MVP_PAGE_TEMPLATES.md`.

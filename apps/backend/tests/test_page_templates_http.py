@@ -24,6 +24,7 @@ from app.template_blocks import BLOCK_DATA_V1, BlockSnapshot, validate_snapshot
 
 ORIGIN = "http://127.0.0.1:8002"
 ROOT = "/api/v1/admin/page-templates"
+PAGES = "/api/v1/admin/pages"
 
 
 def block(kind, position, data, *, anchor=None):
@@ -226,6 +227,70 @@ def test_admin_crud_csrf_and_independent_page_copy(template_env):
         )
     with engine.connect() as db:
         assert db.scalar(text("SELECT data->>'title' FROM content_blocks WHERE owner_id = :id AND position = 0"), {"id": page["id"]}) == "Olá"
+
+
+def test_draft_save_is_authorized_atomic_and_readable(template_env):
+    client, engine, sessions, tokens, own, foreign, admin, editor, _, _, _, _, media = template_env
+    admin_headers = authorize(client, sessions, tokens, admin, "ADMIN")
+    created = client.post(ROOT, json={
+        "institution_id": None, "name": "Draft editor", "blocks_snapshot": [
+            block("TEXT", 0, {"title": "Original", "body": "Body"}),
+        ],
+    }, headers=admin_headers)
+    assert created.status_code == 201, created.text
+    applied = client.post(f"{ROOT}/{created.json()['id']}/apply", json={
+        "institution_id": str(own), "title": "Page", "slug": f"page-{uuid4()}",
+    }, headers=admin_headers)
+    assert applied.status_code == 201, applied.text
+    page_id = applied.json()["id"]
+    assert client.get(f"{PAGES}/{page_id}").json()["blocks"][0]["data"]["title"] == "Original"
+    foreign_page = client.post(f"{ROOT}/{created.json()['id']}/apply", json={
+        "institution_id": str(foreign), "title": "Foreign page", "slug": f"foreign-{uuid4()}",
+    }, headers=admin_headers)
+    assert foreign_page.status_code == 201, foreign_page.text
+
+    editor_headers = authorize(client, sessions, tokens, editor, "EDITOR", [own])
+    assert client.get(f"{PAGES}/{foreign_page.json()['id']}").status_code == 403
+    assert client.put(f"{PAGES}/{foreign_page.json()['id']}", json={
+        "title": "Forbidden", "slug": "forbidden", "blocks": foreign_page.json()["blocks"],
+    }, headers=editor_headers).status_code == 403
+
+    admin_headers = authorize(client, sessions, tokens, admin, "ADMIN")
+    changed = [
+        {**applied.json()["blocks"][0], "data": {"title": "Edited", "body": "Saved"}},
+        block("IMAGE", 1, {"imageId": str(media["image"]), "alt": "Accessible", "caption": "", "decorative": False, "link": ""}),
+    ]
+    payload = {"title": "Edited Page", "slug": f"edited-{uuid4()}", "blocks": changed}
+    assert client.put(f"{PAGES}/{page_id}", json=payload, headers={"Origin": ORIGIN}).status_code == 403
+    saved = client.put(f"{PAGES}/{page_id}", json=payload, headers=admin_headers)
+    assert saved.status_code == 200, saved.text
+    assert saved.json()["title"] == "Edited Page"
+    assert [item["data"].get("title") for item in saved.json()["blocks"]] == ["Edited", None]
+    assert client.get(f"{PAGES}/{page_id}").json()["blocks"] == saved.json()["blocks"]
+    with engine.connect() as db:
+        assert db.scalar(text("SELECT count(*) FROM media_usages WHERE entity_type = 'CONTENT_BLOCK' "
+                              "AND entity_id IN (SELECT id FROM content_blocks WHERE owner_id = :id)"),
+                         {"id": page_id}) == 1
+    invalid = {**payload, "blocks": [
+        block("IMAGE", 0, {"imageId": str(media["pending"]), "alt": "Alt", "caption": "", "decorative": False, "link": ""}),
+    ]}
+    assert client.put(f"{PAGES}/{page_id}", json=invalid, headers=admin_headers).status_code == 409
+    assert client.get(f"{PAGES}/{page_id}").json()["blocks"] == saved.json()["blocks"]
+    collision = {**payload, "blocks": foreign_page.json()["blocks"]}
+    assert client.put(f"{PAGES}/{page_id}", json=collision, headers=admin_headers).status_code == 409
+    assert client.get(f"{PAGES}/{page_id}").json()["blocks"] == saved.json()["blocks"]
+    with engine.begin() as db:
+        db.execute(text("UPDATE pages SET status = 'PUBLISHED' WHERE id = :id"), {"id": page_id})
+    assert client.get(f"{PAGES}/{page_id}").status_code == 409
+    assert client.put(f"{PAGES}/{page_id}", json=payload, headers=admin_headers).status_code == 409
+    with engine.begin() as db:
+        db.execute(text("UPDATE pages SET status = 'DRAFT' WHERE id = :id"), {"id": page_id})
+    empty = client.put(f"{PAGES}/{page_id}", json={**payload, "blocks": []}, headers=admin_headers)
+    assert empty.status_code == 200 and empty.json()["blocks"] == []
+    with engine.connect() as db:
+        assert db.scalar(text("SELECT count(*) FROM media_usages WHERE entity_type = 'CONTENT_BLOCK' "
+                              "AND entity_id IN (SELECT id FROM content_blocks WHERE owner_id = :id)"),
+                         {"id": page_id}) == 0
 
 
 def test_references_and_snapshot_fail_closed(template_env):
