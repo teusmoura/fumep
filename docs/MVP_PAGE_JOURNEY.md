@@ -33,7 +33,13 @@ Para criar apenas o login sem configurar variáveis manualmente, execute **um co
 .\scripts\bootstrap-mig6-login.ps1
 ```
 
-Esse atalho não inicia a API nem o Nuxt. Se o PowerShell bloquear scripts locais, use `pwsh -NoProfile -File .\scripts\bootstrap-mig6-login.ps1` no PowerShell 7; não é necessário mudar a política de execução permanente.
+Esse atalho não inicia a API nem o Nuxt. Se o PowerShell bloquear scripts locais, use `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\bootstrap-mig6-login.ps1`; a liberação vale só para o processo criado, sem mudar a política permanente.
+
+Se precisar redefinir a senha de um ADMIN desse banco local, rode o mesmo atalho com `-Reset`. Ele exige o e-mail existente, confirmação, nova senha digitada duas vezes e Redis local disponível para remover sessões anteriores. A senha não é exibida nem salva em arquivo. Isso **não** é o fluxo de recuperação de produção:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\bootstrap-mig6-login.ps1 -Reset
+```
 
 Em outro PowerShell, dentro de `C:\dev\fumep\apps\portal`:
 
