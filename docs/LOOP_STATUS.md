@@ -1,5 +1,11 @@
 # LOOP STATUS
 
+## MIG 5.8 — PageTemplate integrado — concluído
+
+Após MIG 5.8-CAT/GAL e Git limpo em `e5e0d98`, PageTemplate ganhou validação Python/Pydantic dos 23 blocos v1, estrutura/ordem/âncoras, URLs e referências reais de instituição ativa, categoria, galeria e mídia utilizável. FastAPI expõe listagem, criação, leitura de snapshot, atualização de metadados, ativação/desativação e aplicação ADMIN com sessão Redis/cookie e CSRF. Aplicação cria Page DRAFT e ContentBlocks com novos IDs, dados independentes e MediaUsage transacional; referências são revalidadas ao aplicar. A API recusa bancos fora do teste local dedicado. Sem UI Nuxt conectada ou publicação; detalhes em `docs/MVP_PAGE_TEMPLATES.md`.
+
+Evidências: cinco testes novos cobrem contratos de todos os tipos, CRUD/CSRF/EDITOR negado, PostgreSQL real, referências inválidas, proteção de mídia, modelo global/institucional, cópia independente e OpenAPI. Checks: `python -m pytest -q` com banco dedicado — **276 aprovados, 7 integrações opcionais ignoradas**; `python -m compileall -q app migrations`; `python -m pip check`; `git diff --check`. Aviso transitivo Starlette/httpx sem falha. JS/legado não alterados; checks `pnpm` e E2E navegador não aplicáveis a esta fatia. Próximo: MIG 6 — integração funcional Nuxt/FastAPI, com primeira jornada real de página.
+
 ## MIG 5.8-GAL — galeria funcional — concluído
 
 Migration Alembic `20261005_03` criou `galleries` e `gallery_items` só em `portal_fumep_mig58_test`. FastAPI/Pydantic expõe CRUD de galeria, itens ordenados, reordenação e preview REST autenticado de `GALLERY_FEED`; ADMIN é global, EDITOR somente instituições atribuídas, inclusive nas leituras, com CSRF nas mutações. Adição bloqueia Gallery e Media `FOR UPDATE`, exige IMAGE/READY/deletion_status NONE e cria `MediaUsage` no mesmo commit; remoção de item/galeria libera uso transacionalmente. Posição única diferível no PostgreSQL permite reordenação segura. Testes cobrem CRUD, permissão, CSRF, mídia pendente/documento/em exclusão rejeitados, FK que impede excluir mídia em uso, rollback, duas inserções concorrentes, preview sem chave interna e limpeza de usos. Projeção ainda não é publicação pública nem interface Nuxt; banco local preexistente não foi migrado.
