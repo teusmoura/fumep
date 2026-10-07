@@ -27,6 +27,14 @@ Depois de aplicar as migrations já versionadas no banco dedicado, execute uma v
 .\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8002
 ```
 
+Para criar apenas o login sem configurar variáveis manualmente, execute **um comando** na raiz do projeto; ele lê a `.env`, valida o endereço local, seleciona temporariamente o banco de demonstração e pede e-mail/senha no terminal:
+
+```powershell
+.\scripts\bootstrap-mig6-login.ps1
+```
+
+Esse atalho não inicia a API nem o Nuxt. Se o PowerShell bloquear scripts locais, use `pwsh -NoProfile -File .\scripts\bootstrap-mig6-login.ps1` no PowerShell 7; não é necessário mudar a política de execução permanente.
+
 Em outro PowerShell, dentro de `C:\dev\fumep\apps\portal`:
 
 ```powershell
