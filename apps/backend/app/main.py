@@ -12,6 +12,7 @@ from .page_templates_http import router as page_templates_router
 from .page_drafts_http import router as page_drafts_router
 from .public_pages_http import router as public_pages_router
 from .page_institutions_http import router as page_institutions_router
+from .media_http import router as media_router
 
 app = FastAPI(title="Portal FUMEP API", version="1.0.0-migration")
 if origin := os.environ.get("APP_ORIGIN"):
@@ -29,6 +30,7 @@ app.include_router(page_templates_router)
 app.include_router(page_drafts_router)
 app.include_router(public_pages_router)
 app.include_router(page_institutions_router)
+app.include_router(media_router)
 
 
 @app.get("/api/v1/health", response_model=HealthResponse, tags=["health"])

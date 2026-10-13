@@ -62,6 +62,9 @@ def test_openapi_exposes_public_and_authentication_contracts() -> None:
         "/api/v1/admin/pages/{page_id}",
         "/api/v1/admin/pages/{page_id}/publish",
         "/api/v1/admin/page-institutions",
+        "/api/v1/admin/media",
+        "/api/v1/admin/media/categories",
+        "/api/v1/admin/media/institutions",
         "/api/v1/public/institutions/{institution_slug}/pages/{page_slug}",
     }
     schema = document["components"]["schemas"]["PublicInstitutionTheme"]

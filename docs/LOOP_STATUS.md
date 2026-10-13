@@ -1,5 +1,13 @@
 # LOOP STATUS
 
+## MIG 6-MEDIA — checkpoint de integração, loop aberto
+
+Estado inicial: primeira jornada de página concluída em `6f3bb06`, Git limpo. Foram adicionados endpoints FastAPI autenticados para criar/listar categorias de mídia, listar arquivos com busca/filtro/paginação e receber imagem/PDF validado em MinIO privado com metadados PostgreSQL; a imagem fica PENDING e publica `PROCESS_MEDIA` depois do commit, enquanto PDF validado fica READY. A tela Nuxt `/admin/media` oferece login, categoria, upload, busca/lista e seleção por ID. A implementação usa sessão/CSRF existentes e escopo institucional; não toca em `portal_fumep` nem remove Next/Nest. `architecture-guard`: conforme com observação — sem URL interna do MinIO exposta, mas a paridade e a jornada de mídia ainda não foram aceitas.
+
+Checks desta fatia: backend 268 aprovados/26 opcionais ignorados; teste HTTP focado 7 aprovados/2 de PostgreSQL ignorados; `compileall` e `pip check` aprovados. Nuxt typecheck, 36 testes e build aprovados; Prettier do novo componente e ESLint completo ignorando apenas caches `.pytest_cache` aprovados; `git diff --check` aprovado. O primeiro teste de integração falhou por isolamento de rede; a reexecução autorizada confirmou PostgreSQL/Redis/MinIO nas portas locais indisponíveis, Docker daemon ausente, e foi interrompida sem escrita no banco. Os testes de integração **não passaram nem foram aceitos**. O lint padrão encontrou cache pytest inacessível; a execução com ignore explícito de cache passou.
+
+Pendente no mesmo MIG 6-MEDIA: prova real no banco dedicado com MinIO/Redis, Worker Python com repositório PostgreSQL e variantes READY, recuperação/reconciliação de fila, thumbnail/visualização segura, exclusão durável, teste de navegador/axe e comparação funcional com as telas Next. A tela atual é parcial e upload de imagem ainda não resulta em mídia selecionável. `docs/CURRENT_LOOP.md` permanece em MIG 6-MEDIA; nenhum próximo loop iniciado.
+
 ## MIG 6 — primeira jornada de página aceita; integração restante aberta
 
 Jornada local validada no Chrome: login ADMIN, criação/aplicação de PageTemplate, edição e persistência do rascunho, prévia protegida, publicação e página pública SSR. O Playwright/axe verificou login, editor, prévia e página pública sem violações WCAG automatizadas; identificou e motivou a correção da rota aninhada de prévia e do retorno ao rascunho. A página criada pelo teste fica no banco dedicado de migração, nunca em `portal_fumep`. Instruções e limitações em `docs/MVP_PAGE_JOURNEY.md`.
