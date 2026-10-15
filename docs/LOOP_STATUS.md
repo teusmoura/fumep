@@ -1,5 +1,11 @@
 # LOOP STATUS
 
+## MIG 6-MEDIA — checkpoint de recuperação do Worker, loop aberto
+
+O Worker Python separado agora reconcilia no início e a cada 60 segundos mídias IMAGE `PENDING`/`PROCESSING` elegíveis no PostgreSQL dedicado. Varredura paginada até 100 registros, lock consultivo compartilhado com o processamento, rechecagem de estado e deduplicação RQ preservam jobs ativos; jobs ausentes, terminais retidos ou entradas órfãs são recriados sem tocar MinIO pela API. A rotina termina antes de fechar Redis/banco. Teste integrado simulou job perdido e lock concorrente, depois executou Worker real até READY e duas variantes no MinIO, com limpeza dos dados de teste. `architecture-guard`: conforme com observação — mesma fila/Worker, banco principal e legado intocados, exclusão ainda não habilitada.
+
+Checks: `python -m pytest -q --tb=no -p no:cacheprovider` com PostgreSQL/Redis/MinIO locais — **306 aprovados**; após ajuste pontual do cursor, `python -m pytest -q --tb=no -p no:cacheprovider tests/test_media_reconciliation.py tests/test_media_queue.py` — **11 aprovados**; `python -m compileall -q app migrations`, `python -m pip check` e `git diff --check` aprovados. Nuxt/legado não foram alterados, portanto checks JS/E2E não foram repetidos. Falta a exclusão durável MEDIA-002, E2E/axe da biblioteca e comparação funcional com Next. MIG 6-MEDIA segue sem aceite; `docs/CURRENT_LOOP.md` não avança.
+
 ## MIG 6-MEDIA — checkpoint de prévia protegida, loop aberto
 
 A Biblioteca ganhou leitura autenticada de original e variantes por endpoints FastAPI do próprio portal, com escopo institucional fresco, somente mídia READY/NONE, MIME e chaves validados, limite de bytes, `no-store` e `nosniff`; nenhuma URL/bucket interno do MinIO é enviado ao navegador. A tela Nuxt `/admin/media` agora mostra prévia de imagem/PDF, variantes disponíveis e atualiza a seleção após nova busca. Testes HTTP cobrem PDF, imagem processada no PostgreSQL/MinIO reais, variante ausente, PENDING, não autenticado e EDITOR fora do escopo. `architecture-guard`: conforme com observação — legado preservado, banco principal intocado; falta aceitar a jornada de mídia inteira.

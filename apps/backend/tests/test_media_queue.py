@@ -59,6 +59,40 @@ def test_repeat_is_deduplicated_and_other_media_is_independent() -> None:
         publisher.close()
 
 
+def test_reconciliation_preserves_queued_job_and_recreates_terminal_job() -> None:
+    client = fakeredis.FakeRedis()
+    publisher = MediaQueuePublisher(client)  # type: ignore[arg-type]
+    media_id = uuid4()
+    try:
+        first = publisher.enqueue_process_media(media_id)
+        assert not publisher.recover_process_media(media_id).created
+        job = Job.fetch(first.job_id, connection=client, serializer="json")
+        job.set_status("finished")
+        recovered = publisher.recover_process_media(media_id)
+        assert recovered.created and recovered.job_id == first.job_id
+        assert publisher._queue.count == 1
+        assert not publisher.recover_process_media(media_id).created
+    finally:
+        publisher._queue.delete(delete_jobs=True)
+        publisher.close()
+
+
+def test_reconciliation_removes_stale_queue_entry_when_job_hash_was_lost() -> None:
+    client = fakeredis.FakeRedis()
+    publisher = MediaQueuePublisher(client)  # type: ignore[arg-type]
+    media_id = uuid4()
+    try:
+        first = publisher.enqueue_process_media(media_id)
+        Job.fetch(first.job_id, connection=client, serializer="json").delete(remove_from_queue=False)
+        assert publisher._queue.count == 1
+        assert publisher.recover_process_media(media_id).created
+        assert publisher._queue.count == 1
+        assert Job.fetch(first.job_id, connection=client, serializer="json").kwargs == {"media_id": str(media_id)}
+    finally:
+        publisher._queue.delete(delete_jobs=True)
+        publisher.close()
+
+
 def test_invalid_input_and_configuration_do_not_publish() -> None:
     client = fakeredis.FakeRedis()
     publisher = MediaQueuePublisher(client)  # type: ignore[arg-type]

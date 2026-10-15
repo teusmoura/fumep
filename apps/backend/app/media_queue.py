@@ -6,7 +6,7 @@ from uuid import UUID
 
 from redis import Redis
 from rq import Queue, Retry
-from rq.exceptions import DuplicateJobError
+from rq.exceptions import DuplicateJobError, NoSuchJobError
 from rq.job import Job
 
 QUEUE_NAME = "fumep:media"
@@ -82,6 +82,25 @@ class MediaQueuePublisher:
                 raise
             return EnqueueResult(job_id=job_id, created=False)
         return EnqueueResult(job_id=job_id, created=True)
+
+    def recover_process_media(self, media_id: UUID) -> EnqueueResult:
+        """Recreate a lost or terminal job only after PostgreSQL says it is eligible."""
+        if self._closed or not isinstance(media_id, UUID):
+            raise ValueError("Invalid media reconciliation request")
+        job_id = f"process-media-{media_id}"
+        try:
+            existing = Job.fetch(job_id, connection=self._client, serializer="json")
+        except NoSuchJobError:
+            # A stale queue entry without its job hash must not create a second entry.
+            self._queue.remove(job_id)
+            return self.enqueue_process_media(media_id)
+        if (existing.origin != self.config.queue_name or existing.func_name != WORKER_FUNCTION
+                or existing.kwargs != {"media_id": str(media_id)}):
+            raise DuplicateJobError("Conflicting media job ID")
+        if existing.get_status(refresh=True) in {"finished", "failed", "stopped", "canceled"}:
+            existing.delete()
+            return self.enqueue_process_media(media_id)
+        return EnqueueResult(job_id=job_id, created=False)
 
     def enqueue_delete_media(self, media_id: UUID) -> EnqueueResult:
         if self._closed:
