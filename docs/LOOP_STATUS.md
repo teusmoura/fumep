@@ -1,5 +1,11 @@
 # LOOP STATUS
 
+## MIG 6-MEDIA — checkpoint de prévia protegida, loop aberto
+
+A Biblioteca ganhou leitura autenticada de original e variantes por endpoints FastAPI do próprio portal, com escopo institucional fresco, somente mídia READY/NONE, MIME e chaves validados, limite de bytes, `no-store` e `nosniff`; nenhuma URL/bucket interno do MinIO é enviado ao navegador. A tela Nuxt `/admin/media` agora mostra prévia de imagem/PDF, variantes disponíveis e atualiza a seleção após nova busca. Testes HTTP cobrem PDF, imagem processada no PostgreSQL/MinIO reais, variante ausente, PENDING, não autenticado e EDITOR fora do escopo. `architecture-guard`: conforme com observação — legado preservado, banco principal intocado; falta aceitar a jornada de mídia inteira.
+
+Checks: backend completo **302 aprovados** com PostgreSQL/Redis/MinIO de teste, `compileall` e `pip check`; Nuxt typecheck, 36 testes e build aprovados; ESLint com exclusão apenas de caches pytest e Prettier do componente aprovados; `git diff --check` aprovado. `pnpm lint` e `pnpm format:check` literais não conseguem percorrer `.pytest_cache` por `EPERM` no ambiente; as verificações equivalentes da fatia passaram com cache ignorado. E2E/axe da nova prévia ainda pendentes, assim como reconciliação PENDING, exclusão durável e comparação das telas Next. `docs/CURRENT_LOOP.md` permanece em MIG 6-MEDIA; sem aceite nem avanço de loop.
+
 ## MIG 6-MEDIA — checkpoint de integração real, loop aberto
 
 Docker voltou a responder e a stack local PostgreSQL/Redis/MinIO foi iniciada com os três serviços saudáveis. Um teste de aceitação novo executou upload autenticado de imagem via FastAPI, persistência no banco dedicado `portal_fumep_mig58_test`, gravação privada no MinIO, processamento pelo repositório PostgreSQL, duas variantes e leitura do estado READY pela API. Os objetos/variantes de teste são removidos ao final. Os testes isolados de fila e Worker também passaram com Redis DB 15 e MinIO reais; a primeira tentativa falhou por URL de teste apontando para o Redis padrão e foi corrigida apenas na configuração da execução. O banco principal `portal_fumep` não foi alterado.

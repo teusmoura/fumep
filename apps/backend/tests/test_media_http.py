@@ -36,6 +36,12 @@ class MemoryStorage:
     def remove_object(self, *, bucket_name, object_name):
         self.objects.pop(object_name, None)
 
+    def get_object(self, bucket_name, object_name):
+        assert bucket_name == "portal-private"
+        response = BytesIO(self.objects[object_name])
+        response.release_conn = lambda: None
+        return response
+
 
 @pytest.fixture
 def env(monkeypatch):
@@ -146,6 +152,7 @@ def test_rejects_malformed_and_oversized_upload_before_storage(monkeypatch):
 def test_upload_list_categories_scope_and_csrf(env):
     client, sessions, engine, own, other, admin, editor, storage, queued = env
     assert client.get(ROOT).status_code == 401
+    assert client.get(f"{ROOT}/{uuid4()}/content").status_code == 401
     headers = authorize(client, sessions, admin, "ADMIN")
     own_category = client.post(f"{ROOT}/categories", json={"institution_id": str(own), "name": "Fotos", "slug": f"fotos-{uuid4()}"}, headers=headers)
     other_category = client.post(f"{ROOT}/categories", json={"institution_id": str(other), "name": "Outra", "slug": f"outra-{uuid4()}"}, headers=headers)
@@ -160,6 +167,7 @@ def test_upload_list_categories_scope_and_csrf(env):
     assert uploaded.json()["processing_status"] == "PENDING"
     assert uploaded.json()["category_id"] == category_id
     assert len(queued) == 1 and storage.objects
+    assert client.get(f"{ROOT}/{uploaded.json()['id']}/content").status_code == 409
     rows = client.get(ROOT, params={"q": "Fachada", "type": "IMAGE"}).json()
     assert [row["id"] for row in rows] == [uploaded.json()["id"]]
     assert len(client.get(f"{ROOT}/categories").json()) == 1
@@ -182,6 +190,13 @@ def test_pdf_validation_and_rejected_upload_do_not_store(env):
     assert pdf.status_code == 201, pdf.text
     assert pdf.json()["type"] == "DOCUMENT" and pdf.json()["processing_status"] == "READY"
     assert not queued
+    content = client.get(f"{ROOT}/{pdf.json()['id']}/content")
+    assert content.status_code == 200 and content.content == b"%PDF-1.7\n%%EOF"
+    assert content.headers["content-type"] == "application/pdf"
+    assert content.headers["cache-control"] == "no-store"
+    assert content.headers["x-content-type-options"] == "nosniff"
+    assert "minio" not in str(content.headers).lower()
+    assert client.get(f"{ROOT}/{pdf.json()['id']}/variants").json() == []
 
 
 def test_image_upload_processes_from_http_to_postgres_and_real_minio(env, monkeypatch):
@@ -200,7 +215,7 @@ def test_image_upload_processes_from_http_to_postgres_and_real_minio(env, monkey
     from app.media_worker import MediaOriginalProcessor
     from app.original_image_storage import OriginalImageStorage, PRIVATE_BUCKET
 
-    client, sessions, engine, own, _, admin, _, _, queued = env
+    client, sessions, engine, own, other, admin, editor, _, queued = env
     minio = Minio(endpoint, access_key=access, secret_key=secret,
                   secure=os.getenv("FUMEP_MINIO_TEST_SECURE", "false") == "true")
     assert minio.bucket_exists(PRIVATE_BUCKET)
@@ -235,6 +250,18 @@ def test_image_upload_processes_from_http_to_postgres_and_real_minio(env, monkey
                                    {"id": media_id}).scalars())
         assert (row["processing_status"], row["width"], row["height"]) == ("READY", 12, 8)
         assert len(keys) == 3
+        variants = client.get(f"{ROOT}/{media_id}/variants")
+        assert variants.status_code == 200
+        assert {item["format"] for item in variants.json()} == {"WEBP", "AVIF"}
+        for item in variants.json():
+            preview = client.get(f"{ROOT}/{media_id}/content", params={
+                "format": item["format"], "width": item["width"]
+            })
+            assert preview.status_code == 200
+            assert preview.headers["content-type"] == f"image/{item['format'].lower()}"
+            assert len(preview.content) == item["size_bytes"]
+        assert client.get(f"{ROOT}/{media_id}/content", params={"format": "WEBP"}).status_code == 422
+        assert client.get(f"{ROOT}/{media_id}/content", params={"format": "WEBP", "width": 999}).status_code == 404
         for key in keys:
             response = minio.get_object(PRIVATE_BUCKET, key)
             try:
@@ -246,6 +273,18 @@ def test_image_upload_processes_from_http_to_postgres_and_real_minio(env, monkey
         assert listed.status_code == 200
         assert any(item["id"] == media_id and item["processing_status"] == "READY"
                    for item in listed.json())
+        authorize(client, sessions, editor, "EDITOR", [own])
+        assert client.get(f"{ROOT}/{media_id}/content").status_code == 200
+        headers = authorize(client, sessions, admin, "ADMIN")
+        other_category = client.post(f"{ROOT}/categories", json={
+            "institution_id": str(other), "name": "Other", "slug": f"other-{uuid4()}"
+        }, headers=headers)
+        assert other_category.status_code == 201
+        with engine.begin() as db:
+            db.execute(text("UPDATE media SET category_id = :category WHERE id = :id"),
+                       {"category": other_category.json()["id"], "id": media_id})
+        authorize(client, sessions, editor, "EDITOR", [own])
+        assert client.get(f"{ROOT}/{media_id}/content").status_code == 403
     finally:
         if media_id is not None:
             with engine.begin() as db:

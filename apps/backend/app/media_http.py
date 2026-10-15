@@ -1,11 +1,14 @@
 """Authenticated migration adapter for the private media library."""
 
 import os
+import re
 from datetime import datetime
+from typing import Literal
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Response, UploadFile
 from minio import Minio
+from minio.error import S3Error
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
@@ -14,8 +17,8 @@ from sqlalchemy.orm import Session
 from app.admin_access import Actor, actor, require_scope
 from app.image_upload_validation import MAX_IMAGE_BYTES, InvalidImageUploadError, validate_image_upload
 from app.media_queue import MediaQueuePublisher
-from app.original_image_storage import OriginalImageStorage
-from app.original_pdf_storage import OriginalPdfStorage
+from app.original_image_storage import PRIVATE_BUCKET, OriginalImageStorage, _require_original_key
+from app.original_pdf_storage import OriginalPdfStorage, _require_pdf_key
 from app.pdf_upload_validation import MAX_PDF_BYTES, InvalidPdfUploadError, validate_pdf_upload
 
 router = APIRouter(prefix="/api/v1/admin/media", tags=["media library"])
@@ -53,6 +56,13 @@ class MediaView(BaseModel):
 class InstitutionView(BaseModel):
     id: UUID
     name: str
+
+
+class MediaVariantView(BaseModel):
+    format: Literal["WEBP", "AVIF"]
+    width: int
+    height: int
+    size_bytes: int
 
 
 def _engine(principal: Actor):
@@ -95,6 +105,18 @@ def _category_scope(db: Session, principal: Actor, category_id: UUID | None) -> 
     if row is None:
         raise HTTPException(status_code=404, detail="Media category not found")
     require_scope(principal, row["institution_id"])
+
+
+def _authorized_media(db: Session, principal: Actor, media_id: UUID):
+    row = db.execute(text(
+        "SELECT m.id, m.type, m.storage_key, m.mime_type, m.size_bytes, m.processing_status, "
+        "mc.institution_id FROM media m LEFT JOIN media_categories mc ON mc.id = m.category_id "
+        "WHERE m.id = :id AND m.deletion_status = 'NONE' AND m.type IN ('IMAGE', 'DOCUMENT')"
+    ), {"id": media_id}).mappings().first()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Media not found")
+    require_scope(principal, row["institution_id"])
+    return row
 
 
 @router.get("/institutions", response_model=list[InstitutionView])
@@ -172,6 +194,76 @@ def list_media(response: Response, principal: Actor = Depends(actor),
             return [MediaView.model_validate(dict(row)) for row in rows]
     except SQLAlchemyError as error:
         raise HTTPException(status_code=503, detail="Media catalog unavailable") from error
+
+
+@router.get("/{media_id}/variants", response_model=list[MediaVariantView])
+def list_variants(media_id: UUID, response: Response, principal: Actor = Depends(actor)):
+    response.headers["Cache-Control"] = "no-store"
+    try:
+        with Session(_engine(principal)) as db:
+            media = _authorized_media(db, principal, media_id)
+            if media["type"] != "IMAGE" or media["processing_status"] != "READY":
+                return []
+            rows = db.execute(text(
+                "SELECT format, width, height, size_bytes FROM media_variants "
+                "WHERE media_id = :id ORDER BY width, format"
+            ), {"id": media_id}).mappings()
+            return [MediaVariantView.model_validate(dict(row)) for row in rows]
+    except SQLAlchemyError as error:
+        raise HTTPException(status_code=503, detail="Media catalog unavailable") from error
+
+
+@router.get("/{media_id}/content")
+def media_content(media_id: UUID, principal: Actor = Depends(actor),
+                  format: Literal["WEBP", "AVIF"] | None = None,
+                  width: int | None = Query(default=None, gt=0)):
+    if (format is None) != (width is None):
+        raise HTTPException(status_code=422, detail="Variant format and width must be provided together")
+    try:
+        with Session(_engine(principal)) as db:
+            media = _authorized_media(db, principal, media_id)
+            if media["processing_status"] != "READY":
+                raise HTTPException(status_code=409, detail="Media not ready")
+            key, mime, size = media["storage_key"], media["mime_type"], media["size_bytes"]
+            if format is not None:
+                if media["type"] != "IMAGE":
+                    raise HTTPException(status_code=404, detail="Variant not found")
+                variant = db.execute(text(
+                    "SELECT storage_key, size_bytes FROM media_variants "
+                    "WHERE media_id = :id AND format = :format AND width = :width"
+                ), {"id": media_id, "format": format, "width": width}).mappings().first()
+                if variant is None:
+                    raise HTTPException(status_code=404, detail="Variant not found")
+                key, mime, size = variant["storage_key"], f"image/{format.lower()}", variant["size_bytes"]
+                expected = rf"images/variants/{media_id}-{width}\.{format.lower()}"
+                if re.fullmatch(expected, key) is None:
+                    raise HTTPException(status_code=503, detail="Media storage unavailable")
+            elif media["type"] == "IMAGE":
+                _require_original_key(key)
+            else:
+                _require_pdf_key(key)
+            allowed_mimes = ({"image/jpeg", "image/png", "image/webp", "image/avif"}
+                             if media["type"] == "IMAGE" else {"application/pdf"})
+            if mime not in allowed_mimes:
+                raise HTTPException(status_code=503, detail="Media storage unavailable")
+            if size <= 0 or size > (MAX_PDF_BYTES if media["type"] == "DOCUMENT" else MAX_IMAGE_BYTES):
+                raise HTTPException(status_code=503, detail="Media storage unavailable")
+        object_response = _storage().get_object(PRIVATE_BUCKET, key)
+        try:
+            content = object_response.read(size + 1)
+        finally:
+            object_response.close()
+            object_response.release_conn()
+        if len(content) != size:
+            raise HTTPException(status_code=503, detail="Media storage unavailable")
+        return Response(content=content, media_type=mime, headers={
+            "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff",
+            "Content-Security-Policy": "sandbox", "Content-Disposition": "inline",
+        })
+    except HTTPException:
+        raise
+    except (SQLAlchemyError, S3Error, ValueError) as error:
+        raise HTTPException(status_code=503, detail="Media storage unavailable") from error
 
 
 @router.post("", response_model=MediaView, status_code=201)

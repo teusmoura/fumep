@@ -10,10 +10,12 @@ type Media = {
   mime_type: string;
   size_bytes: number;
   alt_text: string | null;
+  is_decorative: boolean;
   category_id: string | null;
   processing_status: string;
   created_at: string;
 };
+type Variant = { format: "WEBP" | "AVIF"; width: number; height: number; size_bytes: number };
 
 useHead({ title: "Biblioteca de Mídia — Portal FUMEP" });
 const apiBase = useRuntimeConfig().public.apiBase;
@@ -35,8 +37,17 @@ const query = ref("");
 const typeFilter = ref("");
 const offset = ref(0);
 const selected = ref<Media | null>(null);
+const variants = ref<Variant[]>([]);
 const pageSize = 24;
 const hasNext = computed(() => media.value.length === pageSize);
+const previewUrl = computed(() => {
+  if (!selected.value || selected.value.processing_status !== "READY") return "";
+  const item = selected.value;
+  const variant =
+    item.type === "IMAGE" ? variants.value.find((row) => row.format === "WEBP") : null;
+  const path = `/api/v1/admin/media/${item.id}/content`;
+  return `${apiBase}${path}${variant ? `?format=${variant.format}&width=${variant.width}` : ""}`;
+});
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
@@ -61,6 +72,18 @@ async function load() {
     request<Media[]>(`/api/v1/admin/media?${params}`),
   ]);
   institutionId.value ||= institutions.value[0]?.id ?? "";
+}
+
+async function chooseMedia(item: Media) {
+  selected.value = item;
+  variants.value = [];
+  if (item.type === "IMAGE" && item.processing_status === "READY") {
+    try {
+      variants.value = await request<Variant[]>(`/api/v1/admin/media/${item.id}/variants`);
+    } catch {
+      message.value = "Não foi possível carregar as variantes da imagem.";
+    }
+  }
 }
 
 onMounted(async () => {
@@ -133,7 +156,7 @@ async function upload() {
     const created = await request<Media>("/api/v1/admin/media", { method: "POST", body });
     offset.value = 0;
     await load();
-    selected.value = created;
+    await chooseMedia(created);
     message.value =
       created.type === "IMAGE"
         ? "Imagem recebida; processamento pendente. Atualize a listagem para acompanhar."
@@ -151,6 +174,8 @@ async function search(nextOffset = 0) {
   offset.value = nextOffset;
   try {
     await load();
+    const fresh = media.value.find((item) => item.id === selected.value?.id);
+    if (fresh) await chooseMedia(fresh);
   } catch {
     message.value = "Não foi possível carregar a biblioteca.";
   }
@@ -243,7 +268,9 @@ async function search(nextOffset = 0) {
             <p v-if="!media.length">Nenhum arquivo nesta página.</p>
             <ul v-else>
               <li v-for="item in media" :key="item.id">
-                <button type="button" @click="selected = item">{{ item.original_filename }}</button>
+                <button type="button" @click="chooseMedia(item)">
+                  {{ item.original_filename }}
+                </button>
                 — {{ item.type === "IMAGE" ? "Imagem" : "PDF" }} · {{ item.processing_status }}
               </li>
             </ul>
@@ -263,6 +290,29 @@ async function search(nextOffset = 0) {
           <section v-if="selected" class="builder-card" aria-labelledby="selected-title">
             <h2 id="selected-title">Arquivo selecionado</h2>
             <p>{{ selected.original_filename }} · {{ selected.processing_status }}</p>
+            <p v-if="selected.processing_status !== 'READY'">
+              A prévia ficará disponível após o processamento. Use Buscar para atualizar o estado.
+            </p>
+            <template v-else>
+              <img
+                v-if="selected.type === 'IMAGE'"
+                class="media-preview"
+                :src="previewUrl"
+                :alt="selected.is_decorative ? '' : selected.alt_text || selected.original_filename"
+              />
+              <iframe
+                v-else
+                class="media-document-preview"
+                :src="previewUrl"
+                :title="`Prévia do PDF ${selected.original_filename}`"
+              />
+              <p v-if="variants.length">Variantes disponíveis:</p>
+              <ul v-if="variants.length">
+                <li v-for="variant in variants" :key="`${variant.format}-${variant.width}`">
+                  {{ variant.format }} · {{ variant.width }} × {{ variant.height }}
+                </li>
+              </ul>
+            </template>
             <p>
               Identificador para reutilização: <code>{{ selected.id }}</code>
             </p>
@@ -272,3 +322,19 @@ async function search(nextOffset = 0) {
     </main>
   </div>
 </template>
+
+<style scoped>
+.media-preview {
+  display: block;
+  max-width: 100%;
+  max-height: 28rem;
+  object-fit: contain;
+}
+
+.media-document-preview {
+  display: block;
+  width: 100%;
+  min-height: 28rem;
+  border: 0;
+}
+</style>
