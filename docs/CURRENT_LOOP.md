@@ -29,14 +29,15 @@
 - MIG 5.8-GAL — galeria funcional: concluído em banco de teste dedicado, com CRUD/itens/MediaUsage/projeção REST autenticada e checks aprovados.
 - MIG 5.8 — PageTemplate integrado: concluído no banco de teste dedicado, com validação dos 23 blocos, CRUD ADMIN e cópia independente para Page DRAFT; evidências em `docs/LOOP_STATUS.md`.
 - MIG 6 — primeira jornada de página Nuxt/FastAPI: aceita no banco de demonstração com Playwright/axe, sem paridade V1.
-- **MIG 6-MEDIA — Biblioteca de Mídia integrada em FastAPI/Nuxt: próximo loop atual.**
+- MIG 6-MEDIA — Biblioteca de Mídia integrada em FastAPI/Nuxt: concluída no banco local dedicado, inclusive Worker, exclusão, Playwright/axe; diferenças para o Next registradas em `docs/MVP_MEDIA_LIBRARY.md`.
+- **MIG 6-EDITORIAL — categorias editoriais e galerias utilizáveis no Nuxt: loop atual.**
 
-## MIG 6-MEDIA — Biblioteca de Mídia integrada (atual)
+## MIG 6-EDITORIAL — categorias editoriais e galerias na interface (atual)
 
-A primeira jornada de página já foi aceita no banco local de migração: login ADMIN, PageTemplate, rascunho, prévia, publicação e SSR público, com contrato, persistência, Playwright E2E e axe. Nesta próxima fatia, entregar uma Biblioteca de Mídia utilizável no navegador com FastAPI/Nuxt: upload de imagem/PDF, listagem/seleção, categorias, estados de processamento/variantes e exclusão segura, conectando Worker/MinIO já isolados. Incluir autorização, CSRF, persistência e acessibilidade; demonstrar a jornada completa, não apenas endpoints. Comparar o comportamento com as telas Next ainda existentes e registrar as diferenças antes de retirá-las.
+Conectar ao Nuxt os catálogos FastAPI/PostgreSQL já aceitos de categoria editorial e galeria. Entregar jornadas de navegador para criar/consultar/editar/excluir categoria e galeria, gerenciar itens ordenados com imagens READY da Biblioteca e visualizar a projeção do `GALLERY_FEED`. Manter sessão/CSRF, autorização institucional no backend, estados de erro, testes proporcionais e Playwright/axe. Os testes devem mostrar uma jornada persistida completa no banco dedicado, não apenas contratos. Não antecipar artigos, estágio, busca, publicação de feeds ou retirada do legado.
 
-O editor `/builder-demo` permanece fixture; a jornada real está em `/admin/pages`. A base preexistente `portal_fumep` segue bloqueada para migrations Python porque contém `page_templates` não versionada; manter testes no banco dedicado até auditoria/adopção explícita. Next/Nest permanecem congelados como referência até paridade testada ou nova decisão explícita do responsável. A proposta de eliminar o legado antes da paridade requer essa decisão; não apagar silenciosamente funcionalidades ainda ausentes em Nuxt.
+O editor `/builder-demo` permanece fixture; a jornada real de páginas está em `/admin/pages` e a Biblioteca em `/admin/media`. A base preexistente `portal_fumep` segue bloqueada para migrations Python porque contém `page_templates` não versionada; manter testes no banco dedicado até auditoria/adopção explícita. Next/Nest permanecem congelados como referência até paridade testada ou nova decisão explícita do responsável.
 
 ## Próximo loop
 
-**MIG 6 — galerias/categorias na interface e demais módulos editoriais**, após aceite da Biblioteca de Mídia. Ajustar a estratégia de retirada do legado somente após decisão explícita do responsável; não iniciar esse próximo loop nesta execução.
+**MIG 6 — próximos módulos editoriais e integração pública**, após aceite das categorias/galerias na interface. Definir sua fronteira funcional com base no plano canônico e nas lacunas restantes, sem retirar o legado nem tocar no banco preexistente sem decisão explícita.

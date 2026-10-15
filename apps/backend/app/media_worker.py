@@ -15,6 +15,7 @@ from rq import get_current_job
 from .image_upload_validation import validate_image_upload
 from .media_metadata import MediaMetadata
 from .media_queue import MediaQueueConfig
+from .media_deletion_worker import DeletionProcessor, _active_deletion_processor
 from .original_image_storage import OriginalImageStorage
 
 MAX_IMAGE_PIXELS = 40_000_000
@@ -146,16 +147,19 @@ def run_worker(
     client: Redis,
     processor: MediaJobProcessor,
     *,
+    deletion_processor: DeletionProcessor | None = None,
     config: MediaQueueConfig | None = None,
     burst: bool = False,
 ) -> bool:
     """Run in a dedicated process; close Redis even on worker failure."""
     queue_config = config or MediaQueueConfig()
     token = _active_processor.set(processor)
+    deletion_token = _active_deletion_processor.set(deletion_processor)
     try:
         queue = Queue(queue_config.queue_name, connection=client, serializer="json")
         worker = SimpleWorker([queue], connection=client, serializer="json")
         return worker.work(burst=burst, with_scheduler=True, logging_level="WARNING")
     finally:
+        _active_deletion_processor.reset(deletion_token)
         _active_processor.reset(token)
         client.close()

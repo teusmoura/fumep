@@ -139,6 +139,24 @@ class MediaQueuePublisher:
             return EnqueueResult(job_id=job_id, created=False)
         return EnqueueResult(job_id=job_id, created=True)
 
+    def recover_delete_media(self, media_id: UUID) -> EnqueueResult:
+        """Only the PostgreSQL REQUESTED-state reconciler may call this method."""
+        if self._closed or not isinstance(media_id, UUID):
+            raise ValueError("Invalid deletion reconciliation request")
+        job_id = f"delete-media-{media_id}"
+        try:
+            existing = Job.fetch(job_id, connection=self._client, serializer="json")
+        except NoSuchJobError:
+            self._queue.remove(job_id)
+            return self.enqueue_delete_media(media_id)
+        if (existing.origin != self.config.queue_name or existing.func_name != DELETE_WORKER_FUNCTION
+                or existing.kwargs != {"media_id": str(media_id)}):
+            raise DuplicateJobError("Conflicting deletion job ID")
+        if existing.get_status(refresh=True) in {"finished", "failed", "stopped", "canceled"}:
+            existing.delete()
+            return self.enqueue_delete_media(media_id)
+        return EnqueueResult(job_id=job_id, created=False)
+
     def close(self) -> None:
         if not self._closed:
             self._client.close()

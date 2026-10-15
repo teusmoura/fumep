@@ -8,6 +8,7 @@ from sqlalchemy.engine import Engine
 
 from app.media_processing_repository import require_migration_engine
 from app.media_queue import MediaQueuePublisher
+from app.media_deletion_postgres import PostgresMediaDeletionProcessor
 
 
 class MediaProcessReconciler:
@@ -55,4 +56,54 @@ class MediaProcessReconciler:
             finally:
                 db.execute(text(
                     "SELECT pg_advisory_unlock(hashtext('MEDIA_PROCESS'), hashtext(:id))"
+                ), {"id": str(media_id)})
+
+
+class MediaDeletionReconciler:
+    def __init__(self, engine: Engine, publisher: MediaQueuePublisher,
+                 processor: PostgresMediaDeletionProcessor) -> None:
+        self.engine = require_migration_engine(engine)
+        self.publisher = publisher
+        self.processor = processor
+        self.cursor: tuple[datetime, UUID] | None = None
+
+    def sweep(self) -> tuple[UUID, ...]:
+        requested, media_id = self.cursor or (None, None)
+        with self.engine.connect() as db:
+            rows = db.execute(text(
+                "SELECT id, deletion_requested_at FROM media WHERE deletion_status = 'REQUESTED' "
+                "AND (CAST(:requested AS timestamptz) IS NULL OR "
+                "(deletion_requested_at, id) > (CAST(:requested AS timestamptz), CAST(:id AS uuid))) "
+                "ORDER BY deletion_requested_at, id LIMIT 100"
+            ), {"requested": requested, "id": media_id}).mappings().all()
+        if not rows:
+            self.cursor = None
+            return ()
+        self.cursor = (rows[-1]["deletion_requested_at"], rows[-1]["id"]) if len(rows) == 100 else None
+        queued = []
+        for row in rows:
+            if self._recover_one(row["id"]):
+                queued.append(row["id"])
+        return tuple(queued)
+
+    def _recover_one(self, media_id: UUID) -> bool:
+        with self.engine.connect() as db:
+            locked = db.execute(text(
+                "SELECT pg_try_advisory_lock(hashtext('MEDIA_DELETE'), hashtext(:id))"
+            ), {"id": str(media_id)}).scalar_one()
+            if not locked:
+                return False
+            try:
+                attempts = db.execute(text(
+                    "SELECT deletion_attempts FROM media WHERE id = :id AND deletion_status = 'REQUESTED'"
+                ), {"id": media_id}).scalar_one_or_none()
+                if attempts is None:
+                    return False
+                if attempts >= 3:
+                    self.processor.finalize_exhausted(media_id)
+                    return False
+                return self.publisher.recover_delete_media(media_id).created
+            finally:
+                db.execute(text(
+                    "SELECT pg_advisory_unlock(hashtext('MEDIA_DELETE'), hashtext(:id))"
                 ), {"id": str(media_id)})

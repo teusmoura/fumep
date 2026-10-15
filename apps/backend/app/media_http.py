@@ -1,5 +1,6 @@
 """Authenticated migration adapter for the private media library."""
 
+import logging
 import os
 import re
 from datetime import datetime
@@ -63,6 +64,11 @@ class MediaVariantView(BaseModel):
     width: int
     height: int
     size_bytes: int
+
+
+class MediaDeletionView(BaseModel):
+    media_id: UUID
+    status: Literal["REQUESTED"]
 
 
 def _engine(principal: Actor):
@@ -264,6 +270,71 @@ def media_content(media_id: UUID, principal: Actor = Depends(actor),
         raise
     except (SQLAlchemyError, S3Error, ValueError) as error:
         raise HTTPException(status_code=503, detail="Media storage unavailable") from error
+
+
+def _request_deletion(media_id: UUID, principal: Actor, *, retry: bool) -> MediaDeletionView:
+    if retry:
+        require_scope(principal, None)
+    try:
+        with Session(_engine(principal)) as db:
+            row = db.execute(text(
+                "SELECT m.id, m.processing_status, m.deletion_status, mc.institution_id "
+                "FROM media m LEFT JOIN media_categories mc ON mc.id = m.category_id "
+                "WHERE m.id = :id AND m.type IN ('IMAGE', 'DOCUMENT') FOR UPDATE OF m"
+            ), {"id": media_id}).mappings().first()
+            if row is None:
+                raise HTTPException(status_code=404, detail="Media not found")
+            require_scope(principal, row["institution_id"])
+            if row["deletion_status"] == "REQUESTED" and not retry:
+                return MediaDeletionView(media_id=media_id, status="REQUESTED")
+            if row["deletion_status"] != ("FAILED" if retry else "NONE"):
+                raise HTTPException(status_code=409, detail="Media deletion unavailable")
+            blocked = ("PROCESSING_CONFLICT" if row["processing_status"] == "PROCESSING" else
+                       "USAGE_CONFLICT" if db.execute(text(
+                           "SELECT EXISTS (SELECT 1 FROM media_usages WHERE media_id = :id)"
+                       ), {"id": media_id}).scalar_one() else None)
+            if blocked:
+                db.execute(text(
+                    "INSERT INTO audit_logs (user_id, action, entity_type, entity_id, metadata) "
+                    "VALUES (:user_id, 'MEDIA_DELETE_BLOCKED', 'MEDIA', :id, "
+                    "jsonb_build_object('reason', CAST(:reason AS text)))"
+                ), {"user_id": principal.current.id, "id": media_id, "reason": blocked})
+                db.commit()
+                raise HTTPException(status_code=409, detail="Media deletion blocked")
+            db.execute(text(
+                "UPDATE media SET deletion_status = 'REQUESTED', deletion_requested_at = now(), "
+                "deletion_requested_by = :user_id, deletion_attempts = 0, "
+                "deletion_last_attempt_at = NULL, deletion_error_code = NULL WHERE id = :id"
+            ), {"user_id": principal.current.id, "id": media_id})
+            db.execute(text(
+                "INSERT INTO audit_logs (user_id, action, entity_type, entity_id) "
+                "VALUES (:user_id, :action, 'MEDIA', :id)"
+            ), {"user_id": principal.current.id, "id": media_id,
+                "action": "MEDIA_DELETE_RETRY_REQUESTED" if retry else "MEDIA_DELETE_REQUESTED"})
+            db.commit()
+    except HTTPException:
+        raise
+    except SQLAlchemyError as error:
+        logging.exception("Media deletion database operation failed")
+        raise HTTPException(status_code=503, detail="Media deletion unavailable") from error
+    try:
+        MediaQueuePublisher(principal.context.sessions.client).enqueue_delete_media(media_id)
+    except Exception:
+        # The committed intention is recovered by the Worker's PostgreSQL sweep.
+        pass
+    return MediaDeletionView(media_id=media_id, status="REQUESTED")
+
+
+@router.delete("/{media_id}", response_model=MediaDeletionView, status_code=202)
+def request_media_deletion(media_id: UUID, response: Response, principal: Actor = Depends(actor)):
+    response.headers["Cache-Control"] = "no-store"
+    return _request_deletion(media_id, principal, retry=False)
+
+
+@router.post("/{media_id}/deletion/retry", response_model=MediaDeletionView, status_code=202)
+def retry_media_deletion(media_id: UUID, response: Response, principal: Actor = Depends(actor)):
+    response.headers["Cache-Control"] = "no-store"
+    return _request_deletion(media_id, principal, retry=True)
 
 
 @router.post("", response_model=MediaView, status_code=201)

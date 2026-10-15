@@ -37,6 +37,7 @@ const query = ref("");
 const typeFilter = ref("");
 const offset = ref(0);
 const selected = ref<Media | null>(null);
+const retryId = ref("");
 const variants = ref<Variant[]>([]);
 const pageSize = 24;
 const hasNext = computed(() => media.value.length === pageSize);
@@ -180,6 +181,44 @@ async function search(nextOffset = 0) {
     message.value = "Não foi possível carregar a biblioteca.";
   }
 }
+
+async function deleteSelected() {
+  const item = selected.value;
+  if (!item || !window.confirm(`Excluir ${item.original_filename} da biblioteca?`)) return;
+  busy.value = true;
+  message.value = "";
+  try {
+    await request<{ media_id: string; status: "REQUESTED" }>(`/api/v1/admin/media/${item.id}`, {
+      method: "DELETE",
+    });
+    selected.value = null;
+    variants.value = [];
+    await load();
+    message.value = "Exclusão solicitada. O arquivo foi ocultado e será removido pelo Worker.";
+  } catch {
+    message.value = "Não foi possível excluir. O arquivo pode estar em uso ou em processamento.";
+  } finally {
+    busy.value = false;
+  }
+}
+
+async function retryDeletion() {
+  busy.value = true;
+  message.value = "";
+  try {
+    await request<{ media_id: string; status: "REQUESTED" }>(
+      `/api/v1/admin/media/${retryId.value}/deletion/retry`,
+      { method: "POST" },
+    );
+    retryId.value = "";
+    message.value = "Nova tentativa de exclusão solicitada ao Worker.";
+  } catch {
+    message.value =
+      "Não foi possível tentar novamente. Confirme o ID, o estado FAILED e o acesso ADMIN.";
+  } finally {
+    busy.value = false;
+  }
+}
 </script>
 
 <template>
@@ -316,7 +355,30 @@ async function search(nextOffset = 0) {
             <p>
               Identificador para reutilização: <code>{{ selected.id }}</code>
             </p>
+            <button
+              type="button"
+              :disabled="busy || selected.processing_status === 'PROCESSING'"
+              @click="deleteSelected"
+            >
+              Excluir arquivo
+            </button>
           </section>
+          <form class="builder-card builder-fields" @submit.prevent="retryDeletion">
+            <h2>Recuperar exclusão falha — ADMIN</h2>
+            <p>
+              Se uma exclusão falhar, um administrador pode iniciar outro ciclo pelo identificador
+              do arquivo.
+            </p>
+            <label for="media-retry-id">Identificador do arquivo (UUID)</label>
+            <input
+              id="media-retry-id"
+              v-model="retryId"
+              required
+              maxlength="36"
+              pattern="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
+            />
+            <button type="submit" :disabled="busy">Tentar exclusão novamente</button>
+          </form>
         </template>
       </section>
     </main>

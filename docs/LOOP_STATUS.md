@@ -1,5 +1,13 @@
 # LOOP STATUS
 
+## MIG 6-MEDIA — concluído
+
+Biblioteca utilizável no Nuxt/FastAPI local: upload autenticado de imagem/PDF, categorias, busca/seleção, prévia privada, processamento até READY com WEBP/AVIF e exclusão segura. A exclusão registra REQUESTED/auditoria no PostgreSQL antes da fila, oculta a mídia, bloqueia uso ativo ou PROCESSING, remove variantes/original/metadados no Worker com lock e até três tentativas duráveis; falha terminal exige novo pedido ADMIN. Reconciliador recupera jobs perdidos. CORS inclui DELETE. Banco principal e Next/Nest permaneceram intocados.
+
+Aceite: teste PostgreSQL→Redis→Worker→MinIO para recuperação e remoção; suíte backend completa **310 aprovados** com serviços reais; Nuxt typecheck, **36 testes** e build aprovados; Playwright/axe **2 aprovados** com ADMIN efêmero no banco dedicado, PDF e imagem até READY/variantes, prévia e exclusão. `compileall`, `pip check`, ESLint global ignorando apenas `.pytest_cache`, Prettier focado e `git diff --check` aprovados. `pnpm lint` e `pnpm format:check` literais esbarram em `EPERM` ao percorrer caches pytest inacessíveis; a fonte alterada foi verificada separadamente. Aviso transitivo Starlette/httpx sem falha.
+
+Comparação de telas e instruções em `docs/MVP_MEDIA_LIBRARY.md`: faltam no Nuxt edição/exclusão de categoria de mídia, escolha explícita de duplicata, filtro/contagem avançados e logos institucionais do legado. Portanto a biblioteca local está aceita, mas não há declaração de paridade V1 nem autorização para retirar o legado ou migrar `portal_fumep`. Próxima fatia: categorias editoriais e galerias na interface.
+
 ## MIG 6-MEDIA — checkpoint de recuperação do Worker, loop aberto
 
 O Worker Python separado agora reconcilia no início e a cada 60 segundos mídias IMAGE `PENDING`/`PROCESSING` elegíveis no PostgreSQL dedicado. Varredura paginada até 100 registros, lock consultivo compartilhado com o processamento, rechecagem de estado e deduplicação RQ preservam jobs ativos; jobs ausentes, terminais retidos ou entradas órfãs são recriados sem tocar MinIO pela API. A rotina termina antes de fechar Redis/banco. Teste integrado simulou job perdido e lock concorrente, depois executou Worker real até READY e duas variantes no MinIO, com limpeza dos dados de teste. `architecture-guard`: conforme com observação — mesma fila/Worker, banco principal e legado intocados, exclusão ainda não habilitada.

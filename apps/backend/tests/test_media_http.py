@@ -33,7 +33,7 @@ class MemoryStorage:
         assert bucket_name == "portal-private"
         self.objects[object_name] = data.read(length)
 
-    def remove_object(self, *, bucket_name, object_name):
+    def remove_object(self, bucket_name, object_name):
         self.objects.pop(object_name, None)
 
     def get_object(self, bucket_name, object_name):
@@ -82,6 +82,13 @@ def env(monkeypatch):
     finally:
         app.dependency_overrides.clear()
         with engine.begin() as db:
+            db.execute(text("DELETE FROM media_usages WHERE media_id IN "
+                            "(SELECT id FROM media WHERE uploaded_by IN (:admin, :editor))"),
+                       {"admin": admin, "editor": editor})
+            db.execute(text("DELETE FROM audit_logs WHERE user_id IN (:admin, :editor) "
+                            "AND action LIKE 'MEDIA_DELETE%'"), {"admin": admin, "editor": editor})
+            db.execute(text("DELETE FROM audit_logs WHERE user_id IN (:admin, :editor) "
+                            "AND action = 'MEDIA_DELETED'"), {"admin": admin, "editor": editor})
             db.execute(text("DELETE FROM media WHERE uploaded_by IN (:admin, :editor)"), {"admin": admin, "editor": editor})
             db.execute(text("DELETE FROM media_categories WHERE created_by IN (:admin, :editor)"), {"admin": admin, "editor": editor})
             db.execute(text("DELETE FROM user_institutions WHERE user_id = :id"), {"id": editor})
@@ -197,6 +204,118 @@ def test_pdf_validation_and_rejected_upload_do_not_store(env):
     assert content.headers["x-content-type-options"] == "nosniff"
     assert "minio" not in str(content.headers).lower()
     assert client.get(f"{ROOT}/{pdf.json()['id']}/variants").json() == []
+
+
+def test_deletion_request_is_scoped_audited_and_removes_private_object(env):
+    from app.media_deletion import PrivateMediaDeletionStorage
+    from app.media_deletion_postgres import PostgresMediaDeletionProcessor
+
+    client, sessions, engine, own, _, admin, editor, storage, _ = env
+    admin_headers = authorize(client, sessions, admin, "ADMIN")
+    category = client.post(f"{ROOT}/categories", json={
+        "institution_id": str(own), "name": "Delete", "slug": f"delete-{uuid4()}"
+    }, headers=admin_headers)
+    assert category.status_code == 201
+    uploaded = client.post(ROOT, files={"file": ("notice.pdf", b"%PDF-1.7\n%%EOF", "application/pdf")},
+                           data={"category_id": category.json()["id"]}, headers=admin_headers)
+    assert uploaded.status_code == 201, uploaded.text
+    media_id = uploaded.json()["id"]
+    editor_headers = authorize(client, sessions, editor, "EDITOR", [own])
+    assert client.delete(f"{ROOT}/{media_id}", headers={"Origin": ORIGIN}).status_code == 403
+    requested = client.delete(f"{ROOT}/{media_id}", headers=editor_headers)
+    assert requested.status_code == 202, requested.text
+    assert requested.json() == {"media_id": media_id, "status": "REQUESTED"}
+    assert requested.headers["cache-control"] == "no-store"
+    assert client.delete(f"{ROOT}/{media_id}", headers=editor_headers).status_code == 202
+    assert client.get(f"{ROOT}/{media_id}/content").status_code == 404
+    assert all(row["id"] != media_id for row in client.get(ROOT).json())
+    with engine.connect() as db:
+        row = db.execute(text("SELECT storage_key, deletion_status FROM media WHERE id = :id"),
+                         {"id": media_id}).mappings().one()
+        count = db.execute(text("SELECT count(*) FROM audit_logs WHERE entity_id = :id "
+                                "AND action = 'MEDIA_DELETE_REQUESTED'"), {"id": media_id}).scalar_one()
+    assert row["deletion_status"] == "REQUESTED" and row["storage_key"] in storage.objects
+    assert count == 1
+    PostgresMediaDeletionProcessor(engine, PrivateMediaDeletionStorage(storage)).delete(UUID(media_id))
+    assert row["storage_key"] not in storage.objects
+    with engine.connect() as db:
+        assert db.execute(text("SELECT count(*) FROM media WHERE id = :id"), {"id": media_id}).scalar_one() == 0
+        assert db.execute(text("SELECT count(*) FROM audit_logs WHERE entity_id = :id "
+                               "AND action = 'MEDIA_DELETED'"), {"id": media_id}).scalar_one() == 1
+
+
+def test_deletion_rejects_usage_and_processing_and_admin_retries_failed(env):
+    client, sessions, engine, own, _, admin, editor, storage, _ = env
+    admin_headers = authorize(client, sessions, admin, "ADMIN")
+    category = client.post(f"{ROOT}/categories", json={
+        "institution_id": str(own), "name": "Protected", "slug": f"protected-{uuid4()}"
+    }, headers=admin_headers)
+    assert category.status_code == 201
+    editor_headers = authorize(client, sessions, editor, "EDITOR", [own])
+    uploaded = client.post(ROOT, files={"file": ("used.pdf", b"%PDF-1.7\n%%EOF", "application/pdf")},
+                           data={"category_id": category.json()["id"]}, headers=editor_headers)
+    media_id = uploaded.json()["id"]
+    with engine.begin() as db:
+        db.execute(text("INSERT INTO media_usages (media_id, entity_type, entity_id, field_name) "
+                        "VALUES (:id, 'PAGE', :owner, 'hero')"), {"id": media_id, "owner": uuid4()})
+    assert client.delete(f"{ROOT}/{media_id}", headers=editor_headers).status_code == 409
+    with engine.begin() as db:
+        db.execute(text("DELETE FROM media_usages WHERE media_id = :id"), {"id": media_id})
+        db.execute(text("UPDATE media SET processing_status = 'PROCESSING' WHERE id = :id"), {"id": media_id})
+    assert client.delete(f"{ROOT}/{media_id}", headers=editor_headers).status_code == 409
+    with engine.begin() as db:
+        db.execute(text("UPDATE media SET processing_status = 'READY' WHERE id = :id"), {"id": media_id})
+    assert client.delete(f"{ROOT}/{media_id}", headers=editor_headers).status_code == 202
+    with engine.begin() as db:
+        db.execute(text("UPDATE media SET deletion_status = 'FAILED', deletion_attempts = 3, "
+                        "deletion_last_attempt_at = now(), "
+                        "deletion_error_code = 'STORAGE_UNAVAILABLE' WHERE id = :id"), {"id": media_id})
+    assert client.post(f"{ROOT}/{media_id}/deletion/retry", headers=editor_headers).status_code == 403
+    admin_headers = authorize(client, sessions, admin, "ADMIN")
+    assert client.post(f"{ROOT}/{media_id}/deletion/retry", headers=admin_headers).status_code == 202
+    with engine.connect() as db:
+        row = db.execute(text("SELECT deletion_status, deletion_attempts, deletion_error_code "
+                              "FROM media WHERE id = :id"), {"id": media_id}).mappings().one()
+        blocked = db.execute(text("SELECT count(*) FROM audit_logs WHERE entity_id = :id "
+                                  "AND action = 'MEDIA_DELETE_BLOCKED'"), {"id": media_id}).scalar_one()
+    assert row == {"deletion_status": "REQUESTED", "deletion_attempts": 0,
+                   "deletion_error_code": None}
+    assert blocked == 2 and storage.objects
+
+
+def test_deletion_storage_failure_is_bounded_and_admin_retry_recovers(env):
+    from app.media_deletion import PrivateMediaDeletionStorage
+    from app.media_deletion_postgres import PostgresMediaDeletionProcessor
+
+    client, sessions, engine, _, _, admin, _, storage, _ = env
+    headers = authorize(client, sessions, admin, "ADMIN")
+    uploaded = client.post(ROOT, files={"file": ("retry.pdf", b"%PDF-1.7\n%%EOF", "application/pdf")},
+                           headers=headers)
+    assert uploaded.status_code == 201
+    media_id = UUID(uploaded.json()["id"])
+    assert client.delete(f"{ROOT}/{media_id}", headers=headers).status_code == 202
+
+    class UnavailableStorage:
+        def remove_object(self, _bucket, _key):
+            raise OSError("storage unavailable")
+
+    failing = PostgresMediaDeletionProcessor(engine, PrivateMediaDeletionStorage(UnavailableStorage()))
+    for attempt in range(1, 4):
+        with pytest.raises(RuntimeError, match="MEDIA_DELETE_FAILED"):
+            failing.delete(media_id)
+        with engine.connect() as db:
+            row = db.execute(text("SELECT deletion_status, deletion_attempts, deletion_error_code "
+                                  "FROM media WHERE id = :id"), {"id": media_id}).mappings().one()
+        assert row["deletion_attempts"] == attempt
+        assert row["deletion_status"] == ("FAILED" if attempt == 3 else "REQUESTED")
+        assert row["deletion_error_code"] == "STORAGE_UNAVAILABLE"
+        assert storage.objects
+    assert client.post(f"{ROOT}/{media_id}/deletion/retry", headers=headers).status_code == 202
+    PostgresMediaDeletionProcessor(engine, PrivateMediaDeletionStorage(storage)).delete(media_id)
+    assert not storage.objects
+    with engine.connect() as db:
+        assert db.execute(text("SELECT count(*) FROM media WHERE id = :id"),
+                          {"id": media_id}).scalar_one() == 0
 
 
 def test_image_upload_processes_from_http_to_postgres_and_real_minio(env, monkeypatch):
