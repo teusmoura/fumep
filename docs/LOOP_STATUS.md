@@ -1,5 +1,11 @@
 # LOOP STATUS
 
+## MIG 6-MEDIA — checkpoint de integração real, loop aberto
+
+Docker voltou a responder e a stack local PostgreSQL/Redis/MinIO foi iniciada com os três serviços saudáveis. Um teste de aceitação novo executou upload autenticado de imagem via FastAPI, persistência no banco dedicado `portal_fumep_mig58_test`, gravação privada no MinIO, processamento pelo repositório PostgreSQL, duas variantes e leitura do estado READY pela API. Os objetos/variantes de teste são removidos ao final. Os testes isolados de fila e Worker também passaram com Redis DB 15 e MinIO reais; a primeira tentativa falhou por URL de teste apontando para o Redis padrão e foi corrigida apenas na configuração da execução. O banco principal `portal_fumep` não foi alterado.
+
+Checks: suíte Python completa com integrações reais **302 aprovados**, `compileall`, `pip check` e `git diff --check` aprovados. Nuxt e legado não foram alterados; checks JS e E2E não foram repetidos nesta fatia. `architecture-guard`: conforme, com a restrição do banco dedicado mantida. Ainda falta provar a jornada em navegador, reconciliação PENDING, visualização segura de originais/variantes e exclusão durável com controles de uso e Worker. Portanto MIG 6-MEDIA **não está aceito** e `docs/CURRENT_LOOP.md` permanece inalterado.
+
 ## MIG 6-MEDIA — checkpoint de Worker persistente, loop aberto
 
 Partindo do checkpoint `0f7c586` com Git limpo, a API de mídia passou a rejeitar qualquer banco diferente de `portal_fumep_mig58_test` em host local, antes de tocar MinIO; teste cobre banco preexistente e host remoto. O Worker Python separado (`python -m app.media_worker_main`) agora compõe o pipeline isolado existente com um repositório PostgreSQL para claim PROCESSING, upsert idempotente de variantes, READY somente com conjunto completo e FAILED auditado. Um advisory lock por mídia cobre o processamento e é liberado também em falhas. `architecture-guard`: conforme com observação — mantém PostgreSQL/MinIO/Worker separado e não altera o legado, mas ainda falta validação integrada e recuperação da fila.

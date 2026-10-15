@@ -3,7 +3,7 @@
 import os
 from io import BytesIO
 from types import SimpleNamespace
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import fakeredis
 import pytest
@@ -182,3 +182,77 @@ def test_pdf_validation_and_rejected_upload_do_not_store(env):
     assert pdf.status_code == 201, pdf.text
     assert pdf.json()["type"] == "DOCUMENT" and pdf.json()["processing_status"] == "READY"
     assert not queued
+
+
+def test_image_upload_processes_from_http_to_postgres_and_real_minio(env, monkeypatch):
+    """Exercise the migration adapter and persistent processor against private storage."""
+    endpoint = os.getenv("FUMEP_MINIO_TEST_ENDPOINT")
+    access = os.getenv("FUMEP_MINIO_TEST_ACCESS_KEY")
+    secret = os.getenv("FUMEP_MINIO_TEST_SECRET_KEY")
+    if not all((endpoint, access, secret)):
+        pytest.skip("Real MinIO test credentials required")
+
+    from minio import Minio
+    from app import media_http
+    from app.media_pipeline import MediaPipeline
+    from app.media_processing_repository import LockedMediaProcessor, PostgresMediaProcessingRepository
+    from app.media_variants import PrivateVariantStorage
+    from app.media_worker import MediaOriginalProcessor
+    from app.original_image_storage import OriginalImageStorage, PRIVATE_BUCKET
+
+    client, sessions, engine, own, _, admin, _, _, queued = env
+    minio = Minio(endpoint, access_key=access, secret_key=secret,
+                  secure=os.getenv("FUMEP_MINIO_TEST_SECURE", "false") == "true")
+    assert minio.bucket_exists(PRIVATE_BUCKET)
+    monkeypatch.setattr(media_http, "_storage", lambda: minio)
+    headers = authorize(client, sessions, admin, "ADMIN")
+    media_id = None
+    keys = []
+    try:
+        category = client.post(f"{ROOT}/categories", json={
+            "institution_id": str(own), "name": "Integration", "slug": f"integration-{uuid4()}"
+        }, headers=headers)
+        assert category.status_code == 201
+        uploaded = client.post(ROOT, files={"file": ("integration.jpg", jpeg(), "image/jpeg")},
+                               data={"category_id": category.json()["id"], "alt_text": "Fachada"},
+                               headers=headers)
+        assert uploaded.status_code == 201, uploaded.text
+        media_id = uploaded.json()["id"]
+        assert uploaded.json()["processing_status"] == "PENDING"
+        assert queued == [UUID(media_id)]
+
+        repository = PostgresMediaProcessingRepository(engine)
+        originals = OriginalImageStorage(minio)
+        pipeline = MediaPipeline(repository, MediaOriginalProcessor(repository, originals),
+                                 PrivateVariantStorage(minio))
+        result = LockedMediaProcessor(repository, pipeline).process(UUID(media_id))
+        assert (result.width, result.height) == (12, 8)
+        with engine.connect() as db:
+            row = db.execute(text("SELECT storage_key, processing_status, width, height "
+                                  "FROM media WHERE id = :id"), {"id": media_id}).mappings().one()
+            keys = [row["storage_key"]]
+            keys.extend(db.execute(text("SELECT storage_key FROM media_variants WHERE media_id = :id"),
+                                   {"id": media_id}).scalars())
+        assert (row["processing_status"], row["width"], row["height"]) == ("READY", 12, 8)
+        assert len(keys) == 3
+        for key in keys:
+            response = minio.get_object(PRIVATE_BUCKET, key)
+            try:
+                assert response.read()
+            finally:
+                response.close()
+                response.release_conn()
+        listed = client.get(ROOT, params={"q": "Fachada"})
+        assert listed.status_code == 200
+        assert any(item["id"] == media_id and item["processing_status"] == "READY"
+                   for item in listed.json())
+    finally:
+        if media_id is not None:
+            with engine.begin() as db:
+                keys = [db.execute(text("SELECT storage_key FROM media WHERE id = :id"),
+                                   {"id": media_id}).scalar_one()]
+                keys.extend(db.execute(text("SELECT storage_key FROM media_variants WHERE media_id = :id"),
+                                       {"id": media_id}).scalars())
+                db.execute(text("DELETE FROM media_variants WHERE media_id = :id"), {"id": media_id})
+        for key in keys:
+            minio.remove_object(PRIVATE_BUCKET, key)
