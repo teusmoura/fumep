@@ -2,6 +2,7 @@
 
 import os
 from io import BytesIO
+from types import SimpleNamespace
 from uuid import uuid4
 
 import fakeredis
@@ -9,6 +10,7 @@ import pytest
 from fastapi.testclient import TestClient
 from PIL import Image
 from sqlalchemy import text
+from sqlalchemy.engine import make_url
 
 from app.auth_http import AuthContext, auth_context
 from app.admin_access import actor
@@ -92,6 +94,39 @@ def jpeg():
     buffer = BytesIO()
     Image.new("RGB", (12, 8), (200, 30, 20)).save(buffer, format="JPEG")
     return buffer.getvalue()
+
+
+def test_media_http_refuses_unapproved_database_or_remote_host():
+    from app.media_http import _engine
+    from fastapi import HTTPException
+
+    def principal(url):
+        engine = SimpleNamespace(url=make_url(url))
+        return SimpleNamespace(context=SimpleNamespace(users=SimpleNamespace(engine=engine)))
+
+    for url in (
+        "postgresql://u:p@127.0.0.1/portal_fumep",
+        "postgresql://u:p@db.example/portal_fumep_mig58_test",
+    ):
+        with pytest.raises(HTTPException) as rejected:
+            _engine(principal(url))
+        assert rejected.value.status_code == 503
+    local = principal("postgresql://u:p@127.0.0.1/portal_fumep_mig58_test")
+    assert _engine(local) is local.context.users.engine
+
+
+def test_upload_to_unapproved_database_never_contacts_storage(monkeypatch):
+    from app import media_http
+    unsafe_engine = SimpleNamespace(url=make_url("postgresql://u:p@127.0.0.1/portal_fumep"))
+    principal = SimpleNamespace(context=SimpleNamespace(users=SimpleNamespace(engine=unsafe_engine)))
+    app.dependency_overrides[actor] = lambda: principal
+    monkeypatch.setattr(media_http, "_storage", lambda: pytest.fail("Storage must not be contacted"))
+    try:
+        with TestClient(app, base_url=ORIGIN) as client:
+            response = client.post(ROOT, files={"file": ("valid.jpg", jpeg(), "image/jpeg")})
+        assert response.status_code == 503
+    finally:
+        app.dependency_overrides.pop(actor, None)
 
 
 def test_rejects_malformed_and_oversized_upload_before_storage(monkeypatch):

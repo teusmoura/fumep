@@ -55,6 +55,13 @@ class InstitutionView(BaseModel):
     name: str
 
 
+def _engine(principal: Actor):
+    engine = principal.context.users.engine
+    if engine.url.database != "portal_fumep_mig58_test" or engine.url.host not in {"localhost", "127.0.0.1", "::1"}:
+        raise HTTPException(status_code=503, detail="Media migration test database required")
+    return engine
+
+
 def _storage() -> Minio:
     try:
         endpoint = os.environ["MINIO_ENDPOINT"]
@@ -95,7 +102,7 @@ def institutions(response: Response, principal: Actor = Depends(actor)):
     response.headers["Cache-Control"] = "no-store"
     condition = "" if principal.current.role == "ADMIN" else "AND id = ANY(:ids)"
     try:
-        with Session(principal.context.users.engine) as db:
+        with Session(_engine(principal)) as db:
             rows = db.execute(text(
                 "SELECT id, name FROM institutions WHERE is_active = true " + condition + " ORDER BY name, id"
             ), {"ids": list(principal.current.institution_ids)}).mappings()
@@ -109,7 +116,7 @@ def categories(response: Response, principal: Actor = Depends(actor)):
     response.headers["Cache-Control"] = "no-store"
     condition, params = _visible_filter(principal)
     try:
-        with Session(principal.context.users.engine) as db:
+        with Session(_engine(principal)) as db:
             rows = db.execute(text(
                 "SELECT mc.id, mc.institution_id, mc.name, mc.slug, mc.created_at "
                 "FROM media_categories mc WHERE 1=1 " + condition + " ORDER BY mc.name, mc.id"
@@ -126,7 +133,7 @@ def create_category(payload: MediaCategoryInput, response: Response, principal: 
     if not payload.name.strip():
         raise HTTPException(status_code=422, detail="Category name is required")
     try:
-        with Session(principal.context.users.engine) as db:
+        with Session(_engine(principal)) as db:
             row = db.execute(text(
                 "INSERT INTO media_categories (institution_id, name, slug, created_by) "
                 "VALUES (:institution_id, :name, :slug, :created_by) "
@@ -150,7 +157,7 @@ def list_media(response: Response, principal: Actor = Depends(actor),
     condition, params = _visible_filter(principal)
     params.update({"type": type, "category_id": category_id, "q": f"%{q}%", "limit": limit, "offset": offset})
     try:
-        with Session(principal.context.users.engine) as db:
+        with Session(_engine(principal)) as db:
             rows = db.execute(text(
                 "SELECT m.id, m.type, m.original_filename, m.mime_type, m.size_bytes, m.width, m.height, "
                 "m.alt_text, m.caption, m.is_decorative, m.category_id, m.processing_status, "
@@ -190,10 +197,11 @@ async def upload_media(response: Response, file: UploadFile = File(),
             validate_image_upload(original_filename=filename, declared_mime=file.content_type or "", content=content)
     except (InvalidImageUploadError, InvalidPdfUploadError) as error:
         raise HTTPException(status_code=422, detail="Invalid media file") from error
+    engine = _engine(principal)
     storage = _storage()
     key = None
     try:
-        with Session(principal.context.users.engine) as db:
+        with Session(engine) as db:
             _category_scope(db, principal, category_id)
             if is_pdf:
                 stored = OriginalPdfStorage(storage).put_pdf(original_filename=filename, declared_mime=file.content_type or "", content=content)

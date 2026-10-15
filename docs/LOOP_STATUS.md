@@ -1,5 +1,11 @@
 # LOOP STATUS
 
+## MIG 6-MEDIA — checkpoint de Worker persistente, loop aberto
+
+Partindo do checkpoint `0f7c586` com Git limpo, a API de mídia passou a rejeitar qualquer banco diferente de `portal_fumep_mig58_test` em host local, antes de tocar MinIO; teste cobre banco preexistente e host remoto. O Worker Python separado (`python -m app.media_worker_main`) agora compõe o pipeline isolado existente com um repositório PostgreSQL para claim PROCESSING, upsert idempotente de variantes, READY somente com conjunto completo e FAILED auditado. Um advisory lock por mídia cobre o processamento e é liberado também em falhas. `architecture-guard`: conforme com observação — mantém PostgreSQL/MinIO/Worker separado e não altera o legado, mas ainda falta validação integrada e recuperação da fila.
+
+Checks: `compileall`, `pip check` e suíte Python completa — 273 aprovados/27 ignorados — passaram; após o último teste de proteção de banco, focados de mídia — 6 aprovados/3 ignorados. A prova PostgreSQL do novo repositório está preparada, não aprovada. PostgreSQL, Redis e MinIO seguem indisponíveis nas portas locais e o daemon Docker não responde; não se iniciou Worker nem se declarou READY real. Nuxt/legado não foram alterados, portanto seus checks não foram repetidos. Ainda faltam reconciliação PENDING, proxy seguro de variantes, exclusão durável, jornada Playwright/axe e comparação Next. `docs/CURRENT_LOOP.md` permanece em MIG 6-MEDIA.
+
 ## MIG 6-MEDIA — checkpoint de integração, loop aberto
 
 Estado inicial: primeira jornada de página concluída em `6f3bb06`, Git limpo. Foram adicionados endpoints FastAPI autenticados para criar/listar categorias de mídia, listar arquivos com busca/filtro/paginação e receber imagem/PDF validado em MinIO privado com metadados PostgreSQL; a imagem fica PENDING e publica `PROCESS_MEDIA` depois do commit, enquanto PDF validado fica READY. A tela Nuxt `/admin/media` oferece login, categoria, upload, busca/lista e seleção por ID. A implementação usa sessão/CSRF existentes e escopo institucional; não toca em `portal_fumep` nem remove Next/Nest. `architecture-guard`: conforme com observação — sem URL interna do MinIO exposta, mas a paridade e a jornada de mídia ainda não foram aceitas.
