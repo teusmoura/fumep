@@ -16,12 +16,15 @@ type Media = {
   created_at: string;
 };
 type Variant = { format: "WEBP" | "AVIF"; width: number; height: number; size_bytes: number };
+type DemoProfile = { id: string; label: string };
 
 useHead({ title: "Biblioteca de Mídia — Portal FUMEP" });
 const apiBase = useRuntimeConfig().public.apiBase;
 const email = ref("");
 const password = ref("");
 const csrf = ref("");
+const role = ref("");
+const demoProfiles = ref<DemoProfile[]>([]);
 const busy = ref(false);
 const message = ref("");
 const institutions = ref<Institution[]>([]);
@@ -89,13 +92,45 @@ async function chooseMedia(item: Media) {
 
 onMounted(async () => {
   try {
-    const session = await request<{ csrf_token: string }>("/api/v1/admin/session");
+    demoProfiles.value = await request<DemoProfile[]>("/api/v1/auth/demo-profiles");
+  } catch {
+    // Production and ordinary development do not expose password-free demo login.
+  }
+  try {
+    const session = await request<{ csrf_token: string; role: string }>("/api/v1/auth/session");
     csrf.value = session.csrf_token;
+    role.value = session.role;
     await load();
   } catch {
     csrf.value = "";
+    role.value = "";
   }
 });
+
+async function demoLogin(profile: string) {
+  busy.value = true;
+  message.value = "";
+  try {
+    const result = await request<{ csrf_token: string }>("/api/v1/auth/demo-login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ profile }),
+    });
+    csrf.value = result.csrf_token;
+    role.value = profile === "admin" ? "ADMIN" : "EDITOR";
+    institutionId.value = "";
+    categoryId.value = "";
+    selected.value = null;
+    variants.value = [];
+    offset.value = 0;
+    await load();
+    message.value = `Perfil de demonstração ativo: ${demoProfiles.value.find((item) => item.id === profile)?.label ?? profile}.`;
+  } catch {
+    message.value = "Não foi possível ativar o perfil de demonstração local.";
+  } finally {
+    busy.value = false;
+  }
+}
 
 async function login() {
   busy.value = true;
@@ -107,6 +142,8 @@ async function login() {
       body: JSON.stringify({ email: email.value, password: password.value }),
     });
     csrf.value = result.csrf_token;
+    const session = await request<{ role: string }>("/api/v1/auth/session");
+    role.value = session.role;
     await load();
   } catch {
     message.value = "Não foi possível entrar. Confira credenciais e disponibilidade da API.";
@@ -234,6 +271,27 @@ async function retryDeletion() {
           Arquivos enviados ao armazenamento privado e registrados no PostgreSQL.
         </p>
         <p v-if="message" role="status">{{ message }}</p>
+        <section
+          v-if="demoProfiles.length"
+          class="builder-card builder-fields"
+          aria-labelledby="demo-login-title"
+        >
+          <h2 id="demo-login-title">Acesso de demonstração local</h2>
+          <p>
+            Escolha um perfil para testar as permissões reais. Disponível somente no banco local de
+            demonstração.
+          </p>
+          <button
+            v-for="profile in demoProfiles"
+            :key="profile.id"
+            type="button"
+            :disabled="busy"
+            @click="demoLogin(profile.id)"
+          >
+            Entrar como {{ profile.label }}
+          </button>
+          <p v-if="csrf">Perfil ativo: {{ role }}</p>
+        </section>
         <form v-if="!csrf" class="builder-card builder-fields" @submit.prevent="login">
           <h2>Entrar</h2>
           <label for="media-email">E-mail</label
@@ -363,7 +421,11 @@ async function retryDeletion() {
               Excluir arquivo
             </button>
           </section>
-          <form class="builder-card builder-fields" @submit.prevent="retryDeletion">
+          <form
+            v-if="role === 'ADMIN'"
+            class="builder-card builder-fields"
+            @submit.prevent="retryDeletion"
+          >
             <h2>Recuperar exclusão falha — ADMIN</h2>
             <p>
               Se uma exclusão falhar, um administrador pode iniciar outro ciclo pelo identificador

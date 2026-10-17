@@ -11,6 +11,23 @@ test("biblioteca mostra login acessível", async ({ page }) => {
   expect(report.violations).toEqual([]);
 });
 
+test("perfis locais alternam entre ADMIN e EDITOR com escopo real", async ({ page }) => {
+  test.skip(process.env.FUMEP_LOCAL_DEMO_LOGIN !== "1", "Demo login local desabilitado");
+  await page.goto("/admin/media");
+  await page.getByRole("button", { name: "Entrar como Editor ETMSL" }).click();
+  await expect(page.getByText("Perfil ativo: EDITOR")).toBeVisible();
+  await expect(page.locator("#media-institution option")).toHaveCount(1);
+  await expect(page.getByRole("heading", { name: /Recuperar exclusão falha/ })).toHaveCount(0);
+  await page.getByRole("button", { name: "Entrar como Administrador" }).click();
+  await expect(page.getByText("Perfil ativo: ADMIN")).toBeVisible();
+  await expect.poll(() => page.locator("#media-institution option").count()).toBeGreaterThan(1);
+  await expect(page.getByRole("heading", { name: /Recuperar exclusão falha/ })).toBeVisible();
+  const report = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a"])
+    .analyze();
+  expect(report.violations).toEqual([]);
+});
+
 test("ADMIN usa PDF e imagem processada na biblioteca", async ({ page }) => {
   const email = process.env.MIG6_E2E_EMAIL;
   const password = process.env.MIG6_E2E_PASSWORD;

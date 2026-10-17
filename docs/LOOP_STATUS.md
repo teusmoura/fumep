@@ -1,5 +1,11 @@
 # LOOP STATUS
 
+## MIG 6-EDITORIAL — checkpoint de acesso local para comparação de perfis, loop aberto
+
+A pedido do responsável, `/admin/media` ganhou entrada de demonstração por um clique como ADMIN ou EDITOR de FUMEP, ETMSL e CRAMAM. A API só habilita o recurso com `FUMEP_LOCAL_DEMO_LOGIN=1`, cliente loopback, origem `http://localhost:3002`, PostgreSQL local **exatamente** `portal_fumep_mig58_test` e Redis local; fora disso retorna 404. Contas próprias de demonstração recebem senha aleatória não exposta, sessão Redis/cookie HttpOnly e autorização normal do backend. A sessão anterior é invalidada ao alternar. A Biblioteca agora usa a sessão geral para permitir EDITOR com escopo real; a recuperação de exclusão ADMIN não é exibida ao EDITOR. Sem alteração no banco principal, sem credenciais no Git e sem login sem senha em produção. `architecture-guard`: conforme com observação — exceção controlada somente para demonstração local, não é fluxo de autenticação V1.
+
+Checks: backend completo com PostgreSQL/Redis/MinIO locais **312 aprovados**; após reforçar os casos de segurança, testes focados de autenticação **9 aprovados**. Nuxt typecheck, **36 testes** e build aprovados. Playwright/axe no Chrome: alternância ADMIN/EDITOR **1 aprovado** em 3002; regressão de mídia temporária **2 aprovados, 1 ignorado** (demo indisponível intencionalmente em 3004). Prettier focado, ESLint global com exclusão somente de `.pytest_cache` e `git diff --check` aprovados. `pnpm lint` literal falhou por `EPERM` ao percorrer `.pytest_cache`, sem erro de fonte; aviso transitivo Starlette/httpx. MIG 6-EDITORIAL continua aberto para as jornadas de categorias editoriais e galerias; `docs/CURRENT_LOOP.md` não avança.
+
 ## MIG 6-MEDIA — concluído
 
 Biblioteca utilizável no Nuxt/FastAPI local: upload autenticado de imagem/PDF, categorias, busca/seleção, prévia privada, processamento até READY com WEBP/AVIF e exclusão segura. A exclusão registra REQUESTED/auditoria no PostgreSQL antes da fila, oculta a mídia, bloqueia uso ativo ou PROCESSING, remove variantes/original/metadados no Worker com lock e até três tentativas duráveis; falha terminal exige novo pedido ADMIN. Reconciliador recupera jobs perdidos. CORS inclui DELETE. Banco principal e Next/Nest permaneceram intocados.
