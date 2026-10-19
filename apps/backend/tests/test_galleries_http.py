@@ -36,7 +36,8 @@ def gallery_env():
         pytest.fail("Gallery integration requires the dedicated test database")
     engine = database_engine(url)
     own, foreign, admin, editor = [uuid4() for _ in range(4)]
-    media = {name: uuid4() for name in ("first", "second", "pending", "document", "deleting")}
+    media = {name: uuid4() for name in ("first", "second", "pending", "document", "deleting", "foreign")}
+    categories = {"own": uuid4(), "foreign": uuid4()}
     with engine.begin() as db:
         for id_ in (own, foreign):
             db.execute(text("INSERT INTO institutions (id, name, slug) VALUES (:id, 'Gallery Test', :slug)"), {"id": id_, "slug": f"gallery-test-{id_}"})
@@ -47,15 +48,22 @@ def gallery_env():
                 {"id": id_, "email": f"gallery-test-{id_}@example.invalid", "role": role},
             )
         db.execute(text("INSERT INTO user_institutions (user_id, institution_id) VALUES (:user_id, :institution_id)"), {"user_id": editor, "institution_id": own})
+        for scope, institution_id in (("own", own), ("foreign", foreign)):
+            db.execute(text(
+                "INSERT INTO media_categories (id, institution_id, name, slug) "
+                "VALUES (:id, :institution_id, :name, :slug)"
+            ), {"id": categories[scope], "institution_id": institution_id,
+                "name": "Gallery Test", "slug": f"gallery-test-{categories[scope]}"})
         for name, id_ in media.items():
             deleting = name == "deleting"
             db.execute(
-                text("INSERT INTO media (id, type, original_filename, stored_filename, mime_type, size_bytes, storage_key, checksum_sha256, processing_status, deletion_status, deletion_requested_at) "
-                     "VALUES (:id, :type, :filename, :filename, :mime, 1, :key, :checksum, :processing, :deletion, :requested_at)"),
+                text("INSERT INTO media (id, type, original_filename, stored_filename, mime_type, size_bytes, storage_key, checksum_sha256, category_id, processing_status, deletion_status, deletion_requested_at) "
+                     "VALUES (:id, :type, :filename, :filename, :mime, 1, :key, :checksum, :category_id, :processing, :deletion, :requested_at)"),
                 {
                     "id": id_, "type": "DOCUMENT" if name == "document" else "IMAGE",
                     "filename": f"{name}.jpg", "mime": "application/pdf" if name == "document" else "image/jpeg",
                     "key": f"gallery-test/{id_}", "checksum": id_.hex * 2,
+                    "category_id": categories["foreign" if name == "foreign" else "own"],
                     "processing": "PENDING" if name == "pending" else "READY",
                     "deletion": "REQUESTED" if deleting else "NONE",
                     "requested_at": datetime.now(timezone.utc) if deleting else None,
@@ -88,6 +96,7 @@ def gallery_env():
             db.execute(text("DELETE FROM galleries WHERE created_by IN (:admin, :editor)"), {"admin": admin, "editor": editor})
             for id_ in media.values():
                 db.execute(text("DELETE FROM media WHERE id = :id"), {"id": id_})
+            db.execute(text("DELETE FROM media_categories WHERE id IN (:own, :foreign)"), categories)
             db.execute(text("DELETE FROM user_institutions WHERE user_id = :id"), {"id": editor})
             db.execute(text("DELETE FROM users WHERE id IN (:admin, :editor)"), {"admin": admin, "editor": editor})
             db.execute(text("DELETE FROM institutions WHERE id IN (:own, :foreign)"), {"own": own, "foreign": foreign})
@@ -166,6 +175,7 @@ def test_gallery_rejects_foreign_scope_and_unselectable_media(gallery_env):
     for name in ("pending", "document", "deleting"):
         rejected = client.post(f"{ROOT}/{gallery_id}/items", json={"media_id": str(media[name]), "alt_text": "Alt", "caption": None}, headers=headers)
         assert rejected.status_code == 409, (name, rejected.text)
+    assert client.post(f"{ROOT}/{gallery_id}/items", json={"media_id": str(media["foreign"]), "alt_text": "Alt", "caption": None}, headers=headers).status_code == 403
     assert client.post(f"{ROOT}/{gallery_id}/items", json={"media_id": str(media["first"]), "alt_text": "   ", "caption": None}, headers=headers).status_code == 422
     assert client.get(f"{ROOT}/{gallery_id}/items").json() == []
     assert client.get(f"{ROOT}/{gallery_id}/feed").json()["items"] == []

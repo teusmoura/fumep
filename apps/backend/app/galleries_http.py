@@ -185,6 +185,14 @@ def create_item(gallery_id: UUID, payload: ItemCreate, response: Response, princ
     try:
         with Session(_engine(principal)) as db:
             gallery = _gallery(db, gallery_id, principal, write=True)
+            if principal.current.role != "ADMIN":
+                media_scope = db.execute(text(
+                    "SELECT mc.institution_id FROM media m "
+                    "LEFT JOIN media_categories mc ON mc.id = m.category_id "
+                    "WHERE m.id = :media_id"
+                ), {"media_id": payload.media_id}).scalar_one_or_none()
+                if media_scope is None or media_scope != gallery.institution_id:
+                    raise HTTPException(status_code=403, detail="Media institution access denied")
             item = add_item(db, gallery, **payload.model_dump())
             db.commit()
             db.refresh(item)

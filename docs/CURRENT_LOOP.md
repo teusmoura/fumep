@@ -30,14 +30,15 @@
 - MIG 5.8 — PageTemplate integrado: concluído no banco de teste dedicado, com validação dos 23 blocos, CRUD ADMIN e cópia independente para Page DRAFT; evidências em `docs/LOOP_STATUS.md`.
 - MIG 6 — primeira jornada de página Nuxt/FastAPI: aceita no banco de demonstração com Playwright/axe, sem paridade V1.
 - MIG 6-MEDIA — Biblioteca de Mídia integrada em FastAPI/Nuxt: concluída no banco local dedicado, inclusive Worker, exclusão, Playwright/axe; diferenças para o Next registradas em `docs/MVP_MEDIA_LIBRARY.md`.
-- **MIG 6-EDITORIAL — categorias editoriais e galerias utilizáveis no Nuxt: loop atual.**
+- MIG 6-EDITORIAL — categorias editoriais e galerias utilizáveis no Nuxt: concluído, com jornada Playwright/axe no banco dedicado.
+- **MIG 6-GALLERY-FEED — bloco público conectado à galeria real: loop atual.**
 
-## MIG 6-EDITORIAL — categorias editoriais e galerias na interface (atual)
+## MIG 6-GALLERY-FEED — bloco público conectado à galeria real (atual)
 
-Conectar ao Nuxt os catálogos FastAPI/PostgreSQL já aceitos de categoria editorial e galeria. Entregar jornadas de navegador para criar/consultar/editar/excluir categoria e galeria, gerenciar itens ordenados com imagens READY da Biblioteca e visualizar a projeção do `GALLERY_FEED`. Manter sessão/CSRF, autorização institucional no backend, estados de erro, testes proporcionais e Playwright/axe. Os testes devem mostrar uma jornada persistida completa no banco dedicado, não apenas contratos. Não antecipar artigos, estágio, busca, publicação de feeds ou retirada do legado.
+Conectar o bloco `GALLERY_FEED` de uma página publicada à galeria e às imagens READY reais, sem duplicar os itens no `ContentBlock`. Entregar consulta pública segura por instituição/slug, projeção sanitizada dos itens ordenados e renderização Nuxt SSR acessível, inclusive textos alternativos. Aceite: ADMIN cria galeria e página com o bloco, publica, e um navegador anônimo visualiza imagens/ordem reais; alteração posterior da galeria segue a regra canônica de atualização do feed, com testes de isolamento institucional, mídia indisponível, API, Playwright/axe e checks aplicáveis. Se houver conflito entre snapshot da página e feed dinâmico, consultar o documento especializado e registrar decisão antes de implementá-lo.
 
-O editor `/builder-demo` permanece fixture; a jornada real de páginas está em `/admin/pages` e a Biblioteca em `/admin/media`. A base preexistente `portal_fumep` segue bloqueada para migrations Python porque contém `page_templates` não versionada; manter testes no banco dedicado até auditoria/adopção explícita. Next/Nest permanecem congelados como referência até paridade testada ou nova decisão explícita do responsável.
+A administração das galerias já funciona em `/admin/editorial` e a Biblioteca em `/admin/media`; reutilizar esses fluxos. Não antecipar artigos, estágio, busca, migração do banco preexistente nem retirada do Next/Nest. `portal_fumep` segue bloqueado para migrations Python até auditoria/adopção explícita; usar apenas o banco dedicado.
 
 ## Próximo loop
 
-**MIG 6 — próximos módulos editoriais e integração pública**, após aceite das categorias/galerias na interface. Definir sua fronteira funcional com base no plano canônico e nas lacunas restantes, sem retirar o legado nem tocar no banco preexistente sem decisão explícita.
+**MIG 6 — próximo módulo editorial**, a definir após aceite do `GALLERY_FEED` público, com base nas lacunas restantes do plano canônico e sem tocar no banco preexistente ou retirar o legado sem decisão explícita.

@@ -1,5 +1,13 @@
 # LOOP STATUS
 
+## MIG 6-EDITORIAL — concluído
+
+Categorias editoriais e galerias FastAPI/PostgreSQL agora são utilizáveis em `/admin/editorial`: CRUD, seleção de imagens READY da Biblioteca, inclusão/edição/remoção/ordenação de itens e prévia autenticada `GALLERY_FEED`. A tela preserva sessão/CSRF e mostra estados de erro/recarregamento; autorização institucional permanece no backend. O endpoint de inclusão de item passou a rejeitar mídia de outra instituição para EDITOR. O teste de navegador comprovou persistência após reload, ciclo completo e ausência de violações axe nas regras verificadas. Instruções em `docs/MVP_EDITORIAL.md`.
+
+Checks: backend completo com PostgreSQL/Redis/MinIO locais **313 aprovados** (1 aviso transitivo Starlette/httpx); teste HTTP focado de galeria **3 aprovados**. Nuxt typecheck, **36 testes** e build aprovados. Playwright/axe editorial **1 aprovado**; regressão da Biblioteca **2 aprovados, 1 ignorado** (perfil demo intencionalmente indisponível na porta temporária). ESLint global ignorando somente `.pytest_cache`, Prettier dos arquivos Vue/TS alterados e `git diff --check` aprovados. `pnpm lint` literal não conseguiu percorrer `.pytest_cache` por `EPERM`; a execução equivalente com cache ignorado passou. Checks legados Next/Nest não repetidos porque não foram alterados.
+
+Aceite cumprido no banco local dedicado. Não há publicação pública do feed, artigos, estágio, paridade V1 nem autorização para migrar `portal_fumep` ou retirar o legado. `architecture-guard`: conforme com observação — prévia autenticada não deve ser apresentada como portal público. Próximo loop: integração pública do bloco `GALLERY_FEED` em uma página publicada.
+
 ## MIG 6-EDITORIAL — checkpoint de acesso local para comparação de perfis, loop aberto
 
 A pedido do responsável, `/admin/media` ganhou entrada de demonstração por um clique como ADMIN ou EDITOR de FUMEP, ETMSL e CRAMAM. A API só habilita o recurso com `FUMEP_LOCAL_DEMO_LOGIN=1`, cliente loopback, origem `http://localhost:3002`, PostgreSQL local **exatamente** `portal_fumep_mig58_test` e Redis local; fora disso retorna 404. Contas próprias de demonstração recebem senha aleatória não exposta, sessão Redis/cookie HttpOnly e autorização normal do backend. A sessão anterior é invalidada ao alternar. A Biblioteca agora usa a sessão geral para permitir EDITOR com escopo real; a recuperação de exclusão ADMIN não é exibida ao EDITOR. Sem alteração no banco principal, sem credenciais no Git e sem login sem senha em produção. `architecture-guard`: conforme com observação — exceção controlada somente para demonstração local, não é fluxo de autenticação V1.

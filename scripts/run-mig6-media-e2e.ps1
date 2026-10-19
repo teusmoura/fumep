@@ -1,4 +1,5 @@
-# Runs the media browser journey against disposable local migration services.
+# Runs media or editorial browser journeys against disposable local migration services.
+param([switch]$Editorial)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $pairs = @{}
@@ -65,6 +66,8 @@ with engine.begin() as db:
         keys.extend(db.execute(text("SELECT storage_key FROM media WHERE uploaded_by = :uid"), {"uid": uid}).scalars())
         keys.extend(db.execute(text("SELECT v.storage_key FROM media_variants v JOIN media m ON m.id = v.media_id WHERE m.uploaded_by = :uid"), {"uid": uid}).scalars())
         db.execute(text("DELETE FROM media_usages WHERE media_id IN (SELECT id FROM media WHERE uploaded_by = :uid)"), {"uid": uid})
+        db.execute(text("DELETE FROM galleries WHERE created_by = :uid"), {"uid": uid})
+        db.execute(text("DELETE FROM categories WHERE created_by = :uid"), {"uid": uid})
         db.execute(text("DELETE FROM audit_logs WHERE user_id = :uid OR entity_id IN (SELECT id FROM media WHERE uploaded_by = :uid)"), {"uid": uid})
         db.execute(text("DELETE FROM media WHERE uploaded_by = :uid"), {"uid": uid})
         db.execute(text("DELETE FROM media_categories WHERE created_by = :uid"), {"uid": uid})
@@ -100,7 +103,11 @@ try {
     if (-not $ready) { throw 'Serviços locais do E2E não iniciaram.' }
     Push-Location $portal
     try {
-        pnpm test:e2e e2e/media-library.e2e.ts
+        if ($Editorial) {
+            pnpm test:e2e e2e/editorial.e2e.ts
+        } else {
+            pnpm test:e2e e2e/media-library.e2e.ts
+        }
         if ($LASTEXITCODE -ne 0) { throw "E2E falhou ($LASTEXITCODE)." }
     } finally { Pop-Location }
 } finally {

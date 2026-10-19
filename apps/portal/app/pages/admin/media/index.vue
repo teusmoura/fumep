@@ -263,6 +263,7 @@ async function retryDeletion() {
     <a class="skip-link" href="#media-main">Ir para o conteúdo</a>
     <header class="builder-header">
       <NuxtLink to="/">FUMEP</NuxtLink><span>Biblioteca de Mídia · migração</span>
+      <NuxtLink to="/admin/editorial">Categorias e galerias</NuxtLink>
     </header>
     <main id="media-main" class="builder-layout">
       <section>
