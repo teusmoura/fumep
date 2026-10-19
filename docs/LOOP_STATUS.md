@@ -1,5 +1,13 @@
 # LOOP STATUS
 
+## MIG 6-GALLERY-FEED — concluído
+
+Página publicada aceita `TEXT` e `GALLERY_FEED`: `PageVersion` preserva somente configuração do bloco e a API pública consulta itens reais ordenados, limitados, prontos e no escopo institucional. Imagens privadas são servidas sem sessão apenas quando pertencem a um bloco visível de página publicada, com leitura limitada, `no-store` e sem chave MinIO. Nuxt SSR renderiza lista acessível com texto alternativo/legenda; o editor de páginas permite adicionar/configurar o bloco. Publicação recusa itens indisponíveis ou fora do escopo. Edição posterior da galeria aparece na próxima leitura, sem alterar o snapshot. Instruções em `docs/MVP_GALLERY_FEED.md`.
+
+Aceite: teste API cobre página não publicada, escopo estrangeiro, projeção sem chave interna, atualização dinâmica, mídia indisponível e imagem não referenciada. Playwright/axe com PostgreSQL→Redis→Worker→MinIO comprovou upload de duas imagens READY, galeria ordenada, publicação e leitura anônima SSR/arquivos, seguida de edição do alt refletida na página pública (**1 aprovado**). Regressão de página de texto/axe **2 aprovados**. Backend completo com integrações locais **314 aprovados** (1 aviso transitivo Starlette/httpx); Nuxt typecheck, **37 testes** e build aprovados; `compileall`, `pip check`, ESLint global ignorando somente `.pytest_cache`, Prettier focado e `git diff --check` aprovados. `pnpm lint` literal falhou por `EPERM` no cache pytest, sem falha de fonte; teste Nuxt no sandbox encontrou `ENOENT` temporário, mas passou integralmente fora desse isolamento. Contrato OpenAPI atualizado após o novo endpoint.
+
+`architecture-guard`: conforme com observação — feed dinâmico sem cópia em snapshot, sessão/CSRF administrativos mantidos, MinIO privado e banco preexistente/legado intocados. Este é MVP local sem cache, busca, artigos ou paridade V1. Próximo loop: primeira notícia publicável end-to-end.
+
 ## MIG 6-EDITORIAL — concluído
 
 Categorias editoriais e galerias FastAPI/PostgreSQL agora são utilizáveis em `/admin/editorial`: CRUD, seleção de imagens READY da Biblioteca, inclusão/edição/remoção/ordenação de itens e prévia autenticada `GALLERY_FEED`. A tela preserva sessão/CSRF e mostra estados de erro/recarregamento; autorização institucional permanece no backend. O endpoint de inclusão de item passou a rejeitar mídia de outra instituição para EDITOR. O teste de navegador comprovou persistência após reload, ciclo completo e ausência de violações axe nas regras verificadas. Instruções em `docs/MVP_EDITORIAL.md`.

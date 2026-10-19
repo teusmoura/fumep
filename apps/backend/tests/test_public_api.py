@@ -70,6 +70,7 @@ def test_openapi_exposes_public_and_authentication_contracts() -> None:
         "/api/v1/admin/media/{media_id}",
         "/api/v1/admin/media/{media_id}/deletion/retry",
         "/api/v1/public/institutions/{institution_slug}/pages/{page_slug}",
+        "/api/v1/public/institutions/{institution_slug}/pages/{page_slug}/gallery-media/{media_id}",
     }
     schema = document["components"]["schemas"]["PublicInstitutionTheme"]
     assert "password" not in str(schema).lower()

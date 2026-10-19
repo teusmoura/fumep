@@ -152,9 +152,22 @@ def publish_page(page_id: UUID, response: Response, principal: Actor = Depends(a
             if not draft.blocks:
                 raise HTTPException(status_code=409, detail="Page requires content before publication")
             validate_snapshot(draft.blocks)
-            if any(block.type != "TEXT" for block in draft.blocks):
-                raise HTTPException(status_code=409, detail="Experimental public renderer supports TEXT blocks only")
+            if any(block.type not in {"TEXT", "GALLERY_FEED"} for block in draft.blocks):
+                raise HTTPException(status_code=409, detail="Experimental public renderer supports TEXT and GALLERY_FEED only")
             validate_references(db, draft.blocks, page.institution_id)
+            for block in draft.blocks:
+                if block.type != "GALLERY_FEED" or not block.isVisible:
+                    continue
+                invalid = db.scalar(text(
+                    "SELECT count(*) FROM gallery_items gi JOIN media m ON m.id = gi.media_id "
+                    "LEFT JOIN media_categories mc ON mc.id = m.category_id "
+                    "WHERE gi.gallery_id = :gallery_id AND "
+                    "(m.type != 'IMAGE' OR m.processing_status != 'READY' OR "
+                    "m.deletion_status != 'NONE' OR length(trim(gi.alt_text)) = 0 OR "
+                    "(mc.institution_id IS NOT NULL AND mc.institution_id != :institution_id))"
+                ), {"gallery_id": block.data["galleryId"], "institution_id": page.institution_id})
+                if invalid:
+                    raise HTTPException(status_code=409, detail="Gallery contains unavailable or out-of-scope media")
             version_number = db.scalar(text(
                 "SELECT COALESCE(MAX(version_number), 0) + 1 FROM page_versions WHERE page_id = :id"
             ), {"id": page_id})

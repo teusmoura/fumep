@@ -10,13 +10,32 @@ export interface TextBlock {
   data: { title: string; body: string };
 }
 
+export interface GalleryBlock {
+  id: string;
+  type: "GALLERY_FEED";
+  position: number;
+  isVisible: boolean;
+  schemaVersion: 1;
+  background: "DEFAULT";
+  backgroundMediaId: null;
+  anchor: string | null;
+  data: { galleryId: string; title: string; limit: number };
+}
+
+export type PageBlock = TextBlock | GalleryBlock;
+export interface PublicGalleryItem {
+  media_id: string;
+  alt_text: string;
+  caption: string | null;
+}
+
 export interface PageDraft {
   id: string;
   institution_id: string;
   title: string;
   slug: string;
   status: string;
-  blocks: TextBlock[];
+  blocks: PageBlock[];
 }
 
 export interface InstitutionChoice {
@@ -39,7 +58,8 @@ export interface PublicPage {
   title: string;
   slug: string;
   version_number: number;
-  blocks: TextBlock[];
+  blocks: PageBlock[];
+  gallery_feeds: Record<string, PublicGalleryItem[]>;
 }
 
 export function newTextBlock(
@@ -60,6 +80,20 @@ export function newTextBlock(
   };
 }
 
-export function normalizeTextBlocks(blocks: TextBlock[]): TextBlock[] {
+export function newGalleryBlock(position: number, galleryId: string): GalleryBlock {
+  return {
+    id: crypto.randomUUID(),
+    type: "GALLERY_FEED",
+    position,
+    isVisible: true,
+    schemaVersion: 1,
+    background: "DEFAULT",
+    backgroundMediaId: null,
+    anchor: null,
+    data: { galleryId, title: "Galeria", limit: 10 },
+  };
+}
+
+export function normalizeTextBlocks(blocks: PageBlock[]): PageBlock[] {
   return blocks.map((block, position) => ({ ...block, position }));
 }

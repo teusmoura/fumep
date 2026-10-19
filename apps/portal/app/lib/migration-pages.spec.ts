@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { newTextBlock, normalizeTextBlocks } from "./migration-pages";
+import { newGalleryBlock, newTextBlock, normalizeTextBlocks } from "./migration-pages";
 
 describe("migration page text blocks", () => {
   it("creates independent versioned blocks for real draft requests", () => {
@@ -20,6 +20,16 @@ describe("migration page text blocks", () => {
     expect(normalizeTextBlocks([second, first]).map(({ id, position }) => [id, position])).toEqual([
       [second.id, 0],
       [first.id, 1],
+    ]);
+  });
+
+  it("keeps a gallery reference and ordered mixed page blocks without copying items", () => {
+    const gallery = newGalleryBlock(1, "gallery-123");
+    const text = newTextBlock(0);
+    expect(gallery.data).toEqual({ galleryId: "gallery-123", title: "Galeria", limit: 10 });
+    expect(normalizeTextBlocks([gallery, text]).map((item) => [item.type, item.position])).toEqual([
+      ["GALLERY_FEED", 0],
+      ["TEXT", 1],
     ]);
   });
 });

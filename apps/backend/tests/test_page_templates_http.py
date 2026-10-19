@@ -115,6 +115,9 @@ def template_env():
             db.execute(text("DELETE FROM media_usages WHERE entity_type = 'PAGE_TEMPLATE' AND entity_id IN "
                             "(SELECT id FROM page_templates WHERE created_by = :admin)"), {"admin": admin})
             db.execute(text("DELETE FROM page_templates WHERE created_by = :admin"), {"admin": admin})
+            db.execute(text("DELETE FROM media_usages WHERE entity_type = 'GALLERY_ITEM' AND entity_id IN "
+                            "(SELECT id FROM gallery_items WHERE gallery_id IN (:one, :two))"),
+                       {"one": gallery, "two": foreign_gallery})
             db.execute(text("DELETE FROM galleries WHERE id IN (:one, :two)"), {"one": gallery, "two": foreign_gallery})
             db.execute(text("DELETE FROM categories WHERE id IN (:one, :two)"), {"one": category, "two": foreign_category})
             for id_ in media.values():
@@ -364,6 +367,64 @@ def test_experimental_publish_rejects_unrenderable_blocks(template_env):
     editor_headers = authorize(client, sessions, tokens, editor, "EDITOR", [own])
     assert client.get("/api/v1/admin/page-institutions").status_code == 403
     assert client.post(f"{PAGES}/{page_id}/publish", headers=editor_headers).status_code == 409
+
+
+def test_public_gallery_feed_uses_live_items_and_hides_unavailable_media(template_env):
+    client, engine, sessions, tokens, own, foreign, admin, _, _, _, gallery, foreign_gallery, media = template_env
+    headers = authorize(client, sessions, tokens, admin, "ADMIN")
+    slug = f"gallery-public-{uuid4()}"
+    public_path = f"/api/v1/public/institutions/template-test-{own}/pages/{slug}"
+    created = client.post(ROOT, json={
+        "institution_id": str(own), "name": "Gallery page", "blocks_snapshot": [
+            block("TEXT", 0, {"title": "Intro", "body": "Gallery follows"}),
+            block("GALLERY_FEED", 1, {"galleryId": str(gallery), "title": "Fotos", "limit": 1}),
+        ],
+    }, headers=headers)
+    assert created.status_code == 201, created.text
+    page = client.post(f"{ROOT}/{created.json()['id']}/apply", json={
+        "institution_id": str(own), "title": "Photos", "slug": slug,
+    }, headers=headers)
+    assert page.status_code == 201, page.text
+    assert client.get(public_path).status_code == 404
+    added = client.post(f"/api/v1/admin/galleries/{gallery}/items", json={
+        "media_id": str(media["image"]), "alt_text": "First photo", "caption": "Opening",
+    }, headers=headers)
+    assert added.status_code == 201, added.text
+    foreign_media_category = uuid4()
+    with engine.begin() as db:
+        db.execute(text("INSERT INTO media_categories (id, institution_id, name, slug) "
+                        "VALUES (:id, :institution_id, 'Foreign', :slug)"),
+                   {"id": foreign_media_category, "institution_id": foreign,
+                    "slug": f"foreign-gallery-{foreign_media_category}"})
+        db.execute(text("UPDATE media SET category_id = :category_id WHERE id = :id"),
+                   {"category_id": foreign_media_category, "id": media["image"]})
+    try:
+        assert client.post(f"{PAGES}/{page.json()['id']}/publish", headers=headers).status_code == 409
+    finally:
+        with engine.begin() as db:
+            db.execute(text("UPDATE media SET category_id = NULL WHERE id = :id"), {"id": media["image"]})
+            db.execute(text("DELETE FROM media_categories WHERE id = :id"), {"id": foreign_media_category})
+    assert client.post(f"{PAGES}/{page.json()['id']}/publish", headers=headers).status_code == 200
+    block_id = page.json()["blocks"][1]["id"]
+    public = client.get(public_path)
+    assert public.status_code == 200, public.text
+    assert public.json()["gallery_feeds"][block_id] == [{
+        "media_id": str(media["image"]), "alt_text": "First photo", "caption": "Opening",
+    }]
+    assert "storage_key" not in public.text and "gallery_items" not in public.text
+    assert client.get(f"/api/v1/public/institutions/template-test-{foreign}/pages/{slug}").status_code == 404
+    assert client.get(f"{public_path}/gallery-media/{uuid4()}").status_code == 404
+    changed = client.put(f"/api/v1/admin/galleries/{gallery}/items/{added.json()['id']}", json={
+        "alt_text": "Updated photo", "caption": "New caption",
+    }, headers=headers)
+    assert changed.status_code == 200, changed.text
+    assert client.get(public_path).json()["gallery_feeds"][block_id][0]["alt_text"] == "Updated photo"
+    with engine.begin() as db:
+        db.execute(text("UPDATE media SET processing_status = 'PENDING' WHERE id = :id"), {"id": media["image"]})
+    assert client.get(public_path).json()["gallery_feeds"][block_id] == []
+    assert client.get(f"{public_path}/gallery-media/{media['image']}").status_code == 404
+    with engine.begin() as db:
+        db.execute(text("UPDATE media SET processing_status = 'READY' WHERE id = :id"), {"id": media["image"]})
 
 
 def test_references_and_snapshot_fail_closed(template_env):

@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from "vue";
 import RealTextBlocks from "~/components/RealTextBlocks.vue";
 import {
+  newGalleryBlock,
   newTextBlock,
   normalizeTextBlocks,
   type InstitutionChoice,
@@ -20,6 +21,8 @@ const busy = ref(false);
 const message = ref("");
 const institutions = ref<InstitutionChoice[]>([]);
 const templates = ref<PageTemplateChoice[]>([]);
+const galleries = ref<Array<{ id: string; title: string; institution_id: string | null }>>([]);
+const galleryId = ref("");
 const institutionId = ref("");
 const templateId = ref("");
 const title = ref("Nova página");
@@ -69,9 +72,12 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
 }
 
 async function loadChoices() {
-  [institutions.value, templates.value] = await Promise.all([
+  [institutions.value, templates.value, galleries.value] = await Promise.all([
     request<InstitutionChoice[]>("/api/v1/admin/page-institutions"),
     request<PageTemplateChoice[]>("/api/v1/admin/page-templates"),
+    request<Array<{ id: string; title: string; institution_id: string | null }>>(
+      "/api/v1/admin/galleries",
+    ),
   ]);
   institutionId.value ||= institutions.value[0]?.id ?? "";
   templateId.value = choices.value[0]?.id ?? "";
@@ -89,7 +95,8 @@ async function resume() {
     await loadChoices();
     if (typeof route.query.id === "string") {
       const saved = await request<PageDraft>(`/api/v1/admin/pages/${route.query.id}`);
-      if (saved.blocks.some((block) => block.type !== "TEXT")) throw new Error("Unsupported block");
+      if (saved.blocks.some((block) => !["TEXT", "GALLERY_FEED"].includes(block.type)))
+        throw new Error("Unsupported block");
       draft.value = saved;
     }
   } catch {
@@ -166,6 +173,10 @@ async function applyTemplate() {
 function addBlock() {
   if (draft.value) draft.value.blocks.push(newTextBlock(draft.value.blocks.length));
 }
+function addGalleryBlock() {
+  if (draft.value && galleryId.value)
+    draft.value.blocks.push(newGalleryBlock(draft.value.blocks.length, galleryId.value));
+}
 function removeBlock(index: number) {
   if (draft.value)
     draft.value.blocks = normalizeTextBlocks(draft.value.blocks.filter((_, i) => i !== index));
@@ -220,7 +231,7 @@ async function publish() {
       <section>
         <h1>Páginas</h1>
         <p class="builder-notice">
-          Experimento local: publica somente blocos de texto no banco dedicado de migração.
+          Experimento local: publica blocos de texto e galerias no banco dedicado de migração.
         </p>
         <p v-if="message" role="status">{{ message }}</p>
         <form v-if="!csrf" class="builder-card builder-fields" @submit.prevent="login">
@@ -288,14 +299,58 @@ async function publish() {
             :key="block.id"
             class="builder-card builder-fields"
           >
-            <h3>Bloco {{ index + 1 }}</h3>
+            <h3>Bloco {{ index + 1 }} · {{ block.type }}</h3>
             <label :for="`block-title-${index}`">Título do bloco</label
             ><input :id="`block-title-${index}`" v-model="block.data.title" />
-            <label :for="`block-body-${index}`">Texto do bloco</label
-            ><textarea :id="`block-body-${index}`" v-model="block.data.body" rows="5" />
+            <template v-if="block.type === 'TEXT'">
+              <label :for="`block-body-${index}`">Texto do bloco</label
+              ><textarea :id="`block-body-${index}`" v-model="block.data.body" rows="5" />
+            </template>
+            <template v-else-if="block.type === 'GALLERY_FEED'">
+              <label :for="`block-gallery-${index}`">Galeria do bloco</label>
+              <select :id="`block-gallery-${index}`" v-model="block.data.galleryId">
+                <option
+                  v-for="item in galleries.filter(
+                    (gallery) =>
+                      gallery.institution_id === null ||
+                      gallery.institution_id === draft?.institution_id,
+                  )"
+                  :key="item.id"
+                  :value="item.id"
+                >
+                  {{ item.title }}
+                </option>
+              </select>
+              <label :for="`block-limit-${index}`">Limite de imagens</label>
+              <input
+                :id="`block-limit-${index}`"
+                v-model.number="block.data.limit"
+                type="number"
+                min="1"
+                max="20"
+              />
+            </template>
             <button type="button" @click="removeBlock(index)">Remover bloco {{ index + 1 }}</button>
           </div>
           <button type="button" @click="addBlock">Adicionar bloco de texto</button>
+          <label for="new-gallery-block">Galeria para o novo bloco</label>
+          <select id="new-gallery-block" v-model="galleryId">
+            <option value="">Selecione uma galeria</option>
+            <option
+              v-for="item in galleries.filter(
+                (gallery) =>
+                  gallery.institution_id === null ||
+                  gallery.institution_id === draft?.institution_id,
+              )"
+              :key="item.id"
+              :value="item.id"
+            >
+              {{ item.title }}
+            </option>
+          </select>
+          <button type="button" :disabled="!galleryId" @click="addGalleryBlock">
+            Adicionar bloco de galeria
+          </button>
           <button type="button" :disabled="busy || published" @click="save">Salvar rascunho</button>
           <NuxtLink :to="`/admin/pages/${draft.id}/preview`">Abrir prévia salva</NuxtLink>
           <button

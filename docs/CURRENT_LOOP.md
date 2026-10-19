@@ -31,14 +31,15 @@
 - MIG 6 — primeira jornada de página Nuxt/FastAPI: aceita no banco de demonstração com Playwright/axe, sem paridade V1.
 - MIG 6-MEDIA — Biblioteca de Mídia integrada em FastAPI/Nuxt: concluída no banco local dedicado, inclusive Worker, exclusão, Playwright/axe; diferenças para o Next registradas em `docs/MVP_MEDIA_LIBRARY.md`.
 - MIG 6-EDITORIAL — categorias editoriais e galerias utilizáveis no Nuxt: concluído, com jornada Playwright/axe no banco dedicado.
-- **MIG 6-GALLERY-FEED — bloco público conectado à galeria real: loop atual.**
+- MIG 6-GALLERY-FEED — bloco público conectado à galeria real: concluído com API, SSR e Playwright/axe no banco dedicado.
+- **MIG 6-NEWS — primeira notícia publicável: loop atual.**
 
-## MIG 6-GALLERY-FEED — bloco público conectado à galeria real (atual)
+## MIG 6-NEWS — primeira notícia publicável (atual)
 
-Conectar o bloco `GALLERY_FEED` de uma página publicada à galeria e às imagens READY reais, sem duplicar os itens no `ContentBlock`. Entregar consulta pública segura por instituição/slug, projeção sanitizada dos itens ordenados e renderização Nuxt SSR acessível, inclusive textos alternativos. Aceite: ADMIN cria galeria e página com o bloco, publica, e um navegador anônimo visualiza imagens/ordem reais; alteração posterior da galeria segue a regra canônica de atualização do feed, com testes de isolamento institucional, mídia indisponível, API, Playwright/axe e checks aplicáveis. Se houver conflito entre snapshot da página e feed dinâmico, consultar o documento especializado e registrar decisão antes de implementá-lo.
+Entregar uma notícia editorial básica de ponta a ponta no banco dedicado: rascunho vinculado a uma ou mais instituições, categoria editorial, capa READY obrigatória somente para publicar, corpo em blocos permitidos para `ARTICLE` dentro da fatia, `ArticleVersion` imutável, listagem/detalhe públicos Nuxt SSR e autorização institucional/CSRF. O aceite exige que a equipe crie, salve, publique e visualize a notícia no navegador anônimo; testes devem cobrir escopo, mídia, snapshot, API, Playwright/axe e checks completos aplicáveis. Agrupar schema, serviço, estados e interface nesta jornada — não abrir um loop para cada camada. Delimitar explicitamente quaisquer blocos/tags/`NEWS_FEED` ainda não implementados, sem apresentá-los como paridade V1.
 
-A administração das galerias já funciona em `/admin/editorial` e a Biblioteca em `/admin/media`; reutilizar esses fluxos. Não antecipar artigos, estágio, busca, migração do banco preexistente nem retirada do Next/Nest. `portal_fumep` segue bloqueado para migrations Python até auditoria/adopção explícita; usar apenas o banco dedicado.
+Consultar a Fase 8 do plano, o documento especializado de Page Builder e o modelo lógico antes de alterar dados. Reutilizar categorias/mídia e a sessão existentes. Não antecipar estágio, busca, migração do banco preexistente nem retirada do Next/Nest. `portal_fumep` segue bloqueado para migrations Python até auditoria/adopção explícita; usar apenas o banco dedicado.
 
 ## Próximo loop
 
-**MIG 6 — próximo módulo editorial**, a definir após aceite do `GALLERY_FEED` público, com base nas lacunas restantes do plano canônico e sem tocar no banco preexistente ou retirar o legado sem decisão explícita.
+**MIG 6 — próximos módulos editoriais/`NEWS_FEED`**, a definir após o aceite da primeira notícia publicável, sem tocar no banco preexistente ou retirar o legado sem decisão explícita.

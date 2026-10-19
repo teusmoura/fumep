@@ -1,5 +1,5 @@
 # Runs media or editorial browser journeys against disposable local migration services.
-param([switch]$Editorial)
+param([switch]$Editorial, [switch]$GalleryFeed, [switch]$Page)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $pairs = @{}
@@ -65,10 +65,14 @@ with engine.begin() as db:
     if uid:
         keys.extend(db.execute(text("SELECT storage_key FROM media WHERE uploaded_by = :uid"), {"uid": uid}).scalars())
         keys.extend(db.execute(text("SELECT v.storage_key FROM media_variants v JOIN media m ON m.id = v.media_id WHERE m.uploaded_by = :uid"), {"uid": uid}).scalars())
+        db.execute(text("DELETE FROM audit_logs WHERE user_id = :uid"), {"uid": uid})
         db.execute(text("DELETE FROM media_usages WHERE media_id IN (SELECT id FROM media WHERE uploaded_by = :uid)"), {"uid": uid})
+        db.execute(text("DELETE FROM content_blocks WHERE owner_type = 'PAGE' AND owner_id IN (SELECT id FROM pages WHERE created_by = :uid)"), {"uid": uid})
+        db.execute(text("DELETE FROM pages WHERE created_by = :uid"), {"uid": uid})
+        db.execute(text("DELETE FROM page_templates WHERE created_by = :uid"), {"uid": uid})
         db.execute(text("DELETE FROM galleries WHERE created_by = :uid"), {"uid": uid})
         db.execute(text("DELETE FROM categories WHERE created_by = :uid"), {"uid": uid})
-        db.execute(text("DELETE FROM audit_logs WHERE user_id = :uid OR entity_id IN (SELECT id FROM media WHERE uploaded_by = :uid)"), {"uid": uid})
+        db.execute(text("DELETE FROM audit_logs WHERE entity_id IN (SELECT id FROM media WHERE uploaded_by = :uid)"), {"uid": uid})
         db.execute(text("DELETE FROM media WHERE uploaded_by = :uid"), {"uid": uid})
         db.execute(text("DELETE FROM media_categories WHERE created_by = :uid"), {"uid": uid})
         db.execute(text("DELETE FROM users WHERE id = :uid"), {"uid": uid})
@@ -103,7 +107,11 @@ try {
     if (-not $ready) { throw 'Serviços locais do E2E não iniciaram.' }
     Push-Location $portal
     try {
-        if ($Editorial) {
+        if ($GalleryFeed) {
+            pnpm test:e2e e2e/gallery-feed.e2e.ts
+        } elseif ($Page) {
+            pnpm test:e2e e2e/page-journey.e2e.ts
+        } elseif ($Editorial) {
             pnpm test:e2e e2e/editorial.e2e.ts
         } else {
             pnpm test:e2e e2e/media-library.e2e.ts
