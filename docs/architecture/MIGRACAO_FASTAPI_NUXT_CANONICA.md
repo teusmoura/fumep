@@ -41,3 +41,5 @@ As migrations Python seguem bloqueadas para o banco preexistente `portal_fumep`,
 6. **MIG 6 — Integração**: conectar interfaces ao FastAPI e aos serviços de dados, executar contratos/E2E/a11y, migrar operação e retirar legado somente após paridade demonstrada.
 
 Esta sequência é um roteiro de migração, não uma declaração de que todas as funcionalidades antigas já estão no ar. `docs/CURRENT_LOOP.md` identifica a fatia ativa; `docs/LOOP_STATUS.md` registra evidências.
+
+**Prioridade de demonstração aprovada em 2026-10-28:** na MIG 6, cada novo loop editorial deve entregar uma jornada utilizável no navegador com dados reais no banco dedicado, API, tela administrativa e projeção pública quando pertinente. O acabamento visual pode ser posterior; autorização, persistência, acessibilidade e testes essenciais continuam no aceite. Essa prioridade não altera a pilha aprovada, não libera migrations no banco preexistente e não autoriza remover o legado.

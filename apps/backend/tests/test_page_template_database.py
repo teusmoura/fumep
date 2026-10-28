@@ -26,14 +26,14 @@ def engine():
 
 def test_audited_baseline_and_template_table(engine):
     inspector = inspect(engine)
-    assert {"institutions", "users", "pages", "page_templates", "categories", "galleries", "gallery_items"}.issubset(inspector.get_table_names())
+    assert {"institutions", "users", "pages", "page_templates", "categories", "galleries", "gallery_items", "articles", "article_institutions", "article_categories", "article_versions"}.issubset(inspector.get_table_names())
     columns = {column["name"] for column in inspector.get_columns("page_templates")}
     assert columns == {
         "id", "institution_id", "name", "description", "blocks_snapshot",
         "is_active", "created_by", "created_at", "updated_at",
     }
     with engine.connect() as connection:
-        assert connection.scalar(text("select version_num from alembic_version")) == "20261005_03"
+        assert connection.scalar(text("select version_num from alembic_version")) == "20261028_04"
     category_columns = {column["name"] for column in inspector.get_columns("categories")}
     assert category_columns == {
         "id", "institution_id", "name", "slug", "description",

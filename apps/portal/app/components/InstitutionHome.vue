@@ -60,12 +60,15 @@ useHead(() => ({
       <div class="eyebrow">Portal institucional</div>
       <h1>{{ institution.name }}</h1>
       <p class="full-name">Ambiente digital da instituição</p>
-      <p class="intro">
-        Esta é a primeira funcionalidade da migração para Nuxt: navegação institucional, identidade
-        visual e preferência de aparência. Os conteúdos e serviços serão migrados em etapas e ainda
-        não estão conectados à API.
+      <p class="intro">Consulte as notícias publicadas e as páginas institucionais disponíveis.</p>
+      <p>
+        <NuxtLink :to="`/noticias/${institution.slug}`"
+          >Ver notícias de {{ institution.name }}</NuxtLink
+        >
       </p>
-      <p class="demo-notice" role="status">Demonstração local — sem dados persistidos.</p>
+      <p class="demo-notice" role="status">
+        Ambiente de migração local; as notícias são persistidas no banco dedicado.
+      </p>
     </main>
 
     <footer class="site-footer">Portal FUMEP · Migração funcional em andamento</footer>

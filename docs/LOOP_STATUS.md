@@ -1,5 +1,15 @@
 # LOOP STATUS
 
+## MIG 6-NEWS — concluído
+
+Primeira notícia utilizável no navegador: `/admin/noticias` cria, salva e publica rascunho com uma ou mais instituições, categoria real, capa READY com alt e blocos `TEXT`; `/noticias/<instituição>` e `/noticias/<instituição>/<slug>` mostram listagem/detalhe SSR anônimos. PostgreSQL dedicado recebeu `articles`, vínculos institucionais/categoria e `ArticleVersion` com snapshot imutável pela API. Sessão/CSRF, escopo, mídia, `MediaUsage`, slug único e publicação transacional são aplicados pelo FastAPI. Instruções e fronteira em `docs/MVP_NEWS.md`.
+
+Aceite: teste HTTP no PostgreSQL dedicado cobre rascunho incompleto, categoria/mídia/escopo, CSRF, uso da capa, snapshot, publicação única e leitura pública (**1 aprovado**); contrato isolado **3 aprovados**. Playwright/axe com PostgreSQL→Redis→Worker→MinIO comprovou upload de capa READY, categoria, criação, publicação, detalhe/listagem SSR anônimos e imagem pública (**1 aprovado**). Backend completo com integrações locais **318 aprovados**, 1 aviso transitivo Starlette/httpx. Nuxt typecheck, **37 testes**, build, Prettier focado, `pnpm lint`, `pip check`, `compileall` e `git diff --check` aprovados. O ESLint passou a ignorar caches pytest inacessíveis; Vitest em sandbox teve `ENOENT` transitório, mas passou integralmente fora dele. Legado não alterado.
+
+`architecture-guard`: conforme com observação — integração visível permanece restrita à MIG 6 no banco dedicado, com MinIO privado e autorização no backend. Sem agendamento, tags, blocos além de `TEXT`, edição pós-publicação, `NEWS_FEED`, busca, estágio ou paridade V1. Próximo loop: `MIG 6-NEWS-FEED`, bloco público de notícias reais configurável no editor de páginas.
+
+Git já tinha `output/` e `tmp/` não rastreados antes deste loop; foram preservados e não entram no commit.
+
 ## MIG 6-GALLERY-FEED — concluído
 
 Página publicada aceita `TEXT` e `GALLERY_FEED`: `PageVersion` preserva somente configuração do bloco e a API pública consulta itens reais ordenados, limitados, prontos e no escopo institucional. Imagens privadas são servidas sem sessão apenas quando pertencem a um bloco visível de página publicada, com leitura limitada, `no-store` e sem chave MinIO. Nuxt SSR renderiza lista acessível com texto alternativo/legenda; o editor de páginas permite adicionar/configurar o bloco. Publicação recusa itens indisponíveis ou fora do escopo. Edição posterior da galeria aparece na próxima leitura, sem alterar o snapshot. Instruções em `docs/MVP_GALLERY_FEED.md`.

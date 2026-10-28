@@ -21,6 +21,7 @@ export default defineConfig([
     "**/.next/**",
     "**/.nuxt/**",
     "**/.output/**",
+    "**/.pytest_cache/",
     "**/dist/**",
     "**/node_modules/**",
     "coverage/**",

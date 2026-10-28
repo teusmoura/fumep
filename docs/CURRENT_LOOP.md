@@ -32,14 +32,15 @@
 - MIG 6-MEDIA — Biblioteca de Mídia integrada em FastAPI/Nuxt: concluída no banco local dedicado, inclusive Worker, exclusão, Playwright/axe; diferenças para o Next registradas em `docs/MVP_MEDIA_LIBRARY.md`.
 - MIG 6-EDITORIAL — categorias editoriais e galerias utilizáveis no Nuxt: concluído, com jornada Playwright/axe no banco dedicado.
 - MIG 6-GALLERY-FEED — bloco público conectado à galeria real: concluído com API, SSR e Playwright/axe no banco dedicado.
-- **MIG 6-NEWS — primeira notícia publicável: loop atual.**
+- MIG 6-NEWS — primeira notícia publicável: concluído; evidências em `docs/LOOP_STATUS.md`.
+- **MIG 6-NEWS-FEED — notícias reais em páginas públicas: loop atual.**
 
-## MIG 6-NEWS — primeira notícia publicável (atual)
+## MIG 6-NEWS-FEED — notícias reais em páginas públicas (atual)
 
-Entregar uma notícia editorial básica de ponta a ponta no banco dedicado: rascunho vinculado a uma ou mais instituições, categoria editorial, capa READY obrigatória somente para publicar, corpo em blocos permitidos para `ARTICLE` dentro da fatia, `ArticleVersion` imutável, listagem/detalhe públicos Nuxt SSR e autorização institucional/CSRF. O aceite exige que a equipe crie, salve, publique e visualize a notícia no navegador anônimo; testes devem cobrir escopo, mídia, snapshot, API, Playwright/axe e checks completos aplicáveis. Agrupar schema, serviço, estados e interface nesta jornada — não abrir um loop para cada camada. Delimitar explicitamente quaisquer blocos/tags/`NEWS_FEED` ainda não implementados, sem apresentá-los como paridade V1.
+Conectar o bloco `NEWS_FEED` a notícias publicadas reais em páginas criadas no editor Nuxt. Permitir configurar instituições, categorias e limite; validar autorização e referências no FastAPI, projetar somente notícias públicas no escopo e renderizar cartões acessíveis com capa, título, resumo e link para detalhe. O aceite exige criar uma notícia, inserir/configurar o feed em uma página, publicar e visualizar os cartões no navegador anônimo, com testes API/Playwright/axe e checks aplicáveis. Não apresentar fixtures como notícias reais nem abrir loops técnicos separados para cada camada.
 
-Consultar a Fase 8 do plano, o documento especializado de Page Builder e o modelo lógico antes de alterar dados. Reutilizar categorias/mídia e a sessão existentes. Não antecipar estágio, busca, migração do banco preexistente nem retirada do Next/Nest. `portal_fumep` segue bloqueado para migrations Python até auditoria/adopção explícita; usar apenas o banco dedicado.
+Consultar o trecho `NEWS_FEED` da Fase 8, Page Builder e modelo lógico. Reutilizar `MIG 6-NEWS`; não antecipar agendamento, tags, estágio, busca, migração do banco preexistente ou retirada do Next/Nest. `portal_fumep` segue bloqueado para migrations Python até auditoria/adopção explícita; usar apenas o banco dedicado.
 
 ## Próximo loop
 
-**MIG 6 — próximos módulos editoriais/`NEWS_FEED`**, a definir após o aceite da primeira notícia publicável, sem tocar no banco preexistente ou retirar o legado sem decisão explícita.
+**MIG 6 — próximo módulo editorial visível**, a definir após o aceite do feed, sem tocar no banco preexistente ou retirar o legado sem decisão explícita.

@@ -373,6 +373,7 @@ async function deleteItem(item: Item) {
       <NuxtLink to="/">FUMEP</NuxtLink>
       <span>Categorias e galerias · migração</span>
       <NuxtLink to="/admin/media">Biblioteca de Mídia</NuxtLink>
+      <NuxtLink to="/admin/noticias">Notícias</NuxtLink>
     </header>
     <main id="editorial-main" class="builder-layout">
       <section>
