@@ -14,6 +14,7 @@ from app.admin_access import Actor, actor, require_scope
 from app.page_template_service import TemplateReferenceConflict, add_media_usages, validate_references
 from app.page_templates_http import _engine
 from app.template_blocks import BlockSnapshot, validate_snapshot
+from app.news_feed import validate_news_feed_scope
 
 router = APIRouter(prefix="/api/v1/admin/pages", tags=["page drafts"])
 
@@ -94,6 +95,7 @@ def save_draft(page_id: UUID, payload: DraftSave, response: Response,
                 raise HTTPException(status_code=409, detail="Page is not a draft")
             if payload.blocks:
                 validate_references(db, payload.blocks, page.institution_id)
+                validate_news_feed_scope(db, payload.blocks, principal, page.institution_id)
             db.execute(text("DELETE FROM media_usages WHERE entity_type = 'CONTENT_BLOCK' "
                             "AND entity_id IN (SELECT id FROM content_blocks WHERE owner_type = 'PAGE' "
                             "AND owner_id = :id)"), {"id": page_id})
@@ -152,9 +154,10 @@ def publish_page(page_id: UUID, response: Response, principal: Actor = Depends(a
             if not draft.blocks:
                 raise HTTPException(status_code=409, detail="Page requires content before publication")
             validate_snapshot(draft.blocks)
-            if any(block.type not in {"TEXT", "GALLERY_FEED"} for block in draft.blocks):
-                raise HTTPException(status_code=409, detail="Experimental public renderer supports TEXT and GALLERY_FEED only")
+            if any(block.type not in {"TEXT", "GALLERY_FEED", "NEWS_FEED"} for block in draft.blocks):
+                raise HTTPException(status_code=409, detail="Experimental public renderer supports TEXT, GALLERY_FEED and NEWS_FEED only")
             validate_references(db, draft.blocks, page.institution_id)
+            validate_news_feed_scope(db, draft.blocks, principal, page.institution_id)
             for block in draft.blocks:
                 if block.type != "GALLERY_FEED" or not block.isVisible:
                     continue

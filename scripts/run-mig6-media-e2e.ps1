@@ -1,5 +1,5 @@
 # Runs media or editorial browser journeys against disposable local migration services.
-param([switch]$Editorial, [switch]$GalleryFeed, [switch]$Page, [switch]$News)
+param([switch]$Editorial, [switch]$GalleryFeed, [switch]$Page, [switch]$News, [switch]$NewsFeed)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $pairs = @{}
@@ -110,7 +110,9 @@ try {
     if (-not $ready) { throw 'Serviços locais do E2E não iniciaram.' }
     Push-Location $portal
     try {
-        if ($News) {
+        if ($NewsFeed) {
+            pnpm test:e2e e2e/news-feed.e2e.ts
+        } elseif ($News) {
             pnpm test:e2e e2e/news-journey.e2e.ts
         } elseif ($GalleryFeed) {
             pnpm test:e2e e2e/gallery-feed.e2e.ts

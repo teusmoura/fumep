@@ -3,6 +3,7 @@ import { computed, onMounted, ref, watch } from "vue";
 import RealTextBlocks from "~/components/RealTextBlocks.vue";
 import {
   newGalleryBlock,
+  newNewsFeedBlock,
   newTextBlock,
   normalizeTextBlocks,
   type InstitutionChoice,
@@ -22,6 +23,7 @@ const message = ref("");
 const institutions = ref<InstitutionChoice[]>([]);
 const templates = ref<PageTemplateChoice[]>([]);
 const galleries = ref<Array<{ id: string; title: string; institution_id: string | null }>>([]);
+const categories = ref<Array<{ id: string; name: string; institution_id: string | null }>>([]);
 const galleryId = ref("");
 const institutionId = ref("");
 const templateId = ref("");
@@ -71,12 +73,23 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+async function readWithRetry<T>(path: string): Promise<T> {
+  try {
+    return await request<T>(path);
+  } catch {
+    return request<T>(path);
+  }
+}
+
 async function loadChoices() {
-  [institutions.value, templates.value, galleries.value] = await Promise.all([
-    request<InstitutionChoice[]>("/api/v1/admin/page-institutions"),
-    request<PageTemplateChoice[]>("/api/v1/admin/page-templates"),
-    request<Array<{ id: string; title: string; institution_id: string | null }>>(
+  [institutions.value, templates.value, galleries.value, categories.value] = await Promise.all([
+    readWithRetry<InstitutionChoice[]>("/api/v1/admin/page-institutions"),
+    readWithRetry<PageTemplateChoice[]>("/api/v1/admin/page-templates"),
+    readWithRetry<Array<{ id: string; title: string; institution_id: string | null }>>(
       "/api/v1/admin/galleries",
+    ),
+    readWithRetry<Array<{ id: string; name: string; institution_id: string | null }>>(
+      "/api/v1/admin/categories",
     ),
   ]);
   institutionId.value ||= institutions.value[0]?.id ?? "";
@@ -85,7 +98,9 @@ async function loadChoices() {
 
 async function resume() {
   try {
-    const session = await request<{ csrf_token: string; role: string }>("/api/v1/admin/session");
+    const session = await readWithRetry<{ csrf_token: string; role: string }>(
+      "/api/v1/admin/session",
+    );
     csrf.value = session.csrf_token;
   } catch {
     csrf.value = "";
@@ -94,8 +109,8 @@ async function resume() {
   try {
     await loadChoices();
     if (typeof route.query.id === "string") {
-      const saved = await request<PageDraft>(`/api/v1/admin/pages/${route.query.id}`);
-      if (saved.blocks.some((block) => !["TEXT", "GALLERY_FEED"].includes(block.type)))
+      const saved = await readWithRetry<PageDraft>(`/api/v1/admin/pages/${route.query.id}`);
+      if (saved.blocks.some((block) => !["TEXT", "GALLERY_FEED", "NEWS_FEED"].includes(block.type)))
         throw new Error("Unsupported block");
       draft.value = saved;
     }
@@ -104,6 +119,18 @@ async function resume() {
   }
 }
 onMounted(resume);
+
+async function reloadChoices() {
+  busy.value = true;
+  try {
+    await loadChoices();
+    message.value = "Dados de página atualizados.";
+  } catch {
+    message.value = "Não foi possível carregar os dados de página desta sessão.";
+  } finally {
+    busy.value = false;
+  }
+}
 
 async function login() {
   busy.value = true;
@@ -177,6 +204,9 @@ function addGalleryBlock() {
   if (draft.value && galleryId.value)
     draft.value.blocks.push(newGalleryBlock(draft.value.blocks.length, galleryId.value));
 }
+function addNewsBlock() {
+  if (draft.value) draft.value.blocks.push(newNewsFeedBlock(draft.value.blocks.length));
+}
 function removeBlock(index: number) {
   if (draft.value)
     draft.value.blocks = normalizeTextBlocks(draft.value.blocks.filter((_, i) => i !== index));
@@ -231,9 +261,12 @@ async function publish() {
       <section>
         <h1>Páginas</h1>
         <p class="builder-notice">
-          Experimento local: publica blocos de texto e galerias no banco dedicado de migração.
+          Experimento local: publica texto, galerias e notícias reais no banco dedicado de migração.
         </p>
         <p v-if="message" role="status">{{ message }}</p>
+        <button v-if="csrf && !draft" type="button" :disabled="busy" @click="reloadChoices">
+          Recarregar dados de página
+        </button>
         <form v-if="!csrf" class="builder-card builder-fields" @submit.prevent="login">
           <h2>Entrar como administrador</h2>
           <label for="login-email">E-mail</label
@@ -330,6 +363,42 @@ async function publish() {
                 max="20"
               />
             </template>
+            <template v-else-if="block.type === 'NEWS_FEED'">
+              <fieldset>
+                <legend>Instituições do feed</legend>
+                <p>Sem seleção: notícias da instituição desta página.</p>
+                <label v-for="item in institutions" :key="item.id">
+                  <input v-model="block.data.institutionIds" type="checkbox" :value="item.id" />
+                  {{ item.name }}
+                </label>
+              </fieldset>
+              <fieldset>
+                <legend>Categorias do feed</legend>
+                <p>Sem seleção: todas as categorias das instituições escolhidas.</p>
+                <label
+                  v-for="item in categories.filter(
+                    (category) =>
+                      category.institution_id === null ||
+                      (block.type === 'NEWS_FEED' &&
+                        (block.data.institutionIds.length
+                          ? block.data.institutionIds.includes(category.institution_id)
+                          : category.institution_id === draft?.institution_id)),
+                  )"
+                  :key="item.id"
+                >
+                  <input v-model="block.data.categoryIds" type="checkbox" :value="item.id" />
+                  {{ item.name }}
+                </label>
+              </fieldset>
+              <label :for="`block-news-limit-${index}`">Limite de notícias</label>
+              <input
+                :id="`block-news-limit-${index}`"
+                v-model.number="block.data.limit"
+                type="number"
+                min="1"
+                max="12"
+              />
+            </template>
             <button type="button" @click="removeBlock(index)">Remover bloco {{ index + 1 }}</button>
           </div>
           <button type="button" @click="addBlock">Adicionar bloco de texto</button>
@@ -351,6 +420,7 @@ async function publish() {
           <button type="button" :disabled="!galleryId" @click="addGalleryBlock">
             Adicionar bloco de galeria
           </button>
+          <button type="button" @click="addNewsBlock">Adicionar bloco de notícias</button>
           <button type="button" :disabled="busy || published" @click="save">Salvar rascunho</button>
           <NuxtLink :to="`/admin/pages/${draft.id}/preview`">Abrir prévia salva</NuxtLink>
           <button

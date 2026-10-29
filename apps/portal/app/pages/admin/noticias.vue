@@ -120,14 +120,33 @@ onMounted(async () => {
     /* disabled */
   }
   try {
-    const session = await request<{ csrf_token: string; role: string }>("/api/v1/admin/session");
+    const session = await request<{ csrf_token: string; role: string }>(
+      "/api/v1/admin/session",
+    ).catch(() => request<{ csrf_token: string; role: string }>("/api/v1/admin/session"));
     csrf.value = session.csrf_token;
     role.value = session.role;
-    await loadData();
   } catch {
     csrf.value = "";
+    return;
+  }
+  try {
+    await loadData();
+  } catch (error) {
+    message.value = error instanceof Error ? error.message : "Não foi possível carregar os dados.";
   }
 });
+
+async function reloadData() {
+  busy.value = true;
+  message.value = "";
+  try {
+    await loadData();
+  } catch (error) {
+    message.value = error instanceof Error ? error.message : "Não foi possível carregar os dados.";
+  } finally {
+    busy.value = false;
+  }
+}
 
 async function enter(profile?: string) {
   busy.value = true;
@@ -280,6 +299,7 @@ async function publish() {
           <button type="submit" :disabled="busy">Entrar</button>
         </form>
         <template v-else>
+          <button type="button" :disabled="busy" @click="reloadData">Recarregar notícias</button>
           <section class="builder-card builder-fields" aria-label="Notícias cadastradas">
             <h2>Notícias cadastradas</h2>
             <button type="button" :disabled="busy" @click="newArticle">Nova notícia</button>

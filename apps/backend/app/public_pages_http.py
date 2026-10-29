@@ -15,6 +15,7 @@ from app.template_blocks import BlockSnapshot
 from app.media_http import _storage
 from app.image_upload_validation import MAX_IMAGE_BYTES
 from app.original_image_storage import PRIVATE_BUCKET, _require_original_key
+from app.news_feed import NewsCard, live_news
 
 router = APIRouter(prefix="/api/v1/public/institutions", tags=["published pages"])
 
@@ -47,6 +48,7 @@ class PublicPage(BaseModel):
     version_number: int
     blocks: list[BlockSnapshot]
     gallery_feeds: dict[str, list[PublicGalleryItem]]
+    news_feeds: dict[str, list[NewsCard]]
 
 
 def _published(db: Session, institution_slug: str, page_slug: str):
@@ -92,10 +94,14 @@ def get_published_page(institution_slug: str, page_slug: str, response: Response
                 }) for item in _gallery_items(db, UUID(block.data["galleryId"]), row.institution_id, block.data["limit"])]
                 for block in blocks if block.type == "GALLERY_FEED" and block.isVisible
             }
+            news_feeds = {
+                str(block.id): live_news(db, block, row.institution_id)
+                for block in blocks if block.type == "NEWS_FEED" and block.isVisible
+            }
             return PublicPage(id=row.id, institution_slug=institution_slug,
                               title=snapshot["title"], slug=snapshot["slug"],
                               version_number=row.version_number,
-                              blocks=blocks, gallery_feeds=feeds)
+                              blocks=blocks, gallery_feeds=feeds, news_feeds=news_feeds)
     except SQLAlchemyError as error:
         raise HTTPException(status_code=503, detail="Published page unavailable") from error
 

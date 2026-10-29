@@ -33,14 +33,15 @@
 - MIG 6-EDITORIAL — categorias editoriais e galerias utilizáveis no Nuxt: concluído, com jornada Playwright/axe no banco dedicado.
 - MIG 6-GALLERY-FEED — bloco público conectado à galeria real: concluído com API, SSR e Playwright/axe no banco dedicado.
 - MIG 6-NEWS — primeira notícia publicável: concluído; evidências em `docs/LOOP_STATUS.md`.
-- **MIG 6-NEWS-FEED — notícias reais em páginas públicas: loop atual.**
+- MIG 6-NEWS-FEED — notícias reais em páginas públicas: concluído; evidências em `docs/LOOP_STATUS.md`.
+- **MIG 6-COURSES — primeira jornada de curso visível: loop atual.**
 
-## MIG 6-NEWS-FEED — notícias reais em páginas públicas (atual)
+## MIG 6-COURSES — primeira jornada de curso visível (atual)
 
-Conectar o bloco `NEWS_FEED` a notícias publicadas reais em páginas criadas no editor Nuxt. Permitir configurar instituições, categorias e limite; validar autorização e referências no FastAPI, projetar somente notícias públicas no escopo e renderizar cartões acessíveis com capa, título, resumo e link para detalhe. O aceite exige criar uma notícia, inserir/configurar o feed em uma página, publicar e visualizar os cartões no navegador anônimo, com testes API/Playwright/axe e checks aplicáveis. Não apresentar fixtures como notícias reais nem abrir loops técnicos separados para cada camada.
+Entregar a primeira jornada completa de curso no banco dedicado de migração: administração FastAPI/Nuxt com instituição, dados básicos, ofertas, status e mídias/documentos exigidos pelo modelo canônico; listagem e página pública SSR coerentes com o status. O aceite deve permitir criar/editar um curso no navegador, configurar ao menos uma oferta, publicar ou ativar conforme as regras canônicas e conferir listagem/detalhe em janela anônima. Incluir autorização institucional, validação de mídias, testes API/Playwright/axe e checks aplicáveis. Tratar contrato, armazenamento, serviço e tela como partes do mesmo loop funcional, não como loops técnicos separados.
 
-Consultar o trecho `NEWS_FEED` da Fase 8, Page Builder e modelo lógico. Reutilizar `MIG 6-NEWS`; não antecipar agendamento, tags, estágio, busca, migração do banco preexistente ou retirada do Next/Nest. `portal_fumep` segue bloqueado para migrations Python até auditoria/adopção explícita; usar apenas o banco dedicado.
+Consultar a Fase 9 do plano canônico, manifesto, modelo lógico e documentos especializados de cursos. Reutilizar as sessões, mídia e padrões de publicação já aceitos; não antecipar `COURSE_FEED`, eventos, busca, migração do banco preexistente ou retirada do Next/Nest. `portal_fumep` segue bloqueado para migrations Python até auditoria/adopção explícita; usar apenas o banco dedicado. Se houver ambiguidade grave entre o modelo e as regras de ativação/publicação, registrar em `docs/ISSUES_ARCHITECTURE.md` antes de decidir.
 
 ## Próximo loop
 
-**MIG 6 — próximo módulo editorial visível**, a definir após o aceite do feed, sem tocar no banco preexistente ou retirar o legado sem decisão explícita.
+**MIG 6-COURSE-FEED** — conectar cursos ativos reais ao bloco público `COURSE_FEED` após o aceite da jornada de curso, sem tocar no banco preexistente ou retirar o legado sem decisão explícita.

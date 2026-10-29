@@ -31,6 +31,8 @@ useHead({ title: `${page.value.title} — Portal FUMEP` });
         :blocks="page.blocks"
         :gallery-feeds="page.gallery_feeds"
         :media-base="mediaBase"
+        :news-feeds="page.news_feeds"
+        :news-api-base="config.public.apiBase"
       />
     </main>
   </div>

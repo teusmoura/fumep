@@ -29,6 +29,7 @@ def validate_references(db: Session, blocks: list[BlockSnapshot], institution_id
     media: dict[UUID, str] = {}
     institutions: set[UUID] = set()
     categories: set[UUID] = set()
+    category_scopes: dict[UUID, list[set[UUID | None]]] = {}
     galleries: set[UUID] = set()
     for block in blocks:
         block_media, block_institutions, block_categories, block_galleries = block_references(block)
@@ -38,6 +39,12 @@ def validate_references(db: Session, blocks: list[BlockSnapshot], institution_id
             media[media_id] = kind
         institutions.update(block_institutions)
         categories.update(block_categories)
+        allowed_feed_institutions = (
+            {UUID(value) for value in block.data["institutionIds"]} or {institution_id}
+            if block.type == "NEWS_FEED" else {institution_id}
+        )
+        for category_id in block_categories:
+            category_scopes.setdefault(category_id, []).append(allowed_feed_institutions)
         galleries.update(block_galleries)
     for target_id in sorted(institutions):
         result = db.execute(text("SELECT is_active FROM institutions WHERE id = :id FOR SHARE"), {"id": target_id}).first()
@@ -45,7 +52,9 @@ def validate_references(db: Session, blocks: list[BlockSnapshot], institution_id
             raise TemplateReferenceConflict("Feed institution is not usable")
     for target_id in sorted(categories):
         category = db.scalar(select(CategoryRow).where(CategoryRow.id == target_id).with_for_update(read=True))
-        if category is None or (category.institution_id is not None and category.institution_id != institution_id):
+        if category is None or (category.institution_id is not None and any(
+            category.institution_id not in allowed for allowed in category_scopes[target_id]
+        )):
             raise TemplateReferenceConflict("Category is not available in template scope")
     for target_id in sorted(galleries):
         gallery = db.scalar(select(GalleryRow).where(GalleryRow.id == target_id).with_for_update(read=True))

@@ -1,5 +1,13 @@
 # LOOP STATUS
 
+## MIG 6-NEWS-FEED — concluído
+
+`NEWS_FEED` agora usa notícias publicadas reais na página pública SSR. O editor configura instituições, categorias e limite de 1–12; FastAPI valida escopo e referências no salvamento/publicação. `PageVersion` guarda apenas os filtros; cada leitura consulta versões publicadas, instituições ativas e capas READY, em ordem da publicação mais recente. Os cartões acessíveis mostram capa, título, resumo, data e link para o detalhe, sem chave MinIO. Instruções em `docs/MVP_NEWS_FEED.md`.
+
+Aceite: teste HTTP no PostgreSQL dedicado verificou escopo de EDITOR, categoria inválida, feed vazio, aparecimento dinâmico após publicar notícia, snapshot sem cópia de conteúdo e ausência de chave interna (**1 aprovado**). Playwright/axe percorreu upload→Worker READY→categoria→notícia→página→feed→leitura anônima com imagem/detalhe (**1 aprovado**); regressões de galeria (**1**) e página (**2**) aprovadas. Backend completo com PostgreSQL/Redis/MinIO locais **319 aprovados** (1 aviso transitivo Starlette/httpx). Nuxt typecheck, **37 testes**, build, `pnpm lint`, Prettier focado, `pip check`, `compileall` e `git diff --check` aprovados. Vitest encontrou `ENOENT` em temporário do sandbox; a suíte completa passou fora dele. O editor ganhou repetição de leituras e recarga para falha transitória identificada pelo E2E. Legado inalterado.
+
+`architecture-guard`: conforme com observação — integração restrita ao banco dedicado de migração; publicação pública dinâmica sem cache, sessão/CSRF e autorização no backend preservadas. Sem agendamento, tags, estágio, busca, migração de `portal_fumep` ou remoção do legado. Próximo loop: jornada visível de cursos. `output/` e `tmp/` já estavam não rastreados antes do loop, foram preservados fora do commit.
+
 ## MIG 6-NEWS — concluído
 
 Primeira notícia utilizável no navegador: `/admin/noticias` cria, salva e publica rascunho com uma ou mais instituições, categoria real, capa READY com alt e blocos `TEXT`; `/noticias/<instituição>` e `/noticias/<instituição>/<slug>` mostram listagem/detalhe SSR anônimos. PostgreSQL dedicado recebeu `articles`, vínculos institucionais/categoria e `ArticleVersion` com snapshot imutável pela API. Sessão/CSRF, escopo, mídia, `MediaUsage`, slug único e publicação transacional são aplicados pelo FastAPI. Instruções e fronteira em `docs/MVP_NEWS.md`.

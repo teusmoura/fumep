@@ -22,11 +22,39 @@ export interface GalleryBlock {
   data: { galleryId: string; title: string; limit: number };
 }
 
-export type PageBlock = TextBlock | GalleryBlock;
+export interface NewsFeedBlock {
+  id: string;
+  type: "NEWS_FEED";
+  position: number;
+  isVisible: boolean;
+  schemaVersion: 1;
+  background: "DEFAULT";
+  backgroundMediaId: null;
+  anchor: string | null;
+  data: {
+    title: string;
+    institutionIds: string[];
+    categoryIds: string[];
+    limit: number;
+    order: "DEFAULT";
+  };
+}
+
+export type PageBlock = TextBlock | GalleryBlock | NewsFeedBlock;
 export interface PublicGalleryItem {
   media_id: string;
   alt_text: string;
   caption: string | null;
+}
+
+export interface PublicNewsCard {
+  article_id: string;
+  institution_slug: string;
+  title: string;
+  slug: string;
+  summary: string | null;
+  cover_image_alt: string;
+  published_at: string;
 }
 
 export interface PageDraft {
@@ -60,6 +88,7 @@ export interface PublicPage {
   version_number: number;
   blocks: PageBlock[];
   gallery_feeds: Record<string, PublicGalleryItem[]>;
+  news_feeds: Record<string, PublicNewsCard[]>;
 }
 
 export function newTextBlock(
@@ -91,6 +120,20 @@ export function newGalleryBlock(position: number, galleryId: string): GalleryBlo
     backgroundMediaId: null,
     anchor: null,
     data: { galleryId, title: "Galeria", limit: 10 },
+  };
+}
+
+export function newNewsFeedBlock(position: number): NewsFeedBlock {
+  return {
+    id: crypto.randomUUID(),
+    type: "NEWS_FEED",
+    position,
+    isVisible: true,
+    schemaVersion: 1,
+    background: "DEFAULT",
+    backgroundMediaId: null,
+    anchor: null,
+    data: { title: "Notícias", institutionIds: [], categoryIds: [], limit: 6, order: "DEFAULT" },
   };
 }
 
